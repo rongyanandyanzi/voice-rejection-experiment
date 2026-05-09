@@ -1,0 +1,6 @@
+data/
+participants.csv
+interactions.csv
+experiment_data.xlsx
+.DS_Store
+node_modules/

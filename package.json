@@ -1,0 +1,13 @@
+{
+  "name": "voice-rejection-experiment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aetheria Gardens online experiment with server-side data recording.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

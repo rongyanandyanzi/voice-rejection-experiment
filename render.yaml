@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: voice-rejection-experiment
+    env: node
+    plan: starter
+    buildCommand: ""
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_TOKEN
+        generateValue: true
+    disk:
+      name: experiment-data
+      mountPath: /var/data
+      sizeGB: 1
