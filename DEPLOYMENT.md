@@ -17,6 +17,7 @@ Set `DATA_DIR` to a persistent disk or volume path. The server writes:
 
 - `participants.csv`
 - `interactions.csv`
+- `survey_responses.csv`
 - `experiment_data.xlsx`
 
 Do not deploy on a platform/filesystem where server files disappear on restart unless you attach a persistent volume.
@@ -62,6 +63,7 @@ If `ADMIN_TOKEN` is set, authorized downloads are available at:
 ```text
 https://YOUR-SERVICE.onrender.com/admin/download/participants.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/interactions.csv?token=YOUR_ADMIN_TOKEN
+https://YOUR-SERVICE.onrender.com/admin/download/survey_responses.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/experiment_data.xlsx?token=YOUR_ADMIN_TOKEN
 ```
 
@@ -99,6 +101,7 @@ Confirm that these files are not pushed:
 
 - `participants.csv`
 - `interactions.csv`
+- `survey_responses.csv`
 - `experiment_data.xlsx`
 - `data/`
 
@@ -152,6 +155,7 @@ Go through a few chat messages. Then check data download:
 ```text
 https://voice-rejection-experiment.onrender.com/admin/download/participants.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/interactions.csv?token=YOUR_ADMIN_TOKEN
+https://voice-rejection-experiment.onrender.com/admin/download/survey_responses.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/experiment_data.xlsx?token=YOUR_ADMIN_TOKEN
 ```
 

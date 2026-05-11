@@ -39,6 +39,7 @@
     coworkerTurnActive: false,
     pendingCoworkerInputs: [],
     decisionShown: false,
+    surveyStartTime: "",
     lastManagerShowedTyping: false,
     busy: false,
   };
@@ -56,6 +57,10 @@
     completed_lisa_john_interaction: storedSession.completed_lisa_john_interaction || "false",
     chose_to_bring_this_up_with_manager: storedSession.chose_to_bring_this_up_with_manager || "not_reached",
     completed_neutral_manager_followup: storedSession.completed_neutral_manager_followup || "false",
+    completed_post_interaction_survey: storedSession.completed_post_interaction_survey || "false",
+    survey_completion_status: storedSession.survey_completion_status || "not_reached",
+    survey_start_time: storedSession.survey_start_time || "",
+    survey_submit_time: storedSession.survey_submit_time || "",
     completion_status: storedSession.completion_status || "partial",
   };
   const interactionBackup = Array.isArray(storedSession.interactions) ? storedSession.interactions : [];
@@ -114,6 +119,94 @@
     "What information are you basing this on?",
     "What would be the first step if the park were to consider this?",
   ];
+
+  const likertOptions = [
+    "Strongly disagree",
+    "Disagree",
+    "Neither agree nor disagree",
+    "Agree",
+    "Strongly agree",
+  ];
+
+  const surveySections = [
+    {
+      title: "Future Communication Intentions",
+      instruction: "Before receiving the manager's feedback, please indicate your next steps and how you intend to proceed with your proposal.",
+      items: [
+        { id: "VF1", text: "I will take the initiative multiple times to propose specific improvements for attracting more visitors during off-season weekdays." },
+        { id: "VF2", text: "I will make a point to suggest new ways to attract nearby university students." },
+        { id: "VF3", text: "Even if the manager seems dismissive, I will persist in communicating my alternative views on how the park can improve off-season weekday attendance." },
+        { id: "VF4", text: "I will take every opportunity during the session to share proactive ideas on expanding the park's visitor base beyond families with young children." },
+        { id: "VF5", text: "I will be a lead contributor throughout the discussion regarding how to attract nearby university students and make better use of the park's surrounding environment." },
+        { id: "VF6", text: "I will repeatedly offer my own constructive suggestions and ideas to improve the park's visitor strategy during off-season weekdays." },
+      ],
+    },
+    {
+      title: "Proposal Preparation Intentions",
+      instruction: "Before receiving the manager's feedback, please indicate how you intend to improve the quality of your proposal.",
+      items: [
+        { id: "VQ1", text: "When presenting my suggestion, I will strive to showcase a well-researched proposal backed by entrance records, visitor comments, and location information." },
+        { id: "VQ2", text: "When offering my opinions, I will make every effort to address the manager's specific concerns regarding visitor demand, feasibility, and park operations." },
+        { id: "VQ3", text: "When proposing ways to attract nearby university students, I will attempt to clarify any doubts the manager might have about whether this visitor group is suitable for the park." },
+        { id: "VQ4", text: "When pointing out the limitations of relying mainly on families with young children, I will prepare a clear, actionable solution for the manager." },
+      ],
+    },
+    {
+      title: "Perceived Reasons for Manager Response",
+      instruction: "Please indicate why you think the manager rejected your suggestion about the labor plan.",
+      stem: "The manager rejected my suggestion because...",
+      groups: [
+        {
+          label: "Manager-related reasons",
+          items: [
+            { id: "MR1", text: "The manager was influenced by their emotions." },
+            { id: "MR2", text: "The manager wanted to demonstrate their authority." },
+            { id: "MR3", text: "The manager personally disliked me." },
+          ],
+        },
+        {
+          label: "Proposal-related reasons",
+          items: [
+            { id: "PR1", text: "My proposal for improvement was mediocre." },
+            { id: "PR2", text: "My suggestion did not really improve the current methods or practices." },
+            { id: "PR3", text: "The changes I suggested for work arrangements did not really help much." },
+            { id: "PR4", text: "I made impractical recommendations about how to fix work-related problems." },
+            { id: "PR5", text: "My suggestion was not very useful." },
+          ],
+        },
+      ],
+    },
+    {
+      title: "Perceived Tone of Manager Response",
+      instruction: "Please indicate how you perceived the manager's attitude when they rejected your suggestion about the labor plan.",
+      stem: "The manager's response was...",
+      items: [
+        { id: "MA1", text: "Polite." },
+        { id: "MA2", text: "Respectful." },
+        { id: "MA3", text: "Sensitive to my feelings." },
+        { id: "MA4", text: "Respectful toward me." },
+        { id: "MA5", text: "Justified." },
+        { id: "MA6", text: "Courteous." },
+        { id: "MA7", text: "Considerate toward me." },
+        { id: "MA8", text: "Tactful." },
+      ],
+    },
+    {
+      title: "Perceived Usefulness of Manager Response",
+      instruction: "Please indicate how you perceived the manager's response when they rejected your suggestion about the labor plan.",
+      stem: "When rejecting my suggestion, the manager...",
+      items: [
+        { id: "MC1", text: "Focused on identifiable problems and behaviors upon which I can take action." },
+        { id: "MC2", text: "Suggested that my weaknesses can be overcome or remedied." },
+        { id: "MC3", text: "Made reference to clear, legitimate standards for acceptable behavior." },
+        { id: "MC4", text: "Was very specific and detailed." },
+        { id: "MC5", text: "Made reference to specific situations or incidents that were problematic." },
+        { id: "MC6", text: "Provided clear enough guidance that I knew what to change." },
+      ],
+    },
+  ];
+
+  const surveyItemIds = surveySections.flatMap((section) => getSectionItems(section).map((item) => item.id));
 
   let messagesEl = null;
   let composerEl = null;
@@ -404,7 +497,7 @@
     document.getElementById("decision-yes").addEventListener("click", () => handleDecision("yes"));
     document.getElementById("decision-no").addEventListener("click", () => {
       handleDecision("no");
-      renderCompletionPage("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", false);
+      renderPostInteractionSurvey();
     });
   }
 
@@ -413,7 +506,7 @@
     participant.completed_lisa_john_interaction = "true";
     participant.chose_to_bring_this_up_with_manager = decision;
     participant.experiment_end_time = timestamp();
-    participant.completion_status = decision === "no" ? "completed" : "partial";
+    participant.completion_status = "partial";
     saveParticipant();
     if (decision === "yes") {
       renderNeutralManagerChat();
@@ -463,7 +556,7 @@
       state.managerTurnActive = false;
       state.pendingManagerInput = "";
       setComposerEnabled(false);
-      renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", () => renderCompletionPage("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", true, false), "completion_page");
+      renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", renderPostInteractionSurvey, "neutral_manager_followup");
       return;
     }
 
@@ -471,6 +564,113 @@
     state.neutralQuestionCount += 1;
     await sendDelayed("Manager", "manager", question, 1000);
     finishManagerTurn();
+  }
+
+  function renderPostInteractionSurvey() {
+    state.part = "survey";
+    state.surveyStartTime = timestamp();
+    participant.completed_post_interaction_survey = "false";
+    participant.survey_completion_status = "partial";
+    participant.survey_start_time = state.surveyStartTime;
+    participant.survey_submit_time = "";
+    participant.experiment_end_time = state.surveyStartTime;
+    participant.completion_status = "partial";
+    saveParticipant();
+    recordInteraction("post_interaction_survey", "system", "Post-Interaction Questions page displayed.", "");
+
+    screen.innerHTML = `
+      <article class="page survey-page">
+        <h1>Post-Interaction Questions</h1>
+        <p>Please answer the following questions based on your experience in this study. There are no right or wrong answers. Please indicate the extent to which you agree with each statement.</p>
+        <form id="survey-form" novalidate>
+          ${surveySections.map(renderSurveySection).join("")}
+          <p class="validation-message" id="survey-validation" aria-live="polite"></p>
+          <div class="survey-submit">
+            <button class="button" type="submit">Submit</button>
+          </div>
+        </form>
+      </article>
+    `;
+
+    document.getElementById("survey-form").addEventListener("submit", handleSurveySubmit);
+  }
+
+  function renderSurveySection(section) {
+    const groups = section.groups || [{ label: "", items: section.items || [] }];
+    return `
+      <section class="survey-section">
+        <h2>${escapeHtml(section.title)}</h2>
+        <p>${escapeHtml(section.instruction)}</p>
+        ${section.stem ? `<p class="survey-stem">${escapeHtml(section.stem)}</p>` : ""}
+        ${groups.map((group) => `
+          ${group.label ? `<h3>${escapeHtml(group.label)}</h3>` : ""}
+          ${renderSurveyMatrix(group.items)}
+        `).join("")}
+      </section>
+    `;
+  }
+
+  function renderSurveyMatrix(items) {
+    return `
+      <div class="survey-matrix" role="table">
+        <div class="survey-row survey-head" role="row">
+          <div role="columnheader">Item</div>
+          ${likertOptions.map((label, index) => `<div role="columnheader">${index + 1}<span>${escapeHtml(label)}</span></div>`).join("")}
+        </div>
+        ${items.map((item) => `
+          <div class="survey-row" role="row" aria-labelledby="survey-item-${escapeHtml(item.id)}">
+            <div class="survey-item" id="survey-item-${escapeHtml(item.id)}">${escapeHtml(item.text)}</div>
+            ${likertOptions.map((label, index) => `
+              <label aria-label="${index + 1} ${escapeHtml(label)}">
+                <input type="radio" name="${escapeHtml(item.id)}" value="${index + 1}" required>
+                <span>${index + 1}</span>
+                <small>${escapeHtml(label)}</small>
+              </label>
+            `).join("")}
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function handleSurveySubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const validation = document.getElementById("survey-validation");
+    const missingResponse = surveyItemIds.some((id) => !form.elements[id] || !form.elements[id].value);
+
+    if (missingResponse) {
+      const message = "Please answer all questions before continuing.";
+      validation.textContent = message;
+      recordInteraction("post_interaction_survey", "system", message, "");
+      return;
+    }
+
+    const submitTime = timestamp();
+    const responses = {
+      prolific_pid: ids.prolific_pid,
+      study_id: ids.study_id,
+      session_id: ids.session_id,
+      assigned_condition: condition,
+      condition_source: conditionSource,
+      survey_start_time: state.surveyStartTime || participant.survey_start_time || submitTime,
+      survey_submit_time: submitTime,
+      survey_completion_status: "completed",
+    };
+
+    for (const id of surveyItemIds) {
+      responses[id] = form.elements[id].value;
+    }
+
+    postJson("/survey", responses);
+    participant.completed_post_interaction_survey = "true";
+    participant.survey_completion_status = "completed";
+    participant.survey_start_time = responses.survey_start_time;
+    participant.survey_submit_time = submitTime;
+    participant.experiment_end_time = submitTime;
+    participant.completion_status = "completed";
+    saveParticipant();
+    renderCompletionPage("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", participant.completed_neutral_manager_followup === "true");
   }
 
   function addMessage(speaker, className, text) {
@@ -722,8 +922,14 @@
     if (state.part === "transition") return "transition_page";
     if (state.part === "lisaJohn") return state.decisionShown ? "decision_prompt" : "lisa_john_interaction";
     if (state.part === "manager2") return "neutral_manager_followup";
+    if (state.part === "survey") return "post_interaction_survey";
     if (state.part === "completion") return "completion_page";
     return "initial_manager_interaction";
+  }
+
+  function getSectionItems(section) {
+    if (section.items) return section.items;
+    return (section.groups || []).flatMap((group) => group.items || []);
   }
 
   function recordInteraction(stage, speaker, message, participantDecision) {
@@ -821,5 +1027,9 @@
   });
 
   saveParticipant();
-  renderBriefing();
+  if ((params.get("skip_to") || "").toLowerCase() === "survey") {
+    renderPostInteractionSurvey();
+  } else {
+    renderBriefing();
+  }
 })();
