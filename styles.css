@@ -265,6 +265,127 @@ textarea {
   font-size: 17px;
 }
 
+.survey-page {
+  max-width: 100%;
+}
+
+.survey-section {
+  margin-top: 34px;
+  border-top: 1px solid var(--border);
+  padding-top: 26px;
+}
+
+.survey-section h2 {
+  margin-top: 0;
+}
+
+.survey-section h3 {
+  margin: 24px 0 12px;
+  font-size: 18px;
+}
+
+.survey-stem {
+  font-weight: 700;
+}
+
+.survey-matrix {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-top: 14px;
+}
+
+.survey-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 2fr) repeat(5, minmax(88px, 1fr));
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+  padding: 0;
+  min-width: 760px;
+  align-items: stretch;
+}
+
+.survey-row:last-child {
+  border-bottom: 0;
+}
+
+.survey-head {
+  background: var(--panel-soft);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.survey-head > div,
+.survey-row > .survey-item,
+.survey-row > label {
+  padding: 12px;
+  border-right: 1px solid var(--border);
+}
+
+.survey-head > div:last-child,
+.survey-row > label:last-child {
+  border-right: 0;
+}
+
+.survey-head span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.survey-head > div:not(:first-child) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.survey-row > .survey-item {
+  font-size: 15px;
+  line-height: 1.35;
+  display: flex;
+  align-items: center;
+  background: #fff;
+}
+
+.survey-row > label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  cursor: pointer;
+}
+
+.survey-row input {
+  width: 18px;
+  height: 18px;
+}
+
+.survey-row label span,
+.survey-row label small {
+  display: none;
+}
+
+.validation-message {
+  min-height: 24px;
+  color: #8a5a00;
+  margin-top: 18px;
+}
+
+.survey-submit {
+  position: sticky;
+  bottom: 0;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 16px 0 0;
+  margin-top: 22px;
+}
+
 @media (max-width: 640px) {
   .app-shell {
     padding: 0;
@@ -316,5 +437,47 @@ textarea {
 
   .composer {
     grid-template-columns: 1fr;
+  }
+
+  .survey-matrix {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .survey-head {
+    display: none;
+  }
+
+  .survey-row {
+    display: block;
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background: white;
+  }
+
+  .survey-row > .survey-item {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+  }
+
+  .survey-row > label {
+    justify-content: flex-start;
+    gap: 8px;
+    min-height: 44px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .survey-row > label:last-child {
+    border-bottom: 0;
+  }
+
+  .survey-row label span,
+  .survey-row label small {
+    display: inline;
   }
 }

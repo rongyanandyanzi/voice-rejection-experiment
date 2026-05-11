@@ -9,6 +9,7 @@ const adminToken = process.env.ADMIN_TOKEN || "";
 fs.mkdirSync(dataDir, { recursive: true });
 const participantsPath = path.join(dataDir, "participants.csv");
 const interactionsPath = path.join(dataDir, "interactions.csv");
+const surveyResponsesPath = path.join(dataDir, "survey_responses.csv");
 const workbookPath = path.join(dataDir, "experiment_data.xlsx");
 
 const participantColumns = [
@@ -24,6 +25,10 @@ const participantColumns = [
   "completed_lisa_john_interaction",
   "chose_to_bring_this_up_with_manager",
   "completed_neutral_manager_followup",
+  "completed_post_interaction_survey",
+  "survey_completion_status",
+  "survey_start_time",
+  "survey_submit_time",
   "completion_status",
 ];
 
@@ -40,8 +45,56 @@ const interactionColumns = [
   "participant_decision",
 ];
 
+const surveyItemColumns = [
+  "VF1",
+  "VF2",
+  "VF3",
+  "VF4",
+  "VF5",
+  "VF6",
+  "VQ1",
+  "VQ2",
+  "VQ3",
+  "VQ4",
+  "MR1",
+  "MR2",
+  "MR3",
+  "PR1",
+  "PR2",
+  "PR3",
+  "PR4",
+  "PR5",
+  "MA1",
+  "MA2",
+  "MA3",
+  "MA4",
+  "MA5",
+  "MA6",
+  "MA7",
+  "MA8",
+  "MC1",
+  "MC2",
+  "MC3",
+  "MC4",
+  "MC5",
+  "MC6",
+];
+
+const surveyResponseColumns = [
+  "prolific_pid",
+  "study_id",
+  "session_id",
+  "assigned_condition",
+  "condition_source",
+  "survey_start_time",
+  "survey_submit_time",
+  "survey_completion_status",
+  ...surveyItemColumns,
+];
+
 let participants = loadCsv(participantsPath, participantColumns);
 let interactions = loadCsv(interactionsPath, interactionColumns);
+let surveyResponses = loadCsv(surveyResponsesPath, surveyResponseColumns);
 
 const server = http.createServer(async (req, res) => {
   setCors(res);
@@ -63,6 +116,14 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && req.url === "/api/interaction") {
     const row = normalizeRow(await readJson(req), interactionColumns);
     interactions.push(row);
+    persistAll();
+    sendJson(res, { ok: true });
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/survey") {
+    const row = normalizeRow(await readJson(req), surveyResponseColumns);
+    upsertSurveyResponse(row);
     persistAll();
     sendJson(res, { ok: true });
     return;
@@ -105,12 +166,27 @@ function upsertParticipant(row) {
   }
 }
 
+function upsertSurveyResponse(row) {
+  const index = surveyResponses.findIndex((item) =>
+    item.prolific_pid === row.prolific_pid &&
+    item.study_id === row.study_id &&
+    item.session_id === row.session_id
+  );
+  if (index >= 0) {
+    surveyResponses[index] = { ...surveyResponses[index], ...row };
+  } else {
+    surveyResponses.push(row);
+  }
+}
+
 function persistAll() {
   fs.writeFileSync(participantsPath, toCsv(participants, participantColumns));
   fs.writeFileSync(interactionsPath, toCsv(interactions, interactionColumns));
+  fs.writeFileSync(surveyResponsesPath, toCsv(surveyResponses, surveyResponseColumns));
   fs.writeFileSync(workbookPath, createWorkbook([
     { name: "participants", columns: participantColumns, rows: participants },
     { name: "interactions", columns: interactionColumns, rows: interactions },
+    { name: "survey_responses", columns: surveyResponseColumns, rows: surveyResponses },
   ]));
 }
 
@@ -226,7 +302,7 @@ function serveStatic(req, res) {
 
   const ext = path.extname(filePath).toLowerCase();
   const basename = path.basename(filePath);
-  if (["participants.csv", "interactions.csv", "experiment_data.xlsx"].includes(basename)) {
+  if (["participants.csv", "interactions.csv", "survey_responses.csv", "experiment_data.xlsx"].includes(basename)) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
@@ -258,6 +334,7 @@ function serveAdminDownload(req, res) {
   const allowedFiles = {
     "participants.csv": participantsPath,
     "interactions.csv": interactionsPath,
+    "survey_responses.csv": surveyResponsesPath,
     "experiment_data.xlsx": workbookPath,
   };
   const filePath = allowedFiles[fileName];
