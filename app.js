@@ -182,12 +182,17 @@
     event.preventDefault();
     if (state.part === "manager1" && state.managerChatLocked) return;
     if (!inputEl || !inputEl.value.trim()) return;
-    if (state.busy && state.part !== "manager1" && state.part !== "lisaJohn") return;
+    if (state.busy && state.part !== "manager1" && state.part !== "lisaJohn" && state.part !== "manager2") return;
     const text = inputEl.value.trim();
     inputEl.value = "";
     addMessage("Alex", "alex", text);
 
     if (state.part === "manager1" && state.managerTurnActive) {
+      state.pendingManagerInput = state.pendingManagerInput ? `${state.pendingManagerInput}\n${text}` : text;
+      return;
+    }
+
+    if (state.part === "manager2" && state.managerTurnActive) {
       state.pendingManagerInput = state.pendingManagerInput ? `${state.pendingManagerInput}\n${text}` : text;
       return;
     }
@@ -450,13 +455,16 @@
 
   async function handleNeutralManagerInput() {
     if (state.neutralQuestionCount >= 5) return;
-    setComposerEnabled(false);
+    state.managerTurnActive = true;
     if (state.neutralQuestionCount === 4) {
       state.neutralQuestionCount += 1;
       await sendDelayed("Manager", "manager", "I have enough information for now. Please return to your regular work.", 1000);
       setStatus("Manager online");
       participant.completed_neutral_manager_followup = "true";
       saveParticipant();
+      state.managerTurnActive = false;
+      state.pendingManagerInput = "";
+      setComposerEnabled(false);
       renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", () => renderCompletionPage("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", true, false), "completion_page");
       return;
     }
@@ -464,7 +472,7 @@
     const question = neutralQuestions[state.neutralQuestionCount];
     state.neutralQuestionCount += 1;
     await sendDelayed("Manager", "manager", question, 1000);
-    setComposerEnabled(true);
+    finishManagerTurn();
   }
 
   function addMessage(speaker, className, text) {
@@ -504,18 +512,13 @@
   async function sendCoworkerSequence(replies) {
     for (let index = 0; index < replies.length; index += 1) {
       const reply = replies[index];
-      const delayMs = index === 0
-        ? (reply.delay && reply.delay >= 3000 ? reply.delay : coworkerResponseDelay(reply.text))
-        : randomBetween(3000, 6000);
+      const delayMs = coworkerResponseDelay(reply.text);
       await sendDelayed(reply.speaker, reply.className, reply.text, delayMs);
     }
   }
 
   function coworkerResponseDelay(text) {
-    const length = text.length;
-    if (length <= 70) return randomBetween(3000, 5000);
-    if (length <= 135) return randomBetween(5000, 8000);
-    return randomBetween(7000, 10000);
+    return responseDelayForText(text);
   }
 
   function varyCoworkerReplies(replies) {
@@ -550,31 +553,33 @@
     return row;
   }
 
-  function managerTimingPlan(text) {
+  function responseDelayForText(text) {
+    const { min, max } = responseDelayRange(text);
+    return randomBetween(min, max);
+  }
+
+  function responseDelayRange(text) {
     const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-    let min = 5000;
-    let max = 8000;
+    if (wordCount < 10) return { min: 3000, max: 5000, wordCount };
+    if (wordCount <= 25) return { min: 5000, max: 8000, wordCount };
+    if (wordCount <= 50) return { min: 8000, max: 12000, wordCount };
+    if (wordCount <= 90) return { min: 12000, max: 18000, wordCount };
+    return { min: 18000, max: 25000, wordCount };
+  }
+
+  function managerTimingPlan(text) {
+    const { min, max, wordCount } = responseDelayRange(text);
     let typingChance = 0.72;
 
     if (wordCount < 10) {
-      min = 2000;
-      max = 3000;
       typingChance = 0.08;
     } else if (wordCount <= 25) {
-      min = 3000;
-      max = 5000;
       typingChance = 0.28;
     } else if (wordCount <= 50) {
-      min = 5000;
-      max = 8000;
       typingChance = 0.72;
     } else if (wordCount <= 90) {
-      min = 8000;
-      max = 12000;
       typingChance = 0.84;
     } else {
-      min = 12000;
-      max = 16000;
       typingChance = 0.9;
     }
 
@@ -659,7 +664,11 @@
     if (state.pendingManagerInput && !state.managerChatLocked) {
       const pendingText = state.pendingManagerInput;
       state.pendingManagerInput = "";
-      handleManagerInput(pendingText);
+      if (state.part === "manager2") {
+        handleNeutralManagerInput(pendingText);
+      } else {
+        handleManagerInput(pendingText);
+      }
     }
   }
 
