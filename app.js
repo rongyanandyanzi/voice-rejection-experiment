@@ -38,7 +38,6 @@
     pendingManagerInput: "",
     coworkerTurnActive: false,
     pendingCoworkerInputs: [],
-    lastCoworkerReplyWasBoth: false,
     decisionShown: false,
     lastManagerShowedTyping: false,
     busy: false,
@@ -287,7 +286,6 @@
     state.pendingManagerInput = "";
     state.coworkerTurnActive = false;
     state.pendingCoworkerInputs = [];
-    state.lastCoworkerReplyWasBoth = false;
     state.secondPhase = "beforeProposal";
     state.postSuggestionTurns = 0;
     state.decisionShown = false;
@@ -311,7 +309,7 @@
       state.secondPhase = "afterProposal";
       state.postSuggestionTurns = 1;
       state.coworkerTurnActive = true;
-      await sendCoworkerSequence(occasionalOrderSwap([
+      await sendCoworkerSequence(orderCoworkerPair([
         { speaker: "Lisa", className: "lisa", text: "That sounds like something worth raising. The records and comments give you a reasonable basis for it." },
         { speaker: "John", className: "john", text: "Maybe, but I’d be careful. The manager might hear it as criticism of the current visitor strategy." },
       ]));
@@ -321,14 +319,14 @@
 
     if (state.secondPhase === "beforeProposal") {
       state.coworkerTurnActive = true;
-      await sendCoworkerSequence(varyCoworkerReplies(beforeProposalReplies(text)));
+      await sendCoworkerSequence(selectCoworkerReplies(beforeProposalReplies(text)));
       finishCoworkerTurn();
       return;
     }
 
     state.postSuggestionTurns += 1;
     state.coworkerTurnActive = true;
-    await sendCoworkerSequence(varyCoworkerReplies(afterProposalReplies(state.postSuggestionTurns)));
+    await sendCoworkerSequence(selectCoworkerReplies(afterProposalReplies(state.postSuggestionTurns)));
 
     if (state.postSuggestionTurns >= 3 && !state.decisionShown) {
       await delay(randomBetween(3000, 5000));
@@ -521,23 +519,25 @@
     return responseDelayForText(text);
   }
 
-  function varyCoworkerReplies(replies) {
+  function selectCoworkerReplies(replies) {
     if (replies.length < 2) return replies;
-    const oneReplyOnly = state.lastCoworkerReplyWasBoth || Math.random() < 0.65;
-    if (oneReplyOnly) {
-      state.lastCoworkerReplyWasBoth = false;
-      return [replies[randomBetween(0, replies.length - 1)]];
-    }
-    state.lastCoworkerReplyWasBoth = true;
-    if (Math.random() < 0.45) {
-      return [replies[1], replies[0]];
-    }
-    return replies;
+    const lisaReply = replies.find((reply) => reply.className === "lisa") || replies[0];
+    const johnReply = replies.find((reply) => reply.className === "john") || replies[1];
+    const roll = Math.random();
+    if (roll < 0.35) return [lisaReply];
+    if (roll < 0.70) return [johnReply];
+    if (roll < 0.85) return [lisaReply, johnReply];
+    return [johnReply, lisaReply];
   }
 
-  function occasionalOrderSwap(replies) {
-    if (replies.length < 2 || Math.random() >= 0.35) return replies;
-    return [replies[1], replies[0]];
+  function orderCoworkerPair(replies) {
+    if (replies.length < 2) return replies;
+    const lisaReply = replies.find((reply) => reply.className === "lisa") || replies[0];
+    const johnReply = replies.find((reply) => reply.className === "john") || replies[1];
+    if (Math.random() < 0.5) {
+      return [lisaReply, johnReply];
+    }
+    return [johnReply, lisaReply];
   }
 
   function showTypingIndicator() {

@@ -144,26 +144,30 @@ John should emphasize the interpersonal and career risk of speaking up.
 Alex must decide whether to bring this up with the manager after hearing Lisa and John’s views.
 
 
-## Turn-Taking Rule for Lisa and John
+## Randomized Turn-Taking Rule
 
-Lisa and John should not both respond to every message from Alex.
+Lisa and John should not respond in a fixed order.
 
-The interaction should feel like a natural three-person group chat.
+Do not always make Lisa respond first.
 
-After Alex sends a message:
+Do not always make John respond second.
 
-- Usually only one coworker should respond.
-- Sometimes Lisa should respond.
-- Sometimes John should respond.
-- Occasionally both Lisa and John may respond, but this should not happen every time.
-- If both Lisa and John respond, their messages should appear with a natural delay between them.
-- Do not use a fixed pattern such as Lisa always responds first and John always responds second.
-- Do not make the chat feel like two bots are reacting to every participant message.
+After each Alex message, the system should decide who responds based on natural conversation flow.
 
-Suggested ratio:
+Suggested distribution:
 
-- Around 60%–70% of Alex’s messages should receive only one response from either Lisa or John.
-- Around 30%–40% of Alex’s messages may receive responses from both Lisa and John.
+- Around 35% of the time, only Lisa responds.
+- Around 35% of the time, only John responds.
+- Around 15% of the time, Lisa responds first and then John responds.
+- Around 15% of the time, John responds first and then Lisa responds.
+
+If both Lisa and John respond, use natural delays between their messages.
+
+Do not make both coworkers respond to every Alex message.
+
+Do not use a rigid alternating pattern.
+
+The interaction should feel like a real group chat, not scripted turn-taking.
 
 ## Lisa and John Response Timing Rules
 
