@@ -490,6 +490,7 @@
         const typingIndicator = showTypingIndicator();
         await delay(plan.typingDelay);
         typingIndicator.remove();
+        await delay(plan.tailPause);
       } else {
         await delay(plan.totalDelay);
       }
@@ -550,23 +551,35 @@
   }
 
   function managerTimingPlan(text) {
-    const length = text.length;
-    let min = 4000;
-    let max = 7000;
-    let typingChance = 0.4;
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    let min = 5000;
+    let max = 8000;
+    let typingChance = 0.72;
 
-    if (length <= 55) {
+    if (wordCount < 10) {
       min = 2000;
-      max = 4000;
-      typingChance = 0.12;
-    } else if (length >= 150) {
-      min = 6000;
-      max = 10000;
+      max = 3000;
+      typingChance = 0.08;
+    } else if (wordCount <= 25) {
+      min = 3000;
+      max = 5000;
+      typingChance = 0.28;
+    } else if (wordCount <= 50) {
+      min = 5000;
+      max = 8000;
       typingChance = 0.72;
+    } else if (wordCount <= 90) {
+      min = 8000;
+      max = 12000;
+      typingChance = 0.84;
+    } else {
+      min = 12000;
+      max = 16000;
+      typingChance = 0.9;
     }
 
     if (state.lastManagerShowedTyping) {
-      typingChance *= 0.45;
+      typingChance *= 0.55;
     }
 
     const showTyping = Math.random() < typingChance;
@@ -577,12 +590,17 @@
       return { showTyping, totalDelay };
     }
 
-    const thinkingDelay = randomBetween(900, Math.min(3200, Math.max(900, totalDelay - 1400)));
+    const thinkingDelay = randomBetween(
+      Math.min(1200, Math.floor(totalDelay * 0.25)),
+      Math.max(1200, Math.floor(totalDelay * 0.38))
+    );
+    const tailPause = randomBetween(300, Math.max(600, Math.floor(totalDelay * 0.16)));
     return {
       showTyping,
       totalDelay,
       thinkingDelay,
-      typingDelay: Math.max(1000, totalDelay - thinkingDelay),
+      typingDelay: Math.max(900, totalDelay - thinkingDelay - tailPause),
+      tailPause,
     };
   }
 
