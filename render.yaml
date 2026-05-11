@@ -3,8 +3,8 @@ services:
     name: voice-rejection-experiment
     env: node
     plan: starter
-    buildCommand: ""
-    startCommand: npm start
+    buildCommand: npm install
+    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
