@@ -556,7 +556,8 @@
       state.managerTurnActive = false;
       state.pendingManagerInput = "";
       setComposerEnabled(false);
-      renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", renderPostInteractionSurvey, "neutral_manager_followup");
+      await delay(1500);
+      renderPostInteractionSurvey();
       return;
     }
 
