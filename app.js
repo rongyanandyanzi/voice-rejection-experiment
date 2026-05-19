@@ -601,7 +601,7 @@
     return `
       <section class="survey-section">
         <h2>${escapeHtml(section.title)}</h2>
-        <p>${escapeHtml(section.instruction)}</p>
+        <p>${formatSurveyInstruction(section.instruction)}</p>
         ${section.stem ? `<p class="survey-stem">${escapeHtml(section.stem)}</p>` : ""}
         ${groups.map((group) => `
           ${group.label ? `<h3>${escapeHtml(group.label)}</h3>` : ""}
@@ -609,6 +609,13 @@
         `).join("")}
       </section>
     `;
+  }
+
+  function formatSurveyInstruction(text) {
+    return escapeHtml(text).replace(
+      /labor plan/g,
+      '<strong class="survey-emphasis">labor plan</strong>'
+    );
   }
 
   function renderSurveyMatrix(items) {
