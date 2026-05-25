@@ -415,66 +415,81 @@ async function generateAiReply(payload) {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openaiApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: openaiModel,
-        input: [
-          { role: "system", content: prompt.system },
-          { role: "user", content: prompt.user },
-        ],
-        text: {
-          format: {
-            type: "json_schema",
-            name: "experiment_chat_reply",
-            strict: true,
-            schema: {
-              type: "object",
-              additionalProperties: false,
-              properties: {
-                messages: {
-                  type: "array",
-                  minItems: prompt.minMessages,
-                  maxItems: prompt.maxMessages,
-                  items: {
-                    type: "object",
-                    additionalProperties: false,
-                    properties: {
-                      speaker: { type: "string", enum: prompt.speakers },
-                      text: { type: "string" },
-                    },
-                    required: ["speaker", "text"],
-                  },
-                },
-              },
-              required: ["messages"],
-            },
-          },
-        },
-        temperature: prompt.temperature,
-        max_output_tokens: prompt.maxOutputTokens,
-      }),
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      return {
-        ok: false,
-        status: response.status,
-        error: data.error && data.error.message ? data.error.message : "OpenAI API request failed.",
-      };
+    let correction = "";
+    let lastMessages = [];
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const result = await requestOpenAiMessages(prompt, correction);
+      if (!result.ok) return result;
+      lastMessages = sanitizeAiMessages(result.messages, prompt);
+      const lengthProblem = managerWordCountProblem(lastMessages, prompt);
+      if (!lengthProblem) return { ok: true, messages: lastMessages };
+      correction = lengthProblem;
     }
-
-    const text = extractResponseText(data);
-    const parsed = JSON.parse(text);
-    return { ok: true, messages: sanitizeAiMessages(parsed.messages, prompt) };
+    return { ok: true, messages: lastMessages.map((message) => enforceManagerWordRange(message, prompt)) };
   } catch (error) {
     return { ok: false, status: 500, error: error.message || "Unable to generate AI reply." };
   }
+}
+
+async function requestOpenAiMessages(prompt, correction) {
+  const input = [
+    { role: "system", content: correction ? `${prompt.system}\n\n${correction}` : prompt.system },
+    { role: "user", content: prompt.user },
+  ];
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${openaiApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: openaiModel,
+      input,
+      text: {
+        format: {
+          type: "json_schema",
+          name: "experiment_chat_reply",
+          strict: true,
+          schema: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              messages: {
+                type: "array",
+                minItems: prompt.minMessages,
+                maxItems: prompt.maxMessages,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    speaker: { type: "string", enum: prompt.speakers },
+                    text: { type: "string" },
+                  },
+                  required: ["speaker", "text"],
+                },
+              },
+            },
+            required: ["messages"],
+          },
+        },
+      },
+      temperature: prompt.temperature,
+      max_output_tokens: prompt.maxOutputTokens,
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return {
+      ok: false,
+      status: response.status,
+      error: data.error && data.error.message ? data.error.message : "OpenAI API request failed.",
+    };
+  }
+
+  const text = extractResponseText(data);
+  const parsed = JSON.parse(text);
+  return { ok: true, messages: parsed.messages };
 }
 
 function buildAiPrompt(payload) {
@@ -497,6 +512,7 @@ function buildInitialManagerPrompt(payload) {
   let minMessages = 1;
   let maxMessages = 1;
   let maxOutputTokens = 450;
+  let wordRange = null;
 
   if (phase === "followup") {
     task = [
@@ -510,63 +526,82 @@ function buildInitialManagerPrompt(payload) {
       conditionRule,
     ].join("\n");
     maxOutputTokens = 220;
+    wordRange = { min: 18, max: 24 };
   } else if (phase === "rejection_initial") {
     task = [
       "Alex has explained the flexible labor proposal.",
       "This is the manager's first rejection turn.",
       "Reject the proposal for now, but keep this turn short.",
-      "Produce exactly 1 manager chat message, around 28-32 words.",
+      "Produce exactly 1 manager chat message, 28-32 words.",
       "Do not give the whole rejection all at once.",
       "Leave room for Alex to respond.",
       "Respond to Alex's actual wording, but preserve the assigned condition.",
       "Do not approve the proposal.",
+      "Do not ask Alex to explain how they will revise the proposal.",
+      "Do not ask open-ended revision questions that imply the manager is inviting negotiation or likely approval.",
+      "Never ask questions like 'What's your plan...', 'How will you revise...', 'How do you plan...', or 'What will you do next...' about revisions.",
       "Do not reveal the experiment or condition.",
       conditionRule,
     ].join("\n");
     maxOutputTokens = 190;
+    wordRange = { min: 28, max: 32 };
   } else if (phase === "rejection_followup") {
     task = [
       `This is rejection follow-up round ${rejectionRound}.`,
       "Alex has responded after the first rejection.",
       "Reply naturally to Alex's latest message while keeping the rejection outcome unchanged.",
-      "Produce exactly 1 manager chat message, around 28-32 words.",
+      "Produce exactly 1 manager chat message, 28-32 words.",
       "Do not approve the proposal.",
       "Do not end the chat yet.",
+      "Do not ask Alex to explain how they will revise the proposal.",
+      "Do not ask open-ended revision questions that imply the manager is inviting negotiation or likely approval.",
+      "Never ask questions like 'What's your plan...', 'How will you revise...', 'How do you plan...', or 'What will you do next...' about revisions.",
       "Preserve the assigned politeness and constructiveness condition.",
       conditionRule,
     ].join("\n");
     maxOutputTokens = 190;
+    wordRange = { min: 28, max: 32 };
   } else if (phase === "rejection_final") {
     task = [
       "This is the manager's final substantive rejection turn before the closing message.",
       "Respond to Alex's latest message and firmly maintain the rejection for now.",
-      "Produce exactly 1 manager chat message, around 28-32 words.",
+      "Produce exactly 1 manager chat message, 28-32 words.",
       "The total rejection across the three manager rejection turns should feel comparable to about 85-95 words.",
       "Do not approve the proposal.",
       "Do not ask a new open-ended question.",
+      "Do not ask Alex to explain how they will revise the proposal.",
+      "If giving revision guidance, state it as a requirement or condition for any future reconsideration, not as a collaborative question.",
+      "Never ask questions like 'What's your plan...', 'How will you revise...', 'How do you plan...', or 'What will you do next...' about revisions.",
       "Preserve the assigned politeness and constructiveness condition.",
       conditionRule,
     ].join("\n");
     maxOutputTokens = 190;
+    wordRange = { min: 28, max: 32 };
   } else if (phase === "rejection") {
     task = [
       "Alex has explained the flexible labor proposal.",
       "Reject the proposal for now.",
-      "Produce exactly 1 short manager chat message, around 28-32 words.",
+      "Produce exactly 1 short manager chat message, 28-32 words.",
       "Respond to Alex's actual wording, but preserve the assigned condition.",
       "Do not approve the proposal.",
+      "Do not ask Alex to explain how they will revise the proposal.",
+      "Do not ask open-ended revision questions that imply the manager is inviting negotiation or likely approval.",
+      "Never ask questions like 'What's your plan...', 'How will you revise...', 'How do you plan...', or 'What will you do next...' about revisions.",
       "Do not reveal the experiment or condition.",
       conditionRule,
     ].join("\n");
     maxOutputTokens = 190;
+    wordRange = { min: 28, max: 32 };
   } else if (phase === "closing") {
     task = [
       "Alex has already received the rejection and may have reacted to it.",
       "Send exactly one brief closing message and end the chat.",
       "Keep the same politeness level as the assigned condition.",
       "Do not reopen negotiation, approve the proposal, or ask a new question.",
+      "Do not ask about revisions or next steps.",
       condition.includes("HP") ? "High politeness: include a short apology or softened phrasing." : "Low politeness: be direct, with no apology or thanks.",
     ].join("\n");
+    wordRange = { min: 10, max: 16 };
   } else {
     task = [
       "Alex has not yet clearly proposed the flexible labor plan.",
@@ -589,10 +624,12 @@ function buildInitialManagerPrompt(payload) {
       "Sound natural, concise, and chat-like.",
       "Do not reveal that you are AI-generated.",
       "Do not mention politeness, constructiveness, conditions, or experimental design.",
+      wordRange ? `Strict length rule: every Manager message must be ${wordRange.min}-${wordRange.max} words. This is required to keep the four experimental conditions within 5% word-count difference.` : "",
       task,
       "Return only JSON matching the required schema.",
-    ].join("\n\n"),
+    ].filter(Boolean).join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest Alex message:\n${alexMessage}`,
+    wordRange,
   };
 }
 
@@ -606,6 +643,7 @@ function managerConditionRules() {
       "Give specific concerns about service quality, training gaps, guest-facing roles, front-desk check-in, ticket handling, or crowd control.",
       "Reference the standard that staffing changes must maintain consistent service quality.",
       "Give concrete revision guidance such as a role-by-role flexibility map and cost-benefit breakdown.",
+      "State revision guidance as requirements, not as questions asking Alex how they will revise.",
       "Keep length comparable to other conditions.",
     ].join("\n"),
     HP_LC: [
@@ -620,22 +658,27 @@ function managerConditionRules() {
     ].join("\n"),
     LP_HC: [
       "Condition: Low politeness + high constructiveness.",
-      "Be blunt and direct.",
+      "Be blunt, curt, dismissive, and moderately rude, as if the manager is impatient and unimpressed by the proposal.",
       "Do not thank Alex, praise effort, apologize, hedge, or soften the rejection.",
+      "Use sharper wording such as: this is not ready, you missed the basic issue, this version falls short, this needs a serious rethink, I should not have to spell this out.",
+      "You may criticize the proposal sharply and imply Alex overlooked obvious requirements, but do not insult Alex as a person.",
       "Identify specific proposal problems.",
       "Reference service quality or operational standards.",
       "Give concrete revision requirements such as separating flexible roles from full-time roles, role-by-role flexibility map, cost-benefit breakdown, and training-gap prevention.",
-      "Stay workplace-appropriate: no profanity, harassment, or abusive language.",
+      "State revision requirements directly; do not ask Alex how they plan to flesh them out.",
+      "Stay workplace-appropriate: no profanity, harassment, discriminatory language, personal insults, or abusive language.",
       "Keep length comparable to other conditions.",
     ].join("\n"),
     LP_LC: [
       "Condition: Low politeness + low constructiveness.",
-      "Be blunt and direct.",
+      "Be blunt, curt, dismissive, and moderately rude, as if the manager is impatient and unimpressed by the proposal.",
       "Do not thank Alex, praise effort, apologize, hedge, or soften the rejection.",
+      "Use sharper wording such as: this is not ready, this is too simple, you are missing the bigger issue, this is not thought thru, I should not have to spell this out.",
+      "You may criticize the proposal sharply and imply Alex overlooked obvious issues, but do not insult Alex as a person.",
       "Keep criticism broad, vague, and not very helpful.",
       "Do not mention role-specific details, clear standards, concrete fixes, cost-benefit analysis, training design, ticket handling, guest complaints, or crowd control.",
       "Use broad phrases like bigger picture, not practical, too simple, not realistic, not thought thru.",
-      "Stay workplace-appropriate: no profanity, harassment, or abusive language.",
+      "Stay workplace-appropriate: no profanity, harassment, discriminatory language, personal insults, or abusive language.",
       "Keep length comparable to other conditions.",
     ].join("\n"),
   };
@@ -742,9 +785,71 @@ function sanitizeAiMessages(messages, prompt) {
     .slice(0, prompt.maxMessages)
     .map((message) => ({
       speaker: message.speaker,
-      text: String(message.text || "").replace(/\s+/g, " ").trim(),
+      text: sanitizeManagerText(message.speaker, message.text, prompt),
     }))
     .filter((message) => message.text);
+}
+
+function sanitizeManagerText(speaker, text, prompt) {
+  const cleaned = String(text || "").replace(/\s+/g, " ").trim();
+  if (speaker !== "Manager" || !String(prompt.system || "").includes("flexible labor proposal")) {
+    return cleaned;
+  }
+
+  const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [cleaned];
+  const filtered = sentences
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => !isRevisionPlanningQuestion(sentence));
+
+  return filtered.join(" ").trim();
+}
+
+function managerWordCountProblem(messages, prompt) {
+  if (!prompt.wordRange || !Array.isArray(messages) || !messages.length) return "";
+  const problems = messages
+    .filter((message) => message.speaker === "Manager")
+    .map((message) => ({ text: message.text, count: wordCount(message.text) }))
+    .filter((item) => item.count < prompt.wordRange.min || item.count > prompt.wordRange.max);
+
+  if (!problems.length) return "";
+  const counts = problems.map((item) => item.count).join(", ");
+  return [
+    `Length correction required. Previous Manager message word count(s): ${counts}.`,
+    `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
+    "Preserve the same experimental condition and rejection outcome.",
+    "Return only valid JSON.",
+  ].join(" ");
+}
+
+function enforceManagerWordRange(message, prompt) {
+  if (!prompt.wordRange || message.speaker !== "Manager") return message;
+  const count = wordCount(message.text);
+  if (count <= prompt.wordRange.max) return message;
+  return { ...message, text: truncateWords(message.text, prompt.wordRange.max) };
+}
+
+function wordCount(text) {
+  return String(text || "").trim().split(/\s+/).filter(Boolean).length;
+}
+
+function truncateWords(text, maxWords) {
+  const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) return words.join(" ");
+  const truncated = words.slice(0, maxWords).join(" ").replace(/[,:;–-]$/, "");
+  return /[.!?]$/.test(truncated) ? truncated : `${truncated}.`;
+}
+
+function isRevisionPlanningQuestion(sentence) {
+  const lower = sentence.toLowerCase();
+  if (!sentence.includes("?")) return false;
+  return (
+    /\bwhat'?s your plan\b/.test(lower) ||
+    /\bwhat is your plan\b/.test(lower) ||
+    /\bhow (do|will|would|can) you\b.*\b(revise|revision|flesh|address|produce|meet|fix|improve|change|handle|provide|build|show)\b/.test(lower) ||
+    /\bwhat (will|would|can|do) you\b.*\b(revise|revision|flesh|address|produce|meet|fix|improve|change|handle|provide|build|show)\b/.test(lower) ||
+    /\bhow do you plan\b/.test(lower) ||
+    /\bwhat will you do next\b/.test(lower)
+  );
 }
 
 function cleanPromptText(value) {

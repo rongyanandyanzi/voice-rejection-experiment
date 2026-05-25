@@ -669,6 +669,8 @@
   function addMessage(speaker, className, text) {
     const row = document.createElement("div");
     row.className = `message-row ${className}`;
+    row.dataset.speaker = speaker;
+    row.dataset.message = text;
     row.innerHTML = `
       <div class="bubble">
         <span class="speaker">${escapeHtml(speaker)}</span>
@@ -745,13 +747,14 @@
   }
 
   function recentChatHistory() {
-    return interactionBackup
-      .filter((row) => row.stage === currentStage())
+    if (!messagesEl) return [];
+    return Array.from(messagesEl.querySelectorAll(".message-row:not(.typing-row)"))
       .slice(-14)
       .map((row) => ({
-        speaker: row.speaker,
-        message: row.message,
-      }));
+        speaker: row.dataset.speaker || "",
+        message: row.dataset.message || "",
+      }))
+      .filter((row) => row.speaker && row.message);
   }
 
   function coworkerMode() {
