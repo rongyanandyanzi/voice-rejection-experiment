@@ -12,6 +12,10 @@ services:
         value: /var/data
       - key: ADMIN_TOKEN
         generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
     disk:
       name: experiment-data
       mountPath: /var/data

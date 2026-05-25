@@ -2,6 +2,7 @@ data/
 participants.csv
 interactions.csv
 survey_responses.csv
+experiment_data.csv
 experiment_data.xlsx
 .DS_Store
 node_modules/

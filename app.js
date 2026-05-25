@@ -32,6 +32,7 @@
     postSuggestionTurns: 0,
     managerAskedFollowup: false,
     managerRejected: false,
+    managerRejectionRound: 0,
     managerClosingPending: false,
     managerChatLocked: false,
     managerTurnActive: false,
@@ -64,61 +65,6 @@
     completion_status: storedSession.completion_status || "partial",
   };
   const interactionBackup = Array.isArray(storedSession.interactions) ? storedSession.interactions : [];
-
-  const managerScripts = {
-    HP_HC: {
-      rejection: [
-        "Thanks for walking me through this. I really appreciate your take on the inefficiencies; I love the insight.",
-        "My main concern is the potential cost to service quality. Bringing in too many temps could lead to training gaps and operational chaos.",
-        "That said, our high standard for service quality would not allow for this right now. Sorry. We need to see which roles are truly suitable for a flexible model, along with a much more rigorous cost-benefit analysis.",
-        "I’d be happy to take another look if you can provide a position-by-position flexibility map and a full cost-benefit analysis.",
-      ],
-      closing: "Sorry, I need to move on to other work now. Let’s put this aside and focus on today’s operations.",
-    },
-    HP_LC: {
-      rejection: [
-        "Thanks for walking me through this. I really appreciate your effort in raising this issue; I love the insight.",
-        "My main concern is that our park is a complicated operation, and even a small staffing change can create unexpected ripple effects.",
-        "That said, the current situation does not allow for this right now. Sorry. We need to see a more reasonable and rational plan that takes the broader situation into account and addresses the main concerns more carefully.",
-        "I’d be happy to take another look if you can present a clearer basis for why this approach would actually work in practice.",
-      ],
-      closing: "Sorry, I need to move on to other work now. Let’s put this aside and focus on today’s operations.",
-    },
-    LP_HC: {
-      rejection: [
-        "I got your proposal. I think it has a lot of problems, and several parts of it are not well thought through.",
-        "You didn’t think about the cost to service quality. Bringing in too many temps could create training gaps, inconsistent service, and operational chaos.",
-        "I can’t approve the current proposal. It undermines service quality. I need to see which roles are actually suitable for a flexible labor model, along with a much more rigorous cost-benefit analysis.",
-        "Don’t bring this back to me until you can provide a position-by-position flexibility map and a full cost-benefit analysis.",
-      ],
-      closing: "I need to move on to other work now. Let’s put this aside and focus on today’s operations.",
-    },
-    LP_LC: {
-      rejection: [
-        "I got your proposal. I think it has a lot of problems, and several parts of it are not well thought through.",
-        "I need to point out that our park is too complicated for this kind of simple staffing change, and you clearly haven’t thought through the ripple effects.",
-        "I can’t approve the current proposal. I do not see enough rational thinking behind the plan. It does not deal with the bigger picture or the obvious concerns. You need to come back with something more rational and better thought through.",
-        "Don’t bring this back to me until you can come up with something more reasonable and practical.",
-      ],
-      closing: "I need to move on to other work now. Let’s put this aside and focus on today’s operations.",
-    },
-  };
-
-  const managerFollowups = [
-    "Can you tell me a bit more about that?",
-    "Can you explain that a little more?",
-    "What do you have in mind?",
-    "Can you walk me through your thinking?",
-    "What makes you think that would help?",
-  ];
-
-  const neutralQuestions = [
-    "What problem are you trying to address?",
-    "What specific visitor group are you thinking about?",
-    "How would this affect current park operations?",
-    "What information are you basing this on?",
-    "What would be the first step if the park were to consider this?",
-  ];
 
   const likertOptions = [
     "Strongly disagree",
@@ -304,8 +250,17 @@
     state.managerTurnActive = true;
 
     if (state.managerClosingPending) {
+      const sent = await sendAiMessages({
+        stage: "manager1",
+        phase: "closing",
+        condition,
+        alexMessage: text,
+      });
+      if (!sent) {
+        finishManagerTurn();
+        return;
+      }
       state.managerClosingPending = false;
-      await sendDelayed("Manager", "manager", managerScripts[condition].closing, 900);
       setStatus("Manager offline");
       addSystemNote("Manager left the chat and is now offline.");
       lockManagerChat();
@@ -317,22 +272,71 @@
 
     if (!state.managerAskedFollowup && isFlexibleLaborProposal(text)) {
       state.managerAskedFollowup = true;
-      await sendDelayed("Manager", "manager", pick(managerFollowups));
+      const sent = await sendAiMessages({
+        stage: "manager1",
+        phase: "followup",
+        condition,
+        alexMessage: text,
+      });
+      if (!sent) {
+        finishManagerTurn();
+        return;
+      }
       finishManagerTurn();
       return;
     }
 
     if (state.managerAskedFollowup && !state.managerRejected) {
       state.managerRejected = true;
-      for (const line of managerScripts[condition].rejection) {
-        await sendDelayed("Manager", "manager", line);
+      state.managerRejectionRound = 1;
+      const sent = await sendAiMessages({
+        stage: "manager1",
+        phase: "rejection_initial",
+        condition,
+        alexMessage: text,
+        rejectionRound: state.managerRejectionRound,
+      });
+      if (!sent) {
+        state.managerRejected = false;
+        state.managerRejectionRound = 0;
+        finishManagerTurn();
+        return;
       }
-      state.managerClosingPending = true;
       finishManagerTurn();
       return;
     }
 
-    await sendDelayed("Manager", "manager", casualManagerReply(text));
+    if (state.managerRejected && !state.managerClosingPending) {
+      state.managerRejectionRound += 1;
+      const sent = await sendAiMessages({
+        stage: "manager1",
+        phase: state.managerRejectionRound >= 3 ? "rejection_final" : "rejection_followup",
+        condition,
+        alexMessage: text,
+        rejectionRound: state.managerRejectionRound,
+      });
+      if (!sent) {
+        state.managerRejectionRound -= 1;
+        finishManagerTurn();
+        return;
+      }
+      if (state.managerRejectionRound >= 3) {
+        state.managerClosingPending = true;
+      }
+      finishManagerTurn();
+      return;
+    }
+
+    const sent = await sendAiMessages({
+      stage: "manager1",
+      phase: "casual",
+      condition,
+      alexMessage: text,
+    });
+    if (!sent) {
+      finishManagerTurn();
+      return;
+    }
     finishManagerTurn();
   }
 
@@ -402,24 +406,38 @@
       state.secondPhase = "afterProposal";
       state.postSuggestionTurns = 1;
       state.coworkerTurnActive = true;
-      await sendCoworkerSequence(orderCoworkerPair([
-        { speaker: "Lisa", className: "lisa", text: "That sounds like something worth raising. The records and comments give you a reasonable basis for it." },
-        { speaker: "John", className: "john", text: "Maybe, but I’d be careful. The manager might hear it as criticism of the current visitor strategy." },
-      ]));
+      await sendAiMessages({
+        stage: "lisa_john",
+        phase: "afterProposal",
+        mode: "both",
+        turn: state.postSuggestionTurns,
+        alexMessage: text,
+      });
       finishCoworkerTurn();
       return;
     }
 
     if (state.secondPhase === "beforeProposal") {
       state.coworkerTurnActive = true;
-      await sendCoworkerSequence(selectCoworkerReplies(beforeProposalReplies(text)));
+      await sendAiMessages({
+        stage: "lisa_john",
+        phase: "beforeProposal",
+        mode: coworkerMode(),
+        alexMessage: text,
+      });
       finishCoworkerTurn();
       return;
     }
 
     state.postSuggestionTurns += 1;
     state.coworkerTurnActive = true;
-    await sendCoworkerSequence(selectCoworkerReplies(afterProposalReplies(state.postSuggestionTurns)));
+    await sendAiMessages({
+      stage: "lisa_john",
+      phase: "afterProposal",
+      mode: coworkerMode(),
+      turn: state.postSuggestionTurns,
+      alexMessage: text,
+    });
 
     if (state.postSuggestionTurns >= 3 && !state.decisionShown) {
       await delay(randomBetween(3000, 5000));
@@ -430,54 +448,6 @@
     }
 
     finishCoworkerTurn();
-  }
-
-  function beforeProposalReplies(text) {
-    if (/far|distance|remote|travel|location|city/i.test(text)) {
-      return [
-        { speaker: "John", className: "john", text: "The location does seem like a real problem. Two hours from the city center is a lot for a normal weekday visit.", delay: 1200 },
-        { speaker: "Lisa", className: "lisa", text: "And with only around 500 visitors today, it feels like the off-season pattern is pretty visible.", delay: 2500 },
-      ];
-    }
-
-    if (/family|child|children|kids|parents/i.test(text)) {
-      return [
-        { speaker: "Lisa", className: "lisa", text: "Yeah, most of the visitors we saw were families with young kids. The under-10 group is such a big share.", delay: 1300 },
-        { speaker: "John", className: "john", text: "Other groups barely showed up today. That part stood out to me too.", delay: 2600 },
-      ];
-    }
-
-    if (/student|university|college|photo|discount|farm|event|afternoon|partnership/i.test(text)) {
-      return [
-        { speaker: "Lisa", className: "lisa", text: "That could be a possible angle. What kind of change are you thinking of?", delay: 1300 },
-      ];
-    }
-
-    return [
-      { speaker: "Lisa", className: "lisa", text: "The family share is really high, and the park is quiet for long stretches on off-season weekdays.", delay: 1300 },
-      { speaker: "John", className: "john", text: "There are also those universities nearby, but I’m not sure what to make of that yet. What do you think the opportunity is?", delay: 2700 },
-    ];
-  }
-
-  function afterProposalReplies(turn) {
-    if (turn === 2) {
-      return [
-        { speaker: "Lisa", className: "lisa", text: "I don’t think you’d be speaking out of nowhere. The attendance records, location, and visitor comments all point in that direction.", delay: 1400 },
-        { speaker: "John", className: "john", text: "I get that, but it could still look like overstepping. Visitor strategy is usually treated as a management issue.", delay: 2700 },
-      ];
-    }
-
-    if (turn === 3) {
-      return [
-        { speaker: "John", className: "john", text: "If you bring it up, I’d keep it very careful. I just don’t want it to land the wrong way.", delay: 1400 },
-        { speaker: "Lisa", className: "lisa", text: "That’s fair. Still, staying silent has a cost too if there’s a real off-season problem.", delay: 2600 },
-      ];
-    }
-
-    return [
-      { speaker: "Lisa", className: "lisa", text: "It’s your call. I just think it can be framed as helping the park understand the attendance pattern.", delay: 1400 },
-      { speaker: "John", className: "john", text: "And I’d still weigh the risk before sending it upward.", delay: 2500 },
-    ];
   }
 
   function showDecisionPrompt() {
@@ -544,12 +514,20 @@
     addSystemNote("You are now entering a new chat with the manager. Please type what you would like to say.");
   }
 
-  async function handleNeutralManagerInput() {
+  async function handleNeutralManagerInput(text) {
     if (state.neutralQuestionCount >= 5) return;
     state.managerTurnActive = true;
     if (state.neutralQuestionCount === 4) {
       state.neutralQuestionCount += 1;
-      await sendDelayed("Manager", "manager", "I have enough information for now. Please return to your regular work.", 1000);
+      const sent = await sendAiMessages({
+        stage: "manager2",
+        phase: "closing",
+        alexMessage: "",
+      });
+      if (!sent) {
+        finishManagerTurn();
+        return;
+      }
       setStatus("Manager online");
       participant.completed_neutral_manager_followup = "true";
       saveParticipant();
@@ -561,9 +539,16 @@
       return;
     }
 
-    const question = neutralQuestions[state.neutralQuestionCount];
     state.neutralQuestionCount += 1;
-    await sendDelayed("Manager", "manager", question, 1000);
+    const sent = await sendAiMessages({
+      stage: "manager2",
+      phase: "question",
+      alexMessage: text,
+    });
+    if (!sent) {
+      finishManagerTurn();
+      return;
+    }
     finishManagerTurn();
   }
 
@@ -709,7 +694,7 @@
         await delay(plan.totalDelay);
       }
     } else {
-      await delay(ms);
+      await delay(ms || responseDelayForText(text));
     }
     addMessage(speaker, className, text);
     state.busy = false;
@@ -723,29 +708,61 @@
     }
   }
 
+  async function sendAiMessages(request) {
+    const result = await requestAiMessages(request);
+    if (!result.ok) {
+      addSystemNote(result.error || "The AI chat service is not available. Please check the server configuration.");
+      return false;
+    }
+
+    for (const message of result.messages) {
+      const className = message.speaker.toLowerCase();
+      await sendDelayed(message.speaker, className, message.text);
+    }
+    return result.messages.length > 0;
+  }
+
+  async function requestAiMessages(request) {
+    try {
+      const response = await fetch(`${dataEndpoint}/ai-reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...request,
+          condition,
+          history: recentChatHistory(),
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        return { ok: false, error: data.error || "OpenAI API request failed." };
+      }
+      const messages = Array.isArray(data.messages) ? data.messages : [];
+      return { ok: messages.length > 0, messages, error: messages.length ? "" : "OpenAI returned no chat messages." };
+    } catch (error) {
+      return { ok: false, error: "Could not connect to the AI chat service." };
+    }
+  }
+
+  function recentChatHistory() {
+    return interactionBackup
+      .filter((row) => row.stage === currentStage())
+      .slice(-14)
+      .map((row) => ({
+        speaker: row.speaker,
+        message: row.message,
+      }));
+  }
+
+  function coworkerMode() {
+    const roll = Math.random();
+    if (roll < 0.35) return "lisa";
+    if (roll < 0.70) return "john";
+    return "both";
+  }
+
   function coworkerResponseDelay(text) {
     return responseDelayForText(text);
-  }
-
-  function selectCoworkerReplies(replies) {
-    if (replies.length < 2) return replies;
-    const lisaReply = replies.find((reply) => reply.className === "lisa") || replies[0];
-    const johnReply = replies.find((reply) => reply.className === "john") || replies[1];
-    const roll = Math.random();
-    if (roll < 0.35) return [lisaReply];
-    if (roll < 0.70) return [johnReply];
-    if (roll < 0.85) return [lisaReply, johnReply];
-    return [johnReply, lisaReply];
-  }
-
-  function orderCoworkerPair(replies) {
-    if (replies.length < 2) return replies;
-    const lisaReply = replies.find((reply) => reply.className === "lisa") || replies[0];
-    const johnReply = replies.find((reply) => reply.className === "john") || replies[1];
-    if (Math.random() < 0.5) {
-      return [lisaReply, johnReply];
-    }
-    return [johnReply, lisaReply];
   }
 
   function showTypingIndicator() {
@@ -776,38 +793,18 @@
   }
 
   function managerTimingPlan(text) {
-    const { min, max, wordCount } = responseDelayRange(text);
-    let typingChance = 0.72;
-
-    if (wordCount < 10) {
-      typingChance = 0.08;
-    } else if (wordCount <= 25) {
-      typingChance = 0.28;
-    } else if (wordCount <= 50) {
-      typingChance = 0.72;
-    } else if (wordCount <= 90) {
-      typingChance = 0.84;
-    } else {
-      typingChance = 0.9;
-    }
-
-    if (state.lastManagerShowedTyping) {
-      typingChance *= 0.55;
-    }
-
-    const showTyping = Math.random() < typingChance;
-    const totalDelay = randomBetween(min, max);
-    state.lastManagerShowedTyping = showTyping;
-
-    if (!showTyping) {
-      return { showTyping, totalDelay };
-    }
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    const showTyping = true;
+    const wordsPerMinute = randomBetween(75, 85);
+    const readingDelay = randomBetween(1200, 2600);
+    const totalDelay = Math.round((wordCount / wordsPerMinute) * 60000) + readingDelay;
+    state.lastManagerShowedTyping = true;
 
     const thinkingDelay = randomBetween(
-      Math.min(1200, Math.floor(totalDelay * 0.25)),
-      Math.max(1200, Math.floor(totalDelay * 0.38))
+      Math.min(2500, Math.floor(totalDelay * 0.15)),
+      Math.max(2500, Math.floor(totalDelay * 0.28))
     );
-    const tailPause = randomBetween(300, Math.max(600, Math.floor(totalDelay * 0.16)));
+    const tailPause = randomBetween(600, Math.max(1000, Math.floor(totalDelay * 0.08)));
     return {
       showTyping,
       totalDelay,
@@ -891,16 +888,6 @@
   function setStatus(text) {
     const status = document.getElementById("chat-status");
     if (status) status.textContent = text;
-  }
-
-  function casualManagerReply(text) {
-    if (/plan|proposal|idea|suggest/i.test(text)) {
-      return "Okay, what’s on your mind?";
-    }
-    if (/staff|labor|temp|intern|flex/i.test(text)) {
-      return "Okay, what change are you thinking about?";
-    }
-    return "Can you say a bit more about what you’re seeing?";
   }
 
   function isFlexibleLaborProposal(text) {

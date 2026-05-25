@@ -18,6 +18,7 @@ Set `DATA_DIR` to a persistent disk or volume path. The server writes:
 - `participants.csv`
 - `interactions.csv`
 - `survey_responses.csv`
+- `experiment_data.csv`
 - `experiment_data.xlsx`
 
 Do not deploy on a platform/filesystem where server files disappear on restart unless you attach a persistent volume.
@@ -27,6 +28,10 @@ Do not deploy on a platform/filesystem where server files disappear on restart u
 - `PORT`: supplied by the host.
 - `DATA_DIR`: persistent directory for data files, for example `/var/data`.
 - `ADMIN_TOKEN`: optional secret for protected data downloads.
+- `OPENAI_API_KEY`: required for AI-generated Manager, Lisa, and John chat replies.
+- `OPENAI_MODEL`: optional model name. Defaults to `gpt-4.1-mini`.
+
+The OpenAI API key must be set on the server or in Render environment variables. Do not put the API key in `app.js`, `index.html`, GitHub, Prolific, or any browser-visible file.
 
 ## Render Blueprint
 
@@ -40,6 +45,8 @@ The Render service should use:
 - Persistent disk mount path: `/var/data`
 - Environment variable `DATA_DIR=/var/data`
 - Environment variable `ADMIN_TOKEN=<a long private random string>`
+- Environment variable `OPENAI_API_KEY=<your OpenAI API key>`
+- Optional environment variable `OPENAI_MODEL=gpt-4.1-mini`
 
 After deployment, use the public service URL as the experiment URL:
 
@@ -64,6 +71,7 @@ If `ADMIN_TOKEN` is set, authorized downloads are available at:
 https://YOUR-SERVICE.onrender.com/admin/download/participants.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/interactions.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/survey_responses.csv?token=YOUR_ADMIN_TOKEN
+https://YOUR-SERVICE.onrender.com/admin/download/experiment_data.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/experiment_data.xlsx?token=YOUR_ADMIN_TOKEN
 ```
 
@@ -102,6 +110,7 @@ Confirm that these files are not pushed:
 - `participants.csv`
 - `interactions.csv`
 - `survey_responses.csv`
+- `experiment_data.csv`
 - `experiment_data.xlsx`
 - `data/`
 
@@ -134,6 +143,8 @@ Option B: create the web service manually.
    - `NODE_ENV=production`
    - `DATA_DIR=/var/data`
    - `ADMIN_TOKEN=<a long private random string>`
+   - `OPENAI_API_KEY=<your OpenAI API key>`
+   - `OPENAI_MODEL=gpt-4.1-mini`
 10. Click **Create Web Service**.
 
 ## Test the Deployed Experiment
@@ -156,6 +167,7 @@ Go through a few chat messages. Then check data download:
 https://voice-rejection-experiment.onrender.com/admin/download/participants.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/interactions.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/survey_responses.csv?token=YOUR_ADMIN_TOKEN
+https://voice-rejection-experiment.onrender.com/admin/download/experiment_data.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/experiment_data.xlsx?token=YOUR_ADMIN_TOKEN
 ```
 

@@ -84,7 +84,7 @@ The condition must be saved together with the participant's Prolific ID.
 
 The condition must not be shown to the participant.
 
-The assigned condition determines which manager rejection script is used in the first manager interaction.
+The assigned condition determines how the AI manager generates the rejection response in the first manager interaction.
 
 ## Condition Source
 
@@ -509,7 +509,7 @@ When implementing this data recording system:
 3. If the condition value is missing or invalid, randomly assign one of the four allowed conditions.
 4. Store the assigned condition immediately.
 5. Keep the assigned condition fixed throughout the session.
-6. Use the assigned condition to select the correct manager rejection script in the first manager interaction.
+6. Use the assigned condition to generate the correct manager rejection response in the first manager interaction.
 7. Record one participant-level row.
 8. Record one interaction-level row for every message.
 9. Save partial data continuously.
@@ -551,5 +551,5 @@ Record condition_source as either url or random_assignment in participants.csv.
 
 Do not show the condition label to participants.
 
-The assigned condition should determine which manager rejection script is used in the first manager interaction.
+The assigned condition should determine which manager rejection style is used in the first manager interaction.
 ```
