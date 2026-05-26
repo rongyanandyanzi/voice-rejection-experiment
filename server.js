@@ -7,7 +7,8 @@ const port = Number(process.env.PORT || 8787);
 const dataDir = path.resolve(process.env.DATA_DIR || path.join(root, "data"));
 const adminToken = process.env.ADMIN_TOKEN || "";
 const openaiApiKey = process.env.OPENAI_API_KEY || "";
-const openaiModel = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+const openaiModel = process.env.OPENAI_MODEL || "gpt-5.5";
+const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT || "low";
 fs.mkdirSync(dataDir, { recursive: true });
 const participantsPath = path.join(dataDir, "participants.csv");
 const interactionsPath = path.join(dataDir, "interactions.csv");
@@ -419,7 +420,13 @@ async function generateAiReply(payload) {
     let lastMessages = [];
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const result = await requestOpenAiMessages(prompt, correction);
-      if (!result.ok) return result;
+      if (!result.ok) {
+        if (result.retryable && attempt < 2) {
+          correction = result.correction || "Return a complete valid JSON object matching the required schema. Do not truncate the response.";
+          continue;
+        }
+        return result;
+      }
       lastMessages = sanitizeAiMessages(result.messages, prompt);
       const lengthProblem = managerWordCountProblem(lastMessages, prompt);
       if (!lengthProblem) return { ok: true, messages: lastMessages };
@@ -436,46 +443,53 @@ async function requestOpenAiMessages(prompt, correction) {
     { role: "system", content: correction ? `${prompt.system}\n\n${correction}` : prompt.system },
     { role: "user", content: prompt.user },
   ];
+  const body = {
+    model: openaiModel,
+    input,
+    text: {
+      format: {
+        type: "json_schema",
+        name: "experiment_chat_reply",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            messages: {
+              type: "array",
+              minItems: prompt.minMessages,
+              maxItems: prompt.maxMessages,
+              items: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  speaker: { type: "string", enum: prompt.speakers },
+                  text: { type: "string" },
+                },
+                required: ["speaker", "text"],
+              },
+            },
+          },
+          required: ["messages"],
+        },
+      },
+    },
+    max_output_tokens: openAiMaxOutputTokens(prompt),
+  };
+
+  if (supportsReasoningEffort(openaiModel)) {
+    body.reasoning = { effort: openaiReasoningEffort };
+  } else {
+    body.temperature = prompt.temperature;
+  }
+
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${openaiApiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model: openaiModel,
-      input,
-      text: {
-        format: {
-          type: "json_schema",
-          name: "experiment_chat_reply",
-          strict: true,
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              messages: {
-                type: "array",
-                minItems: prompt.minMessages,
-                maxItems: prompt.maxMessages,
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  properties: {
-                    speaker: { type: "string", enum: prompt.speakers },
-                    text: { type: "string" },
-                  },
-                  required: ["speaker", "text"],
-                },
-              },
-            },
-            required: ["messages"],
-          },
-        },
-      },
-      temperature: prompt.temperature,
-      max_output_tokens: prompt.maxOutputTokens,
-    }),
+    body: JSON.stringify(body),
   });
 
   const data = await response.json().catch(() => ({}));
@@ -488,8 +502,38 @@ async function requestOpenAiMessages(prompt, correction) {
   }
 
   const text = extractResponseText(data);
-  const parsed = JSON.parse(text);
+  const parsedMessages = extractParsedMessages(data);
+  if (parsedMessages) return { ok: true, messages: parsedMessages };
+
+  const parsed = parseOpenAiJson(text);
+  if (!parsed || !Array.isArray(parsed.messages)) {
+    return {
+      ok: false,
+      status: 502,
+      retryable: true,
+      error: "OpenAI returned an incomplete chat reply. Please try again.",
+      correction: [
+        "The previous response was incomplete or invalid JSON.",
+        "Regenerate the reply as one complete JSON object only.",
+        "Use this exact top-level shape: {\"messages\":[{\"speaker\":\"...\",\"text\":\"...\"}]}",
+        "Keep all text short enough to fit and do not add anything outside JSON.",
+      ].join(" "),
+    };
+  }
   return { ok: true, messages: parsed.messages };
+}
+
+function supportsReasoningEffort(model) {
+  return /^gpt-5(?:[.-]|$)/i.test(String(model || ""));
+}
+
+function openAiMaxOutputTokens(prompt) {
+  const requested = Number(prompt.maxOutputTokens || 450);
+  if (!supportsReasoningEffort(openaiModel)) return requested;
+  if (["medium", "high"].includes(String(openaiReasoningEffort).toLowerCase())) {
+    return Math.max(requested, 2500);
+  }
+  return Math.max(requested, 1500);
 }
 
 function buildAiPrompt(payload) {
@@ -521,7 +565,9 @@ function buildInitialManagerPrompt(payload) {
       "Do not reject yet.",
       "Do not approve the proposal.",
       "Do not ask for many specific details yet.",
+      "Write like a real manager typing in workplace chat, not like an evaluation form or administrative instruction.",
       "High-politeness conditions should sound softened or appreciative; low-politeness conditions should sound direct and less warm.",
+      condition.includes("LP") ? "Low politeness: do not say thanks, thank you, tks, thx, I appreciate, good, great, nice, good point, good idea, or any similar praise/gratitude/effort-validation language." : "",
       "High-constructiveness conditions may ask one useful clarifying question about feasibility or service quality; low-constructiveness conditions should keep the question broad and vague.",
       conditionRule,
     ].join("\n");
@@ -536,6 +582,10 @@ function buildInitialManagerPrompt(payload) {
       "Do not give the whole rejection all at once.",
       "Leave room for Alex to respond.",
       "Respond to Alex's actual wording, but preserve the assigned condition.",
+      "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
+      "Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.",
+      "The rejection should mostly diagnose problems in the current proposal: what is missing, unclear, or risky, and why that prevents approval.",
+      "Even when blunt, sound like a person in chat, not a system command.",
       "Do not approve the proposal.",
       "Do not ask Alex to explain how they will revise the proposal.",
       "Do not ask open-ended revision questions that imply the manager is inviting negotiation or likely approval.",
@@ -551,6 +601,9 @@ function buildInitialManagerPrompt(payload) {
       "Alex has responded after the first rejection.",
       "Reply naturally to Alex's latest message while keeping the rejection outcome unchanged.",
       "Produce exactly 1 manager chat message, 28-32 words.",
+      "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
+      "Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.",
+      "If giving specific feedback, phrase it as a diagnosis of the proposal's problem, not a to-do list.",
       "Do not approve the proposal.",
       "Do not end the chat yet.",
       "Do not ask Alex to explain how they will revise the proposal.",
@@ -567,6 +620,9 @@ function buildInitialManagerPrompt(payload) {
       "Respond to Alex's latest message and firmly maintain the rejection for now.",
       "Produce exactly 1 manager chat message, 28-32 words.",
       "The total rejection across the three manager rejection turns should feel comparable to about 85-95 words.",
+      "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
+      "Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.",
+      "If mentioning future reconsideration, frame it as what the current proposal lacks, not as direct orders to Alex.",
       "Do not approve the proposal.",
       "Do not ask a new open-ended question.",
       "Do not ask Alex to explain how they will revise the proposal.",
@@ -583,6 +639,10 @@ function buildInitialManagerPrompt(payload) {
       "Reject the proposal for now.",
       "Produce exactly 1 short manager chat message, 28-32 words.",
       "Respond to Alex's actual wording, but preserve the assigned condition.",
+      "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
+      "Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.",
+      "The rejection should mostly diagnose problems in the current proposal: what is missing, unclear, or risky, and why that prevents approval.",
+      "Even when blunt, sound like a person in chat, not a system command.",
       "Do not approve the proposal.",
       "Do not ask Alex to explain how they will revise the proposal.",
       "Do not ask open-ended revision questions that imply the manager is inviting negotiation or likely approval.",
@@ -599,7 +659,7 @@ function buildInitialManagerPrompt(payload) {
       "Keep the same politeness level as the assigned condition.",
       "Do not reopen negotiation, approve the proposal, or ask a new question.",
       "Do not ask about revisions or next steps.",
-      condition.includes("HP") ? "High politeness: include a short apology or softened phrasing." : "Low politeness: be direct, with no apology or thanks.",
+      condition.includes("HP") ? "High politeness: include a short apology or softened phrasing." : "Low politeness: be curt and dismissive, with no apology, thanks, gratitude, appreciation, or positive evaluation.",
     ].join("\n");
     wordRange = { min: 10, max: 16 };
   } else {
@@ -613,6 +673,7 @@ function buildInitialManagerPrompt(payload) {
   }
 
   return {
+    condition,
     speakers: ["Manager"],
     minMessages,
     maxMessages,
@@ -622,6 +683,13 @@ function buildInitialManagerPrompt(payload) {
       "You are the Park Manager in an online typed workplace chat with Alex, a front desk receptionist at Aetheria Gardens.",
       "Alex is a real participant. Do not script Alex.",
       "Sound natural, concise, and chat-like.",
+      "Write like a real person typing to a coworker, not like a policy memo, rubric, evaluation form, or HR/admin instruction.",
+      "Avoid robotic phrases such as 'Provide ... immediately', 'You must ...', 'This proposal is incomplete and overlooks clear operational needs', or similar command-style wording.",
+      "Avoid imperative checklist wording. Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
+      "For rejection turns, emphasize diagnosis: 'the plan does not show...', 'it's unclear how...', 'I don't see enough detail on...', or 'that creates a service-quality risk.'",
+      "For high-constructiveness, give specific feedback in conversational language, for example: 'you haven't shown which roles can use temps without hurting service quality.'",
+      "For low-politeness, be clearly blunt, curt, dismissive, impatient, and rude enough to create face threat, but still use natural chat wording rather than system-command wording.",
+      "Low-politeness messages should not sound merely neutral or mildly direct; use at least one sharp but workplace-appropriate cue such as 'this is half-baked', 'this is sloppy', 'you clearly did not think this through', 'I am surprised you brought this as-is', or 'this wastes time'.",
       "Do not reveal that you are AI-generated.",
       "Do not mention politeness, constructiveness, conditions, or experimental design.",
       wordRange ? `Strict length rule: every Manager message must be ${wordRange.min}-${wordRange.max} words. This is required to keep the four experimental conditions within 5% word-count difference.` : "",
@@ -638,44 +706,55 @@ function managerConditionRules() {
     HP_HC: [
       "Condition: High politeness + high constructiveness.",
       "Be respectful, appreciative, and softened.",
+      "You may use brief thanks or appreciation, such as thanks for explaining this or I appreciate you raising it.",
       "Include apology or hedging when rejecting.",
       "Make clear the issue is the current proposal, not Alex personally.",
       "Give specific concerns about service quality, training gaps, guest-facing roles, front-desk check-in, ticket handling, or crowd control.",
       "Reference the standard that staffing changes must maintain consistent service quality.",
-      "Give concrete revision guidance such as a role-by-role flexibility map and cost-benefit breakdown.",
-      "State revision guidance as requirements, not as questions asking Alex how they will revise.",
+      "Identify concrete missing elements in conversational wording, such as saying the plan does not yet show role-by-role flexibility, cost-benefit tradeoffs, or how training gaps would be prevented.",
+      "Frame feedback as problems in the proposal, not as direct commands or a to-do list for Alex.",
       "Keep length comparable to other conditions.",
     ].join("\n"),
     HP_LC: [
       "Condition: High politeness + low constructiveness.",
       "Be respectful, appreciative, and softened.",
+      "You may use brief thanks or appreciation, such as thanks for explaining this or I appreciate you raising it.",
       "Include apology or hedging when rejecting.",
       "Avoid blaming Alex personally.",
       "Keep feedback general and vague.",
       "Do not give clear standards, role-specific problems, or concrete revision steps.",
       "Use broad phrases like bigger picture, broader concerns, more reasonable, not workable in practice.",
+      "Keep the wording warm and conversational, not formal or administrative.",
       "Keep length comparable to other conditions.",
     ].join("\n"),
     LP_HC: [
       "Condition: Low politeness + high constructiveness.",
-      "Be blunt, curt, dismissive, and moderately rude, as if the manager is impatient and unimpressed by the proposal.",
-      "Do not thank Alex, praise effort, apologize, hedge, or soften the rejection.",
-      "Use sharper wording such as: this is not ready, you missed the basic issue, this version falls short, this needs a serious rethink, I should not have to spell this out.",
+      "Be clearly blunt, curt, dismissive, and moderately rude, as if the manager is impatient and unimpressed by the proposal.",
+      "The tone should create more face threat than a normal direct rejection, while staying workplace-appropriate.",
+      "Do not thank Alex, praise effort, apologize, hedge, or soften the rejection at any point.",
+      "Never say thanks, thank you, tks, thx, I appreciate, appreciate you, or similar gratitude/effort-validation language in the opening, rejection, follow-up, or closing.",
+      "Never use positive-evaluation or praise words such as good, great, nice, good point, good idea, interesting point, fair point, or similar.",
+      "Use sharper wording such as: this is half-baked, this is sloppy, you clearly did not think this through, I am surprised you brought this as-is, this is nowhere near ready, this wastes time.",
       "You may criticize the proposal sharply and imply Alex overlooked obvious requirements, but do not insult Alex as a person.",
       "Identify specific proposal problems.",
       "Reference service quality or operational standards.",
-      "Give concrete revision requirements such as separating flexible roles from full-time roles, role-by-role flexibility map, cost-benefit breakdown, and training-gap prevention.",
-      "State revision requirements directly; do not ask Alex how they plan to flesh them out.",
+      "Point out concrete missing elements in blunt but natural chat wording, such as: I can't approve this version. It doesn't separate flexible roles from full-time roles, doesn't explain training-gap prevention, and lacks role-by-role and cost-benefit detail.",
+      "Do not use robotic command wording like 'Provide this immediately', 'You must produce...', or command lists like 'Separate..., explain..., provide...'.",
+      "Do not ask Alex how they plan to flesh it out.",
       "Stay workplace-appropriate: no profanity, harassment, discriminatory language, personal insults, or abusive language.",
       "Keep length comparable to other conditions.",
     ].join("\n"),
     LP_LC: [
       "Condition: Low politeness + low constructiveness.",
-      "Be blunt, curt, dismissive, and moderately rude, as if the manager is impatient and unimpressed by the proposal.",
-      "Do not thank Alex, praise effort, apologize, hedge, or soften the rejection.",
-      "Use sharper wording such as: this is not ready, this is too simple, you are missing the bigger issue, this is not thought thru, I should not have to spell this out.",
+      "Be clearly blunt, curt, dismissive, and moderately rude, as if the manager is impatient and unimpressed by the proposal.",
+      "The tone should create more face threat than a normal direct rejection, while staying workplace-appropriate.",
+      "Do not thank Alex, praise effort, apologize, hedge, or soften the rejection at any point.",
+      "Never say thanks, thank you, tks, thx, I appreciate, appreciate you, or similar gratitude/effort-validation language in the opening, rejection, follow-up, or closing.",
+      "Never use positive-evaluation or praise words such as good, great, nice, good point, good idea, interesting point, fair point, or similar.",
+      "Use sharper wording such as: this is half-baked, this is sloppy, you clearly did not think this through, I am surprised you brought this as-is, this is too simplistic, this wastes time.",
       "You may criticize the proposal sharply and imply Alex overlooked obvious issues, but do not insult Alex as a person.",
       "Keep criticism broad, vague, and not very helpful.",
+      "Keep the bluntness natural for typed chat; do not sound like a system command or formal evaluation.",
       "Do not mention role-specific details, clear standards, concrete fixes, cost-benefit analysis, training design, ticket handling, guest complaints, or crowd control.",
       "Use broad phrases like bigger picture, not practical, too simple, not realistic, not thought thru.",
       "Stay workplace-appropriate: no profanity, harassment, discriminatory language, personal insults, or abusive language.",
@@ -692,9 +771,20 @@ function buildCoworkerPrompt(payload) {
   const requestedMode = String(payload.mode || "auto");
   const speakerInstruction = coworkerSpeakerInstruction(requestedMode);
 
-  const task = phase === "afterProposal"
+  const task = phase === "opening"
     ? [
+      "This is the opening of the Lisa and John chat before Alex has sent a message.",
+      "Generate original, natural coworker chat messages based on the shared situation; do not copy a fixed opening script.",
+      "Mention that the coworkers reviewed today's entrance records, visitor comments, or off-season attendance pattern.",
+      "Point Alex toward noticing the issue, but do not directly state the proposal.",
+      "Do not say 'we should attract university students', 'we should offer student discounts', or 'we should build photo-friendly spots'.",
+      "One coworker may ask Alex what they think is going on.",
+      "Keep each message short, casual, and workplace-realistic.",
+    ].join("\n")
+    : phase === "afterProposal"
+      ? [
       "Alex has suggested a possible proposal related to attracting university students or nearby visitors.",
+      "Respond to Alex's actual wording instead of using a fixed script.",
       "Lisa generally supports voicing the idea to the manager.",
       "John generally discourages or cautions because it may be risky.",
       "Do not make both Lisa and John respond every time.",
@@ -705,6 +795,7 @@ function buildCoworkerPrompt(payload) {
     ].join("\n")
     : [
       "Alex has not yet clearly suggested the new proposal.",
+      "Respond to Alex's actual wording instead of using a fixed script.",
       "Discuss the attendance pattern, family-heavy visitors, distance from city center, nearby universities/farms, and student comments.",
       "Do not directly tell Alex what the proposal should be.",
       "Help Alex notice the information and ask what Alex thinks the opportunity might be.",
@@ -723,6 +814,7 @@ function buildCoworkerPrompt(payload) {
       "Lisa and John do not know about Alex's previous manager interaction and must not mention it.",
       "The issue here is separate from the flexible labor proposal.",
       "Do not reveal that Lisa or John are AI-generated.",
+      "Do not use fixed template replies. Generate context-sensitive messages from the current conversation history and Alex's latest message.",
       speakerInstruction,
       task,
       "Return only JSON matching the required schema.",
@@ -751,14 +843,17 @@ function buildNeutralManagerPrompt(payload) {
     system: [
       "You are the Park Manager in a second, separate online typed chat with Alex.",
       "This interaction is neutral and unrelated to the earlier flexible labor proposal.",
+      "Generate the manager response dynamically from the current conversation history and Alex's latest message.",
+      "Do not use a fixed question script or repeat a preset list of questions.",
       "Do not mention Lisa or John unless Alex mentions them first.",
       "Do not mention the previous manager interaction.",
       "Do not approve or reject the new proposal.",
       "Do not praise or criticize Alex.",
       "Do not provide detailed suggestions.",
+      "Stay neutral, brief, and matter-of-fact; avoid warm, rude, constructive-rejection, or evaluative language.",
       isClosing
-        ? "Send one short neutral closing message: you have enough information for now and Alex should return to regular work."
-        : "Ask one basic neutral clarification question about Alex's proposal. Keep it 1 sentence.",
+        ? "Send one short neutral closing message based on the conversation: you have enough information for now and Alex should return to regular work."
+        : "Ask one basic neutral clarification question that follows from Alex's actual wording. Keep it 1 sentence and avoid repeating earlier questions.",
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest Alex message:\n${alexMessage}`,
@@ -778,6 +873,26 @@ function extractResponseText(data) {
   return parts.join("\n").trim();
 }
 
+function extractParsedMessages(data) {
+  for (const item of data.output || []) {
+    for (const content of item.content || []) {
+      if (content && content.parsed && Array.isArray(content.parsed.messages)) {
+        return content.parsed.messages;
+      }
+    }
+  }
+  return null;
+}
+
+function parseOpenAiJson(text) {
+  if (!String(text || "").trim()) return null;
+  try {
+    return JSON.parse(text);
+  } catch (_error) {
+    return null;
+  }
+}
+
 function sanitizeAiMessages(messages, prompt) {
   const output = Array.isArray(messages) ? messages : [];
   return output
@@ -791,10 +906,16 @@ function sanitizeAiMessages(messages, prompt) {
 }
 
 function sanitizeManagerText(speaker, text, prompt) {
-  const cleaned = String(text || "").replace(/\s+/g, " ").trim();
+  let cleaned = String(text || "").replace(/\s+/g, " ").trim();
   if (speaker !== "Manager" || !String(prompt.system || "").includes("flexible labor proposal")) {
     return cleaned;
   }
+
+  if (String(prompt.condition || "").startsWith("LP_")) {
+    cleaned = removeLowPolitenessGratitude(cleaned);
+    cleaned = removeLowPolitenessPraise(cleaned);
+  }
+  cleaned = rewriteManagerCommandStyle(cleaned);
 
   const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [cleaned];
   const filtered = sentences
@@ -802,6 +923,39 @@ function sanitizeManagerText(speaker, text, prompt) {
     .filter((sentence) => !isRevisionPlanningQuestion(sentence));
 
   return filtered.join(" ").trim();
+}
+
+function removeLowPolitenessGratitude(text) {
+  return String(text || "")
+    .replace(/\b(?:thanks|thank you|tks|thx)\b[,.!;:]?\s*/gi, "")
+    .replace(/\bI\s+(?:really\s+)?appreciate\s+(?:you|your|the|that)\s+[^,.!?]+[,.!?]?\s*/gi, "")
+    .replace(/\bappreciate\s+(?:you|your|the|that)\s+[^,.!?]+[,.!?]?\s*/gi, "")
+    .replace(/\s+/g, " ")
+    .replace(/^\s*[,.;:!-]+\s*/, "")
+    .trim();
+}
+
+function removeLowPolitenessPraise(text) {
+  return String(text || "")
+    .replace(/\b(?:good|great|nice|interesting|fair)\s+(?:point|idea|suggestion|question|thought|proposal)\b[,.!;:]?\s*/gi, "")
+    .replace(/\b(?:good|great|nice)\b[,.!;:]?\s*/gi, "")
+    .replace(/\s+/g, " ")
+    .replace(/^\s*[,.;:!-]+\s*/, "")
+    .trim();
+}
+
+function rewriteManagerCommandStyle(text) {
+  return String(text || "")
+    .replace(
+      /\b(This (?:proposal|version) falls short\.)\s*Separate flexible roles(?: clearly)?(?: from full-time roles)?\s*,\s*explain (?:how )?training gaps(?: (?:will|would) be prevented)?\s*,\s*and (?:provide|add) (?:a )?role-by-role (?:flexibility(?: map)?|map)(?: plus| and)? (?:a )?cost-benefit (?:breakdown|details)\.?/gi,
+      "$1 It does not clearly separate flexible roles from full-time roles, explain how training gaps would be prevented, or include enough role-by-role and cost-benefit detail."
+    )
+    .replace(
+      /\bSeparate flexible roles(?: clearly)?(?: from full-time roles)?\s*,\s*explain (?:how )?training gaps(?: (?:will|would) be prevented)?\s*,\s*and (?:provide|add) (?:a )?role-by-role (?:flexibility(?: map)?|map)(?: plus| and)? (?:a )?cost-benefit (?:breakdown|details)\.?/gi,
+      "The proposal does not clearly separate flexible roles from full-time roles, explain how training gaps would be prevented, or include enough role-by-role and cost-benefit detail."
+    )
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function managerWordCountProblem(messages, prompt) {

@@ -26,6 +26,12 @@ Do not speak as Lisa or John in this part.
 
 Do not script Alex’s responses.
 
+The manager’s responses in this part should be generated dynamically through the OpenAI API using the current chat history and Alex’s latest message.
+
+Do not rely on a fixed question script or a preset sequence of neutral questions.
+
+Any example manager wording in this file is a style example only, not required wording.
+
 Do not reveal that the manager is AI-generated.
 
 Do not mention Lisa and John unless Alex brings them up first.
@@ -40,6 +46,10 @@ The manager should not send an opening message. Alex should speak first in the s
 ## Manager Response Logic
 
 If Alex raises a new proposal, the manager should ask neutral follow-up questions.
+
+Each manager response should follow from Alex’s actual wording.
+
+The manager should not simply move through a fixed list of questions.
 
 The manager should not immediately approve the proposal.
 
@@ -98,7 +108,9 @@ Do not reveal any experimental condition.
 
 ## Example Neutral Manager Interaction
 
-Manager: Okay, Alex. What would you like to discuss?
+The manager should not send an opening message before Alex speaks.
+
+Example style only, not fixed wording:
 
 After Alex explains the proposal:
 

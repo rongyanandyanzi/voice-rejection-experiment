@@ -15,7 +15,9 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
-        value: gpt-4.1-mini
+        value: gpt-5.5
+      - key: OPENAI_REASONING_EFFORT
+        value: low
     disk:
       name: experiment-data
       mountPath: /var/data

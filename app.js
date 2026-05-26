@@ -390,10 +390,12 @@
     createChat("Coworker Chat", "Lisa and John online", true);
     setComposerEnabled(true);
     state.coworkerTurnActive = true;
-    await sendCoworkerSequence([
-      { speaker: "Lisa", className: "lisa", text: "Alex, we all looked at today’s entrance records and visitor comments. It seems like there may be something going on with off-season attendance and who actually visits the park.", delay: 3000 },
-      { speaker: "John", className: "john", text: "Yeah, the numbers are not great today, but I’d be careful about reading too much into it. What do you think is the main issue here?", delay: randomBetween(3000, 6000) },
-    ]);
+    await sendAiMessages({
+      stage: "lisa_john",
+      phase: "opening",
+      mode: "both",
+      alexMessage: "",
+    });
     finishCoworkerTurn();
     setComposerEnabled(true);
   }
@@ -702,14 +704,6 @@
     state.busy = false;
   }
 
-  async function sendCoworkerSequence(replies) {
-    for (let index = 0; index < replies.length; index += 1) {
-      const reply = replies[index];
-      const delayMs = coworkerResponseDelay(reply.text);
-      await sendDelayed(reply.speaker, reply.className, reply.text, delayMs);
-    }
-  }
-
   async function sendAiMessages(request) {
     const result = await requestAiMessages(request);
     if (!result.ok) {
@@ -717,9 +711,14 @@
       return false;
     }
 
+    let previousCoworkerText = "";
     for (const message of result.messages) {
       const className = message.speaker.toLowerCase();
-      await sendDelayed(message.speaker, className, message.text);
+      const delayMs = isCoworkerClass(className)
+        ? coworkerResponseDelay(message.text, previousCoworkerText)
+        : undefined;
+      await sendDelayed(message.speaker, className, message.text, delayMs);
+      if (isCoworkerClass(className)) previousCoworkerText = message.text;
     }
     return result.messages.length > 0;
   }
@@ -764,8 +763,23 @@
     return "both";
   }
 
-  function coworkerResponseDelay(text) {
-    return responseDelayForText(text);
+  function coworkerResponseDelay(text, previousCoworkerText) {
+    const typingAndThinkingDelay = responseDelayForText(text);
+    const readPreviousDelay = previousCoworkerText ? coworkerReadingDelay(previousCoworkerText) : 0;
+    return typingAndThinkingDelay + readPreviousDelay;
+  }
+
+  function coworkerReadingDelay(text) {
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    if (!wordCount) return 0;
+    const wordsPerMinute = randomBetween(260, 340);
+    const readTime = Math.round((wordCount / wordsPerMinute) * 60000);
+    const naturalPause = randomBetween(700, 1800);
+    return Math.min(6500, Math.max(1200, readTime + naturalPause));
+  }
+
+  function isCoworkerClass(className) {
+    return className === "lisa" || className === "john";
   }
 
   function showTypingIndicator() {

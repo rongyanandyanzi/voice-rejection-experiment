@@ -36,6 +36,12 @@ Do not speak as the manager in this part.
 
 Do not script Alex’s responses.
 
+Lisa and John’s messages should be generated dynamically through the OpenAI API using the current chat history and Alex’s latest message.
+
+Do not rely on fixed scripted replies for Lisa and John.
+
+Any example Lisa or John wording in this file is a style example only, not a required script.
+
 ## Shared Background Information
 
 Today is a full working day. At the end of the shift, Alex, Lisa, and John check the entrance records and compare them with their observations at the gate. They find that today’s attendance is consistent with the park’s broader seasonal pattern.
@@ -221,15 +227,23 @@ Do not reveal that Lisa and John are AI-generated characters.
 
 ## Opening Message
 
-When Alex enters the chatroom, wait around 3 seconds before showing the first message.
+When Alex enters the chatroom, call the OpenAI API to generate the opening Lisa and John messages.
 
-Lisa: Alex, we all looked at today’s entrance records and visitor comments. It seems like there may be something going on with off-season attendance and who actually visits the park.
+The opening should be natural and should mention that Lisa and John reviewed today’s entrance records, visitor comments, or off-season attendance pattern.
 
-After Lisa’s message, wait around 2–4 seconds.
+The opening should point Alex toward noticing the issue, but should not directly state the new proposal.
 
-John: Yeah, the numbers are not great today, but I’d be careful about reading too much into it. What do you think is the main issue here?
+One coworker may ask Alex what they think is going on.
 
-After this opening, wait for Alex’s response. Then continue as Lisa and John.
+Use natural delays between the opening messages.
+
+After the opening, wait for Alex’s response. Then continue as Lisa and John using OpenAI-generated messages based on Alex’s actual input.
+
+Example style only, not fixed wording:
+
+Lisa: Alex, we were looking over the entrance records and the visitor comments from today. The off-season pattern seems pretty clear.
+
+John: Yeah, it was quiet for long stretches. I’m curious what you think the main issue is.
 
 Lisa and John do not both need to respond to every message from Alex. Use natural turn-taking.
 
@@ -320,5 +334,4 @@ The Lisa and John chatroom should be treated as a new active chat.
 - Do not connect this new issue with the previous flexible labor proposal.
 - Do not reveal the experimental purpose or condition to Alex.
 - Do not reveal that Lisa, John, or the manager are AI-generated.
-
 
