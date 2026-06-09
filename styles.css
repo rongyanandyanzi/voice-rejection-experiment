@@ -9,6 +9,8 @@
   --accent: #26715d;
   --accent-strong: #1d5b4a;
   --manager: #f0f4f8;
+  --ra: #eef3f9;
+  --participant: #f7f7f2;
   --lisa: #eaf6f1;
   --john: #f8f1e8;
   --alex: #225f4f;
@@ -83,6 +85,84 @@ textarea {
 .page ul {
   margin: 0 0 18px;
   padding-left: 22px;
+}
+
+.transition-page strong {
+  color: #b42318;
+  font-weight: 800;
+}
+
+.briefing-progress {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 10px;
+}
+
+.comprehension-check {
+  border-top: 1px solid var(--border);
+  margin-top: 26px;
+  padding-top: 22px;
+}
+
+.comprehension-check fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.comprehension-check legend {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.choice-list {
+  display: grid;
+  gap: 10px;
+}
+
+.choice-option {
+  align-items: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  line-height: 1.45;
+  padding: 12px;
+}
+
+.choice-option:has(input:checked) {
+  border-color: var(--accent);
+  background: #edf7f3;
+}
+
+.choice-option input {
+  margin-top: 3px;
+}
+
+.check-error {
+  color: #b42318;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 12px 0 0;
+  min-height: 22px;
+}
+
+.ai-check-page fieldset {
+  border: 0;
+  margin: 24px 0 0;
+  padding: 0;
+}
+
+.ai-check-page legend {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-bottom: 14px;
 }
 
 .actions {
@@ -182,6 +262,16 @@ textarea {
 
 .message-row.manager .bubble {
   background: var(--manager);
+}
+
+.message-row.ra .bubble {
+  background: var(--ra);
+}
+
+.message-row.participant-1 .bubble,
+.message-row.participant-2 .bubble,
+.message-row.participant-3 .bubble {
+  background: var(--participant);
 }
 
 .typing-row {

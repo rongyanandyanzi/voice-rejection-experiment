@@ -28,6 +28,22 @@ Now, you are about to enter an online chat with your manager.
 
 You may advocate for the implementation of a flexible labor model. You understand that this is a sensitive topic because the existing “all-permanent” staffing strategy is currently treated as the official plan. However, based on your professional insight, you believe that proposing this change is the best path forward for Aetheria Gardens.
 
+## Briefing Presentation and Comprehension Checks
+
+Present the participant briefing as several short pages rather than one long page.
+
+Use one brief comprehension check on each page before allowing the participant to continue.
+
+The checks should confirm that Alex understands:
+
+1. Alex's assigned role and main ticket-checking responsibilities.
+2. The park's staffing problem: off-season surplus staff and peak-season staff shortage.
+3. The possible flexible labor suggestion Alex may bring up with the manager.
+
+If the participant answers incorrectly, ask them to review the information on the current page and try again.
+
+Do not start the manager chat until all briefing checks have been answered correctly.
+
 # Manager Rejection Response Prompt: Bounded Flexibility Version
 
 ## Purpose

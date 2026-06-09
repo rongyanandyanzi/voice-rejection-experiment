@@ -124,6 +124,7 @@ The participant-level data should include:
 - Completion status
 - Whether each major stage was completed
 - Alex's decision about whether to bring the new proposal up with the manager
+- The post-survey AI-check responses
 
 ## participants.csv Columns
 
@@ -136,11 +137,22 @@ Use the following columns:
 - `condition_source`
 - `experiment_start_time`
 - `experiment_end_time`
+- `completed_prechat`
 - `completed_initial_manager_interaction`
 - `completed_transition_page`
 - `completed_lisa_john_interaction`
 - `chose_to_bring_this_up_with_manager`
 - `completed_neutral_manager_followup`
+- `completed_post_interaction_survey`
+- `survey_completion_status`
+- `survey_start_time`
+- `survey_submit_time`
+- `completed_ai_check`
+- `ai_check_start_time`
+- `ai_check_submit_time`
+- `manager_ai_suspicion`
+- `lisa_ai_suspicion`
+- `john_ai_suspicion`
 - `completion_status`
 
 ## Participant-Level Variable Definitions
@@ -192,6 +204,15 @@ The timestamp when the participant starts the experiment.
 The timestamp when the participant completes or exits the experiment.
 
 If the participant does not complete the experiment, record the latest available timestamp.
+
+### completed_prechat
+
+Record whether the participant completed the RA-led prechat and role assignment stage.
+
+Allowed values:
+
+- `true`
+- `false`
 
 ### completed_initial_manager_interaction
 
@@ -245,6 +266,92 @@ Allowed values:
 
 - `true`
 - `false`
+
+### completed_post_interaction_survey
+
+Record whether the participant submitted all required post-interaction survey items.
+
+Allowed values:
+
+- `true`
+- `false`
+
+### survey_completion_status
+
+Record the participant's post-interaction survey completion status.
+
+Allowed values:
+
+- `completed`
+- `partial`
+- `not_reached`
+
+### survey_start_time
+
+The timestamp when the post-interaction survey page was displayed.
+
+### survey_submit_time
+
+The timestamp when the participant submitted the post-interaction survey.
+
+### completed_ai_check
+
+Record whether the participant completed the AI-check page shown after the post-interaction survey.
+
+Allowed values:
+
+- `true`
+- `false`
+
+### ai_check_start_time
+
+The timestamp when the AI-check page was displayed.
+
+### ai_check_submit_time
+
+The timestamp when the participant submitted the AI-check page.
+
+### manager_ai_suspicion
+
+Record the participant's answer to:
+
+```text
+Do you think the manager you interacted with may have been AI?
+```
+
+Allowed values:
+
+- `yes`
+- `no`
+- `not_sure`
+
+### lisa_ai_suspicion
+
+Record the participant's answer to:
+
+```text
+Do you think Lisa may have been AI?
+```
+
+Allowed values:
+
+- `yes`
+- `no`
+- `not_sure`
+
+### john_ai_suspicion
+
+Record the participant's answer to:
+
+```text
+Do you think John may have been AI?
+```
+
+Allowed values:
+
+- `yes`
+- `no`
+- `not_sure`
 
 ### completion_status
 
@@ -328,12 +435,14 @@ The current stage of the experiment.
 
 Use the following stage names:
 
-1. `initial_manager_interaction`
-2. `transition_page`
-3. `lisa_john_interaction`
-4. `decision_prompt`
-5. `neutral_manager_followup`
-6. `completion_page`
+1. `prechat`
+2. `initial_manager_interaction`
+3. `transition_page`
+4. `lisa_john_interaction`
+5. `decision_prompt`
+6. `neutral_manager_followup`
+7. `post_interaction_survey`
+8. `completion_page`
 
 ### speaker
 
@@ -342,6 +451,11 @@ The person or source of the message.
 Allowed values:
 
 - `alex`
+- `participant 1`
+- `participant 2`
+- `participant 3`
+- `participant 4`
+- `ra`
 - `manager`
 - `lisa`
 - `john`

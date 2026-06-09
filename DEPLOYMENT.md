@@ -196,4 +196,6 @@ To force a condition, add one of `HP_HC`, `HP_LC`, `LP_HC`, or `LP_LC`:
 https://voice-rejection-experiment.onrender.com/?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}&condition=HP_HC
 ```
 
+If Prolific provides a completion redirect URL, include it as `completion_url`, `redirect_url`, or `return_url`. The final `Next` button will redirect participants to that URL after data are saved.
+
 If you do not include `condition`, the experiment randomly assigns one and keeps it fixed for that participant session.

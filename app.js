@@ -17,6 +17,7 @@
     study_id: params.get("STUDY_ID") || "missing",
     session_id: params.get("SESSION_ID") || "missing",
   };
+  const completionRedirectUrl = params.get("completion_url") || params.get("redirect_url") || params.get("return_url") || "";
   const sessionKey = `voice-rejection:${ids.prolific_pid}:${ids.study_id}:${ids.session_id}`;
   const storedSession = readStoredSession();
   const requestedCondition = normalizeCondition(params.get("condition"));
@@ -26,7 +27,16 @@
   let responseOrder = Number(storedSession.response_order || 0);
 
   const state = {
-    part: "briefing",
+    part: "prechat",
+    prechatAwaitingIntro: false,
+    prechatIntroReceived: false,
+    prechatReminderShown: false,
+    prechatComplete: false,
+    prechatSequenceRunning: false,
+    prechatQueuedInputs: [],
+    prechatAwaitingQuestions: false,
+    prechatQuestionWindowComplete: false,
+    prechatTimers: [],
     secondPhase: "beforeProposal",
     neutralQuestionCount: 0,
     postSuggestionTurns: 0,
@@ -41,6 +51,7 @@
     pendingCoworkerInputs: [],
     decisionShown: false,
     surveyStartTime: "",
+    aiCheckStartTime: "",
     lastManagerShowedTyping: false,
     busy: false,
   };
@@ -53,6 +64,7 @@
     condition_source: conditionSource,
     experiment_start_time: storedSession.experiment_start_time || timestamp(),
     experiment_end_time: storedSession.experiment_end_time || timestamp(),
+    completed_prechat: storedSession.completed_prechat || "false",
     completed_initial_manager_interaction: storedSession.completed_initial_manager_interaction || "false",
     completed_transition_page: storedSession.completed_transition_page || "false",
     completed_lisa_john_interaction: storedSession.completed_lisa_john_interaction || "false",
@@ -62,6 +74,12 @@
     survey_completion_status: storedSession.survey_completion_status || "not_reached",
     survey_start_time: storedSession.survey_start_time || "",
     survey_submit_time: storedSession.survey_submit_time || "",
+    completed_ai_check: storedSession.completed_ai_check || "false",
+    ai_check_start_time: storedSession.ai_check_start_time || "",
+    ai_check_submit_time: storedSession.ai_check_submit_time || "",
+    manager_ai_suspicion: storedSession.manager_ai_suspicion || "",
+    lisa_ai_suspicion: storedSession.lisa_ai_suspicion || "",
+    john_ai_suspicion: storedSession.john_ai_suspicion || "",
     completion_status: storedSession.completion_status || "partial",
   };
   const interactionBackup = Array.isArray(storedSession.interactions) ? storedSession.interactions : [];
@@ -154,36 +172,411 @@
 
   const surveyItemIds = surveySections.flatMap((section) => getSectionItems(section).map((item) => item.id));
 
+  const prechatBeforeIntro = [
+    { speaker: "System", text: "Connecting to the online study room...", delay: 700 },
+    { speaker: "System", text: "Research Assistant has joined the room.", delay: 800 },
+    {
+      speaker: "RA",
+      text: [
+        "Hi everyone, welcome to the study. Thanks for joining today.",
+        "Hi everyone, thanks for joining today. Welcome to the study.",
+        "Hello everyone, welcome in. Thanks for joining the session today.",
+      ],
+      delay: 1600,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "We’ll give it a moment for everyone to connect.",
+        "I’ll just give everyone a moment to get connected.",
+        "Let’s wait briefly while the rest of the group joins.",
+      ],
+      delay: 1400,
+    },
+    { speaker: "System", text: "Participant 1 has joined the room.", delay: 800 },
+    { speaker: "System", text: "Participant 2 has joined the room.", delay: 800 },
+    { speaker: "System", text: "Participant 3 has joined the room.", delay: 800 },
+    { speaker: "System", text: "You have joined the room as Participant 4.", delay: 800 },
+    {
+      speaker: "RA",
+      text: [
+        "Great, looks like everyone is here.",
+        "Great, it looks like the full group is here now.",
+        "Thanks everyone, it looks like we have the full group.",
+      ],
+      delay: 1500,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "Before we start, could everyone briefly introduce themselves? Just where you’re based and whether you’ve done online studies before is enough. No need to share anything too personal.",
+        "Before we begin, could everyone give a quick introduction? Just being UK-based and whether you’ve done online studies before is enough. No personal details needed.",
+        "Let’s do a quick round of introductions first. Please just say generally where you’re based and whether you’ve done Prolific or online studies before.",
+      ],
+      delay: 2100,
+    },
+    {
+      speaker: "Participant 1",
+      shuffleGroup: "prechatParticipantIntro",
+      text: [
+        "Hi everyone, I’m based in the UK. I’ve completed many Prolific studies before, mostly surveys and decision-making tasks.",
+        "Hi all, I’m in the UK. I’ve done many Prolific studies, mostly survey-based ones and decision tasks.",
+        "Hello everyone, I’m UK-based. I’m an experienced Prolific participant, though this group chat format is less common.",
+      ],
+      delay: 3000,
+    },
+    {
+      speaker: "Participant 2",
+      shuffleGroup: "prechatParticipantIntro",
+      text: [
+        "Hi all :) I’m based in the UK. I’ve done a lot of Prolific studies, mostly surveys and product feedback ones.",
+        "Hi everyone :) I’m UK-based and have done many Prolific surveys before, mostly product feedback and short research tasks.",
+        "Hey all, I’m in the UK. I’ve completed many Prolific studies, though live group chat ones are less common.",
+      ],
+      delay: 3200,
+    },
+    {
+      speaker: "Participant 3",
+      shuffleGroup: "prechatParticipantIntro",
+      text: [
+        "Hi everyone, I’m based in the UK. I’ve completed many Prolific studies before, mainly surveys and workplace studies.",
+        "Hi all, I’m UK-based. I’ve done many Prolific studies, mostly surveys and decision-making tasks.",
+        "Hello everyone. I’m in the UK and have extensive experience with online studies. This format is a bit different.",
+      ],
+      delay: 3200,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "Thanks everyone. Participant 4, could you also briefly introduce yourself?",
+        "Thanks all. Participant 4, could you give a brief introduction as well?",
+        "Thanks everyone. Participant 4, could you type a quick introduction too?",
+      ],
+      delay: 1800,
+      skipIfParticipant4Introduced: true,
+    },
+  ];
+
+  const prechatAfterIntro = [
+    {
+      speaker: "RA",
+      text: [
+        "I’ll now explain the task briefly.",
+        "I’ll give a short overview of the task now.",
+        "I’ll quickly explain what will happen next.",
+      ],
+      delay: 1500,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "This study is being conducted by a market research company. We are interested in how people discuss customer feedback and service improvement issues in a team setting.",
+        "This is part of a market research project. The study looks at how people discuss customer feedback and service improvement in a team context.",
+        "The study is run as a market research task. We’re interested in team discussion around customer feedback and service improvement issues.",
+      ],
+      delay: 2300,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "In today’s task, you will take part in a short online team interaction based on a large theme park scenario.",
+        "For today’s task, you’ll take part in an online team interaction based on a large theme park scenario.",
+        "The scenario for the task is set in a large theme park, and you’ll take part in the interaction online.",
+      ],
+      delay: 2100,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "The theme park has recently received customer feedback related to service efficiency, waiting time, and staffing during busy periods.",
+        "In the scenario, the theme park has received feedback about service efficiency, wait times, and staffing during busy periods.",
+        "The background is that the park has been getting customer feedback about waiting time, service efficiency, and staffing at busy times.",
+      ],
+      delay: 2200,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "Each person will be randomly assigned a role. One person will be the park manager, and the other three people will be operations team members.",
+        "Roles will be assigned randomly. One participant will be the park manager, and the other three will be operations team members.",
+        "The system will randomly assign roles. There will be one park manager and three operations team members.",
+      ],
+      delay: 2200,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "Please read your own role materials carefully and respond based on your assigned role.",
+        "Please read the role materials carefully and respond in the chat based on the role you receive.",
+        "Once your role appears, please focus on your own materials and respond according to that role.",
+      ],
+      delay: 1800,
+    },
+    {
+      speaker: "RA",
+      text: [
+        "Before I assign the roles, does anyone have any quick questions about the task?",
+        "Before the role assignment, does anyone have any quick questions?",
+        "I’ll pause briefly before assigning roles. Any quick questions about the task?",
+      ],
+      delay: 1800,
+    },
+  ];
+
+  const prechatRoleAssignment = [
+    { speaker: "System", text: "Randomly assigning team roles...", delay: 900 },
+    { speaker: "System", text: "Participant 1 has been assigned the role of Park Manager.", delay: 800 },
+    { speaker: "System", text: "Participant 2 has been assigned the role of Lisa, Operations Team Member.", delay: 800 },
+    { speaker: "System", text: "Participant 3 has been assigned the role of John, Operations Team Member.", delay: 800 },
+    { speaker: "System", text: "You have been assigned the role of Alex, Operations Team Member.", delay: 900 },
+    {
+      speaker: "RA",
+      text: [
+        "Next, you will be redirected to your individual role materials. After everyone finishes reading, you will enter the team chat.",
+        "Next, you’ll see your individual role materials. After the reading step, you’ll move into the team chat.",
+        "You’ll now be redirected to your own role materials. Once everyone has finished reading, the team chat will begin.",
+      ],
+      delay: 2200,
+    },
+    { speaker: "System", text: "You will now be redirected to your individual role materials.", delay: 900 },
+  ];
+
+  const briefingPages = [
+    {
+      eyebrow: "Role Materials 1 of 3",
+      title: "Your Role",
+      blocks: [
+        { type: "p", text: "Thanks for participating in this live research interaction." },
+        { type: "p", text: "Today, you will act as a front desk receptionist responsible for ticket checking at a theme park called Aetheria Gardens. You will work directly under a Park Manager." },
+        { type: "p", text: "Your main job is to check tickets at the entrance, scan QR codes, confirm visitor categories, guide visitors into the park, and answer simple questions from families." },
+      ],
+      check: {
+        question: "What is your role in the upcoming interaction?",
+        correct: "front_desk",
+        options: [
+          { value: "manager", label: "Park Manager" },
+          { value: "front_desk", label: "Front desk receptionist responsible for ticket checking" },
+          { value: "visitor", label: "Theme park visitor" },
+        ],
+      },
+    },
+    {
+      eyebrow: "Role Materials 2 of 3",
+      title: "Background Information",
+      blocks: [
+        { type: "p", text: "Aetheria Gardens is currently facing a significant staffing challenge. Because the park relies almost exclusively on full-time, permanent employees, it is experiencing a “labor seesaw”:" },
+        {
+          type: "ul",
+          items: [
+            "Off-season: Daily attendance drops to around 500 visitors, leaving the park with a costly surplus of idle staff.",
+            "Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.",
+          ],
+        },
+        { type: "p", text: "The current full-time staffing plan was developed by park management. However, you recognize that its lack of flexibility is driving labor costs to a breaking point." },
+      ],
+      check: {
+        question: "What is the main staffing problem at Aetheria Gardens?",
+        correct: "labor_seesaw",
+        options: [
+          { value: "labor_seesaw", label: "Too many idle staff in off-season and too few staff in peak season" },
+          { value: "too_few_visitors", label: "The park has too few visitors in every season" },
+          { value: "ticket_system", label: "The QR code ticket system is broken" },
+        ],
+      },
+    },
+    {
+      eyebrow: "Role Materials 3 of 3",
+      title: "Your Possible Suggestion",
+      blocks: [
+        { type: "p", text: "You believe the theme park must adopt a more agile employment model in order to survive." },
+        { type: "p", text: "For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand." },
+        { type: "p", text: "Although proposing staffing changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance." },
+        { type: "p", text: "You may advocate for the implementation of a flexible labor model. This is a sensitive topic because the existing “all-permanent” staffing strategy is currently treated as the official plan." },
+        { type: "p", text: "Now, you are about to enter an online chat with your manager." },
+      ],
+      check: {
+        question: "What suggestion may you bring up with the manager?",
+        correct: "flexible_labor",
+        options: [
+          { value: "flexible_labor", label: "A flexible labor model using options such as temporary staff, interns, or a flexible labor pool" },
+          { value: "raise_prices", label: "Raising ticket prices during peak season" },
+          { value: "new_rides", label: "Building new rides for families" },
+        ],
+      },
+    },
+  ];
+
+  const transitionPages = [
+    {
+      eyebrow: "Next Interaction 1 of 3",
+      title: "Manager Chat Ended",
+      blocks: [
+        {
+          text: "The manager left the chatroom and is now offline.",
+          html: "The manager left the chatroom and is now <strong>offline</strong>.",
+        },
+        {
+          text: "After the chat ends, you return to your regular ticket-checking work at the entrance.",
+          html: "After the chat ends, you return to your regular <strong>ticket-checking work at the entrance</strong>.",
+        },
+        {
+          text: "Today is a full working day. At the end of your shift, you check the entrance records and compare them with your observations at the gate. Today is a typical off-season weekday, and the park receives only around 500 visitors. The entrance is quiet for long periods, and staff members at the gate have relatively little work to do.",
+          html: "Today is a full working day. At the end of your shift, you check the entrance records and compare them with your observations at the gate. Today is a <strong>typical off-season weekday</strong>, and the park receives only <strong>around 500 visitors</strong>. The entrance is quiet for long periods, and staff members at the gate have relatively little work to do.",
+        },
+      ],
+    },
+    {
+      eyebrow: "Next Interaction 2 of 3",
+      title: "Today’s Visitor Pattern",
+      blocks: [
+        {
+          text: "You notice that most visitors are families with young children. Families with children under 10 account for around 70%–75% of daily visitors, while other visitor groups make up a much smaller share.",
+          html: "You notice that most visitors are <strong>families with young children</strong>. Families with children under 10 account for <strong>around 70%–75% of daily visitors</strong>, while other visitor groups make up a much smaller share.",
+        },
+        {
+          text: "Aetheria Gardens is far from the city center, and many families say the location is not very convenient.",
+          html: "Aetheria Gardens is <strong>far from the city center</strong>, and many families say the location is <strong>not very convenient</strong>.",
+        },
+      ],
+    },
+    {
+      eyebrow: "Next Interaction 3 of 3",
+      title: "New Information for the Next Chat",
+      blocks: [
+        {
+          text: "There are several universities and farms nearby, including 4 universities within 10–18 km and around 38,000 nearby university students.",
+          html: "There are several universities and farms nearby, including <strong>4 universities within 10–18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
+        },
+        {
+          text: "You hear some comments from university students. Some say the park is cute, but it feels mainly designed for little kids. Others mention that student discounts or more photo-friendly spots might make the park more attractive to students.",
+          html: "You hear some comments from university students. Some say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.",
+        },
+        {
+          text: "After checking the records and thinking about what you observed today, you are about to enter a new online chat with two coworkers, Lisa and John. They also worked at the entrance today and reviewed the same attendance records and visitor comments.",
+          html: "After checking the records and thinking about what you observed today, you are about to enter a <strong>new online chat with two coworkers, Lisa and John</strong>. They also worked at the entrance today and reviewed the same attendance records and visitor comments.",
+        },
+        {
+          text: "In the next chat, you will discuss today’s attendance pattern and visitor information with Lisa and John.",
+          html: "In the next chat, you will discuss <strong>today’s attendance pattern and visitor information</strong> with Lisa and John.",
+        },
+      ],
+    },
+  ];
+
   let messagesEl = null;
   let composerEl = null;
   let inputEl = null;
 
-  function renderBriefing() {
-    state.part = "briefing";
+  function renderPreRoomIntro() {
+    state.part = "prechat_intro";
+    clearPrechatTimers();
+    saveParticipant();
     screen.innerHTML = `
       <article class="page">
-        <h1>Participant Briefing</h1>
+        <h1>Live Research Interaction</h1>
         <p>Thanks for participating in this live research interaction.</p>
-        <p>Today, you will act as a front desk receptionist responsible for ticket checking at a theme park called Aetheria Gardens. You will work directly under a Park Manager.</p>
-        <p>Your main job is to check tickets at the entrance, scan QR codes, confirm visitor categories, guide visitors into the park, and answer simple questions from families.</p>
-        <p>You are about to begin an online interaction with your manager. Before proceeding, please carefully review the background briefing below so that you are fully prepared for the discussion.</p>
-        <h2>Background Information</h2>
-        <p>Aetheria Gardens is currently facing a significant staffing challenge. Because the park relies almost exclusively on full-time, permanent employees, it is experiencing a “labor seesaw”:</p>
-        <ul>
-          <li>Off-season: Daily attendance drops to around 500 visitors, leaving the park with a costly surplus of idle staff.</li>
-          <li>Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.</li>
-        </ul>
-        <p>The current full-time staffing plan was developed by park management. However, you recognize that its lack of flexibility is driving labor costs to a breaking point. You believe the theme park must adopt a more agile employment model in order to survive.</p>
-        <p>For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.</p>
-        <p>Although proposing staffing changes is not required by your role—your main responsibility is ticket checking—you still want to suggest a change to the current procedure in order to improve the theme park’s performance.</p>
-        <p>Now, you are about to enter an online chat with your manager.</p>
-        <p>You may advocate for the implementation of a flexible labor model. You understand that this is a sensitive topic because the existing “all-permanent” staffing strategy is currently treated as the official plan. However, based on your professional insight, you believe that proposing this change is the best path forward for Aetheria Gardens.</p>
+        <p>This study is conducted as part of a market research project on customer feedback and service improvement.</p>
+        <p>You will now enter an online study room with other participants. A research assistant will welcome the group and explain the task.</p>
+        <p>During the study, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.</p>
+        <p>Please stay on the page during the interaction and respond naturally in the chat.</p>
+        <p>Click “Continue” when you are ready to enter the online study room.</p>
         <div class="actions">
-          <button class="button" type="button" id="start-manager">Next</button>
+          <button class="button" type="button" id="enter-prechat">Continue</button>
         </div>
       </article>
     `;
-    document.getElementById("start-manager").addEventListener("click", renderManagerChat);
+    document.getElementById("enter-prechat").addEventListener("click", renderPrechat);
+  }
+
+  async function renderPrechat() {
+    state.part = "prechat";
+    state.prechatAwaitingIntro = false;
+    state.prechatIntroReceived = false;
+    state.prechatReminderShown = false;
+    state.prechatComplete = false;
+    state.prechatSequenceRunning = false;
+    state.prechatQueuedInputs = [];
+    state.prechatAwaitingQuestions = false;
+    state.prechatQuestionWindowComplete = false;
+    clearPrechatTimers();
+    saveParticipant();
+    createChat("Online Study Room", "Connecting...", true);
+    setComposerEnabled(true);
+    state.prechatSequenceRunning = true;
+    await runPrechatSequence(prechatBeforeIntro);
+    state.prechatSequenceRunning = false;
+    state.prechatAwaitingIntro = true;
+    setStatus("Waiting for Participant 4");
+    setComposerEnabled(true);
+    if (state.prechatQueuedInputs.length) {
+      handlePrechatInput(state.prechatQueuedInputs.shift());
+    } else {
+      schedulePrechatReminder();
+    }
+  }
+
+  function renderBriefing(pageIndex = 0) {
+    if (typeof pageIndex !== "number") pageIndex = 0;
+    const page = briefingPages[pageIndex] || briefingPages[0];
+    state.part = "briefing";
+    clearPrechatTimers();
+    screen.innerHTML = `
+      <article class="page briefing-page">
+        <p class="briefing-progress">${escapeHtml(page.eyebrow)}</p>
+        <h1>${escapeHtml(page.title)}</h1>
+        ${renderBriefingBlocks(page.blocks)}
+        <form class="comprehension-check" id="briefing-check-form" novalidate>
+          <fieldset>
+            <legend>${escapeHtml(page.check.question)}</legend>
+            <div class="choice-list">
+              ${page.check.options.map((option) => `
+                <label class="choice-option">
+                  <input type="radio" name="briefing-check" value="${escapeHtml(option.value)}">
+                  <span>${escapeHtml(option.label)}</span>
+                </label>
+              `).join("")}
+            </div>
+          </fieldset>
+          <p class="check-error" id="briefing-check-error" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button" type="submit">${pageIndex === briefingPages.length - 1 ? "Start Chat" : "Next"}</button>
+          </div>
+        </form>
+      </article>
+    `;
+    document.getElementById("briefing-check-form").addEventListener("submit", (event) => {
+      handleBriefingCheck(event, pageIndex);
+    });
+  }
+
+  function renderBriefingBlocks(blocks) {
+    return blocks.map((block) => {
+      if (block.type === "ul") {
+        return `<ul>${block.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+      }
+      return `<p>${escapeHtml(block.text)}</p>`;
+    }).join("");
+  }
+
+  function handleBriefingCheck(event, pageIndex) {
+    event.preventDefault();
+    const page = briefingPages[pageIndex];
+    const form = event.currentTarget;
+    const error = document.getElementById("briefing-check-error");
+    const selected = form.querySelector('input[name="briefing-check"]:checked');
+    if (!selected) {
+      error.textContent = "Please choose one answer before continuing.";
+      return;
+    }
+    if (selected.value !== page.check.correct) {
+      error.textContent = "Please review the information above and try again.";
+      return;
+    }
+    if (pageIndex < briefingPages.length - 1) {
+      renderBriefing(pageIndex + 1);
+      return;
+    }
+    renderManagerChat();
   }
 
   async function renderManagerChat() {
@@ -220,9 +613,15 @@
     event.preventDefault();
     if (state.part === "manager1" && state.managerChatLocked) return;
     if (!inputEl || !inputEl.value.trim()) return;
-    if (state.busy && state.part !== "manager1" && state.part !== "lisaJohn" && state.part !== "manager2") return;
+    if (state.busy && state.part !== "prechat" && state.part !== "manager1" && state.part !== "lisaJohn" && state.part !== "manager2") return;
     const text = inputEl.value.trim();
     inputEl.value = "";
+    if (state.part === "prechat") {
+      addMessage("Participant 4", "alex", text);
+      handlePrechatInput(text);
+      return;
+    }
+
     addMessage("Alex", "alex", text);
 
     if (state.part === "manager1" && state.managerTurnActive) {
@@ -243,6 +642,286 @@
     if (state.part === "manager1") handleManagerInput(text);
     if (state.part === "lisaJohn") handleLisaJohnInput(text);
     if (state.part === "manager2") handleNeutralManagerInput(text);
+  }
+
+  async function handlePrechatInput(text) {
+    if (state.prechatComplete) return;
+
+    if (state.prechatSequenceRunning) {
+      state.prechatQueuedInputs.push(text);
+      return;
+    }
+
+    if (state.prechatAwaitingIntro && !state.prechatIntroReceived && isPrechatQuestion(text)) {
+      clearPrechatTimers();
+      state.prechatSequenceRunning = true;
+      const sent = await sendAiMessages({
+        stage: "prechat",
+        phase: "question",
+        alexMessage: text,
+      });
+      if (!sent) {
+        await sendPrechatMessage({ speaker: "RA", text: "No, a brief hello is enough. You do not need to share anything too personal.", delay: 1000 });
+      }
+      state.prechatSequenceRunning = false;
+      setComposerEnabled(true);
+      if (state.prechatQueuedInputs.length) {
+        handlePrechatInput(state.prechatQueuedInputs.shift());
+      } else {
+        schedulePrechatReminder();
+      }
+      return;
+    }
+
+    if (state.prechatAwaitingIntro && !state.prechatIntroReceived) {
+      state.prechatIntroReceived = true;
+      state.prechatAwaitingIntro = false;
+      clearPrechatTimers();
+      state.prechatSequenceRunning = true;
+      const sent = await sendAiMessages({
+        stage: "prechat",
+        phase: "intro_response",
+        alexMessage: text,
+      });
+      if (!sent) {
+        await sendPrechatMessage({ speaker: "RA", text: "Great, thank you. We’ll keep moving.", delay: 1200 });
+      }
+      await runPrechatSequence(prechatAfterIntro);
+      await answerQueuedPrechatInputs();
+      state.prechatSequenceRunning = false;
+      openPrechatQuestionWindow();
+      return;
+    }
+
+    if (state.prechatAwaitingQuestions && !state.prechatQuestionWindowComplete) {
+      clearPrechatTimers();
+      state.prechatSequenceRunning = true;
+      if (isNoPrechatQuestionResponse(text)) {
+        await sendPrechatMessage({
+          speaker: "RA",
+          text: [
+            "No problem, I’ll assign the roles now.",
+            "Okay, I’ll go ahead and assign the roles now.",
+            "That’s fine. I’ll continue with the role assignment now.",
+          ],
+          delay: 1000,
+        });
+        await continueAfterPrechatQuestions();
+        return;
+      }
+      const sent = await sendAiMessages({
+        stage: "prechat",
+        phase: "question",
+        alexMessage: text,
+      });
+      if (!sent) {
+        await sendPrechatMessage({ speaker: "RA", text: "Thanks for the question. All role information will be shown on the next page, so please follow those materials closely.", delay: 1000 });
+      }
+      await continueAfterPrechatQuestions();
+      return;
+    }
+
+    state.prechatSequenceRunning = true;
+    const sent = await sendAiMessages({
+      stage: "prechat",
+      phase: "question",
+      alexMessage: text,
+    });
+    if (!sent) {
+      await sendPrechatMessage({ speaker: "RA", text: "Thanks for the question. Please follow the instructions shown on the screen, and we’ll keep moving.", delay: 1000 });
+    }
+    state.prechatSequenceRunning = false;
+    if (!state.prechatComplete) setComposerEnabled(true);
+  }
+
+  async function runPrechatSequence(sequence) {
+    for (let index = 0; index < sequence.length; index += 1) {
+      const item = sequence[index];
+      if (item.shuffleGroup) {
+        const group = [];
+        while (index < sequence.length && sequence[index].shuffleGroup === item.shuffleGroup) {
+          group.push(sequence[index]);
+          index += 1;
+        }
+        index -= 1;
+        for (const groupedItem of shuffled(group)) {
+          await sendPrechatMessage(groupedItem);
+        }
+        continue;
+      }
+      if (item.skipIfParticipant4Introduced && hasQueuedPrechatIntro()) continue;
+      await sendPrechatMessage(item);
+    }
+  }
+
+  function shuffled(items) {
+    const copy = [...items];
+    for (let index = copy.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+    }
+    return copy;
+  }
+
+  function hasQueuedPrechatIntro() {
+    return state.prechatQueuedInputs.some((text) => !isPrechatQuestion(text));
+  }
+
+  async function sendPrechatMessage(item) {
+    const text = resolvePrechatText(item.text);
+    await delay(prechatMessageDelay(item, text));
+    addPrechatMessage(item.speaker, text);
+  }
+
+  function resolvePrechatText(text) {
+    return Array.isArray(text) ? pick(text) : text;
+  }
+
+  function addPrechatMessage(speaker, text) {
+    if (speaker === "System") {
+      addSystemNote(text);
+      return;
+    }
+    addMessage(speaker, speakerClassName(speaker), text);
+  }
+
+  function schedulePrechatReminder() {
+    clearPrechatTimers();
+    const reminder = window.setTimeout(async () => {
+      if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
+      state.prechatReminderShown = true;
+      await sendPrechatMessage({ speaker: "RA", text: "Participant 4, could you please type a quick hello so we know your chat is working?", delay: 500 });
+      const continueTimer = window.setTimeout(async () => {
+        if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
+        state.prechatAwaitingIntro = false;
+        state.prechatSequenceRunning = true;
+        await sendPrechatMessage({ speaker: "RA", text: "No problem, we’ll continue so the study does not get held up.", delay: 1200 });
+        await runPrechatSequence(prechatAfterIntro);
+        await answerQueuedPrechatInputs();
+        state.prechatSequenceRunning = false;
+        openPrechatQuestionWindow();
+      }, 14000);
+      state.prechatTimers.push(continueTimer);
+    }, 18000);
+    state.prechatTimers.push(reminder);
+  }
+
+  function openPrechatQuestionWindow() {
+    state.prechatAwaitingQuestions = true;
+    state.prechatQuestionWindowComplete = false;
+    setStatus("Waiting for questions");
+    setComposerEnabled(true);
+    clearPrechatTimers();
+    const timer = window.setTimeout(async () => {
+      if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
+      state.prechatSequenceRunning = true;
+      if (Math.random() < 0.55) {
+        await sendPrechatNoQuestionMessage();
+      }
+      await sendPrechatMessage({
+        speaker: "RA",
+        text: [
+          "If there are no questions, I’ll go ahead and assign the roles now.",
+          "Looks like we can move on. I’ll assign the roles now.",
+          "Okay, I’ll continue with the role assignment now.",
+        ],
+        delay: 1200,
+      });
+      await continueAfterPrechatQuestions();
+    }, 11000);
+    state.prechatTimers.push(timer);
+  }
+
+  async function sendPrechatNoQuestionMessage() {
+    const speaker = pick(["Participant 1", "Participant 2", "Participant 3"]);
+    const options = {
+      "Participant 1": [
+        "No questions from me.",
+        "Nothing from me at the moment.",
+        "No questions on my side.",
+      ],
+      "Participant 2": [
+        "No questions from me :)",
+        "All clear for me.",
+        "Nothing from me, thanks.",
+      ],
+      "Participant 3": [
+        "No questions from me.",
+        "All clear from my side.",
+        "Nothing to ask from me.",
+      ],
+    };
+    await sendPrechatMessage({ speaker, text: options[speaker], delay: 1200 });
+  }
+
+  async function continueAfterPrechatQuestions() {
+    if (state.prechatQuestionWindowComplete || state.prechatComplete) return;
+    state.prechatQuestionWindowComplete = true;
+    state.prechatAwaitingQuestions = false;
+    clearPrechatTimers();
+    await runPrechatSequence(prechatRoleAssignment);
+    await answerQueuedPrechatInputs();
+    finishPrechat();
+  }
+
+  function finishPrechat() {
+    state.prechatSequenceRunning = false;
+    state.prechatComplete = true;
+    clearPrechatTimers();
+    setStatus("Role materials ready");
+    setComposerEnabled(false);
+    participant.completed_prechat = "true";
+    saveParticipant();
+    renderNextAction("Please click “Next” when you are ready to continue to your individual role materials.", renderBriefing, "prechat");
+  }
+
+  function clearPrechatTimers() {
+    for (const timer of state.prechatTimers || []) {
+      window.clearTimeout(timer);
+    }
+    state.prechatTimers = [];
+  }
+
+  async function answerQueuedPrechatInputs() {
+    if (!state.prechatQueuedInputs.length || state.prechatComplete) return;
+    const queuedText = state.prechatQueuedInputs.splice(0, 3).join("\n");
+    const sent = await sendAiMessages({
+      stage: "prechat",
+      phase: "question",
+      alexMessage: queuedText,
+    });
+    if (!sent) {
+      await sendPrechatMessage({ speaker: "RA", text: "Thanks. Please follow the instructions shown on the screen, and we’ll keep moving.", delay: 1000 });
+    }
+  }
+
+  function prechatMessageDelay(item, resolvedText) {
+    const floorDelay = Number(item.delay || 0);
+    const naturalDelay = prechatDelayForText(item.speaker, resolvedText);
+    return Math.max(floorDelay, naturalDelay);
+  }
+
+  function prechatDelayForText(speaker, text) {
+    if (speaker === "System") return randomBetween(900, 1700);
+
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    const isParticipant = /^Participant [123]$/.test(speaker);
+    const wordsPerMinute = randomBetween(60, 80);
+    const typingDelay = Math.round((wordCount / wordsPerMinute) * 60000);
+    const readingPause = randomBetween(1200, 2600);
+    const turnTakingPause = isParticipant ? randomBetween(900, 1800) : randomBetween(500, 1400);
+    return Math.min(32000, Math.max(3500, typingDelay + readingPause + turnTakingPause));
+  }
+
+  function isPrechatQuestion(text) {
+    const normalized = text.trim().toLowerCase();
+    return /\?$/.test(normalized) ||
+      /^(do|what|why|are|is|will|should|can|could|am|who|where|how)\b/.test(normalized) ||
+      /(real name|share my name|share location|rather not|don't want|do not want|other participants|real people|what role|roles random|answers be evaluated|theme park experience|chat is slow)/i.test(normalized);
+  }
+
+  function isNoPrechatQuestionResponse(text) {
+    return /^(no|nope|nah|none|no questions?|not really|all good|i'?m good|sounds good|ok|okay)$/i.test(text.trim());
   }
 
   async function handleManagerInput(text) {
@@ -340,40 +1019,40 @@
     finishManagerTurn();
   }
 
-  function renderTransition() {
+  function renderTransition(pageIndex = 0) {
+    if (typeof pageIndex !== "number") {
+      pageIndex = 0;
+    }
     state.part = "transition";
-    participant.completed_transition_page = "true";
-    saveParticipant();
-    const transitionMessages = [
-      "The manager left the chatroom and is now offline.",
-      "After the chat ends, you return to your regular ticket-checking work at the entrance.",
-      "Today is a full working day. At the end of your shift, you check the entrance records and compare them with your observations at the gate. You find that today’s attendance is consistent with the park’s broader seasonal pattern. Today is a typical off-season weekday, and the park receives only around 500 visitors. The entrance is quiet for long periods, and staff members at the gate have relatively little work to do.",
-      "You also notice that most visitors are families with young children. Families with children under 10 account for around 70%–75% of daily visitors, while other visitor groups make up a much smaller share.",
-      "Aetheria Gardens is far from the city center, and many families say the location is not very convenient. At the same time, there are several universities and farms nearby, including 4 universities within 10–18 km and around 38,000 nearby university students.",
-      "You also hear some comments from university students. Some say the park is cute, but it feels mainly designed for little kids. Others mention that student discounts or more photo-friendly spots might make the park more attractive to students.",
-      "After checking the records and thinking about what you observed today, you are about to enter a new online chat with two coworkers, Lisa and John. They also worked at the entrance today and reviewed the same attendance records and visitor comments.",
-      "In the next chat, you will discuss today’s attendance pattern and visitor information with Lisa and John.",
-    ];
-    for (const message of transitionMessages) {
-      recordInteraction("transition_page", "system", message, "");
+    const page = transitionPages[pageIndex] || transitionPages[0];
+    if (pageIndex === 0) {
+      participant.completed_transition_page = "true";
+      saveParticipant();
+      for (const block of transitionPages.flatMap((transitionPage) => transitionPage.blocks)) {
+        recordInteraction("transition_page", "system", block.text, "");
+      }
     }
     screen.innerHTML = `
-      <article class="page">
-        <h1>Next Interaction</h1>
-        <p>The manager left the chatroom and is now offline.</p>
-        <p>After the chat ends, you return to your regular ticket-checking work at the entrance.</p>
-        <p>Today is a full working day. At the end of your shift, you check the entrance records and compare them with your observations at the gate. You find that today’s attendance is consistent with the park’s broader seasonal pattern. Today is a typical off-season weekday, and the park receives only around 500 visitors. The entrance is quiet for long periods, and staff members at the gate have relatively little work to do.</p>
-        <p>You also notice that most visitors are families with young children. Families with children under 10 account for around 70%–75% of daily visitors, while other visitor groups make up a much smaller share.</p>
-        <p>Aetheria Gardens is far from the city center, and many families say the location is not very convenient. At the same time, there are several universities and farms nearby, including 4 universities within 10–18 km and around 38,000 nearby university students.</p>
-        <p>You also hear some comments from university students. Some say the park is cute, but it feels mainly designed for little kids. Others mention that student discounts or more photo-friendly spots might make the park more attractive to students.</p>
-        <p>After checking the records and thinking about what you observed today, you are about to enter a new online chat with two coworkers, Lisa and John. They also worked at the entrance today and reviewed the same attendance records and visitor comments.</p>
-        <p>In the next chat, you will discuss today’s attendance pattern and visitor information with Lisa and John.</p>
+      <article class="page transition-page">
+        <p class="briefing-progress">${escapeHtml(page.eyebrow)}</p>
+        <h1>${escapeHtml(page.title)}</h1>
+        ${renderTransitionBlocks(page.blocks)}
         <div class="actions">
-          <button class="button" type="button" id="start-coworker">Next</button>
+          <button class="button" type="button" id="transition-next">${pageIndex === transitionPages.length - 1 ? "Start Chat" : "Next"}</button>
         </div>
       </article>
     `;
-    document.getElementById("start-coworker").addEventListener("click", renderLisaJohnChat);
+    document.getElementById("transition-next").addEventListener("click", () => {
+      if (pageIndex < transitionPages.length - 1) {
+        renderTransition(pageIndex + 1);
+        return;
+      }
+      renderLisaJohnChat();
+    });
+  }
+
+  function renderTransitionBlocks(blocks) {
+    return blocks.map((block) => `<p>${block.html}</p>`).join("");
   }
 
   async function renderLisaJohnChat() {
@@ -393,7 +1072,7 @@
     await sendAiMessages({
       stage: "lisa_john",
       phase: "opening",
-      mode: "both",
+      mode: coworkerBothMode(),
       alexMessage: "",
     });
     finishCoworkerTurn();
@@ -411,7 +1090,7 @@
       await sendAiMessages({
         stage: "lisa_john",
         phase: "afterProposal",
-        mode: "both",
+        mode: coworkerBothMode(),
         turn: state.postSuggestionTurns,
         alexMessage: text,
       });
@@ -501,10 +1180,28 @@
           <h1>Interaction Complete</h1>
           <p>${escapeHtml(message)}</p>
           <div class="actions">
-            <button class="button" type="button" disabled>Next</button>
+            <button class="button" type="button" id="completion-next">Next</button>
           </div>
         </article>
       `;
+    document.getElementById("completion-next").addEventListener("click", handleCompletionNext);
+  }
+
+  function handleCompletionNext() {
+    recordInteraction("completion_page", "alex", "Next", "completed");
+    if (completionRedirectUrl) {
+      window.location.href = completionRedirectUrl;
+      return;
+    }
+    screen.innerHTML = `
+      <article class="page">
+        <h1>Thank You</h1>
+        <p>Your responses have been submitted. You may now close this page.</p>
+        <div class="actions">
+          <button class="button" type="button" disabled>Done</button>
+        </div>
+      </article>
+    `;
   }
 
   function renderNeutralManagerChat() {
@@ -663,8 +1360,96 @@
     participant.survey_start_time = responses.survey_start_time;
     participant.survey_submit_time = submitTime;
     participant.experiment_end_time = submitTime;
+    participant.completion_status = "partial";
+    saveParticipant();
+    renderAiCheckPage();
+  }
+
+  function renderAiCheckPage() {
+    state.part = "ai_check";
+    state.aiCheckStartTime = timestamp();
+    participant.completed_ai_check = "false";
+    participant.ai_check_start_time = state.aiCheckStartTime;
+    participant.ai_check_submit_time = "";
+    participant.manager_ai_suspicion = "";
+    participant.lisa_ai_suspicion = "";
+    participant.john_ai_suspicion = "";
+    participant.completion_status = "partial";
+    saveParticipant();
+    recordInteraction("ai_check", "system", "AI check page displayed.", "");
+
+    screen.innerHTML = `
+      <article class="page ai-check-page">
+        <h1>One More Question</h1>
+        <p>In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.</p>
+        <form id="ai-check-form" novalidate>
+          ${renderAiCheckQuestion("manager_ai_suspicion", "Do you think the manager you interacted with may have been AI?")}
+          ${renderAiCheckQuestion("lisa_ai_suspicion", "Do you think Lisa may have been AI?")}
+          ${renderAiCheckQuestion("john_ai_suspicion", "Do you think John may have been AI?")}
+          <p class="validation-message" id="ai-check-validation" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button" type="submit">Submit</button>
+          </div>
+        </form>
+      </article>
+    `;
+
+    document.getElementById("ai-check-form").addEventListener("submit", handleAiCheckSubmit);
+  }
+
+  function renderAiCheckQuestion(name, question) {
+    return `
+      <fieldset>
+        <legend>${escapeHtml(question)}</legend>
+        <div class="choice-list">
+          <label class="choice-option">
+            <input type="radio" name="${escapeHtml(name)}" value="yes" required>
+            <span>Yes</span>
+          </label>
+          <label class="choice-option">
+            <input type="radio" name="${escapeHtml(name)}" value="no" required>
+            <span>No</span>
+          </label>
+          <label class="choice-option">
+            <input type="radio" name="${escapeHtml(name)}" value="not_sure" required>
+            <span>Not sure</span>
+          </label>
+        </div>
+      </fieldset>
+    `;
+  }
+
+  function handleAiCheckSubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const validation = document.getElementById("ai-check-validation");
+    const managerResponse = form.elements.manager_ai_suspicion.value;
+    const lisaResponse = form.elements.lisa_ai_suspicion.value;
+    const johnResponse = form.elements.john_ai_suspicion.value;
+
+    if (!managerResponse || !lisaResponse || !johnResponse) {
+      const message = "Please answer all questions before continuing.";
+      validation.textContent = message;
+      recordInteraction("ai_check", "system", message, "");
+      return;
+    }
+
+    const submitTime = timestamp();
+    participant.completed_ai_check = "true";
+    participant.ai_check_start_time = state.aiCheckStartTime || participant.ai_check_start_time || submitTime;
+    participant.ai_check_submit_time = submitTime;
+    participant.manager_ai_suspicion = managerResponse;
+    participant.lisa_ai_suspicion = lisaResponse;
+    participant.john_ai_suspicion = johnResponse;
+    participant.experiment_end_time = submitTime;
     participant.completion_status = "completed";
     saveParticipant();
+    recordInteraction(
+      "ai_check",
+      "alex",
+      `manager=${managerResponse}; lisa=${lisaResponse}; john=${johnResponse}`,
+      ""
+    );
     renderCompletionPage("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", participant.completed_neutral_manager_followup === "true");
   }
 
@@ -681,7 +1466,7 @@
     `;
     messagesEl.appendChild(row);
     messagesEl.scrollTop = messagesEl.scrollHeight;
-    recordInteraction(currentStage(), className, text, "");
+    recordInteraction(currentStage(), speaker, text, "");
   }
 
   async function sendDelayed(speaker, className, text, ms) {
@@ -713,10 +1498,13 @@
 
     let previousCoworkerText = "";
     for (const message of result.messages) {
-      const className = message.speaker.toLowerCase();
-      const delayMs = isCoworkerClass(className)
-        ? coworkerResponseDelay(message.text, previousCoworkerText)
-        : undefined;
+      const className = speakerClassName(message.speaker);
+      let delayMs;
+      if (request.stage === "prechat") {
+        delayMs = prechatDelayForText(message.speaker, message.text);
+      } else if (isCoworkerClass(className)) {
+        delayMs = coworkerResponseDelay(message.text, previousCoworkerText);
+      }
       await sendDelayed(message.speaker, className, message.text, delayMs);
       if (isCoworkerClass(className)) previousCoworkerText = message.text;
     }
@@ -760,7 +1548,12 @@
     const roll = Math.random();
     if (roll < 0.35) return "lisa";
     if (roll < 0.70) return "john";
-    return "both";
+    if (roll < 0.85) return "both_lisa_first";
+    return "both_john_first";
+  }
+
+  function coworkerBothMode() {
+    return Math.random() < 0.5 ? "both_lisa_first" : "both_john_first";
   }
 
   function coworkerResponseDelay(text, previousCoworkerText) {
@@ -780,6 +1573,13 @@
 
   function isCoworkerClass(className) {
     return className === "lisa" || className === "john";
+  }
+
+  function speakerClassName(speaker) {
+    const normalized = String(speaker || "").toLowerCase().replace(/\s+/g, "-");
+    if (normalized === "participant-4") return "alex";
+    if (normalized === "research-assistant") return "ra";
+    return normalized;
   }
 
   function showTypingIndicator() {
@@ -930,11 +1730,14 @@
   }
 
   function currentStage() {
+    if (state.part === "prechat_intro") return "prechat";
+    if (state.part === "prechat") return "prechat";
     if (state.part === "manager1") return "initial_manager_interaction";
     if (state.part === "transition") return "transition_page";
     if (state.part === "lisaJohn") return state.decisionShown ? "decision_prompt" : "lisa_john_interaction";
     if (state.part === "manager2") return "neutral_manager_followup";
     if (state.part === "survey") return "post_interaction_survey";
+    if (state.part === "ai_check") return "ai_check";
     if (state.part === "completion") return "completion_page";
     return "initial_manager_interaction";
   }
@@ -1039,9 +1842,16 @@
   });
 
   saveParticipant();
-  if ((params.get("skip_to") || "").toLowerCase() === "survey") {
+  const skipTo = (params.get("skip_to") || "").toLowerCase();
+  if (skipTo === "survey") {
     renderPostInteractionSurvey();
-  } else {
+  } else if (skipTo === "ai_check" || skipTo === "robot_check") {
+    renderAiCheckPage();
+  } else if (skipTo === "briefing") {
     renderBriefing();
+  } else if (skipTo === "transition") {
+    renderTransition();
+  } else {
+    renderPreRoomIntro();
   }
 })();

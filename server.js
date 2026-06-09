@@ -24,6 +24,7 @@ const participantColumns = [
   "condition_source",
   "experiment_start_time",
   "experiment_end_time",
+  "completed_prechat",
   "completed_initial_manager_interaction",
   "completed_transition_page",
   "completed_lisa_john_interaction",
@@ -33,6 +34,12 @@ const participantColumns = [
   "survey_completion_status",
   "survey_start_time",
   "survey_submit_time",
+  "completed_ai_check",
+  "ai_check_start_time",
+  "ai_check_submit_time",
+  "manager_ai_suspicion",
+  "lisa_ai_suspicion",
+  "john_ai_suspicion",
   "completion_status",
 ];
 
@@ -428,6 +435,14 @@ async function generateAiReply(payload) {
         return result;
       }
       lastMessages = sanitizeAiMessages(result.messages, prompt);
+      const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt);
+      if (coworkerProblem) {
+        if (attempt < 2) {
+          correction = coworkerProblem;
+          continue;
+        }
+        return { ok: true, messages: fallbackCoworkerMessages(prompt) };
+      }
       const lengthProblem = managerWordCountProblem(lastMessages, prompt);
       if (!lengthProblem) return { ok: true, messages: lastMessages };
       correction = lengthProblem;
@@ -538,10 +553,58 @@ function openAiMaxOutputTokens(prompt) {
 
 function buildAiPrompt(payload) {
   const stage = String(payload.stage || "");
+  if (stage === "prechat") return buildPrechatPrompt(payload);
   if (stage === "manager1") return buildInitialManagerPrompt(payload);
   if (stage === "lisa_john") return buildCoworkerPrompt(payload);
   if (stage === "manager2") return buildNeutralManagerPrompt(payload);
   return null;
+}
+
+function buildPrechatPrompt(payload) {
+  const alexMessage = cleanPromptText(payload.alexMessage);
+  const history = cleanHistory(payload.history);
+  const phase = String(payload.phase || "question");
+
+  return {
+    speakers: ["RA", "Participant 1", "Participant 2", "Participant 3"],
+    minMessages: 1,
+    maxMessages: 2,
+    temperature: 0.58,
+    maxOutputTokens: 360,
+    system: [
+      "You are generating messages for the pre-task live online study room before role assignment.",
+      "The real participant is currently labelled Participant 4. Do not call them Alex yet.",
+      "The RA appears to be a human research assistant for a UK-based market research company.",
+      "Participant 1, Participant 2, and Participant 3 appear to be ordinary UK-based experienced Prolific participants.",
+      "Do not reveal that any speaker is AI-generated.",
+      "Do not mention rejection, politeness, constructiveness, experimental conditions, hypotheses, or manipulation.",
+      "Before role assignment, Participant 1, Participant 2, and Participant 3 must not mention theme parks, staffing, HR, operations, management, customer feedback, service quality, flexible labour, interns, temporary workers, or later assigned roles.",
+      "RA may mention the market research cover story when answering procedural questions or moving the session forward.",
+      "If any participant asks a procedural question during prechat, RA should answer it briefly based only on the prechat flow and visible instructions.",
+      "RA must not reveal any participant's later role, private role materials, condition, future manager response, later coworker interaction details, or any participant-specific information that has not been assigned yet.",
+      "If asked about later roles, later chat content, what another participant will see, or private role information, RA should say roles and materials will be assigned shortly and each person should follow the information shown to them.",
+      "Participant 1, Participant 2, and Participant 3 should not answer procedural questions about the study flow, roles, or task rules; RA handles those questions.",
+      "Never say or imply that RA, Participant 1, Participant 2, Participant 3, the manager, Lisa, or John are AI-generated.",
+      "If Participant 4 asks what the study is about, RA should say it is a short team interaction study about customer feedback and service improvement in a service organization.",
+      "If Participant 4 asks whether theme park experience is needed, RA should say no; all role information will be provided.",
+      "If Participant 4 asks whether they need to share their real name or location, RA should say no; a brief introduction or quick hello is enough.",
+      "If Participant 4 asks whether the other participants are real, RA should say this is a live online group interaction task and to follow the instructions shown on screen.",
+      "If Participant 4 asks about roles before assignment, RA should say roles have not been assigned yet and the system will assign them shortly.",
+      "If Participant 4 asks what to say later, RA should say to read the role materials and respond naturally based on the assigned role.",
+      "If Participant 4 asks whether answers are evaluated, RA should say this is not a knowledge test.",
+      "Participant 1 hidden profile: UK-based, Greater London area if asked, male late 30s, customer-facing service or retail supervision, experienced with Prolific surveys and decision-making tasks, calm and concise.",
+      "Participant 2 hidden profile: UK-based, Manchester area if asked, female early 30s, part-time service/admin work, experienced with Prolific product feedback and surveys, friendly and casual.",
+      "Participant 3 hidden profile: UK-based, Birmingham or West Midlands area if asked, male mid-40s, office/admin or business support work, experienced with Prolific workplace and decision-making studies, reserved and straightforward.",
+      "AI-played participants should answer casual personal questions briefly, keep personal details general, and not over-disclose.",
+      "All AI-played participants must sound clearly experienced with Prolific. Do not describe their experience as only 'quite a few', 'a fair number', 'a good number', 'a couple', or 'not many' Prolific studies. Prefer 'many', 'a lot', 'extensive experience', or 'experienced Prolific participant'.",
+      "Use concise natural chat. RA should keep the session moving. Participants should not volunteer exact age, full name, exact city, marital status, children, or job title unless directly asked.",
+      phase === "intro_response"
+        ? "Participant 4 has just introduced themselves. Return one or two brief natural chat responses that react to what Participant 4 actually said. Usually RA should acknowledge them, and optionally one of Participant 1, Participant 2, or Participant 3 may add a short friendly reaction if it fits. Lightly reference safe details Participant 4 shared, such as being UK-based, having done online studies, or being new to group chats. Do not ask follow-up questions, do not over-disclose, and do not start the task explanation yet."
+        : "Participant 4 has asked or typed something during prechat. Return one or two brief natural responses, usually from RA unless the question is clearly directed to a participant.",
+      "Return only JSON matching the required schema.",
+    ].join("\n\n"),
+    user: `Conversation history:\n${history}\n\nLatest Participant 4 message:\n${alexMessage}`,
+  };
 }
 
 function buildInitialManagerPrompt(payload) {
@@ -770,15 +833,17 @@ function buildCoworkerPrompt(payload) {
   const turn = Number(payload.turn || 0);
   const requestedMode = String(payload.mode || "auto");
   const speakerInstruction = coworkerSpeakerInstruction(requestedMode);
+  const twoSpeakerTurn = isCoworkerTwoSpeakerMode(requestedMode);
+  const speakerOrder = coworkerSpeakerOrder(requestedMode);
 
   const task = phase === "opening"
     ? [
       "This is the opening of the Lisa and John chat before Alex has sent a message.",
       "Generate original, natural coworker chat messages based on the shared situation; do not copy a fixed opening script.",
       "Mention that the coworkers reviewed today's entrance records, visitor comments, or off-season attendance pattern.",
-      "Point Alex toward noticing the issue, but do not directly state the proposal.",
-      "Do not say 'we should attract university students', 'we should offer student discounts', or 'we should build photo-friendly spots'.",
-      "One coworker may ask Alex what they think is going on.",
+      "Point Alex toward noticing that there may be an issue, but do not state or hint at a solution.",
+      "Do not say or imply 'we should attract university students', 'we should offer student discounts', 'we should build photo-friendly spots', or any other solution.",
+      "One coworker may ask Alex what they make of the information.",
       "Keep each message short, casual, and workplace-realistic.",
     ].join("\n")
     : phase === "afterProposal"
@@ -787,6 +852,8 @@ function buildCoworkerPrompt(payload) {
       "Respond to Alex's actual wording instead of using a fixed script.",
       "Lisa generally supports voicing the idea to the manager.",
       "John generally discourages or cautions because it may be risky.",
+      "Do not add new solution ideas, tactics, or extra plan details that Alex did not mention.",
+      "Use phrases like 'your idea', 'that angle', or 'what you said' instead of proposing additional solutions.",
       "Do not make both Lisa and John respond every time.",
       "Usually only one coworker responds; occasionally both respond.",
       "If both respond, their order may vary.",
@@ -797,15 +864,20 @@ function buildCoworkerPrompt(payload) {
       "Alex has not yet clearly suggested the new proposal.",
       "Respond to Alex's actual wording instead of using a fixed script.",
       "Discuss the attendance pattern, family-heavy visitors, distance from city center, nearby universities/farms, and student comments.",
-      "Do not directly tell Alex what the proposal should be.",
-      "Help Alex notice the information and ask what Alex thinks the opportunity might be.",
+      "Do not directly or indirectly tell Alex what the proposal should be.",
+      "Do not name possible tactics such as discounts, photo spots, afternoon activities, partnerships, events, promotions, marketing, or attracting students.",
+      "Help Alex notice the information and ask what Alex thinks, without giving the solution.",
       "Keep messages short and natural.",
     ].join("\n");
 
   return {
+    kind: "lisa_john",
+    phase,
+    mode: requestedMode,
     speakers: ["Lisa", "John"],
-    minMessages: requestedMode === "both" ? 2 : 1,
-    maxMessages: requestedMode === "both" ? 2 : 1,
+    minMessages: twoSpeakerTurn ? 2 : 1,
+    maxMessages: twoSpeakerTurn ? 2 : 1,
+    speakerOrder,
     temperature: 0.78,
     maxOutputTokens: 450,
     system: [
@@ -815,6 +887,9 @@ function buildCoworkerPrompt(payload) {
       "The issue here is separate from the flexible labor proposal.",
       "Do not reveal that Lisa or John are AI-generated.",
       "Do not use fixed template replies. Generate context-sensitive messages from the current conversation history and Alex's latest message.",
+      "Lisa and John must not proactively propose solutions. They may share observations, notice tensions, and ask Alex what Alex thinks, but Alex must be the first person to identify or suggest any solution.",
+      "Before Alex suggests a proposal, do not mention possible solutions such as student discounts, photo-friendly spots, afternoon activities, farm-related activities, university partnerships, events, promotions, marketing campaigns, or attracting university students.",
+      "After Alex suggests a proposal, respond only to Alex's idea. Do not add new solution components or improve the idea for Alex.",
       speakerInstruction,
       task,
       "Return only JSON matching the required schema.",
@@ -826,8 +901,20 @@ function buildCoworkerPrompt(payload) {
 function coworkerSpeakerInstruction(mode) {
   if (mode === "lisa") return "Return exactly one message from Lisa only.";
   if (mode === "john") return "Return exactly one message from John only.";
-  if (mode === "both") return "Return exactly two messages: one from Lisa and one from John. Choose a natural order.";
+  if (mode === "both_lisa_first") return "Return exactly two messages in this exact order: first Lisa, then John.";
+  if (mode === "both_john_first") return "Return exactly two messages in this exact order: first John, then Lisa.";
+  if (mode === "both") return "Return exactly two messages: one from Lisa and one from John. Choose a natural order, and do not default to Lisa first.";
   return "Return one or two messages from Lisa and/or John. Most turns should have only one coworker.";
+}
+
+function isCoworkerTwoSpeakerMode(mode) {
+  return mode === "both" || mode === "both_lisa_first" || mode === "both_john_first";
+}
+
+function coworkerSpeakerOrder(mode) {
+  if (mode === "both_lisa_first") return ["Lisa", "John"];
+  if (mode === "both_john_first") return ["John", "Lisa"];
+  return null;
 }
 
 function buildNeutralManagerPrompt(payload) {
@@ -895,7 +982,7 @@ function parseOpenAiJson(text) {
 
 function sanitizeAiMessages(messages, prompt) {
   const output = Array.isArray(messages) ? messages : [];
-  return output
+  const cleaned = output
     .filter((message) => message && prompt.speakers.includes(message.speaker))
     .slice(0, prompt.maxMessages)
     .map((message) => ({
@@ -903,6 +990,28 @@ function sanitizeAiMessages(messages, prompt) {
       text: sanitizeManagerText(message.speaker, message.text, prompt),
     }))
     .filter((message) => message.text);
+  if (Array.isArray(prompt.speakerOrder) && prompt.speakerOrder.length) {
+    return orderMessagesBySpeaker(cleaned, prompt.speakerOrder);
+  }
+  return cleaned;
+}
+
+function orderMessagesBySpeaker(messages, speakerOrder) {
+  const usedIndexes = new Set();
+  const ordered = [];
+  for (const speaker of speakerOrder) {
+    const index = messages.findIndex((message, messageIndex) => (
+      !usedIndexes.has(messageIndex) && message.speaker === speaker
+    ));
+    if (index >= 0) {
+      ordered.push(messages[index]);
+      usedIndexes.add(index);
+    }
+  }
+  messages.forEach((message, index) => {
+    if (!usedIndexes.has(index)) ordered.push(message);
+  });
+  return ordered;
 }
 
 function sanitizeManagerText(speaker, text, prompt) {
@@ -956,6 +1065,60 @@ function rewriteManagerCommandStyle(text) {
     )
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function coworkerSolutionProblem(messages, prompt) {
+  if (!prompt || prompt.kind !== "lisa_john" || !Array.isArray(messages) || !messages.length) return "";
+  const combined = messages.map((message) => message.text || "").join(" ").toLowerCase();
+  if (!combined.trim()) return "";
+
+  if (prompt.phase === "opening" || prompt.phase === "beforeProposal") {
+    const solutionTerms = /(student discounts?|discounts?|photo-friendly|photo friendly|photo spots?|instagram|selfie|afternoon activities?|farm-related|farm related|university partnerships?|partnership events?|student events?|promotions?|campaigns?|marketing|target students?|attract (?:more )?(?:students|university students)|bring in (?:more )?(?:students|university students)|offer student|build.*photo|create.*photo|run.*event|partner with universit)/i;
+    if (solutionTerms.test(combined)) {
+      return [
+        "The previous Lisa/John response proposed or named a solution before Alex did.",
+        "Regenerate without naming any solution, tactic, or recommendation.",
+        "Before Alex proposes something, Lisa and John may only mention observations from the records/comments and ask what Alex thinks.",
+        "Do not mention student discounts, photo spots, afternoon activities, farm activities, university partnerships, events, promotions, marketing, targeting, or attracting students.",
+        "Return only valid JSON.",
+      ].join(" ");
+    }
+  }
+
+  if (prompt.phase === "afterProposal") {
+    const addOnSuggestion = /\b(?:we|you|alex|the park)\s+(?:could|should|might|need to|needs to|can|maybe|also)\s+(?:add|offer|build|create|start|run|try|include|set up|partner|promote|target|market|launch)\b/i;
+    if (addOnSuggestion.test(combined)) {
+      return [
+        "The previous Lisa/John response added new solution details.",
+        "Regenerate so Lisa and John react to Alex's proposal only.",
+        "Do not add tactics or improve the proposal for Alex. Refer to 'your idea', 'that angle', or 'what you said' instead.",
+        "Return only valid JSON.",
+      ].join(" ");
+    }
+  }
+
+  return "";
+}
+
+function fallbackCoworkerMessages(prompt) {
+  const oneSpeaker = prompt.mode === "john" ? "John" : "Lisa";
+  const fallbackText = {
+    Lisa: prompt.phase === "afterProposal"
+      ? "I see what you mean. If you raise it, I’d keep it tied closely to what we saw in the records and comments."
+      : "The records and visitor comments do seem worth looking at together. I’m curious what you make of the pattern.",
+    John: prompt.phase === "afterProposal"
+      ? "I get the angle, but I’d still be careful. The manager may see it as stepping beyond what we were asked to discuss."
+      : "The family-heavy mix and the location comments stood out to me too. What do you think is the main issue here?",
+  };
+
+  if (Array.isArray(prompt.speakerOrder) && prompt.speakerOrder.length) {
+    return prompt.speakerOrder.map((speaker) => ({
+      speaker,
+      text: fallbackText[speaker],
+    }));
+  }
+
+  return [{ speaker: oneSpeaker, text: fallbackText[oneSpeaker] }];
 }
 
 function managerWordCountProblem(messages, prompt) {

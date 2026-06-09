@@ -40,7 +40,9 @@ The sequence should be:
 6. After the second manager interaction ends, the post-interaction survey page appears.
 7. If Alex chooses no, the system should skip the second manager interaction and go directly to the post-interaction survey page.
 8. Alex completes all survey items.
-9. Alex proceeds to the completion page.
+9. Alex proceeds to the AI-check page.
+10. Alex answers whether the manager, Lisa, and John may have been AI.
+11. Alex proceeds to the completion page.
 
 The survey must be completed by all participants who reach the end of the Lisa and John interaction.
 
@@ -302,7 +304,37 @@ After the participant clicks Submit and all items are answered:
 
 1. Save all survey responses.
 2. Record survey completion status.
-3. Move the participant to the completion page.
+3. Move the participant to the AI-check page.
+
+## AI-Check Page After Survey
+
+After the Post-Interaction Questions page is submitted, show one additional page before the completion page.
+
+Display the following text:
+
+```text
+In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.
+```
+
+Then ask the following three required questions:
+
+```text
+Do you think the manager you interacted with may have been AI?
+
+Do you think Lisa may have been AI?
+
+Do you think John may have been AI?
+```
+
+For each question, use required radio-button response options:
+
+- Yes
+- No
+- Not sure
+
+Do not allow the participant to continue without answering.
+
+After the participant submits all three questions, move the participant to the completion page.
 
 ## Data Recording Requirements
 
@@ -323,6 +355,15 @@ Record the following timing information:
 - `survey_completion_status`
 
 Record all item responses as numeric values from 1 to 5.
+
+Record the AI-check responses at the participant level:
+
+- `completed_ai_check`
+- `ai_check_start_time`
+- `ai_check_submit_time`
+- `manager_ai_suspicion`
+- `lisa_ai_suspicion`
+- `john_ai_suspicion`
 
 ## Recommended Data File
 
@@ -613,6 +654,14 @@ Create or update survey_responses.csv.
 If experiment_data.xlsx is generated, add a third sheet called survey_responses.
 
 Also update participants.csv with survey completion status.
+
+After the survey, show the AI-check page and update participants.csv with:
+- completed_ai_check
+- ai_check_start_time
+- ai_check_submit_time
+- manager_ai_suspicion
+- lisa_ai_suspicion
+- john_ai_suspicion
 
 Make sure the survey data are included in the password-protected admin download route.
 ```
