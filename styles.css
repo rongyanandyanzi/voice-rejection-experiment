@@ -152,6 +152,34 @@ textarea {
   min-height: 22px;
 }
 
+.human-check {
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  padding-top: 22px;
+}
+
+.human-check label {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.human-check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.human-check-row input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  width: min(180px, 100%);
+}
+
 .ai-check-page fieldset {
   border: 0;
   margin: 24px 0 0;

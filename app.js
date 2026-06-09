@@ -51,6 +51,8 @@
     pendingCoworkerInputs: [],
     decisionShown: false,
     surveyStartTime: "",
+    humanCheckAnswer: "",
+    humanCheckVerified: false,
     aiCheckStartTime: "",
     lastManagerShowedTyping: false,
     busy: false,
@@ -487,6 +489,49 @@
   let messagesEl = null;
   let composerEl = null;
   let inputEl = null;
+
+  function renderHumanVerification() {
+    state.part = "human_verification";
+    state.humanCheckVerified = false;
+    const humanCheckNumbers = [randomBetween(2, 8), randomBetween(2, 8)];
+    state.humanCheckAnswer = String(humanCheckNumbers[0] + humanCheckNumbers[1]);
+    saveParticipant();
+    recordInteraction("human_verification", "system", "Quick verification page displayed.", "");
+
+    screen.innerHTML = `
+      <article class="page">
+        <h1>Quick Verification</h1>
+        <p>Please complete this quick check before entering the study.</p>
+        <form id="human-check-form" class="human-check" novalidate>
+          <label for="human-check-answer">What is ${humanCheckNumbers[0]} + ${humanCheckNumbers[1]}?</label>
+          <div class="human-check-row">
+            <input id="human-check-answer" name="human_check_answer" inputmode="numeric" autocomplete="off" required>
+            <button class="button" type="submit">Continue</button>
+          </div>
+          <p class="validation-message" id="human-check-validation" aria-live="polite"></p>
+        </form>
+      </article>
+    `;
+
+    document.getElementById("human-check-form").addEventListener("submit", handleHumanCheckSubmit);
+  }
+
+  function handleHumanCheckSubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const validation = document.getElementById("human-check-validation");
+    const answer = (form.elements.human_check_answer.value || "").trim();
+
+    if (answer !== state.humanCheckAnswer) {
+      validation.textContent = "Please check your answer and try again.";
+      recordInteraction("human_verification", "system", "Quick verification answer was incorrect.", "");
+      return;
+    }
+
+    state.humanCheckVerified = true;
+    recordInteraction("human_verification", "system", "Quick verification completed.", "");
+    renderPreRoomIntro();
+  }
 
   function renderPreRoomIntro() {
     state.part = "prechat_intro";
@@ -1874,6 +1919,6 @@
   } else if (skipTo === "transition") {
     renderTransition();
   } else {
-    renderPreRoomIntro();
+    renderHumanVerification();
   }
 })();
