@@ -89,6 +89,16 @@ const surveyItemColumns = [
   "MC4",
   "MC5",
   "MC6",
+  "NWG1",
+  "NWG2",
+  "NWG3",
+  "NWG4",
+  "NWG5",
+  "PWG1",
+  "PWG2",
+  "PWG3",
+  "PWG4",
+  "PWG5",
 ];
 
 const surveyResponseColumns = [

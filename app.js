@@ -91,7 +91,6 @@
     "Agree",
     "Strongly agree",
   ];
-
   const surveySections = [
     {
       title: "Future Communication Intentions",
@@ -166,6 +165,28 @@
         { id: "MC4", text: "Was very specific and detailed." },
         { id: "MC5", text: "Made reference to specific situations or incidents that were problematic." },
         { id: "MC6", text: "Provided clear enough guidance that I knew what to change." },
+      ],
+    },
+    {
+      title: "Manager-Related Communication Intentions A",
+      instruction: "Please indicate the extent to which you agree with each statement about how you would communicate with a work colleague.",
+      items: [
+        { id: "NWG1", text: "I would ask a work colleague whether they had a negative impression of something that the theme park manager had done." },
+        { id: "NWG2", text: "I would question the theme park manager's abilities while talking to a work colleague." },
+        { id: "NWG3", text: "I would criticize the theme park manager while talking to a work colleague." },
+        { id: "NWG4", text: "I would vent to a work colleague about something that the theme park manager had done." },
+        { id: "NWG5", text: "I would tell a work colleague an unflattering story about the theme park manager." },
+      ],
+    },
+    {
+      title: "Manager-Related Communication Intentions B",
+      instruction: "Please indicate the extent to which you agree with each statement about how you would communicate with a work colleague.",
+      items: [
+        { id: "PWG1", text: "I would compliment the theme park manager's actions while talking to a work colleague." },
+        { id: "PWG2", text: "I would tell a work colleague good things about the theme park manager." },
+        { id: "PWG3", text: "I would defend the theme park manager's actions while talking to a work colleague." },
+        { id: "PWG4", text: "I would say something nice about the theme park manager while talking to a work colleague." },
+        { id: "PWG5", text: "I would tell a work colleague that I respected the theme park manager." },
       ],
     },
   ];
@@ -1282,6 +1303,7 @@
 
   function renderSurveySection(section) {
     const groups = section.groups || [{ label: "", items: section.items || [] }];
+    const options = section.options || likertOptions;
     return `
       <section class="survey-section">
         <h2>${escapeHtml(section.title)}</h2>
@@ -1289,7 +1311,7 @@
         ${section.stem ? `<p class="survey-stem">${escapeHtml(section.stem)}</p>` : ""}
         ${groups.map((group) => `
           ${group.label ? `<h3>${escapeHtml(group.label)}</h3>` : ""}
-          ${renderSurveyMatrix(group.items)}
+          ${renderSurveyMatrix(group.items, options)}
         `).join("")}
       </section>
     `;
@@ -1302,17 +1324,17 @@
     );
   }
 
-  function renderSurveyMatrix(items) {
+  function renderSurveyMatrix(items, options = likertOptions) {
     return `
       <div class="survey-matrix" role="table">
         <div class="survey-row survey-head" role="row">
           <div role="columnheader">Item</div>
-          ${likertOptions.map((label, index) => `<div role="columnheader">${index + 1}<span>${escapeHtml(label)}</span></div>`).join("")}
+          ${options.map((label, index) => `<div role="columnheader">${index + 1}<span>${escapeHtml(label)}</span></div>`).join("")}
         </div>
         ${items.map((item) => `
           <div class="survey-row" role="row" aria-labelledby="survey-item-${escapeHtml(item.id)}">
             <div class="survey-item" id="survey-item-${escapeHtml(item.id)}">${escapeHtml(item.text)}</div>
-            ${likertOptions.map((label, index) => `
+            ${options.map((label, index) => `
               <label aria-label="${index + 1} ${escapeHtml(label)}">
                 <input type="radio" name="${escapeHtml(item.id)}" value="${index + 1}" required>
                 <span>${index + 1}</span>
