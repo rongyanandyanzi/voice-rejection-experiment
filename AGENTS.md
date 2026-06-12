@@ -40,6 +40,8 @@ Do not overload Alex with too much information at once.
 
 Do not make any character sound extreme, abusive, or unrealistic.
 
+For all AI-generated dialogue, do not use hyphens, en dashes, em dashes, or any dash-like punctuation marks.
+
 ## Real-Time Chat Simulation Rule
 
 The interaction should feel like a real online chat among coworkers.
