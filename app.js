@@ -696,9 +696,9 @@
     saveParticipant();
     createChat("Manager Chat", "Manager online", true);
     state.managerTurnActive = true;
-    await sendDelayed("Manager", "manager", "Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.");
-    await sendDelayed("Manager", "manager", "That evaluation may affect your payment after the task. The market research company wants to understand how teams respond to market needs and customer feedback.");
-    await sendDelayed("Manager", "manager", "Based on the information you receive, what do you think we should do next?");
+    await sendDelayed("Manager", "manager", "Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", null, { opening: true });
+    await sendDelayed("Manager", "manager", "That evaluation may affect your payment after the task. The market research company wants to understand how teams respond to market needs and customer feedback.", null, { opening: true });
+    await sendDelayed("Manager", "manager", "Based on the information you receive, what do you think we should do next?", null, { opening: true });
     finishManagerTurn();
   }
 
@@ -1621,10 +1621,10 @@
     recordInteraction(currentStage(), displaySpeaker, displayText, "");
   }
 
-  async function sendDelayed(speaker, className, text, ms) {
+  async function sendDelayed(speaker, className, text, ms, opts = {}) {
     state.busy = true;
     if (className === "manager") {
-      const plan = managerTimingPlan(text);
+      const plan = managerTimingPlan(text, opts);
       if (plan.showTyping) {
         await delay(plan.thinkingDelay);
         const typingIndicator = showTypingIndicator(speaker, className);
@@ -1803,12 +1803,16 @@
     return { min: 18000, max: 25000, wordCount };
   }
 
-  function managerTimingPlan(text) {
+  function managerTimingPlan(text, opts = {}) {
     const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
     const showTyping = true;
     const wordsPerMinute = randomBetween(75, 85);
     const readingDelay = randomBetween(1200, 2600);
-    const totalDelay = Math.round((wordCount / wordsPerMinute) * 60000) + readingDelay;
+    // The scripted opening plays at half the normal manager pacing so the
+    // participant is not stuck watching ~50s of typing before they can act.
+    // Other manager turns (rejections, etc.) keep the normal pacing.
+    const speedFactor = opts.opening ? 0.5 : 1;
+    const totalDelay = Math.round(((wordCount / wordsPerMinute) * 60000 + readingDelay) * speedFactor);
     state.lastManagerShowedTyping = true;
 
     const thinkingDelay = randomBetween(
