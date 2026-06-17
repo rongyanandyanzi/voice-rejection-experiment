@@ -374,14 +374,14 @@ After Alex has fully explained the proposal, the manager rejects and the exchang
 
 **There is no fixed cap on the number of rejection rounds.** As long as Alex still has something to explain, defend, or push back on, the manager keeps responding in the assigned condition and keeps the rejection outcome unchanged — it should not cut Alex off after a set number of turns. The manager should **wind down only when Alex signals acceptance or disengagement** (a short acknowledgement such as "ok", "fine", "understood", or a clear closing signal); at that point the manager sends the closing message and leaves. A very high round count exists only as a runaway safety net, not as a normal limit.
 
-**The closing message must also match the assigned condition, and it should be open-ended.** The rejection stands for now, but as the manager signs off they leave the door open to discuss or revisit the idea another time — expressed in the condition's tone and specificity:
+**The closing message must also match the assigned condition, and being open-ended is its main point.** The manager is not approving the proposal right now, but the closing must **not** be a permanent, final, or flat no, and it must **not** cut the conversation off abruptly. The manager winds down naturally — briefly acknowledging the discussion — and makes it genuinely clear the topic stays open: they are willing to discuss it again, hear a stronger version, or reconsider later, and they invite the participant to bring it back another time. This openness is the heart of the message, not a tacked-on afterthought. The closing may be up to two sentences. Expressed in the condition's tone and specificity:
 
 - **HP** (high politeness): warm, softened, with a short apology/appreciation; the openness sounds genuine and friendly (e.g. "happy to pick this up again another time").
-- **LP** (low politeness): rude, curt, dismissive, contemptuous, no apology/thanks/appreciation; the openness is grudging and impatient (e.g. "come back if you ever actually think this through").
+- **LP** (low politeness): rude, curt, dismissive, and openly contemptuous, no apology/thanks/appreciation, with at least one sharp cutting cue ("half-baked", "a waste of my time", "you clearly didn't think this through"); the door is still left open, but only grudgingly and as a harsh condition — "don't bring it back until..." style phrasing is fine (e.g. "this was a waste of my time as it stands — don't bring it back until you've actually thought it through", or "don't bother coming back until you can show how the revenue and jobs are covered"). The path stays open conditionally, but the tone is dismissive, not inviting.
 - **HC** (high constructiveness): tie the openness to something concrete — willing to revisit if the specific problems with the actual proposal are addressed.
 - **LC** (low constructiveness): keep the openness vague — willing to talk again sometime, without specifics.
 
-The closing must not ask Alex a question or restart the back-and-forth; it just signals future openness while leaving.
+The closing should not re-litigate the whole proposal or restart the full back-and-forth, but a brief, forward-looking invitation to revisit it later (even a soft one) is welcome — it should feel like a natural close, not a sudden hard stop.
 
 Each manager turn should usually be 1–2 sentences.
 
@@ -392,7 +392,7 @@ Length requirements:
 - The rejection phase runs for as many substantive manager reply turns as Alex keeps engaging; there is no fixed number of turns.
 - Each substantive manager rejection turn should usually be around 28–32 words.
 - Because every manager message stays in the 28–32 word range, the four conditions stay comparable in per-message length regardless of how many rounds occur.
-- The separate closing message should stay brief (around 14–22 words) and condition-matched, and it leaves the door open to revisit later.
+- The separate closing message stays fairly short (around 18–38 words, up to two sentences) and condition-matched, winds down naturally rather than abruptly, and clearly leaves the door open to revisit later.
 - Across the four conditions, total manager output length should be comparable.
 - The word-count difference across conditions should not exceed about 5%.
 - High-constructiveness responses should not be much longer than low-constructiveness responses.

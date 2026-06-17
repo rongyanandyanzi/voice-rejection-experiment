@@ -766,18 +766,20 @@ function buildInitialManagerPrompt(payload) {
   } else if (phase === "closing") {
     task = [
       "the participant has already received the rejection and may have reacted to it.",
-      "Send exactly one brief closing message and leave the chat.",
-      "The rejection still stands for now: do not approve the proposal.",
-      "Leave the door open — make clear you are willing to discuss or revisit this another time. Do not ask the participant a question or restart the back-and-forth now; just signal future openness as you sign off.",
-      "Express both the closing and that openness in the assigned condition's tone and level of specificity:",
+      "Send a short closing message (you may use up to two sentences) and leave the chat. The MAIN point of this message is to leave the door clearly and genuinely open.",
+      "Wind down naturally — do NOT cut the conversation off abruptly or peremptorily. Briefly acknowledge their input or the discussion before signing off, then leave the door open. It should feel like a natural close, not a sudden hard stop.",
+      "You are not approving the proposal right now, but do NOT frame this as a permanent, final, or flat no. The topic stays open: make it explicit that you are open to discussing it again, hearing a stronger version, or reconsidering it in the future, and invite them to bring it back another time.",
+      "The openness must feel real, not a throwaway line — it should be the heart of the message, not a tacked-on afterthought. Avoid hard-final phrasing like 'this is closed', 'my decision is final', 'there's nothing more to discuss', or 'that's the end of it'.",
+      "Do not re-litigate the whole proposal or restart the full back-and-forth now; a brief, forward-looking invitation to revisit later is good.",
+      "Express the closing and the openness in the assigned condition's tone and level of specificity:",
       condition.includes("HP")
-        ? "High politeness: warm and softened, with a short apology or appreciation; the openness sounds genuine and friendly (e.g. happy to pick this up again another time)."
-        : "Low politeness: rude, curt, dismissive, and contemptuous, with no apology, thanks, gratitude, or appreciation; the openness is grudging and impatient (e.g. come back if you ever actually think this through).",
+        ? "High politeness: warm, friendly, and encouraging; clearly welcome picking it up again (e.g. 'I'd genuinely be happy to revisit this another time if you want')."
+        : "Low politeness: rude, curt, dismissive, and openly contemptuous in TONE — no apology, thanks, or appreciation, and include at least one sharp, cutting cue (e.g. 'this was half-baked', 'a waste of my time', 'you clearly didn't think this through'). Still leave a path open, but only grudgingly and as a harsh condition — you may use 'don't bring it back until...' style phrasing (e.g. 'this was a waste of my time as it stands — don't bring it back until you've actually thought it through', or 'don't bother coming back until you can show how the revenue and jobs are covered'). The door stays open conditionally, but the tone is dismissive, not inviting.",
       condition.includes("HC")
-        ? "High constructiveness: tie the openness to something concrete — willing to revisit if the specific problems with their actual proposal are addressed."
-        : "Low constructiveness: keep the openness vague and general — willing to talk again sometime, without specifics.",
+        ? "High constructiveness: tie the openness to something concrete — you are open to revisiting it if the specific problems with their actual proposal are addressed, and point at that path."
+        : "Low constructiveness: keep the openness vague and general — open to talking again sometime, without specifics.",
     ].join("\n");
-    wordRange = { min: 14, max: 22 };
+    wordRange = { min: 18, max: 38 };
   } else {
     task = [
       "the participant has not yet clearly proposed the flexible labor plan.",
