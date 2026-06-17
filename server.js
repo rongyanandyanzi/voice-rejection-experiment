@@ -169,6 +169,11 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url.startsWith("/admin/config")) {
+    serveAdminConfig(req, res);
+    return;
+  }
+
   if (req.method === "GET" && req.url.startsWith("/admin/download/")) {
     serveAdminDownload(req, res);
     return;
@@ -367,6 +372,30 @@ function serveStatic(req, res) {
   };
   res.writeHead(200, { "Content-Type": types[ext] || "application/octet-stream" });
   fs.createReadStream(filePath).pipe(res);
+}
+
+function serveAdminConfig(req, res) {
+  if (!adminToken) {
+    res.writeHead(404);
+    res.end("Not found");
+    return;
+  }
+  const requestUrl = new URL(req.url, "http://localhost");
+  if (requestUrl.searchParams.get("token") !== adminToken) {
+    res.writeHead(403);
+    res.end("Forbidden");
+    return;
+  }
+  // Diagnostic only. Never return the key itself — just whether the running
+  // process has it and its basic shape, so config problems can be diagnosed.
+  sendJson(res, {
+    openaiKeySet: Boolean(openaiApiKey),
+    keyLength: openaiApiKey.length,
+    keyStartsWithSk: openaiApiKey.startsWith("sk-"),
+    model: openaiModel,
+    reasoningEffort: openaiReasoningEffort,
+    dataDir,
+  });
 }
 
 function serveAdminDownload(req, res) {
