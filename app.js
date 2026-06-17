@@ -2039,6 +2039,8 @@
     renderAiCheckPage();
   } else if (skipTo === "briefing") {
     renderBriefing();
+  } else if (skipTo === "manager" || skipTo === "manager_chat" || skipTo === "manager1") {
+    renderManagerChat();
   } else if (skipTo === "transition") {
     renderTransition();
   } else {
