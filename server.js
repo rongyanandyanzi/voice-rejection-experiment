@@ -447,6 +447,17 @@ async function generateAiReply(payload) {
       }
       lastIntent = result.intent || "";
       lastMessages = sanitizeAiMessages(result.messages, prompt, lastIntent);
+      if (shouldForceFirstManagerFollowup(prompt, lastIntent)) {
+        // The participant has only just voiced their proposal and no follow-up
+        // has been asked yet. Re-prompt for a proposal-grounded follow-up first;
+        // fall back to a generic neutral question only if the model keeps
+        // insisting on rejecting.
+        if (attempt < 2) {
+          correction = "Do not reject yet. The participant has only just voiced their proposal and you have asked no follow-up question. Set intent to 'ask_followup' and ask exactly one neutral, natural follow-up question grounded in what they actually proposed. Do not approve and do not reject.";
+          continue;
+        }
+        return { ok: true, messages: fallbackFirstManagerFollowup(), intent: "ask_followup" };
+      }
       const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt);
       if (coworkerProblem) {
         if (attempt < 2) {
@@ -662,6 +673,7 @@ function buildInitialManagerPrompt(payload) {
       "- If the participant has NOT yet voiced any suggestion, opinion, recommendation, or proposal about improving or changing how the park is run (for example only greetings, small talk, clarifying questions, or acknowledgements), set intent to 'awaiting_proposal' and reply with one short, natural message that invites them to share what is on their mind. Do not reject.",
       "- If the participant HAS voiced any improvement suggestion, opinion, or proposal, treat it as a genuine voice attempt. This counts even if the participant does not mention staffing, flexibility, temporary staff, interns, scheduling, or any specific keyword. Any idea about how the park could do better qualifies.",
       "The opening already asked the participant what they think they should do, so once they give any substantive answer about what the park should do or change, treat it as a voice attempt and do not keep using 'awaiting_proposal'.",
+      "Important naturalness rule: if the participant has voiced a proposal and you have asked 0 follow-up questions so far, do not reject yet. Set intent to 'ask_followup' and ask exactly one neutral, natural follow-up question grounded in what they actually said.",
       "Give the participant genuine room to make their case before rejecting. Do not reject while they are still mid-explanation, have only given a partial or one-line idea, or clearly have more to say. Let the exchange breathe like a real manager-subordinate chat.",
       `   - When the participant has voiced an idea: so far you have asked ${followupsAsked} follow-up question(s) about it. If the proposal has not yet been fully explained and defended, or one more natural clarifying or probing question would help you understand it, set intent to 'ask_followup' and ask exactly ONE follow-up question grounded in what they actually said. Do not reject yet and do not approve. You may ask several follow-up questions across the conversation (up to about 4), not just one or two.`,
       "Keep follow-up questions neutral in tone. Do not apply the assigned politeness or constructiveness condition while asking follow-up questions; the condition manipulation only takes effect once you reject.",
@@ -792,6 +804,8 @@ function buildInitialManagerPrompt(payload) {
 
   return {
     condition,
+    phase,
+    followupsAsked,
     speakers: ["Manager"],
     minMessages,
     maxMessages,
@@ -831,6 +845,25 @@ function buildInitialManagerPrompt(payload) {
     applyManagerStyle: true,
     isRejectionPhase: ["rejection_initial", "rejection_followup", "rejection", "closing"].includes(phase),
   };
+}
+
+function shouldForceFirstManagerFollowup(prompt, intent) {
+  return prompt &&
+    prompt.condition &&
+    prompt.phase === "discussion" &&
+    Number(prompt.followupsAsked || 0) === 0 &&
+    intent === "reject_now";
+}
+
+function fallbackFirstManagerFollowup() {
+  // Proposal-agnostic neutral follow-up: this fires only as a safety net when
+  // the model ignores the "ask one follow-up first" rule, so it must work for
+  // ANY proposal (shutting down, AI, marketing, staffing, etc.) and must not
+  // assume the idea is about staffing/flexible labor.
+  return [{
+    speaker: "Manager",
+    text: "Before I weigh in, can you tell me a bit more about how you see that working and why you think it's the best move for us?",
+  }];
 }
 
 const MANAGER_CONDITIONS = ["HP_HC", "HP_LC", "LP_HC", "LP_LC"];
