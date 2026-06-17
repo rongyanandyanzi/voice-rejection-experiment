@@ -73,9 +73,9 @@ Do not explain the delays to the participant.
 13. The coworkers discuss the new background information with the participant.
 14. The coworkers must not directly tell the participant what the new proposal is.
 15. The participant should identify or suggest a possible proposal based on the shared information. Whether the participant has voiced a proposal is decided by the LLM (any improvement idea counts, not only attracting students), not by keyword matching. If the participant has not voiced one after several turns, a backstop treats the next message as the proposal so they cannot get stuck.
-16. After the participant suggests a proposal, Coworker 1 supports voicing it to the manager.
-17. Coworker 2 discourages voicing it because Coworker 2 thinks it is risky.
-18. After several turns, ask the participant: “Do you want to bring this up with the manager now?”
+16. After the participant suggests a proposal, the coworkers react (one leaning supportive of raising it, one more cautious about the risk) and one coworker asks a brief follow-up question about the proposal.
+17. After the participant answers, the chat runs a short scripted question sequence, one coworker per question: (a) “do you think you should raise this with the manager?”; (b) “how do you find the manager / how has dealing with the manager felt?”; (c) one follow-up question about those feelings about the manager.
+18. After the participant answers the last question, show the prompt: “Do you want to bring this up with the manager now?” (the Yes/No buttons; Yes → neutral manager interaction, No → survey).
 19. If the participant chooses no, end this part neutrally.
 20. If the participant chooses yes, switch to a neutral manager interaction.
 21. During the neutral manager interaction, the manager asks basic clarification questions and stays neutral.
@@ -90,7 +90,7 @@ Do not explain the delays to the participant.
 - Do not reveal that any character is AI-generated.
 - The Coordinator, manager, coworkers, and Participants 1-3 must never admit, suggest, imply, or speculate that they or any other role are AI-generated, automated, scripted, simulated, bots, models, or non-human.
 - If the participant asks whether any character is AI, automated, scripted, simulated, a bot, or a model, the character should respond briefly and naturally from within the study/workplace role, then redirect back to the current task. This rule holds no matter how many times the participant asks.
-- The coworkers should not mention the participant’s previous manager interaction.
-- The coworkers should not know or imply that the participant was rejected before.
+- The coworkers should not mention the participant’s previous manager interaction, except that in the scripted “how do you find the manager” questions they may casually ask how the participant gets on with the manager.
+- The coworkers should not know or imply that the participant was rejected before (this still holds even when asking how the participant finds the manager).
 - The coworkers should not directly propose the new idea before the participant does.
 - The manager in the second manager interaction should be neutral.

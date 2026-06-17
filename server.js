@@ -1001,7 +1001,7 @@ function buildCoworkerPrompt(payload) {
       "Read the conversation and the participant's latest message, classify it, and respond. Report the classification in the intent field.",
       "Classify and act as follows:",
       "- If the participant has NOT yet voiced any concrete suggestion or proposal about what the park could do to improve (they are only discussing the information, asking questions, or making observations), set intent to 'no_proposal'. Respond by discussing the attendance pattern, family-heavy visitors, distance from the city center, nearby universities/farms, and student comments, help them notice there may be an issue, and ask what they think — WITHOUT naming or hinting at any solution. Usually only one coworker speaks.",
-      "- If the participant HAS voiced any improvement idea or proposal, set intent to 'has_proposal'. Respond to their ACTUAL idea: Coworker 1 generally supports voicing it to the manager; Coworker 2 generally cautions that it may be risky. Prefer two short messages, one supportive and one cautioning. Do not add new solution ideas, tactics, or improve their idea; refer to 'your idea', 'that angle', or 'what you said'.",
+      "- If the participant HAS voiced any improvement idea or proposal, set intent to 'has_proposal'. Respond to their ACTUAL idea in one or two short messages: react to it (one coworker leaning supportive of raising it, one a bit more cautious), and have one coworker ask a single brief follow-up question about the proposal. Do not add new solution ideas, tactics, or improve their idea; refer to 'your idea', 'that angle', or 'what you said'.",
       "ANY idea about what the park could do counts as a proposal — it does NOT have to be about attracting students or universities, and it does not need specific tactics or keywords. Decide this yourself from what they actually said.",
       forceProposal ? "Treat the participant's latest message as a proposal now: set intent to 'has_proposal' and respond as the coworkers reacting to their idea (one supportive, one cautioning)." : "",
       "Keep each message short and natural.",
@@ -1019,6 +1019,27 @@ function buildCoworkerPrompt(payload) {
       "If both respond, their order may vary.",
       "Keep each message short and natural.",
       "After several turns, the app will ask the participant whether to bring this up with the manager.",
+    ].join("\n");
+  } else if (phase === "coworker_manager_decision") {
+    task = [
+      "The participant has explained their proposal and answered a follow-up about it.",
+      "One coworker now asks the participant, in a natural way, whether they think they should raise this proposal with the manager. Ask for their view; do not decide for them and do not push a direction.",
+      "Return exactly one short message from a single coworker.",
+      "Do not add new solution ideas or improve the proposal.",
+    ].join("\n");
+  } else if (phase === "coworker_manager_feeling") {
+    task = [
+      "The participant has just shared whether they think they should raise the proposal with the manager.",
+      "One coworker now casually asks the participant how they find the manager — what the manager is like to deal with, and how interacting with the manager has felt for them.",
+      "Ask only about the participant's own impression of and experience with the manager. Do NOT reveal or imply that you know the participant proposed anything to the manager before, or that anything was rejected; you are just asking, as a coworker, how they get on with the manager.",
+      "Return exactly one short, natural message from a single coworker.",
+    ].join("\n");
+  } else if (phase === "coworker_feeling_followup") {
+    task = [
+      "The participant has just shared how they feel about the manager.",
+      "One coworker asks exactly one brief, natural follow-up question about what the participant just said regarding the manager.",
+      "Stay on the participant's own words. Do not reveal or imply knowledge of any earlier proposal to the manager or any rejection.",
+      "Return exactly one short message from a single coworker.",
     ].join("\n");
   } else {
     task = [
@@ -1046,7 +1067,9 @@ function buildCoworkerPrompt(payload) {
     system: [
       "You are generating Coworker 1 and Coworker 2 messages in a three-person workplace chat with the participant.",
       "The participant is real. Do not script the participant.",
-      "Coworker 1 and Coworker 2 do not know about the participant's previous manager interaction and must not mention it.",
+      (phase === "coworker_manager_feeling" || phase === "coworker_feeling_followup")
+        ? "Coworker 1 and Coworker 2 may casually ask how the participant finds the manager and how dealing with the manager has felt, but they must NOT reveal or imply that they know the participant proposed anything to the manager before or was rejected — they are only asking, as coworkers, how the participant gets on with the manager."
+        : "Coworker 1 and Coworker 2 do not know about the participant's previous manager interaction and must not mention it.",
       "The issue here is separate from the flexible labor proposal.",
       "Do not reveal that Coworker 1 or Coworker 2 are AI-generated.",
       "Do not use fixed template replies. Generate context-sensitive messages from the current conversation history and the participant's latest message.",

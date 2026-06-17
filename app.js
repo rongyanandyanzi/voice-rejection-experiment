@@ -1217,6 +1217,7 @@
     state.secondPhase = "beforeProposal";
     state.postSuggestionTurns = 0;
     state.beforeProposalTurns = 0;
+    state.coworkerQ = 0;
     state.decisionShown = false;
     saveParticipant();
     createChat("Coworker Chat", "Coworkers online", true);
@@ -1236,24 +1237,33 @@
     if (state.decisionShown) return;
     state.coworkerTurnActive = true;
 
-    // Already in the proposal phase: react to the participant and wind toward
-    // the decision prompt after a few turns.
+    // After a proposal, run a scripted question sequence (one coworker each):
+    //   Q1 follow-up on the proposal (asked in the has_proposal response)
+    //   Q2 do you think you should raise this with the manager?
+    //   Q3 how do you feel about the manager / dealing with him?
+    //   Q4 a follow-up on those feelings about the manager
+    // then show the Yes/No decision prompt.
     if (state.secondPhase === "afterProposal") {
-      state.postSuggestionTurns += 1;
-      await sendAiMessages({
-        stage: "lisa_john",
-        phase: "afterProposal",
-        mode: coworkerMode(),
-        turn: state.postSuggestionTurns,
-        alexMessage: text,
-      });
-      if (state.postSuggestionTurns >= 3 && !state.decisionShown) {
+      if (state.coworkerQ >= 4) {
         await delay(randomBetween(3000, 5000));
         state.coworkerTurnActive = false;
         state.pendingCoworkerInputs = [];
         showDecisionPrompt();
         return;
       }
+      const nextQ = state.coworkerQ + 1;
+      const phaseByQ = {
+        2: "coworker_manager_decision",
+        3: "coworker_manager_feeling",
+        4: "coworker_feeling_followup",
+      };
+      await sendAiMessages({
+        stage: "lisa_john",
+        phase: phaseByQ[nextQ],
+        mode: coworkerSingleMode(),
+        alexMessage: text,
+      });
+      state.coworkerQ = nextQ;
       finishCoworkerTurn();
       return;
     }
@@ -1272,7 +1282,7 @@
     });
     if (forceProposal || state.lastAiIntent === "has_proposal") {
       state.secondPhase = "afterProposal";
-      state.postSuggestionTurns = 1;
+      state.coworkerQ = 1; // Q1 (proposal follow-up) asked in the has_proposal response
     }
     finishCoworkerTurn();
   }
@@ -1724,16 +1734,13 @@
       .filter((row) => row.speaker && row.message);
   }
 
-  function coworkerMode() {
-    const roll = Math.random();
-    if (roll < 0.35) return "lisa";
-    if (roll < 0.70) return "john";
-    if (roll < 0.85) return "both_lisa_first";
-    return "both_john_first";
-  }
 
   function coworkerBothMode() {
     return Math.random() < 0.5 ? "both_lisa_first" : "both_john_first";
+  }
+
+  function coworkerSingleMode() {
+    return Math.random() < 0.5 ? "lisa" : "john";
   }
 
   function coworkerResponseDelay(text, previousCoworkerText) {
