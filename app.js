@@ -1041,9 +1041,10 @@
     const typingDelay = Math.round((wordCount / wordsPerMinute) * 60000);
     const readingPause = randomBetween(1200, 2600);
     const turnTakingPause = isParticipant ? randomBetween(900, 1800) : randomBetween(500, 1400);
-    const baseDelay = Math.min(32000, Math.max(3500, typingDelay + readingPause + turnTakingPause));
-    // The Coordinator types faster than Participants 1-3: take 2/3 of the time.
-    // Participants 1-3 keep their original pacing.
+    const rawDelay = Math.min(32000, Math.max(3500, typingDelay + readingPause + turnTakingPause));
+    // Trim overall prechat pacing to 2/3 of the original. The Coordinator is
+    // faster still (another 2/3 on top), so it stays quicker than Participants 1-3.
+    const baseDelay = Math.round((rawDelay * 2) / 3);
     if (speaker === "Coordinator") return Math.round((baseDelay * 2) / 3);
     return baseDelay;
   }
