@@ -82,6 +82,7 @@ Do not explain the delays to the participant.
 
 ## Important Rules
 
+- **HARD RULE — no going back.** The participant must never be able to return to a previous page or stage of the study. Navigation is strictly one-way (forward only): once a page or chat stage is completed, it cannot be revisited or re-entered, and the browser Back button, refresh, or re-navigation must not let the participant redo or re-read an earlier stage. Each stage advances only via its own forward action (e.g. "Next"), and there are no in-app links or buttons that move backward.
 - Do not script the participant.
 - In the prechat, do not refer to the real participant by any personal name.
 - Do not reveal the experimental condition.
