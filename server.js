@@ -487,7 +487,7 @@ async function generateAiReply(payload) {
         }
         return { ok: true, messages: fallbackFirstManagerFollowup(), intent: "ask_followup" };
       }
-      const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt);
+      const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt, lastIntent);
       if (coworkerProblem) {
         if (attempt < 2) {
           correction = coworkerProblem;
@@ -982,8 +982,11 @@ function buildCoworkerPrompt(payload) {
   const twoSpeakerTurn = isCoworkerTwoSpeakerMode(requestedMode);
   const speakerOrder = coworkerSpeakerOrder(requestedMode);
 
-  const task = phase === "opening"
-    ? [
+  const forceProposal = Boolean(payload.forceProposal);
+  let intentEnum = null;
+  let task;
+  if (phase === "opening") {
+    task = [
       "This is the opening of the coworker chat before the participant has sent a message.",
       "Generate original, natural coworker chat messages based on the shared situation; do not copy a fixed opening script.",
       "Mention that the coworkers reviewed today's entrance records, visitor comments, or off-season attendance pattern.",
@@ -991,10 +994,21 @@ function buildCoworkerPrompt(payload) {
       "Do not say or imply 'we should attract university students', 'we should offer student discounts', 'we should build photo-friendly spots', or any other solution.",
       "One coworker may ask the participant what they make of the information.",
       "Keep each message short, casual, and workplace-realistic.",
-    ].join("\n")
-    : phase === "afterProposal"
-      ? [
-      "The participant has suggested a possible proposal related to attracting university students or nearby visitors.",
+    ].join("\n");
+  } else if (phase === "discussion") {
+    intentEnum = ["no_proposal", "has_proposal"];
+    task = [
+      "Read the conversation and the participant's latest message, classify it, and respond. Report the classification in the intent field.",
+      "Classify and act as follows:",
+      "- If the participant has NOT yet voiced any concrete suggestion or proposal about what the park could do to improve (they are only discussing the information, asking questions, or making observations), set intent to 'no_proposal'. Respond by discussing the attendance pattern, family-heavy visitors, distance from the city center, nearby universities/farms, and student comments, help them notice there may be an issue, and ask what they think — WITHOUT naming or hinting at any solution. Usually only one coworker speaks.",
+      "- If the participant HAS voiced any improvement idea or proposal, set intent to 'has_proposal'. Respond to their ACTUAL idea: Coworker 1 generally supports voicing it to the manager; Coworker 2 generally cautions that it may be risky. Prefer two short messages, one supportive and one cautioning. Do not add new solution ideas, tactics, or improve their idea; refer to 'your idea', 'that angle', or 'what you said'.",
+      "ANY idea about what the park could do counts as a proposal — it does NOT have to be about attracting students or universities, and it does not need specific tactics or keywords. Decide this yourself from what they actually said.",
+      forceProposal ? "Treat the participant's latest message as a proposal now: set intent to 'has_proposal' and respond as the coworkers reacting to their idea (one supportive, one cautioning)." : "",
+      "Keep each message short and natural.",
+    ].filter(Boolean).join("\n");
+  } else if (phase === "afterProposal") {
+    task = [
+      "The participant has suggested a possible proposal for improving the park.",
       "Respond to the participant's actual wording instead of using a fixed script.",
       "Coworker 1 generally supports voicing the idea to the manager.",
       "Coworker 2 generally discourages or cautions because it may be risky.",
@@ -1005,8 +1019,9 @@ function buildCoworkerPrompt(payload) {
       "If both respond, their order may vary.",
       "Keep each message short and natural.",
       "After several turns, the app will ask the participant whether to bring this up with the manager.",
-    ].join("\n")
-    : [
+    ].join("\n");
+  } else {
+    task = [
       "The participant has not yet clearly suggested the new proposal.",
       "Respond to the participant's actual wording instead of using a fixed script.",
       "Discuss the attendance pattern, family-heavy visitors, distance from city center, nearby universities/farms, and student comments.",
@@ -1015,6 +1030,7 @@ function buildCoworkerPrompt(payload) {
       "Help the participant notice the information and ask what they think, without giving the solution.",
       "Keep messages short and natural.",
     ].join("\n");
+  }
 
   return {
     kind: "lisa_john",
@@ -1024,6 +1040,7 @@ function buildCoworkerPrompt(payload) {
     minMessages: twoSpeakerTurn ? 2 : 1,
     maxMessages: twoSpeakerTurn ? 2 : 1,
     speakerOrder,
+    intentEnum,
     temperature: 0.78,
     maxOutputTokens: 450,
     system: [
@@ -1246,12 +1263,18 @@ function rewriteManagerCommandStyle(text) {
     .trim();
 }
 
-function coworkerSolutionProblem(messages, prompt) {
+function coworkerSolutionProblem(messages, prompt, intent) {
   if (!prompt || prompt.kind !== "lisa_john" || !Array.isArray(messages) || !messages.length) return "";
   const combined = messages.map((message) => message.text || "").join(" ").toLowerCase();
   if (!combined.trim()) return "";
 
-  if (prompt.phase === "opening" || prompt.phase === "beforeProposal") {
+  // The "discussion" phase classifies the participant's message via intent, so
+  // map it to the matching pre/post-proposal sanitizer rule.
+  const effectivePhase = prompt.phase === "discussion"
+    ? (intent === "has_proposal" ? "afterProposal" : "beforeProposal")
+    : prompt.phase;
+
+  if (effectivePhase === "opening" || effectivePhase === "beforeProposal") {
     const solutionTerms = /(student discounts?|discounts?|photo-friendly|photo friendly|photo spots?|instagram|selfie|afternoon activities?|farm-related|farm related|university partnerships?|partnership events?|student events?|promotions?|campaigns?|marketing|target students?|attract (?:more )?(?:students|university students)|bring in (?:more )?(?:students|university students)|offer student|build.*photo|create.*photo|run.*event|partner with universit)/i;
     if (solutionTerms.test(combined)) {
       return [
@@ -1264,7 +1287,7 @@ function coworkerSolutionProblem(messages, prompt) {
     }
   }
 
-  if (prompt.phase === "afterProposal") {
+  if (effectivePhase === "afterProposal") {
     const addOnSuggestion = /\b(?:we|you|alex|the park)\s+(?:could|should|might|need to|needs to|can|maybe|also)\s+(?:add|offer|build|create|start|run|try|include|set up|partner|promote|target|market|launch)\b/i;
     if (addOnSuggestion.test(combined)) {
       return [

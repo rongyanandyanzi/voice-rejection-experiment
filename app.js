@@ -1216,6 +1216,7 @@
     state.pendingCoworkerInputs = [];
     state.secondPhase = "beforeProposal";
     state.postSuggestionTurns = 0;
+    state.beforeProposalTurns = 0;
     state.decisionShown = false;
     saveParticipant();
     createChat("Coworker Chat", "Coworkers online", true);
@@ -1233,53 +1234,46 @@
 
   async function handleLisaJohnInput(text) {
     if (state.decisionShown) return;
-    const hasProposal = isStudentVisitorProposal(text);
+    state.coworkerTurnActive = true;
 
-    if (state.secondPhase === "beforeProposal" && hasProposal) {
-      state.secondPhase = "afterProposal";
-      state.postSuggestionTurns = 1;
-      state.coworkerTurnActive = true;
+    // Already in the proposal phase: react to the participant and wind toward
+    // the decision prompt after a few turns.
+    if (state.secondPhase === "afterProposal") {
+      state.postSuggestionTurns += 1;
       await sendAiMessages({
         stage: "lisa_john",
         phase: "afterProposal",
-        mode: coworkerBothMode(),
+        mode: coworkerMode(),
         turn: state.postSuggestionTurns,
         alexMessage: text,
       });
+      if (state.postSuggestionTurns >= 3 && !state.decisionShown) {
+        await delay(randomBetween(3000, 5000));
+        state.coworkerTurnActive = false;
+        state.pendingCoworkerInputs = [];
+        showDecisionPrompt();
+        return;
+      }
       finishCoworkerTurn();
       return;
     }
 
-    if (state.secondPhase === "beforeProposal") {
-      state.coworkerTurnActive = true;
-      await sendAiMessages({
-        stage: "lisa_john",
-        phase: "beforeProposal",
-        mode: coworkerMode(),
-        alexMessage: text,
-      });
-      finishCoworkerTurn();
-      return;
-    }
-
-    state.postSuggestionTurns += 1;
-    state.coworkerTurnActive = true;
+    // Before a proposal: let the LLM decide whether the participant has now
+    // voiced any improvement idea (returned as intent). Backstop: after several
+    // turns without one, force the proposal so the participant cannot get stuck.
+    state.beforeProposalTurns = (state.beforeProposalTurns || 0) + 1;
+    const forceProposal = state.beforeProposalTurns >= 4;
     await sendAiMessages({
       stage: "lisa_john",
-      phase: "afterProposal",
-      mode: coworkerMode(),
-      turn: state.postSuggestionTurns,
+      phase: "discussion",
+      mode: "auto",
       alexMessage: text,
+      forceProposal,
     });
-
-    if (state.postSuggestionTurns >= 3 && !state.decisionShown) {
-      await delay(randomBetween(3000, 5000));
-      state.coworkerTurnActive = false;
-      state.pendingCoworkerInputs = [];
-      showDecisionPrompt();
-      return;
+    if (forceProposal || state.lastAiIntent === "has_proposal") {
+      state.secondPhase = "afterProposal";
+      state.postSuggestionTurns = 1;
     }
-
     finishCoworkerTurn();
   }
 
@@ -1909,14 +1903,6 @@
   function setStatus(text) {
     const status = document.getElementById("chat-status");
     if (status) status.textContent = text;
-  }
-
-  function isStudentVisitorProposal(text) {
-    const normalized = text.toLowerCase();
-    const audience = /(student|students|university|universities|college|colleges|young adult|young adults|farm|farms|local)/i.test(normalized);
-    const tactic = /(discount|discounts|photo|photos|spot|spots|afternoon|activity|activities|event|events|partnership|partner|campaign|ticket|tickets|attract|target|market|offer|promotion|promote|package|experience)/i.test(normalized);
-    const action = /(maybe|should|could|need|recommend|suggest|propose|try|create|offer|build|make|start|partner|bring|raise|target|attract)/i.test(normalized);
-    return audience && tactic && action;
   }
 
   function normalizeCondition(value) {

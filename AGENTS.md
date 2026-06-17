@@ -72,7 +72,7 @@ Do not explain the delays to the participant.
 12. The participant enters a new chat with two coworkers.
 13. The coworkers discuss the new background information with the participant.
 14. The coworkers must not directly tell the participant what the new proposal is.
-15. The participant should identify or suggest a possible proposal based on the shared information.
+15. The participant should identify or suggest a possible proposal based on the shared information. Whether the participant has voiced a proposal is decided by the LLM (any improvement idea counts, not only attracting students), not by keyword matching. If the participant has not voiced one after several turns, a backstop treats the next message as the proposal so they cannot get stuck.
 16. After the participant suggests a proposal, Coworker 1 supports voicing it to the manager.
 17. Coworker 2 discourages voicing it because Coworker 2 thinks it is risky.
 18. After several turns, ask the participant: “Do you want to bring this up with the manager now?”
