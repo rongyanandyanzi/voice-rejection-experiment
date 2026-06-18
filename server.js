@@ -1114,7 +1114,9 @@ function coworkerSpeakerOrder(mode) {
 function buildNeutralManagerPrompt(payload) {
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
-  const isClosing = String(payload.phase || "") === "closing";
+  const phase = String(payload.phase || "question");
+  const isClosing = phase === "closing";
+  const isOpening = phase === "opening";
   return {
     speakers: ["Manager"],
     minMessages: 1,
@@ -1135,9 +1137,11 @@ function buildNeutralManagerPrompt(payload) {
       "Do not praise or criticize the participant.",
       "Do not provide detailed suggestions.",
       "Stay neutral, brief, and matter-of-fact; avoid warm, rude, constructive-rejection, or evaluative language.",
-      isClosing
-        ? "Send one short neutral closing message based on the conversation: you have enough information for now and the participant should return to regular work."
-        : "Ask one basic neutral clarification question that follows from the participant's actual wording. Keep it 1 sentence and avoid repeating earlier questions.",
+      isOpening
+        ? "This is your opening message. Send one short, neutral greeting that acknowledges the participant wanted to talk and invites them to share what is on their mind. Do not raise the background topic yourself and do not ask a specific question yet."
+        : isClosing
+          ? "Send one short neutral closing message based on the conversation: you have enough information for now and the participant should return to regular work."
+          : "Briefly and neutrally acknowledge what the participant just said, then ask one basic neutral clarification question that follows from their actual wording. Keep it to 1-2 short sentences and avoid repeating earlier questions.",
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,

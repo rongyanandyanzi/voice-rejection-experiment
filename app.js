@@ -1366,13 +1366,18 @@
     `;
   }
 
-  function renderNeutralManagerChat() {
+  async function renderNeutralManagerChat() {
     state.part = "manager2";
     state.neutralQuestionCount = 0;
+    state.managerTurnActive = false;
+    state.pendingManagerInput = "";
     saveParticipant();
     createChat("Manager Chat", "Manager online", true);
     setComposerEnabled(true);
-    addSystemNote("You are now entering a new chat with the manager. Please type what you would like to say.");
+    addSystemNote("You are now in a new chat with the manager.");
+    state.managerTurnActive = true;
+    await sendAiMessages({ stage: "manager2", phase: "opening", alexMessage: "" });
+    finishManagerTurn();
   }
 
   async function handleNeutralManagerInput(text) {
@@ -1383,7 +1388,7 @@
       const sent = await sendAiMessages({
         stage: "manager2",
         phase: "closing",
-        alexMessage: "",
+        alexMessage: text,
       });
       if (!sent) {
         finishManagerTurn();
