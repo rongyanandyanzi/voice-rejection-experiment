@@ -1138,7 +1138,7 @@ function buildNeutralManagerPrompt(payload) {
       "Do not provide detailed suggestions.",
       "Stay neutral, brief, and matter-of-fact; avoid warm, rude, constructive-rejection, or evaluative language.",
       isOpening
-        ? "This is your opening message. Send one short, neutral greeting that acknowledges the participant wanted to talk and invites them to share what is on their mind. Do not raise the background topic yourself and do not ask a specific question yet."
+        ? "This is your opening message. Just say a brief, neutral hello (e.g. 'Hi' or 'Hello, good to chat'). Keep it to a short greeting only — do not ask a question, do not invite a topic, and do not raise the background yourself."
         : isClosing
           ? "Send one short neutral closing message based on the conversation: you have enough information for now and the participant should return to regular work."
           : "Briefly and neutrally acknowledge what the participant just said, then ask one basic neutral clarification question that follows from their actual wording. Keep it to 1-2 short sentences and avoid repeating earlier questions.",

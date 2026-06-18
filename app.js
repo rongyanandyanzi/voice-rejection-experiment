@@ -1374,7 +1374,7 @@
     saveParticipant();
     createChat("Manager Chat", "Manager online", true);
     setComposerEnabled(true);
-    addSystemNote("You are now in a new chat with the manager.");
+    addSystemNote("You are now in a new chat with the manager. Please type what you would like to say.");
     state.managerTurnActive = true;
     await sendAiMessages({ stage: "manager2", phase: "opening", alexMessage: "" });
     finishManagerTurn();
