@@ -1296,11 +1296,11 @@
   function showDecisionPrompt() {
     state.decisionShown = true;
     setComposerEnabled(false);
-    recordInteraction("decision_prompt", "system", "Do you want to bring this up with the manager now?", "");
+    recordInteraction("decision_prompt", "system", "Do you want to talk with the manager now?", "");
     const panel = document.createElement("div");
     panel.className = "decision-panel";
     panel.innerHTML = `
-      <p>Do you want to bring this up with the manager now?</p>
+      <p>Do you want to talk with the manager now?</p>
       <div class="actions">
         <button class="button" type="button" id="decision-yes">Yes</button>
         <button class="button secondary" type="button" id="decision-no">No</button>
