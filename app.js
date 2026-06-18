@@ -1217,7 +1217,7 @@
     state.secondPhase = "beforeProposal";
     state.postSuggestionTurns = 0;
     state.beforeProposalTurns = 0;
-    state.coworkerQ = 0;
+    state.coworkerQueue = [];
     state.decisionShown = false;
     saveParticipant();
     createChat("Coworker Chat", "Coworkers online", true);
@@ -1237,52 +1237,58 @@
     if (state.decisionShown) return;
     state.coworkerTurnActive = true;
 
-    // After a proposal, run a scripted question sequence (one coworker each):
-    //   Q1 follow-up on the proposal (asked in the has_proposal response)
-    //   Q2 do you think you should raise this with the manager?
-    //   Q3 how do you feel about the manager / dealing with him?
-    //   Q4 a follow-up on those feelings about the manager
-    // then show the Yes/No decision prompt.
+    // Once headed toward the manager, walk a scripted question queue, one
+    // coworker question per participant reply, then show the Yes/No prompt.
+    //   Proposal path:   manager_decision -> manager_feeling -> feeling_followup
+    //   No-proposal path: (issue_decision was already asked) manager_feeling -> feeling_followup
     if (state.secondPhase === "afterProposal") {
-      if (state.coworkerQ >= 4) {
+      if (!state.coworkerQueue || state.coworkerQueue.length === 0) {
         await delay(randomBetween(3000, 5000));
         state.coworkerTurnActive = false;
         state.pendingCoworkerInputs = [];
         showDecisionPrompt();
         return;
       }
-      const nextQ = state.coworkerQ + 1;
-      const phaseByQ = {
-        2: "coworker_manager_decision",
-        3: "coworker_manager_feeling",
-        4: "coworker_feeling_followup",
-      };
+      const nextPhase = state.coworkerQueue.shift();
       await sendAiMessages({
         stage: "lisa_john",
-        phase: phaseByQ[nextQ],
+        phase: nextPhase,
         mode: coworkerSingleMode(),
         alexMessage: text,
       });
-      state.coworkerQ = nextQ;
       finishCoworkerTurn();
       return;
     }
 
-    // Before a proposal: let the LLM decide whether the participant has now
-    // voiced any improvement idea (returned as intent). Backstop: after several
-    // turns without one, force the proposal so the participant cannot get stuck.
+    // Before a proposal: let the LLM decide whether the participant has voiced
+    // any improvement idea (returned as intent).
     state.beforeProposalTurns = (state.beforeProposalTurns || 0) + 1;
-    const forceProposal = state.beforeProposalTurns >= 4;
+
+    // Backstop: after a few rounds with no concrete proposal, a coworker asks
+    // whether to raise the current issue with the manager (no fabricated
+    // proposal), then continues to the manager-feeling questions and decision.
+    if (state.beforeProposalTurns >= 4) {
+      state.secondPhase = "afterProposal";
+      state.coworkerQueue = ["coworker_manager_feeling", "coworker_feeling_followup"];
+      await sendAiMessages({
+        stage: "lisa_john",
+        phase: "coworker_issue_decision",
+        mode: coworkerSingleMode(),
+        alexMessage: text,
+      });
+      finishCoworkerTurn();
+      return;
+    }
+
     await sendAiMessages({
       stage: "lisa_john",
       phase: "discussion",
       mode: "auto",
       alexMessage: text,
-      forceProposal,
     });
-    if (forceProposal || state.lastAiIntent === "has_proposal") {
+    if (state.lastAiIntent === "has_proposal") {
       state.secondPhase = "afterProposal";
-      state.coworkerQ = 1; // Q1 (proposal follow-up) asked in the has_proposal response
+      state.coworkerQueue = ["coworker_manager_decision", "coworker_manager_feeling", "coworker_feeling_followup"];
     }
     finishCoworkerTurn();
   }

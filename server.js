@@ -1020,6 +1020,13 @@ function buildCoworkerPrompt(payload) {
       "Keep each message short and natural.",
       "After several turns, the app will ask the participant whether to bring this up with the manager.",
     ].join("\n");
+  } else if (phase === "coworker_issue_decision") {
+    task = [
+      "The participant has discussed the situation for several turns but has not put forward a specific proposal or solution.",
+      "One coworker now asks the participant, in a natural way, whether they think they should raise the current issue (the off-season attendance and visitor pattern they have been discussing) with the manager — even without a fully formed plan. Ask for their view; do not decide for them and do not push a direction.",
+      "Do not propose a solution or tell them what to suggest.",
+      "Return exactly one short message from a single coworker.",
+    ].join("\n");
   } else if (phase === "coworker_manager_decision") {
     task = [
       "The participant has explained their proposal and answered a follow-up about it.",
