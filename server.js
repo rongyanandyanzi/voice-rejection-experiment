@@ -1130,7 +1130,7 @@ function buildNeutralManagerPrompt(payload) {
       "Use this background ONLY as silent context to understand what the participant is talking about. Do NOT reveal, state, quote, or introduce any of these background facts or figures in your messages (for example the ~500 off-season visitors, the 70-75% families with young children, the 4 nearby universities / ~38,000 students, the distance from the city, or the student comments). Ground every question in what the participant has actually said, not in this background, and do not volunteer or hint at solutions yourself.",
       "Generate the manager response dynamically from the current conversation history and the participant's latest message.",
       "Do not use a fixed question script or repeat a preset list of questions.",
-      "Do not mention any coworker names unless the participant mentions them first.",
+      "Do not use, invent, or ask for any coworker names — no names have been assigned to the coworkers, so never refer to them by any personal name (even if the participant uses one).",
       "Do not address the participant by a personal name in message text.",
       "Do not mention the previous manager interaction.",
       "Do not approve or reject the new proposal.",
