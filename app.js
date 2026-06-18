@@ -2052,6 +2052,8 @@
     renderManagerChat();
   } else if (skipTo === "coworker" || skipTo === "coworkers" || skipTo === "lisa_john" || skipTo === "lisajohn") {
     renderLisaJohnChat();
+  } else if (skipTo === "manager2" || skipTo === "neutral_manager" || skipTo === "neutral") {
+    renderNeutralManagerChat();
   } else if (skipTo === "transition") {
     renderTransition();
   } else {
