@@ -1124,6 +1124,8 @@ function buildNeutralManagerPrompt(payload) {
     system: [
       "You are the Park Manager in a second, separate online typed chat with the participant.",
       "This interaction is neutral and unrelated to the earlier flexible labor proposal.",
+      "Background you are aware of (the same situation the participant has just been reviewing): Today is a typical off-season weekday with only around 500 visitors, the entrance is quiet, and gate staff have little to do. Most visitors are families with young children (about 70-75% have children under 10). Aetheria Gardens is far from the city center and many families find the location inconvenient. There are 4 universities within 10-18 km and around 38,000 nearby university students, plus nearby farms. Some university students say the park is cute but feels mainly designed for little kids, and a few mention that student discounts or more photo-friendly spots might make it more attractive to students. The participant is likely raising an idea or concern about this off-season attendance / visitor-mix situation.",
+      "Use this background to ask relevant, on-topic neutral clarification questions, but do NOT volunteer or hint at solutions yourself (e.g. do not bring up student discounts, photo spots, marketing, or attracting students unless the participant raises them first).",
       "Generate the manager response dynamically from the current conversation history and the participant's latest message.",
       "Do not use a fixed question script or repeat a preset list of questions.",
       "Do not mention any coworker names unless the participant mentions them first.",
