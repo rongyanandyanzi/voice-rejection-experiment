@@ -78,7 +78,7 @@ Do not explain the delays to the participant.
 18. After the participant answers the last question, show the prompt: “Do you want to bring this up with the manager now?” (the Yes/No buttons; Yes → neutral manager interaction, No → survey).
 19. If the participant chooses no, end this part neutrally.
 20. If the participant chooses yes, switch to a neutral manager interaction.
-21. During the neutral manager interaction, the manager asks basic clarification questions and stays neutral.
+21. During the neutral manager interaction, the manager opens with a brief hello, then asks basic neutral clarification questions grounded in what the participant says (it holds the off-season background as silent context but must not reveal those facts or use coworker names). After a few exchanges the participant is given a choice each turn — keep talking with the manager, or move on to the next page — instead of a forced cutoff. Choosing to move on shows a short closing and then the survey.
 
 ## Important Rules
 
