@@ -147,6 +147,7 @@
     {
       title: "Perceived Tone of Manager Response",
       instruction: "Please indicate how you perceived the manager's attitude when they rejected your suggestion about the labor plan.",
+      instructionRed: true,
       stem: "The manager's response was...",
       items: [
         { id: "MA1", text: "Polite." },
@@ -162,6 +163,7 @@
     {
       title: "Perceived Usefulness of Manager Response",
       instruction: "Please indicate how you perceived the manager's response when they rejected your suggestion about the labor plan.",
+      instructionRed: true,
       stem: "When rejecting my suggestion, the manager...",
       items: [
         { id: "MC1", text: "Focused on identifiable problems and behaviors upon which I can take action." },
