@@ -1117,10 +1117,12 @@ function buildNeutralManagerPrompt(payload) {
   const phase = String(payload.phase || "question");
   const isClosing = phase === "closing";
   const isOpening = phase === "opening";
+  const intentEnum = (!isOpening && !isClosing) ? ["ask_more", "enough"] : null;
   return {
     speakers: ["Manager"],
     minMessages: 1,
     maxMessages: 1,
+    intentEnum,
     temperature: 0.55,
     maxOutputTokens: 220,
     system: [
@@ -1141,7 +1143,7 @@ function buildNeutralManagerPrompt(payload) {
         ? "This is your opening message. Just say a brief, neutral hello (e.g. 'Hi' or 'Hello, good to chat'). Keep it to a short greeting only — do not ask a question, do not invite a topic, and do not raise the background yourself."
         : isClosing
           ? "Send one short neutral closing message based on the conversation: you have enough information for now and the participant should return to regular work."
-          : "Briefly and neutrally acknowledge what the participant just said, then ask one basic neutral clarification question that follows from their actual wording. Keep it to 1-2 short sentences and avoid repeating earlier questions.",
+          : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up acknowledgement WITHOUT asking another question. Otherwise set intent to 'ask_more', briefly and neutrally acknowledge what they said, then ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). There is no fixed number of questions: the more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain.",
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,

@@ -1388,9 +1388,10 @@
     if (state.neutralDone) return;
     state.managerTurnActive = true;
 
-    // After 4 follow-up questions, the manager closes the conversation, then
-    // the participant is asked whether they want to proceed to the next page.
-    if (state.neutralQuestionCount >= 4) {
+    // No fixed number of follow-ups: the manager decides when it has enough
+    // (sooner for a detailed proposal). This high count is only a runaway
+    // safety net so the chat can't go on forever.
+    if (state.neutralQuestionCount >= 8) {
       const sent = await sendAiMessages({
         stage: "manager2",
         phase: "closing",
@@ -1415,6 +1416,11 @@
       const pendingText = state.pendingManagerInput;
       state.pendingManagerInput = "";
       return handleNeutralManagerInput(pendingText);
+    }
+    // The manager wraps up early once it judges it has enough (e.g. the
+    // participant already gave a detailed proposal).
+    if (state.lastAiIntent === "enough") {
+      showNeutralProceedChoice();
     }
   }
 
