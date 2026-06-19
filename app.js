@@ -1384,6 +1384,21 @@
   async function handleNeutralManagerInput(text) {
     if (state.neutralDone) return;
     state.managerTurnActive = true;
+
+    // After 4 follow-up questions, the manager closes the conversation, then
+    // the participant is asked whether they want to proceed to the next page.
+    if (state.neutralQuestionCount >= 4) {
+      const sent = await sendAiMessages({
+        stage: "manager2",
+        phase: "closing",
+        alexMessage: text,
+      });
+      state.managerTurnActive = false;
+      if (!sent) return;
+      showNeutralProceedChoice();
+      return;
+    }
+
     state.neutralQuestionCount += 1;
     const sent = await sendAiMessages({
       stage: "manager2",
@@ -1392,57 +1407,43 @@
     });
     state.managerTurnActive = false;
     if (!sent) return;
-    // If the participant typed ahead while the manager was replying, handle
-    // that next before offering the choice.
+    // If the participant typed ahead while the manager was replying, handle it next.
     if (state.pendingManagerInput) {
       const pendingText = state.pendingManagerInput;
       state.pendingManagerInput = "";
       return handleNeutralManagerInput(pendingText);
     }
-    // After a few exchanges, let the participant decide whether to keep talking
-    // with the manager or move on to the next page (no forced cutoff/jump).
-    if (state.neutralQuestionCount >= 3) {
-      showNeutralManagerChoice();
-    }
   }
 
-  function showNeutralManagerChoice() {
+  function showNeutralProceedChoice() {
     if (state.neutralDone) return;
     setComposerEnabled(false);
-    const question = "Would you like to keep talking with the manager, or move on to the next page?";
+    const question = "Do you want to proceed to the next page?";
     recordInteraction("neutral_manager_followup", "system", question, "");
     const panel = document.createElement("div");
     panel.className = "decision-panel";
     panel.innerHTML = `
       <p>${escapeHtml(question)}</p>
       <div class="actions">
-        <button class="button secondary" type="button" id="neutral-continue">Keep talking</button>
-        <button class="button" type="button" id="neutral-proceed">Go to the next page</button>
+        <button class="button secondary" type="button" id="neutral-continue">Keep talking with the manager</button>
+        <button class="button" type="button" id="neutral-proceed">Proceed to the next page</button>
       </div>
     `;
     document.querySelector(".chat").appendChild(panel);
     document.getElementById("neutral-continue").addEventListener("click", () => {
       recordInteraction("neutral_manager_followup", "alex", "keep talking", "");
       panel.remove();
+      state.neutralQuestionCount = 0;
       setComposerEnabled(true);
     });
     document.getElementById("neutral-proceed").addEventListener("click", () => {
-      recordInteraction("neutral_manager_followup", "alex", "move on", "");
+      recordInteraction("neutral_manager_followup", "alex", "proceed", "");
       panel.remove();
-      finishNeutralManager();
+      state.neutralDone = true;
+      participant.completed_neutral_manager_followup = "true";
+      saveParticipant();
+      renderPostInteractionSurvey();
     });
-  }
-
-  async function finishNeutralManager() {
-    state.neutralDone = true;
-    state.managerTurnActive = false;
-    state.pendingManagerInput = "";
-    setComposerEnabled(false);
-    participant.completed_neutral_manager_followup = "true";
-    saveParticipant();
-    await sendAiMessages({ stage: "manager2", phase: "closing", alexMessage: "" });
-    await delay(2800);
-    renderPostInteractionSurvey();
   }
 
   function renderPostInteractionSurvey() {
