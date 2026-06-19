@@ -121,6 +121,7 @@
     {
       title: "Perceived Reasons for Manager Response",
       instruction: "Please indicate why you think the manager rejected your suggestion about the labor plan.",
+      instructionRed: true,
       stem: "The manager rejected my suggestion because...",
       groups: [
         {
@@ -1481,7 +1482,7 @@
     return `
       <section class="survey-section">
         <h2>${escapeHtml(section.title)}</h2>
-        <p>${formatSurveyInstruction(section.instruction)}</p>
+        <p${section.instructionRed ? ' style="color: #d32f2f;"' : ""}>${formatSurveyInstruction(section.instruction)}</p>
         ${section.stem ? `<p class="survey-stem">${escapeHtml(section.stem)}</p>` : ""}
         ${groups.map((group) => `
           ${group.label ? `<h3>${escapeHtml(group.label)}</h3>` : ""}
