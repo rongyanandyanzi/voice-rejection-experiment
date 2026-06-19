@@ -944,9 +944,7 @@
     const timer = window.setTimeout(async () => {
       if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
       state.prechatSequenceRunning = true;
-      if (Math.random() < 0.55) {
-        await sendPrechatNoQuestionMessage();
-      }
+      await sendPrechatNoQuestionMessages();
       await sendPrechatMessage({
         speaker: "Coordinator",
         text: [
@@ -961,26 +959,39 @@
     state.prechatTimers.push(timer);
   }
 
-  async function sendPrechatNoQuestionMessage() {
-    const speaker = pick(["Participant 1", "Participant 2", "Participant 3"]);
+  async function sendPrechatNoQuestionMessages() {
     const options = {
       "Participant 1": [
         "No questions from me.",
         "Nothing from me at the moment.",
         "No questions on my side.",
+        "I think I'm good.",
+        "Ready when you are.",
       ],
       "Participant 2": [
         "No questions from me :)",
         "All clear for me.",
         "Nothing from me, thanks.",
+        "I'm good to go :)",
+        "No questions here.",
       ],
       "Participant 3": [
         "No questions from me.",
         "All clear from my side.",
         "Nothing to ask from me.",
+        "Good to go.",
+        "I'm ready.",
       ],
     };
-    await sendPrechatMessage({ speaker, text: options[speaker], delay: 1200 });
+    const order = shuffled(["Participant 1", "Participant 2", "Participant 3"]);
+    let replied = 0;
+    for (const speaker of order) {
+      const threshold = replied === 0 ? 0.8 : 0.5;
+      if (Math.random() < threshold) {
+        await sendPrechatMessage({ speaker, text: options[speaker], delay: 1200 });
+        replied++;
+      }
+    }
   }
 
   async function continueAfterPrechatQuestions() {
@@ -1049,7 +1060,7 @@
     // faster still (another 2/3 on top), so it stays quicker than Participants 1-3.
     const baseDelay = Math.round((rawDelay * 2) / 3);
     if (speaker === "Coordinator") return Math.round((baseDelay * 2) / 3);
-    return baseDelay;
+    return baseDelay * 2;
   }
 
   function isPrechatQuestion(text) {
