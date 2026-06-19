@@ -292,7 +292,8 @@ textarea {
   background: var(--manager);
 }
 
-.message-row.ra .bubble {
+.message-row.ra .bubble,
+.message-row.coordinator .bubble {
   background: var(--ra);
 }
 
@@ -312,11 +313,13 @@ textarea {
   box-shadow: none;
 }
 
-.message-row.lisa .bubble {
+.message-row.lisa .bubble,
+.message-row.coworker-1 .bubble {
   background: var(--lisa);
 }
 
-.message-row.john .bubble {
+.message-row.john .bubble,
+.message-row.coworker-2 .bubble {
   background: var(--john);
 }
 

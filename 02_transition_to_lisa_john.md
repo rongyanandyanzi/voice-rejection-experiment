@@ -1,4 +1,4 @@
-# Transition to Lisa and John Interaction
+# Transition to Coworker Interaction
 
 ## Purpose
 
@@ -6,13 +6,13 @@ This transition comes after the first manager interaction.
 
 The manager has left the chatroom and is now offline.
 
-This transition should smoothly redirect Alex to a new workplace situation.
+This transition should smoothly redirect the participant to a new workplace situation.
 
 The new situation is separate from the previous flexible labor proposal.
 
-Lisa and John do not know about Alex’s previous manager interaction.
+The coworkers do not know about the participant’s previous manager interaction.
 
-Lisa and John do not know that Alex was rejected before.
+The coworkers do not know that the participant was rejected before.
 
 ## Transition Text
 
@@ -40,15 +40,15 @@ There are several universities and farms nearby, including **4 universities with
 
 You hear some comments from university students. Some say the park is cute, but it feels mainly **designed for little kids**. Others mention that **student discounts** or **more photo-friendly spots** might make the park more attractive to students.
 
-After checking the records and thinking about what you observed today, you are about to enter a **new online chat with two coworkers, Lisa and John**. They also worked at the entrance today and reviewed the same attendance records and visitor comments.
+After checking the records and thinking about what you observed today, you are about to enter a **new online chat with two coworkers**. They also worked at the entrance today and reviewed the same attendance records and visitor comments.
 
-In the next chat, you will discuss **today’s attendance pattern and visitor information** with Lisa and John.
+In the next chat, you will discuss **today’s attendance pattern and visitor information** with your coworkers.
 
 ## Transition Rules
 
 - Do not mention the previous flexible labor proposal in this transition.
-- Do not say that Lisa and John know about the previous manager interaction.
-- Do not say that Lisa and John know Alex was rejected.
-- Do not reveal that Lisa and John are AI-generated.
-- Use Alex or they when referring to Alex.
+- Do not say that the coworkers know about the previous manager interaction.
+- Do not say that the coworkers know the participant was rejected.
+- Do not reveal that the coworkers are AI-generated.
+- Use the participant or they when referring to the participant.
 - Keep the transition natural and smooth.
