@@ -298,27 +298,18 @@
     {
       speaker: "Coordinator",
       text: [
-        "This task is run by a market research company. We are interested in how people discuss customer feedback and service improvement issues in a team setting.",
-        "This is part of an online customer feedback task. The task looks at how people discuss customer feedback and service improvement in a team context.",
-        "The session is run as a customer feedback task. We’re interested in team discussion around customer feedback and service improvement issues.",
+        "This task is run by a market research company. We are interested in how service organisations can improve their operations and service efficiency based on customer feedback and their current operational situation.",
+        "This is part of an online task run by a market research company. We look at how service organisations improve their operations and service efficiency based on customer feedback and operational conditions.",
+        "The session is run by a market research company. We study how organisations use customer feedback and operational information to improve how they run and how efficiently they serve people.",
       ],
       delay: 2300,
     },
     {
       speaker: "Coordinator",
       text: [
-        "In today’s task, you will take part in a short online team interaction based on a large theme park scenario.",
-        "For today’s task, you’ll take part in an online team interaction based on a large theme park scenario.",
-        "The scenario for the task is set in a large theme park, and you’ll take part in the interaction online.",
-      ],
-      delay: 2100,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "The theme park has recently received customer feedback related to service efficiency, waiting time, and staffing during busy periods.",
-        "In the scenario, the theme park has received feedback about service efficiency, wait times, and staffing during busy periods.",
-        "The background is that the park has been getting customer feedback about waiting time, service efficiency, and staffing at busy times.",
+        "The scenario is set in a large theme park. Your team will discuss how the park can improve how it operates and how efficiently it serves visitors.",
+        "In today’s task, the scenario involves a large theme park. Based on customer feedback and the park’s operational situation, your team will discuss how the park can improve its operations and service efficiency.",
+        "For this task, you’ll take part in a team interaction set in a large theme park. Your team will work through how the park could improve its operations and service efficiency based on the information you receive.",
       ],
       delay: 2200,
     },
@@ -544,9 +535,9 @@
     saveParticipant();
     screen.innerHTML = `
       <article class="page">
-        <h1>Online Customer Feedback Task</h1>
-        <p>Thanks for taking part in this online customer feedback task.</p>
-        <p>This session is run by a market research company that helps clients review customer feedback and improve service experiences.</p>
+        <h1>Online Team Interaction Task</h1>
+        <p>Thanks for taking part in this online task.</p>
+        <p>This session is run by a market research company that studies how service organisations improve their operations and service efficiency based on customer feedback and their current operational situation.</p>
         <p>You will now enter an online task room with other participants. A session coordinator will welcome the group and explain what to do.</p>
         <p>During the task, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.</p>
         <p>Please stay on the page during the interaction and respond naturally in the chat.</p>
@@ -556,7 +547,7 @@
             <div class="choice-list">
               <label class="choice-option">
                 <input type="radio" name="pre_room_check" value="customer_feedback">
-                Reviewing customer feedback and service improvement issues
+                How a service organisation can improve its operations and service efficiency
               </label>
               <label class="choice-option">
                 <input type="radio" name="pre_room_check" value="personal_profile">

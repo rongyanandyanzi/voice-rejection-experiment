@@ -2,9 +2,9 @@
 
 # Pre-Room Introduction Page: Market Research Company Customer Feedback Version
 
-Thanks for taking part in this online customer feedback task.
+Thanks for taking part in this online task.
 
-This session is run by a market research company that helps clients review customer feedback and improve service experiences.
+This session is run by a market research company that studies how service organisations improve their operations and service efficiency based on customer feedback and their current operational situation.
 
 You will now enter an online task room with other participants. A session coordinator will welcome the group and explain what to do.
 
@@ -16,7 +16,7 @@ Comprehension check:
 
 What is this online task mainly about?
 
-Correct answer: Reviewing customer feedback and service improvement issues
+Correct answer: How a service organisation can improve its operations and service efficiency
 
 Click “Continue” when you are ready to enter the online task room.
 
@@ -48,7 +48,7 @@ After the Coordinator explains the task but before roles are assigned, the Coord
 
 # General Rule
 
-Before role assignment, the AI-played participants are simply ordinary Prolific participants joining an online customer feedback task.
+Before role assignment, the AI-played participants are simply ordinary Prolific participants joining an online team interaction task about improving service organisation operations.
 
 They should not reveal their later assigned roles.
 
@@ -114,8 +114,8 @@ The Coordinator should:
 * Welcome participants.
 * Confirm that everyone is connected.
 * Ask participants to briefly introduce themselves.
-* Explain the customer feedback task.
-* Explain that the study concerns customer feedback and service improvement.
+* Explain the operations improvement task.
+* Explain that the study concerns how service organisations improve their operations and service efficiency based on customer feedback and operational conditions.
 * Explain that the scenario is set in a large theme park.
 * Explain that roles will be randomly assigned.
 * Tell participants that one person will be the park manager and the other three will be operations team members.
@@ -199,7 +199,7 @@ Coordinator: I’ll now explain the task.
 
 Coordinator: This task is run by a market research company.
 
-Coordinator: We are interested in how people discuss customer feedback and service improvement issues in a team setting.
+Coordinator: We are interested in how service organisations can improve their operations and service efficiency based on customer feedback and their current operational situation.
 
 Coordinator: In today’s task, you will take part in a short online team interaction based on a service organization scenario.
 
@@ -213,9 +213,7 @@ Coordinator: The task is not a test of your knowledge. We are interested in natu
 ```text
 Coordinator: The scenario is set in a large theme park.
 
-Coordinator: The theme park has recently received customer feedback related to service efficiency, waiting time, and staffing during busy periods.
-
-Coordinator: Your team will discuss how the park should respond to these customer feedback issues.
+Coordinator: Your team will discuss how the park can improve how it operates and how efficiently it serves visitors, based on the information you receive.
 
 Coordinator: You do not need any prior experience in theme park management. All information needed for your role will be provided in the materials.
 ```
@@ -321,11 +319,9 @@ Participant 4: [participant responds freely]
 
 Coordinator and/or one participant: [brief natural response based on what Participant 4 actually wrote]
 
-Coordinator: This task is run by a market research company. We are interested in how people discuss customer feedback and service improvement issues in a team setting.
+Coordinator: This task is run by a market research company. We are interested in how service organisations can improve their operations and service efficiency based on customer feedback and their current operational situation.
 
-Coordinator: In today’s task, you will take part in a short online team interaction based on a large theme park scenario.
-
-Coordinator: The theme park has recently received customer feedback related to service efficiency, waiting time, and staffing during busy periods.
+Coordinator: The scenario is set in a large theme park. Your team will discuss how the park can improve how it operates and how efficiently it serves visitors.
 
 Coordinator: Each person will be randomly assigned a role. One person will be the park manager, and the other three people will be operations team members.
 
@@ -383,7 +379,7 @@ Participant 4: What is this study about?
 Coordinator response:
 
 ```text
-Coordinator: It is a short team interaction study about customer feedback and service improvement in a service organization. I’ll explain the task before the interaction begins.
+Coordinator: It is a short team interaction task looking at how a service organisation can improve its operations and service efficiency based on customer feedback and its current operational situation. I’ll explain the task before the interaction begins.
 ```
 
 ---
