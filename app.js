@@ -819,7 +819,7 @@
       if (state.prechatQueuedInputs.length) {
         handlePrechatInput(state.prechatQueuedInputs.shift());
       } else {
-        openPrechatQuestionWindow();
+        waitForPrechatFollowUp();
       }
       return;
     }
@@ -920,6 +920,18 @@
       state.prechatTimers.push(continueTimer);
     }, 18000);
     state.prechatTimers.push(reminder);
+  }
+
+  function waitForPrechatFollowUp() {
+    state.prechatAwaitingQuestions = true;
+    clearPrechatTimers();
+    setComposerEnabled(true);
+    const timer = window.setTimeout(async () => {
+      if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
+      state.prechatSequenceRunning = true;
+      await continueAfterPrechatQuestions();
+    }, 8000);
+    state.prechatTimers.push(timer);
   }
 
   function openPrechatQuestionWindow() {
