@@ -943,6 +943,14 @@
     const timer = window.setTimeout(async () => {
       if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
       state.prechatSequenceRunning = true;
+      const hadQueued = await answerQueuedPrechatInputs();
+      if (hadQueued) {
+        state.prechatSequenceRunning = false;
+        if (!state.prechatQuestionWindowComplete && !state.prechatComplete) {
+          waitForPrechatFollowUp();
+        }
+        return;
+      }
       await sendPrechatNoQuestionMessages();
       await sendPrechatMessage({
         speaker: "Coordinator",
@@ -1022,12 +1030,12 @@
   }
 
   async function answerQueuedPrechatInputs() {
-    if (!state.prechatQueuedInputs.length || state.prechatComplete) return;
+    if (!state.prechatQueuedInputs.length || state.prechatComplete) return false;
     const queuedQuestions = state.prechatQueuedInputs
       .splice(0, state.prechatQueuedInputs.length)
       .filter((text) => isPrechatQuestion(text) && !isNoPrechatQuestionResponse(text))
       .slice(0, 3);
-    if (!queuedQuestions.length) return;
+    if (!queuedQuestions.length) return false;
     const queuedText = queuedQuestions.join("\n");
     const sent = await sendAiMessages({
       stage: "prechat",
@@ -1037,6 +1045,7 @@
     if (!sent) {
       await sendPrechatMessage({ speaker: "Coordinator", text: "Thanks. Please follow the instructions shown on the screen, and we’ll keep moving.", delay: 1000 });
     }
+    return true;
   }
 
   function prechatMessageDelay(item, resolvedText) {
