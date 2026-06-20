@@ -207,20 +207,11 @@
     {
       speaker: "Coordinator",
       text: [
-        "Hi everyone, welcome to the task. Thanks for joining today.",
-        "Hi everyone, thanks for joining today. Welcome to the task.",
-        "Hello everyone, welcome in. Thanks for joining the session today.",
+        "Hi, thanks for joining. We’ll give it a moment for the rest of the group to connect.",
+        "Hi, thanks for joining today. I’ll just wait for the others to connect.",
+        "Hello, thanks for joining. Let’s wait briefly while the rest of the group joins.",
       ],
       delay: 1600,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "We’ll give it a moment for everyone to connect.",
-        "I’ll just give everyone a moment to get connected.",
-        "Let’s wait briefly while the rest of the group joins.",
-      ],
-      delay: 1400,
     },
     { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "Participant 1 has joined the room.", delay: 800 },
     { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "Participant 2 has joined the room.", delay: 800 },
@@ -228,9 +219,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "Great, looks like everyone is here.",
-        "Great, it looks like the full group is here now.",
-        "Thanks everyone, it looks like we have the full group.",
+        "Great, looks like everyone is here now. Welcome all, thanks for joining today.",
+        "Great, the full group is here. Welcome everyone, thanks for joining today.",
+        "Looks like we have the full group. Welcome everyone, thanks for joining the session.",
       ],
       delay: 1500,
     },

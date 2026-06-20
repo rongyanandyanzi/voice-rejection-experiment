@@ -155,9 +155,7 @@ System: You have joined the room as Participant 4.
 
 System: Session Coordinator has joined the room.
 
-Coordinator: Hi everyone, welcome to the study. Thanks for joining today.
-
-Coordinator: We’ll give it a moment for everyone to connect.
+Coordinator: Hi, thanks for joining. We’ll give it a moment for the rest of the group to connect.
 
 System: Participant 1 has joined the room.
 
@@ -165,7 +163,7 @@ System: Participant 2 has joined the room.
 
 System: Participant 3 has joined the room.
 
-Coordinator: Great, looks like everyone is here.
+Coordinator: Great, looks like everyone is here now. Welcome all, thanks for joining today.
 ```
 
 ---
@@ -295,7 +293,7 @@ System: You have joined the room as Participant 4.
 
 System: Session Coordinator has joined the room.
 
-Coordinator: Hi everyone, welcome to the study. Thanks for joining today.
+Coordinator: Hi, thanks for joining. We'll give it a moment for the rest of the group to connect.
 
 System: Participant 1 has joined the room.
 
@@ -303,7 +301,7 @@ System: Participant 2 has joined the room.
 
 System: Participant 3 has joined the room.
 
-Coordinator: Great, looks like everyone is here.
+Coordinator: Great, looks like everyone is here now. Welcome all, thanks for joining today.
 
 Coordinator: Before we start, could everyone briefly introduce themselves? Just whether you’ve done Prolific or online tasks before is enough. No need to share anything too personal.
 
