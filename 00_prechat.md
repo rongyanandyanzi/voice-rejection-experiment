@@ -273,7 +273,7 @@ Coordinator: Next, you will be redirected to your individual role materials.
 
 Coordinator: Please read the materials carefully. Other team members may receive different role information.
 
-Coordinator: After everyone finishes reading, you will enter the team chat and complete the interaction task.
+Coordinator: After the reading step, you will enter a chat with the manager and complete the first interaction task.
 
 Coordinator: Please respond naturally in the chat and stay in your assigned role during the discussion.
 
@@ -347,7 +347,7 @@ System: Participant 3 has been assigned the role of Operations Team Member.
 
 System: You have been assigned the role of Operations Team Member.
 
-Coordinator: Next, you will be redirected to your individual role materials. After everyone finishes reading, you will enter the team chat.
+Coordinator: Next, you will be redirected to your individual role materials. After the reading step, you will enter a chat with the manager.
 
 System: You will now be redirected to your individual role materials.
 ```

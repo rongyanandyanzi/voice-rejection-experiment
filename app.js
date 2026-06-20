@@ -343,9 +343,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "Next, you will be redirected to your individual role materials. After everyone finishes reading, you will enter the team chat.",
-        "Next, you’ll see your individual role materials. After the reading step, you’ll move into the team chat.",
-        "You’ll now be redirected to your own role materials. Once everyone has finished reading, the team chat will begin.",
+        "Next, you will be redirected to your individual role materials. After the reading step, you will enter a chat with the manager.",
+        "Next, you’ll see your individual role materials. After reading them, you’ll move into a chat with the manager.",
+        "You’ll now be redirected to your own role materials. Once you finish reading, the manager chat will begin.",
       ],
       delay: 2200,
     },
