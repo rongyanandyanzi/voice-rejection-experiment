@@ -815,7 +815,12 @@
       if (!sent) {
         await sendPrechatMessage({ speaker: "Coordinator", text: "Thanks for the question. All role information will be shown on the next page, so please follow those materials closely.", delay: 1000 });
       }
-      await continueAfterPrechatQuestions();
+      state.prechatSequenceRunning = false;
+      if (state.prechatQueuedInputs.length) {
+        handlePrechatInput(state.prechatQueuedInputs.shift());
+      } else {
+        openPrechatQuestionWindow();
+      }
       return;
     }
 
