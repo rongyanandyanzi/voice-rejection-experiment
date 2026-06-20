@@ -685,7 +685,7 @@
     state.managerTurnActive = true;
     await sendDelayed("Manager", "manager", "Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", null, { opening: true });
     await sendDelayed("Manager", "manager", "That evaluation may affect your payment after the task. The market research company wants to understand how teams respond to market needs and customer feedback.", null, { opening: true });
-    await sendDelayed("Manager", "manager", "Based on the information you receive, what do you think we should do next?", null, { opening: true });
+    await sendDelayed("Manager", "manager", "Now, based on your role and the information you received, what do you think the theme park should do?", null, { opening: true });
     finishManagerTurn();
   }
 
