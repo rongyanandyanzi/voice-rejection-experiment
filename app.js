@@ -35,6 +35,7 @@
     prechatSequenceRunning: false,
     prechatQueuedInputs: [],
     prechatAwaitingQuestions: false,
+    prechatAwaitingQuestionAck: false,
     prechatQuestionWindowComplete: false,
     prechatTimers: [],
     secondPhase: "beforeProposal",
@@ -289,27 +290,27 @@
     {
       speaker: "Coordinator",
       text: [
-        "This task is run by a market research company. We are interested in how service organisations can improve their operations and service efficiency based on customer feedback and their current operational situation.",
-        "This is part of an online task run by a market research company. We look at how service organisations improve their operations and service efficiency based on customer feedback and operational conditions.",
-        "The session is run by a market research company. We study how organisations use customer feedback and operational information to improve how they run and how efficiently they serve people.",
+        "In today’s task, we want to help a theme park improve how it operates.",
+        "This task is about helping a theme park improve its operations.",
+        "Today’s task focuses on how a theme park could improve the way it runs.",
       ],
       delay: 2300,
     },
     {
       speaker: "Coordinator",
       text: [
-        "The scenario is set in a large theme park. Your team will discuss how the park can improve how it operates and how efficiently it serves visitors.",
-        "In today’s task, the scenario involves a large theme park. Based on customer feedback and the park’s operational situation, your team will discuss how the park can improve its operations and service efficiency.",
-        "For this task, you’ll take part in a team interaction set in a large theme park. Your team will work through how the park could improve its operations and service efficiency based on the information you receive.",
+        "You’ll discuss possible improvement ideas with other people in the team.",
+        "You’ll work through the scenario in a team chat and discuss possible improvements.",
+        "The main task is to discuss possible ways the theme park could improve.",
       ],
       delay: 2200,
     },
     {
       speaker: "Coordinator",
       text: [
-        "Each person will be randomly assigned a role. One person will be the park manager, and the other three people will be operations team members.",
-        "Roles will be assigned randomly. One participant will be the park manager, and the other three will be operations team members.",
-        "The system will randomly assign roles. There will be one park manager and three operations team members.",
+        "Each person will be assigned a role, either Park Manager or Operations Team Member. Please read your own materials and discuss the improvement ideas based on the information you receive.",
+        "You may be assigned as the Park Manager or as an Operations Team Member. After reading your own role materials, you’ll discuss possible improvements with the manager or coworkers.",
+        "The system will assign roles shortly. Based on your own materials, you’ll discuss improvement ideas with the manager or with coworkers.",
       ],
       delay: 2200,
     },
@@ -587,6 +588,7 @@
     state.prechatSequenceRunning = false;
     state.prechatQueuedInputs = [];
     state.prechatAwaitingQuestions = false;
+    state.prechatAwaitingQuestionAck = false;
     state.prechatQuestionWindowComplete = false;
     clearPrechatTimers();
     saveParticipant();
@@ -794,7 +796,20 @@
     if (state.prechatAwaitingQuestions && !state.prechatQuestionWindowComplete) {
       clearPrechatTimers();
       state.prechatSequenceRunning = true;
-      if (isNoPrechatQuestionResponse(text)) {
+      if (state.prechatAwaitingQuestionAck && isPrechatQuestionAcknowledgement(text)) {
+        await sendPrechatMessage({
+          speaker: "Coordinator",
+          text: [
+            "No problem, I’ll assign the roles now.",
+            "Okay, I’ll go ahead and assign the roles now.",
+            "That’s fine. I’ll continue with the role assignment now.",
+          ],
+          delay: 1000,
+        });
+        await continueAfterPrechatQuestions();
+        return;
+      }
+      if (!state.prechatAwaitingQuestionAck && isNoPrechatQuestionResponse(text)) {
         await sendPrechatMessage({
           speaker: "Coordinator",
           text: [
@@ -819,7 +834,7 @@
       if (state.prechatQueuedInputs.length) {
         handlePrechatInput(state.prechatQueuedInputs.shift());
       } else {
-        waitForPrechatFollowUp();
+        waitForPrechatQuestionAck();
       }
       return;
     }
@@ -922,20 +937,32 @@
     state.prechatTimers.push(reminder);
   }
 
-  function waitForPrechatFollowUp() {
+  function waitForPrechatQuestionAck() {
     state.prechatAwaitingQuestions = true;
+    state.prechatAwaitingQuestionAck = true;
     clearPrechatTimers();
+    setStatus("Waiting for Participant 4");
     setComposerEnabled(true);
     const timer = window.setTimeout(async () => {
-      if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
+      if (!state.prechatAwaitingQuestions || !state.prechatAwaitingQuestionAck || state.prechatQuestionWindowComplete || state.prechatComplete) return;
       state.prechatSequenceRunning = true;
+      await sendPrechatMessage({
+        speaker: "Coordinator",
+        text: [
+          "Okay, I’ll go ahead and assign the roles now.",
+          "Okay, I’ll continue with the role assignment now.",
+          "I’ll go ahead and assign the roles now.",
+        ],
+        delay: 1000,
+      });
       await continueAfterPrechatQuestions();
-    }, 8000);
+    }, 10000);
     state.prechatTimers.push(timer);
   }
 
   function openPrechatQuestionWindow() {
     state.prechatAwaitingQuestions = true;
+    state.prechatAwaitingQuestionAck = false;
     state.prechatQuestionWindowComplete = false;
     setStatus("Waiting for questions");
     setComposerEnabled(true);
@@ -947,7 +974,7 @@
       if (hadQueued) {
         state.prechatSequenceRunning = false;
         if (!state.prechatQuestionWindowComplete && !state.prechatComplete) {
-          waitForPrechatFollowUp();
+          waitForPrechatQuestionAck();
         }
         return;
       }
@@ -1005,6 +1032,7 @@
     if (state.prechatQuestionWindowComplete || state.prechatComplete) return;
     state.prechatQuestionWindowComplete = true;
     state.prechatAwaitingQuestions = false;
+    state.prechatAwaitingQuestionAck = false;
     clearPrechatTimers();
     await answerQueuedPrechatInputs();
     await runPrechatSequence(prechatRoleAssignment);
@@ -1080,6 +1108,11 @@
 
   function isNoPrechatQuestionResponse(text) {
     return /^(no|nope|nah|none|no questions?|not really|all good|i'?m good|sounds good|ok|okay)$/i.test(text.trim());
+  }
+
+  function isPrechatQuestionAcknowledgement(text) {
+    const normalized = text.trim().toLowerCase().replace(/[.!]+$/g, "");
+    return /^(ok|okay|got it|i got it|gotcha|makes sense|that makes sense|clear|all clear|thanks|thank you|no|nope|nah|none|no more questions?|no questions?|not really|all good|i'?m good|sounds good|understood)$/.test(normalized);
   }
 
   // After the manager has rejected, treat a short acknowledgement or a clear

@@ -42,7 +42,7 @@ During the self-introduction round, Participant 1, Participant 2, and Participan
 
 The join messages for Participant 1, Participant 2, and Participant 3 should also be randomized rather than appearing in numerical order.
 
-After the Coordinator explains the task but before roles are assigned, the Coordinator should ask whether anyone has quick questions. If Participant 4 asks a question, the Coordinator should answer briefly and then continue to role assignment. If nobody asks a question after a short pause, the Coordinator should continue naturally without making the experiment feel stuck.
+After the Coordinator explains the task but before roles are assigned, the Coordinator should ask whether anyone has quick questions. If Participant 4 asks a question, the Coordinator should answer briefly, then wait for Participant 4 to acknowledge or ask another question. If Participant 4 says ok, got it, all good, no more questions, or a similar acknowledgement, the Coordinator should continue to role assignment. If Participant 4 gives no response for 10 seconds after the answer is displayed, the Coordinator should continue naturally to role assignment. If nobody asks a question after a short pause, the Coordinator should continue naturally without making the experiment feel stuck.
 
 ---
 
@@ -114,9 +114,9 @@ The Coordinator should:
 * Welcome participants.
 * Confirm that everyone is connected.
 * Ask participants to briefly introduce themselves.
-* Explain the operations improvement task.
-* Explain that the study concerns how service organisations improve their operations and service efficiency based on customer feedback and operational conditions.
-* Explain that the scenario is set in a large theme park.
+* Explain that the task is about helping a theme park improve how it operates.
+* Explain that participants will discuss possible improvement ideas in a team.
+* Explain that participants will be assigned Park Manager or Operations Team Member roles.
 * Explain that roles will be randomly assigned.
 * Tell participants that one person will be the park manager and the other three will be operations team members.
 * Redirect participants to their individual role materials.
@@ -195,11 +195,9 @@ Coordinator and/or one participant: [brief natural response based on what Partic
 ```text
 Coordinator: I’ll now explain the task.
 
-Coordinator: This task is run by a market research company.
+Coordinator: In today’s task, we want to help a theme park improve how it operates.
 
-Coordinator: We are interested in how service organisations can improve their operations and service efficiency based on customer feedback and their current operational situation.
-
-Coordinator: In today’s task, you will take part in a short online team interaction based on a service organization scenario.
+Coordinator: You’ll discuss possible improvement ideas with other people in the team.
 
 Coordinator: The task is not a test of your knowledge. We are interested in natural discussion and decision-making in a team context.
 ```
@@ -211,7 +209,9 @@ Coordinator: The task is not a test of your knowledge. We are interested in natu
 ```text
 Coordinator: The scenario is set in a large theme park.
 
-Coordinator: Your team will discuss how the park can improve how it operates and how efficiently it serves visitors, based on the information you receive.
+Coordinator: Each person will be assigned a role, either Park Manager or Operations Team Member.
+
+Coordinator: Please read your own materials and discuss the improvement ideas based on the information you receive.
 
 Coordinator: You do not need any prior experience in theme park management. All information needed for your role will be provided in the materials.
 ```
@@ -238,6 +238,10 @@ Coordinator: Before I assign the roles, does anyone have any quick questions abo
 Participant 4: [optional question or no response]
 
 Coordinator: [briefly answer if there is a question; otherwise continue naturally]
+
+Participant 4: [optional acknowledgement, another question, or no response]
+
+Coordinator: [if Participant 4 acknowledges or stays silent for 10 seconds after the answer, continue to role assignment; if Participant 4 asks another question, answer it and wait again]
 ```
 
 ---
@@ -317,19 +321,21 @@ Participant 4: [participant responds freely]
 
 Coordinator and/or one participant: [brief natural response based on what Participant 4 actually wrote]
 
-Coordinator: This task is run by a market research company. We are interested in how service organisations can improve their operations and service efficiency based on customer feedback and their current operational situation.
+Coordinator: In today’s task, we want to help a theme park improve how it operates.
 
-Coordinator: The scenario is set in a large theme park. Your team will discuss how the park can improve how it operates and how efficiently it serves visitors.
+Coordinator: You’ll discuss possible improvement ideas with other people in the team.
 
-Coordinator: Each person will be randomly assigned a role. One person will be the park manager, and the other three people will be operations team members.
-
-Coordinator: Please read your own role materials carefully and respond based on your assigned role.
+Coordinator: Each person will be assigned a role, either Park Manager or Operations Team Member. Please read your own materials and discuss the improvement ideas based on the information you receive.
 
 Coordinator: Before I assign the roles, does anyone have any quick questions about the task?
 
 Participant 4: [optional question or no response]
 
 Coordinator: [briefly answer if there is a question; otherwise continue naturally]
+
+Participant 4: [optional acknowledgement, another question, or no response]
+
+Coordinator: [if Participant 4 acknowledges or stays silent for 10 seconds after the answer, continue to role assignment; if Participant 4 asks another question, answer it and wait again]
 
 System: Randomly assigning team roles...
 
@@ -377,7 +383,7 @@ Participant 4: What is this study about?
 Coordinator response:
 
 ```text
-Coordinator: It is a short team interaction task looking at how a service organisation can improve its operations and service efficiency based on customer feedback and its current operational situation. I’ll explain the task before the interaction begins.
+Coordinator: It is a short team interaction task about helping a theme park improve how it operates. You’ll be assigned a role, read your own materials, and discuss possible improvement ideas with the manager or coworkers.
 ```
 
 ---
