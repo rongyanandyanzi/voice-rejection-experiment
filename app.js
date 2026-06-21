@@ -1453,13 +1453,12 @@
     // (sooner for a detailed proposal). This high count is only a runaway
     // safety net so the chat can't go on forever.
     if (state.neutralQuestionCount >= 8) {
-      const sent = await sendAiMessages({
+      await sendAiMessages({
         stage: "manager2",
         phase: "closing",
         alexMessage: text,
       });
       state.managerTurnActive = false;
-      if (!sent) return;
       showNeutralProceedChoice();
       return;
     }
