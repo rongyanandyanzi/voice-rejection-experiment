@@ -42,7 +42,7 @@ During the self-introduction round, Participant 1, Participant 2, and Participan
 
 The join messages for Participant 1, Participant 2, and Participant 3 should also be randomized rather than appearing in numerical order.
 
-After the Coordinator explains the task but before roles are assigned, the Coordinator should ask whether anyone has quick questions. If Participant 4 asks a question, the Coordinator should answer briefly, then wait for Participant 4 to acknowledge or ask another question. If Participant 4 says ok, got it, all good, no more questions, or a similar acknowledgement, the Coordinator should continue to role assignment. If Participant 4 gives no response for 10 seconds after the answer is displayed, the Coordinator should continue naturally to role assignment. If nobody asks a question after a short pause, the Coordinator should continue naturally without making the experiment feel stuck.
+Participant 4 should be able to ask questions at any point during the prechat, including while the Coordinator is explaining the task. If Participant 4 asks during the explanation, the Coordinator should answer after the current message and then continue the explanation. After the Coordinator explains the task but before roles are assigned, the Coordinator should ask whether anyone has quick questions. If Participant 4 asks a question at that point, the Coordinator should answer briefly, then wait for Participant 4 to acknowledge or ask another question. If Participant 4 says ok, got it, all good, no more questions, or a similar acknowledgement, the Coordinator should continue to role assignment. If Participant 4 gives no response for 10 seconds after the answer is displayed, the Coordinator should continue naturally to role assignment. If nobody asks a question after a short pause, the Coordinator should continue naturally without making the experiment feel stuck.
 
 ---
 
@@ -273,7 +273,7 @@ Coordinator: Next, you will be redirected to your individual role materials.
 
 Coordinator: Please read the materials carefully. Other team members may receive different role information.
 
-Coordinator: After the reading step, you will enter a chat with the manager and complete the first interaction task.
+Coordinator: After the reading step, you will enter a chat with the manager, followed by a chat with two coworkers.
 
 Coordinator: Please respond naturally in the chat and stay in your assigned role during the discussion.
 
@@ -347,7 +347,7 @@ System: Participant 3 has been assigned the role of Operations Team Member.
 
 System: You have been assigned the role of Operations Team Member.
 
-Coordinator: Next, you will be redirected to your individual role materials. After the reading step, you will enter a chat with the manager.
+Coordinator: Next, you will be redirected to your individual role materials. After the reading step, you will enter a chat with the manager, followed by a chat with two coworkers.
 
 System: You will now be redirected to your individual role materials.
 ```

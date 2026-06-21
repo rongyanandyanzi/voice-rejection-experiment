@@ -343,9 +343,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "Next, you will be redirected to your individual role materials. After the reading step, you will enter a chat with the manager.",
-        "Next, you’ll see your individual role materials. After reading them, you’ll move into a chat with the manager.",
-        "You’ll now be redirected to your own role materials. Once you finish reading, the manager chat will begin.",
+        "Next, you will be redirected to your individual role materials. After the reading step, you will enter a chat with the manager, followed by a chat with two coworkers.",
+        "Next, you’ll see your individual role materials. After reading them, you’ll move into a chat with the manager and then a chat with two coworkers.",
+        "You’ll now be redirected to your own role materials. Once you finish reading, the manager chat will begin, followed by a coworker chat.",
       ],
       delay: 2200,
     },
@@ -786,7 +786,7 @@
       if (!sent) {
         await sendPrechatMessage({ speaker: "Coordinator", text: "Great, thank you. We’ll keep moving.", delay: 1200 });
       }
-      await runPrechatSequence(prechatAfterIntro);
+      await runPrechatSequence(prechatAfterIntro, { answerQueuedQuestions: true });
       await answerQueuedPrechatInputs();
       state.prechatSequenceRunning = false;
       openPrechatQuestionWindow();
@@ -852,7 +852,7 @@
     if (!state.prechatComplete) setComposerEnabled(true);
   }
 
-  async function runPrechatSequence(sequence) {
+  async function runPrechatSequence(sequence, options = {}) {
     for (let index = 0; index < sequence.length; index += 1) {
       const item = sequence[index];
       if (item.shuffleGroup) {
@@ -864,11 +864,13 @@
         index -= 1;
         for (const groupedItem of shuffled(group, item.shuffleGroup)) {
           await sendPrechatMessage(groupedItem);
+          if (options.answerQueuedQuestions) await answerQueuedPrechatInputs();
         }
         continue;
       }
       if (item.skipIfParticipant4Introduced && hasQueuedPrechatIntro()) continue;
       await sendPrechatMessage(item);
+      if (options.answerQueuedQuestions) await answerQueuedPrechatInputs();
     }
   }
 
@@ -927,7 +929,7 @@
         state.prechatAwaitingIntro = false;
         state.prechatSequenceRunning = true;
         await sendPrechatMessage({ speaker: "Coordinator", text: "No problem, we’ll continue so the session does not get held up.", delay: 1200 });
-        await runPrechatSequence(prechatAfterIntro);
+        await runPrechatSequence(prechatAfterIntro, { answerQueuedQuestions: true });
         await answerQueuedPrechatInputs();
         state.prechatSequenceRunning = false;
         openPrechatQuestionWindow();
@@ -1059,10 +1061,17 @@
 
   async function answerQueuedPrechatInputs() {
     if (!state.prechatQueuedInputs.length || state.prechatComplete) return false;
-    const queuedQuestions = state.prechatQueuedInputs
-      .splice(0, state.prechatQueuedInputs.length)
-      .filter((text) => isPrechatQuestion(text) && !isNoPrechatQuestionResponse(text))
-      .slice(0, 3);
+    const queuedInputs = state.prechatQueuedInputs.splice(0, state.prechatQueuedInputs.length);
+    const queuedQuestions = [];
+    const remainingInputs = [];
+    for (const text of queuedInputs) {
+      if (isPrechatQuestion(text) && !isNoPrechatQuestionResponse(text) && queuedQuestions.length < 3) {
+        queuedQuestions.push(text);
+      } else {
+        remainingInputs.push(text);
+      }
+    }
+    state.prechatQueuedInputs.unshift(...remainingInputs);
     if (!queuedQuestions.length) return false;
     const queuedText = queuedQuestions.join("\n");
     const sent = await sendAiMessages({
