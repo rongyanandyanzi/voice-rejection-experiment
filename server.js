@@ -349,7 +349,7 @@ function readJson(req) {
 
 function serveStatic(req, res) {
   const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
-  const safePath = urlPath === "/" ? "/index.html" : urlPath;
+  const safePath = urlPath === "/" ? "index.html" : urlPath.replace(/^\/+/, "");
   const filePath = path.normalize(path.join(root, safePath));
 
   if (!filePath.startsWith(root) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
@@ -666,7 +666,7 @@ function buildPrechatPrompt(payload) {
       "All AI-played participants must sound clearly experienced with Prolific. Do not describe their experience as only 'quite a few', 'a fair number', 'a good number', 'a couple', or 'not many' Prolific studies. Prefer 'many', 'a lot', 'extensive experience', or 'experienced Prolific participant'.",
       "Use concise natural chat. Coordinator should keep the session moving. Participants should not volunteer age, full name, location, exact city, marital status, children, or job title unless directly asked.",
       phase === "intro_response"
-        ? "Participant 4 has just introduced themselves. Return one or two brief natural chat responses that react to what Participant 4 actually said. Usually Coordinator should acknowledge them, and optionally one of Participant 1, Participant 2, or Participant 3 may add a short friendly reaction if it fits. Lightly reference safe details Participant 4 shared, such as having done Prolific tasks before or being new to group chats. Do not ask follow-up questions, do not over-disclose, and do not start the task explanation yet."
+        ? "Participants 1, 2, 3, and 4 have all completed their introductions. Return exactly one brief Coordinator message that addresses the whole group, not Participant 4 alone. Start with 'Great, everyone' or very similar wording, such as 'Great, everyone, thanks for the introductions.' Do not say 'glad to have you here', do not single out Participant 4, do not invite more introductions, do not ask follow-up questions, do not over-disclose, and do not start the task explanation yet."
         : "Participant 4 has asked or typed something during prechat. Return one or two brief natural responses, usually from Coordinator unless the question is clearly directed to a participant.",
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
@@ -705,10 +705,10 @@ function buildInitialManagerPrompt(payload) {
       "The opening already asked the participant what they think they should do, so once they give any substantive answer about what the park should do or change, treat it as a voice attempt and do not keep using 'awaiting_proposal'.",
       "Important naturalness rule: if the participant has voiced a proposal and you have asked 0 follow-up questions so far, do not reject yet. Set intent to 'ask_followup' and ask exactly one neutral, natural follow-up question grounded in what they actually said.",
       "Give the participant genuine room to make their case before rejecting. Do not reject while they are still mid-explanation, have only given a partial or one-line idea, or clearly have more to say. Let the exchange breathe like a real manager-subordinate chat.",
-      `   - When the participant has voiced an idea: so far you have asked ${followupsAsked} follow-up question(s) about it. If the proposal has not yet been fully explained and defended, or one more natural clarifying or probing question would help you understand it, set intent to 'ask_followup' and ask exactly ONE follow-up question grounded in what they actually said. Do not reject yet and do not approve. You may ask several follow-up questions across the conversation (up to about 4), not just one or two.`,
+      `   - When the participant has voiced an idea: so far you have asked ${followupsAsked} follow-up question(s) about it. If the proposal has not yet been fully explained and defended, or one more natural clarifying or probing question would help you understand it, set intent to 'ask_followup' and ask exactly ONE follow-up question grounded in what they actually said. Do not reject yet and do not approve. You may ask several follow-up questions across the conversation (up to about 3), not just one or two.`,
       "Keep follow-up questions neutral in tone. Do not apply the assigned politeness or constructiveness condition while asking follow-up questions; the condition manipulation only takes effect once you reject.",
       "   - Set intent to 'reject_now' only once the participant has had a fair chance to explain and defend the proposal and it is clearly understood — usually after a few back-and-forth exchanges, not immediately. Then write the manager's FIRST rejection message of 28-32 words, following the assigned condition. Reject the proposal for now and do not approve it.",
-      "Do not drag on forever either: once you have asked around 4 follow-up questions, or the proposal is fully clear and the participant has nothing new to add, move to 'reject_now'.",
+      "Do not drag on forever either: once you have asked around 3 follow-up questions, or the proposal is fully clear and the participant has nothing new to add, move to 'reject_now'.",
       "Always return exactly one Manager message together with the intent field.",
       "When intent is 'reject_now', apply all of the rejection wording rules below; for 'awaiting_proposal' and 'ask_followup', keep the message short and natural and do not reject.",
       conditionRule,
@@ -720,9 +720,9 @@ function buildInitialManagerPrompt(payload) {
     task = [
       "The chat has just started. Send exactly three short opening messages.",
       "In the first message, explain naturally that you have been assigned to the Park Manager role for this online task and that you can evaluate the participant's performance as an Operations Team Member.",
-      "Also mention that this evaluation may affect the participant's payment after the online task ends.",
+      "Also mention that this evaluation may affect the participant's compensation after the online task ends.",
       "In the second message, explain that the task is meant to help a market research company understand how teams respond to market needs and customer feedback.",
-      "In the third message, ask: Based on the information you receive, what do you think we should do next?",
+      "In the third message, ask: Based on the information you receive, what do you think the theme park should do next?",
       "Do not mention staffing, flexible labor, or proposals in the opening.",
       "Sound like a real manager opening a routine end-of-shift chat.",
     ].join("\n");
@@ -846,7 +846,7 @@ function buildInitialManagerPrompt(payload) {
       "The participant is real. Do not script the participant.",
       "Do not address the participant by a personal name in message text.",
       "Manager role context: you have direct supervisory authority over the front desk team. You use this online session to check in with front desk staff and hear how things are going from their end.",
-      phase === "opening" ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the payment the participant receives after the online task ends. The task is meant to help a market research company understand how teams respond to market needs and customer feedback. End by asking: Based on the information you receive, what do you think we should do next?" : "",
+      phase === "opening" ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives after the online task ends. The task is meant to help a market research company understand how teams respond to market needs and customer feedback. End by asking: Based on the information you receive, what do you think the theme park should do next?" : "",
       phase !== "opening" ? "Park background: Aetheria Gardens relies almost exclusively on full-time permanent staff, creating a labor seesaw — surplus idle staff in the off-season (around 500 visitors per day) and staff shortages at peak times (around 5,000 visitors per day). The participant may raise a suggestion about how the park is run — often about the staffing approach, but it could be any kind of change." : "",
       "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
       "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",

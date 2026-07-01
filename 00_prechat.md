@@ -34,7 +34,7 @@ However, each AI-played participant should have a more detailed hidden profile, 
 
 The prechat should use bounded variation rather than a fully fixed verbatim script. The order of events and core information must stay the same, but the Coordinator and Participant 1/2/3 may use short equivalent wording so the room feels like a natural live chat.
 
-After Participant 4 introduces themselves, the Coordinator and, when natural, one of Participant 1/2/3 should respond to what Participant 4 actually wrote. The response should be brief, friendly, and grounded in safe details Participant 4 shared, such as having done Prolific tasks before or being less familiar with live group chats. Do not use a fixed generic acknowledgement every time.
+After Participants 1, 2, 3, and 4 have all completed their introductions, the Coordinator should close the introduction round by addressing the whole group, not Participant 4 alone. Use wording such as "Great, everyone, thanks for the introductions." Do not say "glad to have you here" or single out Participant 4 as if only they are being welcomed.
 
 If Participant 4 introduces themselves before the Coordinator explicitly asks Participant 4 to introduce themselves, the Coordinator should not ask Participant 4 to introduce themselves again. Instead, the Coordinator and/or one participant should acknowledge Participant 4's message naturally and then continue the prechat flow.
 
@@ -42,7 +42,7 @@ During the self-introduction round, Participant 1, Participant 2, and Participan
 
 The join messages for Participant 1, Participant 2, and Participant 3 should also be randomized rather than appearing in numerical order.
 
-After the Coordinator explains the task but before roles are assigned, the Coordinator should ask whether anyone has quick questions. If Participant 4 asks a question, the Coordinator should answer briefly and then continue to role assignment. If nobody asks a question after a short pause, the Coordinator should continue naturally without making the experiment feel stuck.
+After the Coordinator explains the task but before roles are assigned, the Coordinator should ask whether anyone has quick questions. Before role assignment begins, Participant 1, Participant 2, and Participant 3 should each respond that they have no questions, in randomized order rather than numerical order. If Participant 4 has not responded after those three no-question replies, the Coordinator should ask Participant 4 directly whether they have any quick questions before assigning roles. If Participant 4 asks a question, the Coordinator should answer briefly first, then continue to role assignment. If Participant 4 still does not respond after the direct prompt, the Coordinator should continue to role assignment so the experiment does not feel stuck.
 
 ---
 
@@ -241,7 +241,11 @@ Coordinator: Before I assign the roles, does anyone have any quick questions abo
 
 Participant 4: [optional question or no response]
 
-Coordinator: [briefly answer if there is a question; otherwise continue naturally]
+Coordinator: [briefly answer if there is a question]
+
+Participant 1, Participant 2, and Participant 3: [each says they have no questions, in a natural order]
+
+Coordinator: [continue naturally to role assignment]
 ```
 
 ---
@@ -335,7 +339,11 @@ Coordinator: Before I assign the roles, does anyone have any quick questions abo
 
 Participant 4: [optional question or no response]
 
-Coordinator: [briefly answer if there is a question; otherwise continue naturally]
+Coordinator: [briefly answer if there is a question]
+
+Participant 1, Participant 2, and Participant 3: [each says they have no questions, in a natural order]
+
+Coordinator: [continue naturally to role assignment]
 
 System: Randomly assigning team roles...
 
@@ -594,8 +602,8 @@ The Coordinator should not:
 To make the Coordinator-led setup feel natural:
 
 * System connection and role-assignment messages should appear relatively quickly, usually around 0.9–1.7 seconds apart.
-* Coordinator messages should follow a natural reading and typing pace, approximately 60–80 words per minute, plus a short reaction pause.
-* Participant 1, Participant 2, and Participant 3 messages should also follow a natural reading and typing pace, approximately 60–80 words per minute, plus a short turn-taking pause.
+* Coordinator messages should follow a natural reading and typing pace, approximately 40–53 words per minute, plus a short reaction pause.
+* Participant 1, Participant 2, and Participant 3 messages should also follow a natural reading and typing pace, approximately 40–53 words per minute, plus a short turn-taking pause.
 * Allow Participant 4 to type freely.
 * After Participant 4 responds, Coordinator should wait long enough to feel like a real person has read the message and typed a reply.
 
