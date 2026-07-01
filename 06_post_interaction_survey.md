@@ -316,17 +316,13 @@ Display the following text:
 In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.
 ```
 
-Then ask the following three required questions:
+Then ask the following required question:
 
 ```text
 Do you think the manager you interacted with may have been AI?
-
-Do you think Coworker 1 may have been AI?
-
-Do you think Coworker 2 may have been AI?
 ```
 
-For each question, use required radio-button response options:
+Use required radio-button response options:
 
 - Yes
 - No

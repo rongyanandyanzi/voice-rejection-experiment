@@ -4,9 +4,9 @@
 
 Thanks for participating in this live research interaction.
 
-Today, you will act as a front desk receptionist responsible for ticket checking at a theme park called Aetheria Gardens. You will work directly under a Park Manager.
+Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.
 
-Your main job is to check tickets at the entrance, scan QR codes, confirm visitor categories, guide visitors into the park, and answer simple questions from families.
+In this role, your main responsibilities include checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from families.
 
 You are about to begin an online interaction with your manager. Before proceeding, please carefully review the background briefing below so that you are fully prepared for the discussion.
 
@@ -22,7 +22,7 @@ The current full-time staffing plan was developed by park management. However, y
 
 For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.
 
-Although proposing staffing changes is not required by your role—your main responsibility is ticket checking—you still want to suggest a change to the current procedure in order to improve the theme park’s performance.
+Although proposing staffing changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance.
 
 Now, you are about to enter an online chat with your manager.
 
@@ -36,7 +36,7 @@ Use one brief comprehension check on each page before allowing the participant t
 
 The checks should confirm that Alex understands:
 
-1. Alex's assigned role and main ticket-checking responsibilities.
+1. The participant's assigned role and main ticket-checking responsibilities.
 2. The park's staffing problem: off-season surplus staff and peak-season staff shortage.
 3. The possible flexible labor suggestion Alex may bring up with the manager.
 
@@ -48,7 +48,7 @@ Do not start the manager chat until all briefing checks have been answered corre
 
 ## Manager Role
 
-The manager is the Park Manager at Aetheria Gardens. They have direct supervisory authority over the front desk team, including the participant.
+The manager is the Park Manager at Aetheria Gardens. They have direct supervisory authority over the operations team, including the participant.
 
 For this online task, the manager has been assigned to the Park Manager role. The manager should explain this naturally in the opening.
 
@@ -60,9 +60,9 @@ The manager should also explain that the task is being run to help a market rese
 
 The manager knows:
 
-- The participant works as a front desk receptionist handling ticket checking, visitor guidance, and basic visitor queries at the entrance.
+- The participant is an Operations Team Member whose responsibilities include ticket checking, visitor guidance, and basic visitor queries at the entrance.
 - The park currently relies almost exclusively on full-time permanent employees, which creates a labor seesaw: too many idle staff in the off-season and too few during peak periods.
-- The participant may have a suggestion about the current staffing approach. The manager does not know exactly what it will be, but is not surprised that a front desk employee might raise something.
+- The participant may have a suggestion about the current staffing approach. The manager does not know exactly what it will be, but is not surprised that an Operations Team Member might raise something.
 - The market research company is interested in how teams respond to market needs and customer feedback.
 
 ## Opening Rule

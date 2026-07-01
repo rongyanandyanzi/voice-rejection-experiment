@@ -205,7 +205,7 @@
 
   const prechatBeforeIntro = [
     { speaker: "System", text: "Connecting to the online task room...", delay: 700 },
-    { speaker: "System", text: "You have joined the room as Participant 4.", delay: 800 },
+    { speaker: "System", text: "You have joined the room as Participant 2.", delay: 800 },
     { speaker: "System", text: "Session Coordinator has joined the room.", delay: 800 },
     {
       speaker: "Coordinator",
@@ -226,13 +226,11 @@
       delay: 1400,
     },
     { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "Participant 1 has joined the room.", delay: 800 },
-    { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "Participant 2 has joined the room.", delay: 800 },
-    { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "Participant 3 has joined the room.", delay: 800 },
     {
       speaker: "Coordinator",
       text: [
         "Great, looks like everyone is here.",
-        "Great, it looks like the full group is here now.",
+        "Great, it looks like both participants are here now.",
         "Thanks everyone, it looks like we have the full group.",
       ],
       delay: 1500,
@@ -254,37 +252,17 @@
         "Hi all, I’ve done many Prolific tasks, mostly surveys and decision tasks.",
         "Hello everyone, I’m an experienced Prolific participant, though this group chat format is less common.",
       ],
-      delay: 3000,
-    },
-    {
-      speaker: "Participant 2",
-      shuffleGroup: "prechatParticipantIntro",
-      text: [
-        "Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones.",
-        "Hi everyone :) I’ve done many Prolific surveys before, mostly product feedback and short online tasks.",
-        "Hey all, I’ve completed many Prolific tasks, though live group chat ones are less common.",
-      ],
-      delay: 3200,
-    },
-    {
-      speaker: "Participant 3",
-      shuffleGroup: "prechatParticipantIntro",
-      text: [
-        "Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks.",
-        "Hi all, I’ve done many Prolific tasks, mostly surveys and decision tasks.",
-        "Hello everyone. I have extensive experience with online tasks. This format is a bit different.",
-      ],
-      delay: 3200,
+      delay: 6000,
     },
     {
       speaker: "Coordinator",
       text: [
-        "Thanks everyone. Participant 4, could you also briefly introduce yourself?",
-        "Thanks all. Participant 4, could you give a brief introduction as well?",
-        "Thanks everyone. Participant 4, could you type a quick introduction too?",
+        "Thanks. Participant 2, could you also briefly introduce yourself?",
+        "Thanks. Participant 2, could you give a brief introduction as well?",
+        "Thanks. Participant 2, could you type a quick introduction too?",
       ],
-      delay: 1800,
-      skipIfParticipant4Introduced: true,
+      delay: 4800,
+      skipIfParticipant2Introduced: true,
     },
   ];
 
@@ -310,29 +288,11 @@
     {
       speaker: "Coordinator",
       text: [
-        "We are interested in how people discuss customer feedback and service improvement issues in a team setting.",
-        "The task looks at how people discuss customer feedback and service improvement in a team context.",
-        "We’re interested in team discussion around customer feedback and service improvement issues.",
-      ],
-      delay: 1500,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "In today’s task, you will take part in a short online team interaction based on a large theme park scenario.",
-        "For today’s task, you’ll take part in an online team interaction based on a large theme park scenario.",
-        "The scenario for the task is set in a large theme park, and you’ll take part in the interaction online.",
+        "In today’s task, the two of you will discuss how to help a theme park improve its service.",
+        "For today’s task, you and the other participant will discuss how a theme park could improve its service.",
+        "Today, the two of you will talk through how to help a large theme park improve its service.",
       ],
       delay: 2100,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "The theme park has recently received customer feedback related to service efficiency, waiting time, and staffing during busy periods.",
-        "In the scenario, the theme park has received feedback about service efficiency, wait times, and staffing during busy periods.",
-        "The park has been getting customer feedback about wait times, service efficiency, and staffing at busy times.",
-      ],
-      delay: 2200,
     },
     {
       speaker: "Coordinator",
@@ -346,9 +306,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "One person will be the park manager, and the other three people will be operations team members.",
-        "One participant will be the park manager, and the other three will be operations team members.",
-        "There will be one park manager and three operations team members.",
+        "One person will be the park manager, and the other person will be an operations team member.",
+        "One participant will be the park manager, and the other will be an operations team member.",
+        "There will be one park manager and one operations team member.",
       ],
       delay: 1500,
     },
@@ -375,9 +335,7 @@
   const prechatRoleAssignment = [
     { speaker: "System", text: "Randomly assigning team roles...", delay: 900 },
     { speaker: "System", text: "Participant 1 has been assigned the role of Park Manager.", delay: 800 },
-    { speaker: "System", text: "Participant 2 has been assigned the role of Operations Team Member.", delay: 800 },
-    { speaker: "System", text: "Participant 3 has been assigned the role of Operations Team Member.", delay: 800 },
-    { speaker: "System", text: "You have been assigned the role of Operations Team Member.", delay: 900 },
+    { speaker: "System", text: "You, Participant 2, have been assigned the role of Operations Team Member.", delay: 900 },
     {
       speaker: "Coordinator",
       text: [
@@ -396,15 +354,15 @@
       title: "Your Role",
       blocks: [
         { type: "p", text: "Thanks for taking part in this online customer feedback task." },
-        { type: "p", text: "Today, you will act as a front desk receptionist responsible for ticket checking at a theme park called Aetheria Gardens. You will work directly under a Park Manager." },
-        { type: "p", text: "Your main job is to check tickets at the entrance, scan QR codes, confirm visitor categories, guide visitors into the park, and answer simple questions from families." },
+        { type: "p", text: "Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager." },
+        { type: "p", text: "In this role, your main responsibilities include checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from families." },
       ],
       check: {
         question: "What is your role in the upcoming interaction?",
-        correct: "front_desk",
+        correct: "operations_team",
         options: [
           { value: "manager", label: "Park Manager" },
-          { value: "front_desk", label: "Front desk receptionist responsible for ticket checking" },
+          { value: "operations_team", label: "Operations Team Member" },
           { value: "visitor", label: "Theme park visitor" },
         ],
       },
@@ -568,7 +526,7 @@
         <h1>Online Customer Feedback Task</h1>
         <p>Thanks for taking part in this online customer feedback task.</p>
         <p>This session is run by a market research company that helps clients review customer feedback and improve service experiences.</p>
-        <p>You will now enter an online task room with other participants. A session coordinator will welcome the group and explain what to do.</p>
+        <p>You will now enter an online task room with another participant. A session coordinator will welcome the group and explain what to do.</p>
         <p>During the task, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.</p>
         <p>Please stay on the page during the interaction and respond naturally in the chat.</p>
         <form id="pre-room-check-form" class="comprehension-check" novalidate>
@@ -636,7 +594,7 @@
     await runPrechatSequence(prechatBeforeIntro);
     state.prechatSequenceRunning = false;
     state.prechatAwaitingIntro = true;
-    setStatus("Waiting for Participant 4");
+    setStatus("Waiting for Participant 2");
     setComposerEnabled(true);
     if (state.prechatQueuedInputs.length) {
       handlePrechatInput(state.prechatQueuedInputs.shift());
@@ -724,7 +682,7 @@
     createChat("Manager Chat", "Manager online", true);
     state.managerTurnActive = true;
     await sendDelayed("Manager", "manager", "Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", null, { opening: true });
-    await sendDelayed("Manager", "manager", "That evaluation may affect your compensation after the task. The market research company wants to understand how teams respond to market needs and customer feedback.", null, { opening: true });
+    await sendDelayed("Manager", "manager", "That evaluation may affect your compensation after the task.", null, { opening: true });
     await sendDelayed("Manager", "manager", "Based on the information you receive, what do you think the theme park should do next?", null, { opening: true });
     finishManagerTurn();
   }
@@ -761,7 +719,7 @@
       clearManagerExitPromptTimer();
     }
     if (state.part === "prechat") {
-      addMessage("Participant 4", "alex", text);
+      addMessage("Participant 2", "alex", text);
       handlePrechatInput(text);
       return;
     }
@@ -877,7 +835,7 @@
         }
         continue;
       }
-      if (item.skipIfParticipant4Introduced && hasQueuedPrechatIntro()) continue;
+      if (item.skipIfParticipant2Introduced && hasQueuedPrechatIntro()) continue;
       await sendPrechatMessage(item);
     }
   }
@@ -931,7 +889,7 @@
     const reminder = window.setTimeout(async () => {
       if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
       state.prechatReminderShown = true;
-      await sendPrechatMessage({ speaker: "Coordinator", text: "Participant 4, could you please type a quick hello so we know your chat is working?", delay: 500 });
+      await sendPrechatMessage({ speaker: "Coordinator", text: "Participant 2, could you please type a quick hello so we know your chat is working?", delay: 500 });
       const continueTimer = window.setTimeout(async () => {
         if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
         state.prechatAwaitingIntro = false;
@@ -964,7 +922,7 @@
         handlePrechatInput(state.prechatQueuedInputs.shift());
         return;
       }
-      await sendPrechatParticipant4QuestionPrompt();
+      await sendPrechatParticipant2QuestionPrompt();
       state.prechatSequenceRunning = false;
       setComposerEnabled(true);
       if (state.prechatQueuedInputs.length) {
@@ -981,13 +939,13 @@
     state.prechatTimers.push(timer);
   }
 
-  async function sendPrechatParticipant4QuestionPrompt() {
+  async function sendPrechatParticipant2QuestionPrompt() {
     await sendPrechatMessage({
       speaker: "Coordinator",
       text: [
-        "Participant 4, do you have any quick questions before I assign the roles?",
-        "Participant 4, any quick questions from you before I assign the roles?",
-        "Participant 4, anything you want to ask before I assign the roles?",
+        "Participant 2, do you have any quick questions before I assign the roles?",
+        "Participant 2, any quick questions from you before I assign the roles?",
+        "Participant 2, anything you want to ask before I assign the roles?",
       ],
       delay: 1000,
     });
@@ -1000,18 +958,8 @@
         "Nothing from me at the moment.",
         "No questions on my side.",
       ],
-      "Participant 2": [
-        "No questions from me :)",
-        "All clear for me.",
-        "Nothing from me, thanks.",
-      ],
-      "Participant 3": [
-        "No questions from me.",
-        "All clear from my side.",
-        "Nothing to ask from me.",
-      ],
     };
-    for (const speaker of shuffled(["Participant 1", "Participant 2", "Participant 3"], "prechatNoQuestions")) {
+    for (const speaker of shuffled(["Participant 1"], "prechatNoQuestions")) {
       await sendPrechatMessage({ speaker, text: options[speaker], delay: 1200 });
     }
     state.prechatOtherParticipantsAnsweredNoQuestions = true;
@@ -1199,7 +1147,7 @@
         lockManagerChat();
         participant.completed_initial_manager_interaction = "true";
         saveParticipant();
-        renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", renderTransition, "initial_manager_interaction");
+        renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", proceedToNeutralManagerAfterInitialManager, "initial_manager_interaction");
         return;
       }
       state.managerRejectionRound += 1;
@@ -1244,10 +1192,31 @@
     lockManagerChat();
     participant.completed_initial_manager_interaction = "true";
     saveParticipant();
-    renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", renderTransition, "initial_manager_interaction");
+    renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", proceedToNeutralManagerAfterInitialManager, "initial_manager_interaction");
+  }
+
+  function proceedToNeutralManagerAfterInitialManager() {
+    participant.completed_transition_page = "skipped";
+    participant.completed_lisa_john_interaction = "skipped";
+    participant.completed_neutral_manager_followup = "false";
+    participant.chose_to_bring_this_up_with_manager = "yes";
+    saveParticipant();
+    recordInteraction("initial_manager_interaction", "system", "Coworker chat skipped in this version. Proceeding to neutral manager chat.", "");
+    renderNeutralManagerChat();
+  }
+
+  function proceedToSurveyAfterInitialManager() {
+    participant.completed_transition_page = "skipped";
+    participant.completed_lisa_john_interaction = "skipped";
+    participant.completed_neutral_manager_followup = "skipped";
+    saveParticipant();
+    recordInteraction("initial_manager_interaction", "system", "Coworker chat skipped in this version.", "");
+    renderPostInteractionSurvey();
   }
 
   function renderTransition(pageIndex = 0) {
+    proceedToNeutralManagerAfterInitialManager();
+    return;
     if (typeof pageIndex !== "number") {
       pageIndex = 0;
     }
@@ -1650,8 +1619,8 @@
     participant.ai_check_start_time = state.aiCheckStartTime;
     participant.ai_check_submit_time = "";
     participant.manager_ai_suspicion = "";
-    participant.lisa_ai_suspicion = "";
-    participant.john_ai_suspicion = "";
+    participant.lisa_ai_suspicion = "not_shown";
+    participant.john_ai_suspicion = "not_shown";
     participant.completion_status = "partial";
     saveParticipant();
     recordInteraction("ai_check", "system", "AI check page displayed.", "");
@@ -1662,8 +1631,6 @@
         <p>In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.</p>
         <form id="ai-check-form" novalidate>
           ${renderAiCheckQuestion("manager_ai_suspicion", "Do you think the manager you interacted with may have been AI?")}
-          ${renderAiCheckQuestion("lisa_ai_suspicion", "Do you think Coworker 1 may have been AI?")}
-          ${renderAiCheckQuestion("john_ai_suspicion", "Do you think Coworker 2 may have been AI?")}
           <p class="validation-message" id="ai-check-validation" aria-live="polite"></p>
           <div class="actions">
             <button class="button" type="submit">Submit</button>
@@ -1702,10 +1669,10 @@
     const form = event.currentTarget;
     const validation = document.getElementById("ai-check-validation");
     const managerResponse = form.elements.manager_ai_suspicion.value;
-    const lisaResponse = form.elements.lisa_ai_suspicion.value;
-    const johnResponse = form.elements.john_ai_suspicion.value;
+    const lisaResponse = "not_shown";
+    const johnResponse = "not_shown";
 
-    if (!managerResponse || !lisaResponse || !johnResponse) {
+    if (!managerResponse) {
       const message = "Please answer all questions before continuing.";
       validation.textContent = message;
       recordInteraction("ai_check", "system", message, "");
@@ -1733,7 +1700,7 @@
 
   function addMessage(speaker, className, text) {
     const displaySpeaker = normalizeAiSpeaker(speaker);
-    const isParticipantMessage = displaySpeaker === "Participant 4" || displaySpeaker === "You";
+    const isParticipantMessage = displaySpeaker === "Participant 2" || displaySpeaker === "You";
     const displayText = isParticipantMessage ? String(text || "") : cleanAiDisplayText(text);
     const displayClassName = speakerClassName(displaySpeaker);
     const row = document.createElement("div");
@@ -1791,7 +1758,9 @@
       } else if (isCoworkerClass(className)) {
         delayMs = coworkerResponseDelay(displayText, previousCoworkerText);
       }
-      await sendDelayed(displaySpeaker, className, displayText, delayMs);
+      await sendDelayed(displaySpeaker, className, displayText, delayMs, {
+        closing: request.phase === "closing",
+      });
       if (isCoworkerClass(className)) previousCoworkerText = displayText;
     }
     return result.messages.length > 0;
@@ -1885,7 +1854,7 @@
 
   function speakerClassName(speaker) {
     const normalized = String(speaker || "").toLowerCase().replace(/\s+/g, "-");
-    if (normalized === "participant-4" || normalized === "you") return "alex";
+    if (normalized === "participant-2" || normalized === "you") return "alex";
     if (normalized === "research-assistant" || normalized === "session-coordinator") return "coordinator";
     return normalized;
   }
@@ -1942,10 +1911,12 @@
     const totalDelay = Math.round(((wordCount / wordsPerMinute) * 60000 + readingDelay) * speedFactor);
     state.lastManagerShowedTyping = true;
 
-    const thinkingDelay = randomBetween(
-      Math.min(2500, Math.floor(totalDelay * 0.15)),
-      Math.max(2500, Math.floor(totalDelay * 0.28))
-    );
+    const thinkingDelay = opts.closing
+      ? 2000
+      : randomBetween(
+          Math.min(2500, Math.floor(totalDelay * 0.15)),
+          Math.max(2500, Math.floor(totalDelay * 0.28))
+        );
     const tailPause = randomBetween(600, Math.max(1000, Math.floor(totalDelay * 0.08)));
     return {
       showTyping,
@@ -1999,7 +1970,12 @@
         <button class="button" type="button" id="manager-exit-action">End chat and proceed</button>
       </div>
     `;
-    document.querySelector(".chat")?.appendChild(panel);
+    const chat = document.querySelector(".chat");
+    if (chat && composerEl) {
+      chat.insertBefore(panel, composerEl);
+    } else {
+      chat?.appendChild(panel);
+    }
     recordInteraction("initial_manager_interaction", "system", question, "");
     const button = document.getElementById("manager-exit-action");
     button?.addEventListener("click", async () => {
@@ -2211,12 +2187,16 @@
     renderBriefing();
   } else if (skipTo === "manager" || skipTo === "manager_chat" || skipTo === "manager1") {
     renderManagerChat();
-  } else if (skipTo === "coworker" || skipTo === "coworkers" || skipTo === "lisa_john" || skipTo === "lisajohn") {
-    renderLisaJohnChat();
+  } else if (
+    skipTo === "coworker" ||
+    skipTo === "coworkers" ||
+    skipTo === "lisa_john" ||
+    skipTo === "lisajohn" ||
+    skipTo === "transition"
+  ) {
+    proceedToNeutralManagerAfterInitialManager();
   } else if (skipTo === "manager2" || skipTo === "neutral_manager" || skipTo === "neutral") {
     renderNeutralManagerChat();
-  } else if (skipTo === "transition") {
-    renderTransition();
   } else {
     renderHumanVerification();
   }
