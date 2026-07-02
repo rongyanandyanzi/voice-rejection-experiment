@@ -34,7 +34,7 @@ Aetheria Gardens is **far from the city center**, and many families say the loca
 
 ### Page 3: Nearby Visitors
 
-There are several universities and farms nearby, including **4 universities within 10 to 18 km** and **around 38,000 nearby university students**.
+There are several universities and farms **near the theme park**, including **4 universities within 10 to 18 km** and **around 38,000 nearby university students**.
 
 Some university students say the park is cute, but it feels mainly **designed for little kids**. Others mention that **student discounts** or **more photo-friendly spots** might make the park more attractive to students.
 

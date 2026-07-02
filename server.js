@@ -534,6 +534,25 @@ async function generateAiReply(payload) {
         });
         return failure;
       }
+      const messageCountProblem = managerMessageCountProblem(lastMessages, prompt, lastIntent);
+      if (messageCountProblem) {
+        if (attempt < 2) {
+          correction = messageCountProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate the required manager message count.",
+        };
+        logAiFailure("manager-message-count-validation", {
+          ...failure,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return failure;
+      }
       const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt, lastIntent);
       if (coworkerProblem) {
         if (attempt < 2) {
@@ -909,13 +928,14 @@ function buildInitialManagerPrompt(payload) {
       "Give the participant genuine room to make their case before rejecting. Do not reject while they are still mid-explanation, have only given a partial or one-line idea, or clearly have more to say. Let the exchange breathe like a real manager-subordinate chat.",
       `   - When the participant has voiced an idea: so far you have asked ${followupsAsked} follow-up question(s) about it. If the proposal has not yet been fully explained and defended, or one more natural clarifying or probing question would help you understand it, set intent to 'ask_followup' and ask exactly ONE follow-up question grounded in what they actually said. Do not reject yet and do not approve. You may ask several follow-up questions across the conversation (up to about 3), not just one or two.`,
       "Keep follow-up questions neutral in tone. Do not apply the assigned politeness or constructiveness condition while asking follow-up questions; the condition manipulation only takes effect once you reject.",
-      "   - Set intent to 'reject_now' only once the participant has had a fair chance to explain and defend the proposal and it is clearly understood — usually after a few back-and-forth exchanges, not immediately. Then write the manager's FIRST rejection message of 28-32 words, following the assigned condition. Reject the proposal for now and do not approve it.",
+      "   - Set intent to 'reject_now' only once the participant has had a fair chance to explain and defend the proposal and it is clearly understood — usually after a few back-and-forth exchanges, not immediately. Then write the manager's FIRST rejection turn as exactly two separate Manager messages, each 28-32 words, both following the assigned condition. Reject the proposal for now and do not approve it.",
       "Do not drag on forever either: once you have asked around 3 follow-up questions, or the proposal is fully clear and the participant has nothing new to add, move to 'reject_now'.",
-      "Always return exactly one Manager message together with the intent field.",
-      "When intent is 'reject_now', apply all of the rejection wording rules below; for 'awaiting_proposal' and 'ask_followup', keep the message short and natural and do not reject.",
+      "When intent is 'reject_now', return exactly two Manager messages together with the intent field. For all other intents, return exactly one Manager message.",
+      "When intent is 'reject_now', apply all of the rejection wording rules below to both messages; for 'awaiting_proposal' and 'ask_followup', keep the single message short and natural and do not reject.",
       conditionRule,
     ].join("\n");
-    maxOutputTokens = 240;
+    maxMessages = 2;
+    maxOutputTokens = 360;
     intentEnum = ["awaiting_proposal", "ask_followup", "reject_now"];
     wordRange = { min: 28, max: 32 };
   } else if (phase === "opening") {
@@ -951,9 +971,10 @@ function buildInitialManagerPrompt(payload) {
     task = [
       "the participant has explained their proposal.",
       "This is the manager's first rejection turn.",
-      "Reject the proposal for now, but keep this turn short.",
-      "Produce exactly 1 manager chat message, 28-32 words.",
-      "Do not give the whole rejection all at once.",
+      "Reject the proposal for now, but split this turn into two short chat messages.",
+      "Produce exactly 2 Manager chat messages, each 28-32 words.",
+      "Both messages must strictly preserve the assigned politeness and constructiveness condition.",
+      "Do not make one message neutral and only the other condition-specific.",
       "Leave room for the participant to respond.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
@@ -967,7 +988,9 @@ function buildInitialManagerPrompt(payload) {
       "Do not reveal the experiment or condition.",
       conditionRule,
     ].join("\n");
-    maxOutputTokens = 190;
+    minMessages = 2;
+    maxMessages = 2;
+    maxOutputTokens = 360;
     wordRange = { min: 28, max: 32 };
   } else if (phase === "rejection_followup") {
     task = [
@@ -1035,6 +1058,7 @@ function buildInitialManagerPrompt(payload) {
   }
 
   return {
+    kind: "manager1",
     condition,
     phase,
     followupsAsked,
@@ -1063,11 +1087,12 @@ function buildInitialManagerPrompt(payload) {
       "For high-constructiveness, give specific feedback in conversational language about their actual idea and their stated reasons, on whatever angle genuinely fits (financial impact, feasibility, safety, guest experience, risk, discarding a viable business, over-reacting to the problem, etc.). Only when the proposal is genuinely about staffing/flexible labor should you use service-quality / role-by-role / cost-benefit / temps language; otherwise name the concern that actually applies.",
       "For low-politeness, be clearly rude, blunt, curt, dismissive, impatient, and openly contemptuous, creating strong face threat, but still use natural chat wording rather than system-command wording. Stay within workplace bounds: no profanity, slurs, or attacks on the person's identity.",
       "Low-politeness messages should not sound merely neutral or mildly direct; use at least one sharp but workplace-appropriate cue such as 'this is half-baked', 'this is sloppy', 'you clearly did not think this through', 'I am surprised you brought this as-is', or 'this wastes time'.",
+      phase === "discussion" ? "If intent is 'reject_now', return exactly two Manager messages, each 28-32 words. If intent is not 'reject_now', return exactly one Manager message." : "",
       "Do not reveal that you are AI-generated.",
       "Do not mention politeness, constructiveness, conditions, or experimental design.",
       wordRange
         ? (intentEnum
-          ? `Length rule: when intent is 'reject_now', the Manager rejection message must be ${wordRange.min}-${wordRange.max} words to keep the four experimental conditions within 5% word-count difference. For 'awaiting_proposal' and 'ask_followup', keep the message short and natural, roughly 12-26 words.`
+          ? `Length rule: when intent is 'reject_now', each Manager rejection message must be ${wordRange.min}-${wordRange.max} words to keep the four experimental conditions within 5% word-count difference. For 'awaiting_proposal' and 'ask_followup', keep the single message short and natural, roughly 12-26 words.`
           : `Strict length rule: every Manager message must be ${wordRange.min}-${wordRange.max} words. This is required to keep the four experimental conditions within 5% word-count difference.`)
         : "",
       task,
@@ -1556,6 +1581,28 @@ function managerWordCountProblem(messages, prompt) {
     `Length correction required. Previous Manager message word count(s): ${counts}.`,
     `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
     "Preserve the same experimental condition and rejection outcome.",
+    "Return only valid JSON.",
+  ].join(" ");
+}
+
+function managerMessageCountProblem(messages, prompt, intent) {
+  if (!prompt || prompt.kind !== "manager1") return "";
+  let expected = null;
+  if (prompt.phase === "rejection_initial") {
+    expected = 2;
+  } else if (prompt.phase === "discussion") {
+    expected = intent === "reject_now" ? 2 : 1;
+  }
+  if (!expected) return "";
+  const actual = Array.isArray(messages)
+    ? messages.filter((message) => message && message.speaker === "Manager" && message.text).length
+    : 0;
+  if (actual === expected) return "";
+  return [
+    `Message count correction required. Previous Manager message count was ${actual}, but it must be exactly ${expected}.`,
+    expected === 2
+      ? "Regenerate exactly two separate Manager messages. Each message must be 28-32 words and both must preserve the same assigned condition."
+      : "Regenerate exactly one short Manager message.",
     "Return only valid JSON.",
   ].join(" ");
 }

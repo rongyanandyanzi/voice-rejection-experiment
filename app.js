@@ -20,11 +20,27 @@
   const completionRedirectUrl = params.get("completion_url") || params.get("redirect_url") || params.get("return_url") || "";
   const sessionKey = `voice-rejection:${ids.prolific_pid}:${ids.study_id}:${ids.session_id}`;
   const storedSession = readStoredSession();
+  const skipTo = (params.get("skip_to") || "").toLowerCase();
   const requestedCondition = normalizeCondition(params.get("condition"));
   const condition = requestedCondition || storedSession.assigned_condition || pick(conditionLabels);
   const conditionSource = requestedCondition ? "url" : (storedSession.condition_source || "random_assignment");
   const dataEndpoint = `${window.location.protocol === "file:" ? "http://localhost:8787" : window.location.origin}/api`;
   let responseOrder = Number(storedSession.response_order || 0);
+  let allowStudyExit = false;
+  const forwardStageOrder = {
+    human_verification: 0,
+    prechat_intro: 1,
+    prechat: 2,
+    briefing: 3,
+    manager1: 4,
+    transition: 5,
+    materialDecision: 6,
+    lisaJohn: 7,
+    manager2: 8,
+    survey: 9,
+    ai_check: 10,
+    completion: 11,
+  };
 
   const state = {
     part: "prechat",
@@ -90,6 +106,7 @@
     lisa_ai_suspicion: storedSession.lisa_ai_suspicion || "",
     john_ai_suspicion: storedSession.john_ai_suspicion || "",
     completion_status: storedSession.completion_status || "partial",
+    forward_only_stage: storedSession.forward_only_stage || "human_verification",
   };
   const interactionBackup = Array.isArray(storedSession.interactions) ? storedSession.interactions : [];
 
@@ -462,8 +479,8 @@
       title: "Nearby Visitors",
       blocks: [
         {
-          text: "There are several universities and farms nearby, including 4 universities within 10 to 18 km and around 38,000 nearby university students.",
-          html: "There are several universities and farms nearby, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
+          text: "There are several universities and farms near the theme park, including 4 universities within 10 to 18 km and around 38,000 nearby university students.",
+          html: "There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
         },
         {
           text: "Some university students say the park is cute, but it feels mainly designed for little kids. Others mention that student discounts or more photo-friendly spots might make the park more attractive to students.",
@@ -482,6 +499,7 @@
   let inputEl = null;
 
   function renderHumanVerification() {
+    markForwardStage("human_verification");
     state.part = "human_verification";
     state.humanCheckVerified = false;
     const humanCheckNumbers = [randomBetween(2, 8), randomBetween(2, 8)];
@@ -525,6 +543,7 @@
   }
 
   function renderPreRoomIntro() {
+    markForwardStage("prechat_intro");
     state.part = "prechat_intro";
     clearPrechatTimers();
     saveParticipant();
@@ -583,6 +602,7 @@
   }
 
   async function renderPrechat() {
+    markForwardStage("prechat");
     state.part = "prechat";
     state.prechatAwaitingIntro = false;
     state.prechatIntroReceived = false;
@@ -613,6 +633,7 @@
   }
 
   function renderBriefing(pageIndex = 0) {
+    markForwardStage("briefing");
     if (typeof pageIndex !== "number") pageIndex = 0;
     const page = briefingPages[pageIndex] || briefingPages[0];
     state.part = "briefing";
@@ -677,6 +698,7 @@
   }
 
   async function renderManagerChat() {
+    markForwardStage("manager1");
     state.part = "manager1";
     state.managerChatLocked = false;
     state.managerAskedFollowup = false;
@@ -714,6 +736,127 @@
     composerEl = document.getElementById("composer");
     inputEl = document.getElementById("chat-input");
     composerEl.addEventListener("submit", handleSubmit);
+  }
+
+  function renderRestoredChatRoom(stage) {
+    const chatMeta = restoredChatMeta(stage);
+    state.part = stage;
+    createChat(chatMeta.title, "Chat restored after refresh", false);
+    if (inputEl) {
+      inputEl.placeholder = "Chat restored after refresh";
+    }
+    const restoreMessage = "Please continue from the current task room. Your previous chat messages are shown below.";
+    showRestoreModal(restoreMessage, () => {
+      setStatus(restoredChatStatus(stage));
+      if (inputEl) inputEl.placeholder = "Type your message...";
+      setComposerEnabled(true);
+    });
+    addRestoredNotice(restoreMessage);
+    const rows = restoredChatRows(stage);
+    if (!rows.length) {
+      addRestoredNotice("No previous chat messages were found for this task room.");
+      return;
+    }
+    rows.forEach(addRestoredChatRow);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function restoredChatMeta(stage) {
+    if (stage === "prechat") return { title: "Online Task Room" };
+    if (stage === "manager1" || stage === "manager2") return { title: "Manager Chat" };
+    if (stage === "lisaJohn") return { title: "Coworker Chat" };
+    return { title: "Chat Room" };
+  }
+
+  function restoredChatStatus(stage) {
+    if (stage === "prechat") return "Waiting for Participant 2";
+    if (stage === "manager1" || stage === "manager2") return "Manager online";
+    if (stage === "lisaJohn") return "Coworkers online";
+    return "Online";
+  }
+
+  function restoredChatStageNames(stage) {
+    if (stage === "prechat") return ["prechat"];
+    if (stage === "manager1") return ["initial_manager_interaction"];
+    if (stage === "lisaJohn") return ["lisa_john_interaction", "decision_prompt"];
+    if (stage === "manager2") return ["neutral_manager_followup"];
+    return [];
+  }
+
+  function restoredChatRows(stage) {
+    const stageNames = restoredChatStageNames(stage);
+    return interactionBackup
+      .filter((row) => row && stageNames.includes(row.stage) && row.message)
+      .sort((a, b) => Number(a.response_order || 0) - Number(b.response_order || 0));
+  }
+
+  function addRestoredNotice(text) {
+    const notice = document.createElement("div");
+    notice.className = "restore-notice";
+    notice.textContent = text;
+    messagesEl.appendChild(notice);
+  }
+
+  function showRestoreModal(text, onContinue) {
+    const existing = document.querySelector(".restore-modal-backdrop");
+    if (existing) existing.remove();
+    const backdrop = document.createElement("div");
+    backdrop.className = "restore-modal-backdrop";
+    backdrop.setAttribute("role", "dialog");
+    backdrop.setAttribute("aria-modal", "true");
+    backdrop.setAttribute("aria-labelledby", "restore-modal-title");
+    backdrop.innerHTML = `
+      <div class="restore-modal">
+        <h2 id="restore-modal-title">Chat Restored</h2>
+        <p>${escapeHtml(text)}</p>
+        <button class="button" type="button" id="restore-modal-continue">Continue</button>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    const button = document.getElementById("restore-modal-continue");
+    button.addEventListener("click", () => {
+      backdrop.remove();
+      if (typeof onContinue === "function") onContinue();
+    });
+    button.focus();
+  }
+
+  function addRestoredChatRow(row) {
+    const speaker = restoredSpeakerLabel(row.speaker);
+    const message = cleanVisibleNames(row.message);
+    if (speaker === "System") {
+      const note = document.createElement("p");
+      note.className = "system-note";
+      note.textContent = message;
+      messagesEl.appendChild(note);
+      return;
+    }
+    const className = speakerClassName(speaker);
+    const messageRow = document.createElement("div");
+    messageRow.className = `message-row ${className}`;
+    messageRow.dataset.speaker = speaker;
+    messageRow.dataset.message = message;
+    messageRow.innerHTML = `
+      <div class="bubble">
+        <span class="speaker">${escapeHtml(speaker)}</span>
+        <span>${escapeHtml(message)}</span>
+      </div>
+    `;
+    messagesEl.appendChild(messageRow);
+  }
+
+  function restoredSpeakerLabel(speaker) {
+    const normalized = String(speaker || "").toLowerCase().trim();
+    if (normalized === "system") return "System";
+    if (normalized === "alex" || normalized === "you") return "You";
+    if (normalized === "participant 1") return "Participant 1";
+    if (normalized === "participant 2") return "Participant 2";
+    if (normalized === "participant 3") return "Participant 3";
+    if (normalized === "manager") return "Manager";
+    if (normalized === "coordinator" || normalized === "ra" || normalized === "research assistant") return "Coordinator";
+    if (normalized === "coworker 1" || normalized === "lisa") return "Coworker 1";
+    if (normalized === "coworker 2" || normalized === "john") return "Coworker 2";
+    return normalizeAiSpeaker(speaker);
   }
 
   function handleSubmit(event) {
@@ -936,7 +1079,7 @@
     setStatus("Waiting for questions");
     setComposerEnabled(true);
     clearPrechatTimers();
-    const timer = window.setTimeout(async () => {
+    const participant1Timer = window.setTimeout(async () => {
       if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
       state.prechatSequenceRunning = true;
       await sendPrechatNoQuestionMessages();
@@ -946,16 +1089,29 @@
         handlePrechatInput(state.prechatQueuedInputs.shift());
         return;
       }
-      if (!state.prechatParticipant2AnsweredQuestions) {
-        await sendPrechatParticipant2QuestionPrompt();
-      }
       state.prechatSequenceRunning = false;
       setComposerEnabled(true);
-      if (state.prechatQueuedInputs.length) {
-        handlePrechatInput(state.prechatQueuedInputs.shift());
-      }
-    }, 11000);
-    state.prechatTimers.push(timer);
+      const participant2PromptTimer = window.setTimeout(async () => {
+        if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
+        state.prechatSequenceRunning = true;
+        if (state.prechatQueuedInputs.length) {
+          state.prechatSequenceRunning = false;
+          setComposerEnabled(true);
+          handlePrechatInput(state.prechatQueuedInputs.shift());
+          return;
+        }
+        if (!state.prechatParticipant2AnsweredQuestions) {
+          await sendPrechatParticipant2QuestionPrompt();
+        }
+        state.prechatSequenceRunning = false;
+        setComposerEnabled(true);
+        if (state.prechatQueuedInputs.length) {
+          handlePrechatInput(state.prechatQueuedInputs.shift());
+        }
+      }, 9000);
+      state.prechatTimers.push(participant2PromptTimer);
+    }, 1500);
+    state.prechatTimers.push(participant1Timer);
   }
 
   async function sendPrechatParticipant2QuestionPrompt() {
@@ -1244,6 +1400,7 @@
   }
 
   function renderTransition(pageIndex = 0) {
+    markForwardStage("transition");
     if (typeof pageIndex !== "number") {
       pageIndex = 0;
     }
@@ -1280,6 +1437,7 @@
   }
 
   function renderMaterialManagerDecision() {
+    markForwardStage("materialDecision");
     state.part = "materialDecision";
     state.decisionShown = true;
     participant.completed_lisa_john_interaction = "skipped";
@@ -1319,6 +1477,7 @@
   }
 
   async function renderLisaJohnChat() {
+    markForwardStage("lisaJohn");
     state.part = "lisaJohn";
     state.managerChatLocked = false;
     state.managerTurnActive = false;
@@ -1438,6 +1597,7 @@
   }
 
   function renderCompletionPage(message, neutralFollowupComplete, shouldRecord = true) {
+    markForwardStage("completion");
     state.part = "completion";
     if (neutralFollowupComplete) {
       participant.completed_neutral_manager_followup = "true";
@@ -1463,6 +1623,7 @@
   function handleCompletionNext() {
     recordInteraction("completion_page", "alex", "Next", "completed");
     if (completionRedirectUrl) {
+      allowStudyExit = true;
       window.location.href = completionRedirectUrl;
       return;
     }
@@ -1478,6 +1639,7 @@
   }
 
   async function renderNeutralManagerChat() {
+    markForwardStage("manager2");
     state.part = "manager2";
     state.neutralQuestionCount = 0;
     state.neutralDone = false;
@@ -1563,6 +1725,7 @@
   }
 
   function renderPostInteractionSurvey() {
+    markForwardStage("survey");
     state.part = "survey";
     state.surveyStartTime = timestamp();
     participant.completed_post_interaction_survey = "false";
@@ -1678,6 +1841,7 @@
   }
 
   function renderAiCheckPage() {
+    markForwardStage("ai_check");
     state.part = "ai_check";
     state.aiCheckStartTime = timestamp();
     participant.completed_ai_check = "false";
@@ -2260,6 +2424,120 @@
     return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
 
+  function installForwardOnlyNavigation() {
+    if (!window.history || !window.history.pushState || !window.history.replaceState) return;
+    reinforceForwardOnlyHistory();
+    window.addEventListener("popstate", () => {
+      try {
+        window.history.forward();
+      } catch (error) {
+        console.warn("Unable to force forward navigation.", error);
+      }
+      reinforceForwardOnlyHistory();
+      window.setTimeout(reinforceForwardOnlyHistory, 0);
+      window.setTimeout(() => {
+        try {
+          window.history.forward();
+        } catch (error) {
+          console.warn("Unable to force forward navigation.", error);
+        }
+      }, 20);
+      window.setTimeout(reinforceForwardOnlyHistory, 80);
+    });
+    window.addEventListener("pageshow", () => {
+      reinforceForwardOnlyHistory();
+    });
+  }
+
+  function reinforceForwardOnlyHistory() {
+    if (!window.history || !window.history.pushState || !window.history.replaceState) return;
+    const guardUrl = window.location.href;
+    const guardState = {
+      experimentForwardOnly: true,
+      stage: participant.forward_only_stage || state.part || "current",
+      timestamp: Date.now(),
+    };
+    try {
+      window.history.replaceState(guardState, "", guardUrl);
+      for (let index = 0; index < 6; index += 1) {
+        window.history.pushState(guardState, "", guardUrl);
+      }
+    } catch (error) {
+      console.warn("Unable to reinforce forward-only navigation guard.", error);
+    }
+  }
+
+  function markForwardStage(stage) {
+    if (!Object.prototype.hasOwnProperty.call(forwardStageOrder, stage)) return;
+    const currentStage = participant.forward_only_stage || "human_verification";
+    const currentRank = forwardStageOrder[currentStage] ?? 0;
+    const nextRank = forwardStageOrder[stage];
+    if (nextRank >= currentRank) {
+      participant.forward_only_stage = stage;
+      persistLocal();
+      reinforceForwardOnlyHistory();
+    }
+  }
+
+  function resumeStageFromStoredSession() {
+    const savedStage = storedSession.forward_only_stage || "";
+    const savedRank = forwardStageOrder[savedStage] ?? 0;
+    if (skipTo && hasRestorableChatTranscript(savedStage)) {
+      return savedStage;
+    }
+    if (skipTo) return "";
+    if (storedSession.completed_ai_check === "true" || storedSession.completion_status === "completed") {
+      return "completion";
+    }
+    if (storedSession.completed_post_interaction_survey === "true") {
+      return "ai_check";
+    }
+    if (
+      storedSession.completed_neutral_manager_followup === "true" ||
+      storedSession.completed_neutral_manager_followup === "skipped"
+    ) {
+      return "survey";
+    }
+    if (storedSession.completed_transition_page === "true" && savedRank <= forwardStageOrder.transition) {
+      return "materialDecision";
+    }
+    if (storedSession.completed_initial_manager_interaction === "true" && savedRank <= forwardStageOrder.manager1) {
+      return "transition";
+    }
+    if (storedSession.completed_prechat === "true" && savedRank <= forwardStageOrder.prechat) {
+      return "briefing";
+    }
+    if (savedStage && savedRank > 0) return savedStage;
+    return "";
+  }
+
+  function hasRestorableChatTranscript(stage) {
+    if (!["prechat", "manager1", "lisaJohn", "manager2"].includes(stage)) return false;
+    const stageNames = restoredChatStageNames(stage);
+    return interactionBackup.some((row) => row && stageNames.includes(row.stage) && row.message);
+  }
+
+  function renderResumeStage(stage) {
+    if (stage === "prechat_intro") return renderPreRoomIntro();
+    if (stage === "prechat") return renderRestoredChatRoom("prechat");
+    if (stage === "briefing") return renderBriefing();
+    if (stage === "manager1") return renderRestoredChatRoom("manager1");
+    if (stage === "transition") return renderTransition(0);
+    if (stage === "materialDecision") return renderMaterialManagerDecision();
+    if (stage === "lisaJohn") return renderRestoredChatRoom("lisaJohn");
+    if (stage === "manager2") return renderRestoredChatRoom("manager2");
+    if (stage === "survey") return renderPostInteractionSurvey();
+    if (stage === "ai_check") return renderAiCheckPage();
+    if (stage === "completion") {
+      return renderCompletionPage(
+        "You have completed this part of the interaction. Please click “Next” to proceed to the next page.",
+        participant.completed_neutral_manager_followup === "true",
+        false
+      );
+    }
+    return renderHumanVerification();
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, "&amp;")
@@ -2269,15 +2547,24 @@
       .replace(/'/g, "&#039;");
   }
 
-  window.addEventListener("beforeunload", () => {
+  window.addEventListener("beforeunload", (event) => {
     participant.experiment_end_time = timestamp();
     persistLocal();
     postJson("/participant", participant);
+    if (!allowStudyExit && participant.completion_status !== "completed") {
+      event.preventDefault();
+      event.returnValue = "";
+      return "";
+    }
+    return undefined;
   });
 
+  installForwardOnlyNavigation();
   saveParticipant();
-  const skipTo = (params.get("skip_to") || "").toLowerCase();
-  if (skipTo === "prechat") {
+  const resumeStage = resumeStageFromStoredSession();
+  if (resumeStage) {
+    renderResumeStage(resumeStage);
+  } else if (skipTo === "prechat") {
     renderPrechat();
   } else if (skipTo === "survey") {
     renderPostInteractionSurvey();
