@@ -2,7 +2,7 @@
 
 ## Purpose
 
-After the second manager interaction ends, the participant should complete a post-interaction survey.
+After the second manager interaction ends, or after the participant chooses not to enter the second manager interaction, the participant should complete a post-interaction survey.
 
 The survey should measure:
 
@@ -22,29 +22,28 @@ Do not show internal variable names such as `VF1`, `VQ1`, `MR1`, or `PR1` to par
 
 Do not reveal the assigned condition to participants.
 
-Do not reveal that the coworkers or the manager are AI-generated.
+Do not reveal that the manager is AI-generated.
 
 ## Placement in Experiment Flow
 
-This survey page should appear after the second manager interaction ends.
+This survey page should appear after the second manager interaction ends, or after the participant chooses not to enter the second manager interaction.
 
-The second manager interaction refers to the neutral manager follow-up interaction after the participant chooses to bring the new issue up with the manager.
+The second manager interaction refers to the neutral manager follow-up interaction after the participant chooses to discuss their thoughts about the off-season situation with the manager.
 
 The sequence should be:
 
 1. The participant completes the first manager interaction about the flexible labor proposal.
-2. The participant moves to the transition page.
-3. The participant enters the coworker interaction about the new issue.
-4. The participant decides whether to bring the new issue up with the manager.
-5. If the participant chooses yes, the participant enters the second manager interaction.
-6. After the second manager interaction ends, the post-interaction survey page appears.
-7. If the participant chooses no, the system should skip the second manager interaction and go directly to the post-interaction survey page.
-8. The participant completes all survey items.
-9. The participant proceeds to the AI-check page.
-10. The participant answers whether the manager and coworkers may have been AI.
-11. The participant proceeds to the completion page.
+2. The participant reads the additional materials about the theme park's off-season situation.
+3. The participant decides whether to discuss their thoughts about this situation with the manager.
+4. If the participant chooses yes, the participant enters the second manager interaction.
+5. After the second manager interaction ends, the post-interaction survey page appears.
+6. If the participant chooses no, the system should skip the second manager interaction and go directly to the post-interaction survey page.
+7. The participant completes all survey items.
+8. The participant proceeds to the AI-check page.
+9. The participant answers whether the manager may have been AI.
+10. The participant proceeds to the completion page.
 
-The survey must be completed by all participants who reach the end of the coworker interaction.
+The survey must be completed by all participants who reach the end of the materials decision.
 
 The survey should not depend on whether the participant chose to speak with the manager again.
 
@@ -623,7 +622,7 @@ I added a new file called 06_post_interaction_survey.md.
 
 Please reread AGENTS.md, 05_data_recording.md, and 06_post_interaction_survey.md.
 
-Then add a post-interaction survey page after the second manager interaction ends.
+Then add a post-interaction survey page after the second manager interaction ends, or after the participant chooses not to enter the second manager interaction.
 
 The survey should look like a Qualtrics-style 1-5 Likert matrix.
 

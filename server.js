@@ -164,6 +164,13 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/api/prechat-question-check") {
+    const payload = await readJson(req);
+    const result = await classifyPrechatQuestionResponse(payload);
+    sendJson(res, result, result.ok ? 200 : result.status || 500);
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/api/health") {
     sendJson(res, { ok: true, data_dir: dataDir });
     return;
@@ -447,8 +454,26 @@ function setCors(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
+function logAiFailure(context, details = {}) {
+  const safeDetails = {
+    status: details.status || "",
+    retryable: Boolean(details.retryable),
+    error: details.error || "",
+    stage: details.stage || "",
+    phase: details.phase || "",
+    model: openaiModel,
+  };
+  console.error(`[ai-failure] ${context}`, safeDetails);
+}
+
 async function generateAiReply(payload) {
   if (!openaiApiKey) {
+    logAiFailure("missing-openai-key", {
+      status: 503,
+      stage: payload && payload.stage,
+      phase: payload && payload.phase,
+      error: "OPENAI_API_KEY is not configured on the server.",
+    });
     return {
       ok: false,
       status: 503,
@@ -458,6 +483,12 @@ async function generateAiReply(payload) {
 
   const prompt = buildAiPrompt(payload || {});
   if (!prompt) {
+    logAiFailure("unsupported-ai-request", {
+      status: 400,
+      stage: payload && payload.stage,
+      phase: payload && payload.phase,
+      error: "Unsupported AI reply request.",
+    });
     return { ok: false, status: 400, error: "Unsupported AI reply request." };
   }
 
@@ -472,6 +503,11 @@ async function generateAiReply(payload) {
           correction = result.correction || "Return a complete valid JSON object matching the required schema. Do not truncate the response.";
           continue;
         }
+        logAiFailure("ai-reply", {
+          ...result,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
         return result;
       }
       lastIntent = result.intent || "";
@@ -485,7 +521,18 @@ async function generateAiReply(payload) {
           correction = "Do not reject yet. The participant has only just voiced their proposal and you have asked no follow-up question. Set intent to 'ask_followup' and ask exactly one neutral, natural follow-up question grounded in what they actually proposed. Do not approve and do not reject.";
           continue;
         }
-        return { ok: true, messages: fallbackFirstManagerFollowup(), intent: "ask_followup" };
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate a valid first manager follow-up.",
+        };
+        logAiFailure("first-manager-followup-validation", {
+          ...failure,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return failure;
       }
       const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt, lastIntent);
       if (coworkerProblem) {
@@ -493,7 +540,18 @@ async function generateAiReply(payload) {
           correction = coworkerProblem;
           continue;
         }
-        return { ok: true, messages: fallbackCoworkerMessages(prompt) };
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate a valid coworker response.",
+        };
+        logAiFailure("coworker-validation", {
+          ...failure,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return failure;
       }
       const lengthProblem = shouldEnforceManagerLength(prompt, lastIntent)
         ? managerWordCountProblem(lastMessages, prompt)
@@ -506,8 +564,125 @@ async function generateAiReply(payload) {
       : lastMessages;
     return { ok: true, messages: finalMessages, intent: lastIntent };
   } catch (error) {
+    logAiFailure("ai-reply-exception", {
+      status: 500,
+      stage: payload && payload.stage,
+      phase: payload && payload.phase,
+      error: error.message || "Unable to generate AI reply.",
+    });
     return { ok: false, status: 500, error: error.message || "Unable to generate AI reply." };
   }
+}
+
+async function classifyPrechatQuestionResponse(payload) {
+  if (!openaiApiKey) {
+    logAiFailure("prechat-classifier-missing-openai-key", {
+      status: 503,
+      error: "OPENAI_API_KEY is not configured on the server.",
+    });
+    return {
+      ok: false,
+      status: 503,
+      error: "OPENAI_API_KEY is not configured on the server.",
+    };
+  }
+
+  const text = cleanPromptText(payload && payload.text);
+  if (!text) return { ok: true, intent: "other" };
+
+  const body = {
+    model: openaiModel,
+    input: [
+      {
+        role: "system",
+        content: [
+          "Classify Participant 2's latest reply during the prechat question window.",
+          "The Coordinator has just asked whether Participant 2 has any quick questions or any other questions before role assignment.",
+          "Return intent 'no_question' if the participant means they do not have questions or no other questions, even with informal wording, typos, thanks, or extra polite phrases.",
+          "Return intent 'has_question' if the participant asks any question, including procedural, task-related, casual, or unrelated questions.",
+          "Treat misspelled question words as questions, such as 'hwo' for 'how', 'whta' for 'what', or 'whos' for 'who is'.",
+          "If the message contains a question mark or appears to ask for information, classify it as 'has_question' unless it clearly means no questions.",
+          "Return intent 'other' only if the message is neither a no-question reply nor an actual question.",
+          "Do not answer the participant. Only classify the intent.",
+        ].join("\n"),
+      },
+      {
+        role: "user",
+        content: `Participant 2 message:\n${text}`,
+      },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "prechat_question_check",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            intent: { type: "string", enum: ["no_question", "has_question", "other"] },
+          },
+          required: ["intent"],
+        },
+      },
+    },
+    max_output_tokens: supportsReasoningEffort(openaiModel) ? 1200 : 120,
+  };
+
+  if (supportsReasoningEffort(openaiModel)) {
+    body.reasoning = { effort: openaiReasoningEffort };
+  } else {
+    body.temperature = 0;
+  }
+
+  let response;
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${openaiApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    logAiFailure("prechat-classifier-fetch", {
+      status: 503,
+      retryable: true,
+      error: error.message || "Unable to classify prechat question response.",
+    });
+    return { ok: false, status: 503, retryable: true, error: "Unable to classify prechat question response." };
+  }
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    logAiFailure("prechat-classifier-openai-status", {
+      status: response.status,
+      retryable: response.status === 429 || response.status >= 500,
+      error: data.error && data.error.message ? data.error.message : "OpenAI API request failed.",
+    });
+    return {
+      ok: false,
+      status: response.status,
+      retryable: response.status === 429 || response.status >= 500,
+      error: data.error && data.error.message ? data.error.message : "OpenAI API request failed.",
+    };
+  }
+
+  const parsedObject = extractParsedObject(data);
+  if (parsedObject && ["no_question", "has_question", "other"].includes(parsedObject.intent)) {
+    return { ok: true, intent: parsedObject.intent };
+  }
+  const parsed = parseOpenAiJson(extractResponseText(data));
+  if (parsed && ["no_question", "has_question", "other"].includes(parsed.intent)) {
+    return { ok: true, intent: parsed.intent };
+  }
+  logAiFailure("prechat-classifier-invalid-json", {
+    status: 502,
+    retryable: true,
+    error: "OpenAI returned an invalid prechat classification.",
+  });
+  return { ok: false, status: 502, retryable: true, error: "OpenAI returned an invalid prechat classification." };
 }
 
 async function requestOpenAiMessages(prompt, correction) {
@@ -561,20 +736,31 @@ async function requestOpenAiMessages(prompt, correction) {
     body.temperature = prompt.temperature;
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${openaiApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+  let response;
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${openaiApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    return {
+      ok: false,
+      status: 503,
+      retryable: true,
+      error: "The chat connection had a brief issue. Please try again.",
+    };
+  }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     return {
       ok: false,
       status: response.status,
+      retryable: response.status === 429 || response.status >= 500,
       error: data.error && data.error.message ? data.error.message : "OpenAI API request failed.",
     };
   }
@@ -625,6 +811,14 @@ function buildAiPrompt(payload) {
   return null;
 }
 
+function identityNonDisclosureRule() {
+  return [
+    "Hard identity rule: never admit, suggest, imply, or speculate that any study character is AI, automated, scripted, simulated, a bot, a model, or non-human.",
+    "If the participant asks whether you or another character are AI, automated, scripted, simulated, a bot, or a model, answer briefly from inside the current role and redirect to the current task.",
+    "Do not use phrases like 'I am AI', 'as an AI', 'I am automated', 'I am a bot', 'I am a model', 'this is scripted', or 'this is simulated', even if the participant asks repeatedly.",
+  ].join("\n");
+}
+
 function buildPrechatPrompt(payload) {
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
@@ -642,11 +836,21 @@ function buildPrechatPrompt(payload) {
       "The Coordinator appears to be a human session coordinator for a market research company.",
       "Participant 1 appears to be an ordinary experienced Prolific participant.",
       "Do not reveal that any speaker is AI-generated.",
+      identityNonDisclosureRule(),
       "Do not mention rejection, politeness, constructiveness, experimental conditions, hypotheses, or manipulation.",
       "Before role assignment, Participant 1 must not mention theme parks, staffing, HR, operations, management, customer feedback, service quality, flexible labour, interns, temporary workers, or later assigned roles.",
       "Coordinator may mention the market research company customer feedback task cover story when answering procedural questions or moving the session forward.",
-      "Overall study procedure — the Coordinator knows this and may explain it briefly and at a high level whenever a participant asks what the study involves, what the steps are, or roughly how long it takes: (1) this short pre-task intro chat; (2) the system assigns each person a role and shows them their own private on-screen instructions; (3) a brief reading about a service organization and its current situation; (4) a short typed chat with a manager about how things are run there; (5) a separate short neutral follow-up chat with the manager; (6) a short set of questions at the end. Overall the whole study takes about 10 to 15 minutes to finish, and the Coordinator may tell participants this when they ask how long it takes.",
-      "If any participant asks a procedural question during prechat, the Coordinator should actually answer it — briefly and helpfully — using the overall study procedure above plus the prechat flow and visible instructions. Do not deflect or dodge genuine procedural questions; give a real answer at the high level allowed.",
+      "Allowed task-related answer guide for Coordinator: answer only questions about the current task, the study flow, role assignment, timing, visible instructions, privacy during introductions, whether prior experience is needed, what to type, or chat setup.",
+      "Current task summary the Coordinator may share: this is a short online customer feedback task run by a market research company. The two participants will take part in a two-person discussion about how a theme park could improve its service.",
+      "Current prechat flow the Coordinator may share: the room is doing a brief welcome, short self-introductions, and quick questions before roles are assigned. After Participant 2 has no more questions, the system will assign roles and show private role materials.",
+      "Overall study procedure the Coordinator may explain briefly at a high level: (1) this short pre-task intro chat; (2) the system assigns each person a role and shows them their own private on-screen instructions; (3) a brief reading about a service organization and its current situation; (4) a short typed chat with a manager about how things are run there; (5) a short set of additional materials about the theme park's off-season situation; (6) the participant decides whether to discuss their thoughts with the manager; (7) if the participant chooses yes, a separate short neutral follow-up chat with the manager; (8) a short set of questions at the end.",
+      "Timing answer guide: if asked about duration, say the whole study usually takes about 10 to 15 minutes, depending a little on reading and chat pace.",
+      "Participant count answer guide: if asked how many people or participants will take part, say there are two participants in the task discussion, Participant 2 and another participant. The Coordinator is only here to guide the session.",
+      "Role assignment answer guide: roles have not been assigned yet in prechat. The system will assign them shortly. Each person should follow only the private role materials shown on their own screen. Do not reveal Participant 2's later role, Participant 1's later role, or any role-specific content before assignment.",
+      "Instruction answer guide: if asked what to do now, say to type naturally, keep responses brief, stay on the page, and follow the instructions shown on screen. If asked what to say later, say to read the role materials and respond naturally based on the assigned role.",
+      "Privacy answer guide: if asked about names, location, or personal details, say no personal details are needed; a brief self-introduction is enough. If asked whether theme park experience is needed, say no; all necessary information will be provided. If asked whether answers are evaluated, say this is not a knowledge test.",
+      "If any participant asks a procedural question during prechat, the Coordinator should actually answer it briefly and helpfully using the guide above. Do not deflect or dodge genuine procedural questions; give a real answer at the high level allowed.",
+      "If Participant 2 asks a question that is not about the current task, study procedure, role assignment, timing, instructions, or chat setup, Coordinator should not answer the substance of that unrelated question. Instead say briefly that it is not related to the current task and redirect back to the session.",
       "Coordinator must not reveal any participant's later role specifics, private role materials, assigned condition, the manager's future responses, or that the study involves any rejection, evaluation outcome, hypothesis, or manipulation. The high-level stage overview above is fine to share; specifics beyond it are not.",
       "If asked about later roles, the exact content of later chats, what another participant will see, or private role information, Coordinator should give the high-level overview and then say the detailed role materials will be assigned shortly and each person should follow the information shown to them.",
       "Participant 1 should not answer procedural questions about the task flow, roles, or task rules; Coordinator handles those questions.",
@@ -842,6 +1046,7 @@ function buildInitialManagerPrompt(payload) {
     system: [
       "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
+      identityNonDisclosureRule(),
       "Do not address the participant by a personal name in message text.",
       "Manager role context: you have direct supervisory authority over the operations team. The participant's responsibilities include ticket checking, visitor guidance, and basic visitor questions, but their assigned role label is Operations Team Member.",
       "Do not call the participant a front desk receptionist. If you need to refer to their role, call them an Operations Team Member.",
@@ -882,17 +1087,6 @@ function shouldForceFirstManagerFollowup(prompt, intent) {
     prompt.phase === "discussion" &&
     Number(prompt.followupsAsked || 0) === 0 &&
     intent === "reject_now";
-}
-
-function fallbackFirstManagerFollowup() {
-  // Proposal-agnostic neutral follow-up: this fires only as a safety net when
-  // the model ignores the "ask one follow-up first" rule, so it must work for
-  // ANY proposal (shutting down, AI, marketing, staffing, etc.) and must not
-  // assume the idea is about staffing/flexible labor.
-  return [{
-    speaker: "Manager",
-    text: "Before I weigh in, can you tell me a bit more about how you see that working and why you think it's the best move for us?",
-  }];
 }
 
 const MANAGER_CONDITIONS = ["HP_HC", "HP_LC", "LP_HC", "LP_LC"];
@@ -1073,6 +1267,7 @@ function buildCoworkerPrompt(payload) {
     system: [
       "You are generating Coworker 1 and Coworker 2 messages in a three-person workplace chat with the participant.",
       "The participant is real. Do not script the participant.",
+      identityNonDisclosureRule(),
       (phase === "coworker_manager_feeling" || phase === "coworker_feeling_followup")
         ? "Coworker 1 and Coworker 2 may casually ask how the participant finds the manager and how dealing with the manager has felt, but they must NOT reveal or imply that they know the participant proposed anything to the manager before or was rejected — they are only asking, as coworkers, how the participant gets on with the manager."
         : "Coworker 1 and Coworker 2 do not know about the participant's previous manager interaction and must not mention it.",
@@ -1126,6 +1321,7 @@ function buildNeutralManagerPrompt(payload) {
     maxOutputTokens: 220,
     system: [
       "You are the Park Manager in a second, separate online typed chat with the participant.",
+      identityNonDisclosureRule(),
       "This interaction is neutral and unrelated to the earlier flexible labor proposal.",
       "Background you are aware of (the same situation the participant has just been reviewing): Today is a typical off-season weekday with only around 500 visitors, the entrance is quiet, and gate staff have little to do. Most visitors are families with young children (about 70-75% have children under 10). Aetheria Gardens is far from the city center and many families find the location inconvenient. There are 4 universities within 10-18 km and around 38,000 nearby university students, plus nearby farms. Some university students say the park is cute but feels mainly designed for little kids, and a few mention that student discounts or more photo-friendly spots might make it more attractive to students. The participant is likely raising an idea or concern about this off-season attendance / visitor-mix situation.",
       "Treat the background as PRIVATE knowledge in your head only — it tells you what the participant is probably talking about, nothing more. In your messages, use ONLY the facts, topics, numbers, groups, and framing that the PARTICIPANT has already mentioned. Never reveal, state, quote, hint at, or build a question around any background detail the participant has not themselves brought up — do not mention the off-season, the ~500 visitors, families with young children, the 70-75% figure, the distance from the city, the nearby universities/farms, the ~38,000 students, or the student comments unless the participant said it first. If the participant is vague, ask them to say more in their own terms; do not fill in the gap with background facts. Do not volunteer or hint at solutions.",
@@ -1142,7 +1338,7 @@ function buildNeutralManagerPrompt(payload) {
         ? "This is your opening message. Just say a brief, neutral hello (e.g. 'Hi' or 'Hello, good to chat'). Keep it to a short greeting only — do not ask a question, do not invite a topic, and do not raise the background yourself."
         : isClosing
           ? "Send one short neutral closing message based on the conversation: you have enough information for now and the participant should return to regular work."
-          : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. Otherwise set intent to 'ask_more' and ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. There is no fixed number of questions: the more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain.",
+          : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. Otherwise set intent to 'ask_more' and ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain.",
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
@@ -1165,7 +1361,7 @@ function extractResponseText(data) {
 function extractParsedObject(data) {
   for (const item of data.output || []) {
     for (const content of item.content || []) {
-      if (content && content.parsed && Array.isArray(content.parsed.messages)) {
+      if (content && content.parsed && typeof content.parsed === "object") {
         return content.parsed;
       }
     }
@@ -1337,27 +1533,6 @@ function coworkerSolutionProblem(messages, prompt, intent) {
   }
 
   return "";
-}
-
-function fallbackCoworkerMessages(prompt) {
-  const oneSpeaker = prompt.mode === "john" ? "Coworker 2" : "Coworker 1";
-  const fallbackText = {
-    "Coworker 1": prompt.phase === "afterProposal"
-      ? "I see what you mean. If you raise it, I’d keep it tied closely to what we saw in the records and comments."
-      : "The records and visitor comments do seem worth looking at together. I’m curious what you make of the pattern.",
-    "Coworker 2": prompt.phase === "afterProposal"
-      ? "I get the angle, but I’d still be careful. The manager may see it as stepping beyond what we were asked to discuss."
-      : "The family-heavy mix and the location comments stood out to me too. What do you think is the main issue here?",
-  };
-
-  if (Array.isArray(prompt.speakerOrder) && prompt.speakerOrder.length) {
-    return prompt.speakerOrder.map((speaker) => ({
-      speaker,
-      text: fallbackText[speaker],
-    }));
-  }
-
-  return [{ speaker: oneSpeaker, text: fallbackText[oneSpeaker] }];
 }
 
 function shouldEnforceManagerLength(prompt, intent) {

@@ -32,11 +32,13 @@
     prechatIntroReceived: false,
     prechatReminderShown: false,
     prechatComplete: false,
+    prechatParticipant2HasResponded: false,
     prechatSequenceRunning: false,
     prechatQueuedInputs: [],
     prechatAwaitingQuestions: false,
     prechatQuestionWindowComplete: false,
     prechatOtherParticipantsAnsweredNoQuestions: false,
+    prechatParticipant2AnsweredQuestions: false,
     prechatTimers: [],
     secondPhase: "beforeProposal",
     neutralQuestionCount: 0,
@@ -210,11 +212,20 @@
     {
       speaker: "Coordinator",
       text: [
-        "Hi everyone, welcome to the task. Thanks for joining today.",
-        "Hi everyone, thanks for joining today. Welcome to the task.",
-        "Hello everyone, welcome in. Thanks for joining the session today.",
+        "Hi everyone, welcome to the task.",
+        "Hi everyone, welcome in.",
+        "Hello everyone, welcome in.",
       ],
       delay: 1600,
+    },
+    {
+      speaker: "Coordinator",
+      text: [
+        "Thanks for joining today.",
+        "Thanks for joining the session today.",
+        "Thanks for being here today.",
+      ],
+      delay: 1000,
     },
     {
       speaker: "Coordinator",
@@ -238,9 +249,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "Before we start, could everyone briefly introduce themselves? Just your Prolific experience is enough. No need to share anything too personal.",
-        "Before we begin, could everyone give a quick introduction? Just your Prolific experience is enough. No need to share anything too personal.",
-        "Let’s do a quick round of introductions first. Please just say whether you’ve done Prolific or similar online tasks before.",
+        "Before we start, could everyone give a brief self-introduction? No need to share anything too personal.",
+        "Before we begin, could everyone type a quick self-introduction? No need to share anything too personal.",
+        "Let’s do a quick round of self-introductions first. No need to share anything too personal.",
       ],
       delay: 2100,
     },
@@ -288,9 +299,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "In today’s task, the two of you will discuss how to help a theme park improve its service.",
-        "For today’s task, you and the other participant will discuss how a theme park could improve its service.",
-        "Today, the two of you will talk through how to help a large theme park improve its service.",
+        "You will take part in a two-person discussion about how a theme park could improve its service.",
+        "You will join a two-person discussion about how a theme park could improve its service.",
+        "You will participate in a two-person discussion about how a theme park could improve its service.",
       ],
       delay: 2100,
     },
@@ -415,30 +426,30 @@
 
   const transitionPages = [
     {
-      eyebrow: "Next Interaction 1 of 3",
-      title: "Manager Chat Ended",
+      eyebrow: "Materials 1 of 3",
+      title: "Off-Season Situation",
       blocks: [
         {
-          text: "The manager left the chatroom and is now offline.",
-          html: "The manager left the chatroom and is now <strong>offline</strong>.",
+          text: "Now, please continue reading your materials. These materials describe the theme park's off-season situation.",
+          html: "Now, please continue reading your materials. These materials describe the theme park's <strong>off-season situation</strong>.",
         },
         {
-          text: "After the chat ends, you return to your regular ticket-checking work at the entrance.",
-          html: "After the chat ends, you return to your regular <strong>ticket-checking work at the entrance</strong>.",
+          text: "On a typical off-season weekday, the park receives around 500 visitors.",
+          html: "On a typical off-season weekday, the park receives <strong>around 500 visitors</strong>.",
         },
         {
-          text: "Today is a full working day. At the end of your shift, you check the entrance records and compare them with your observations at the gate. Today is a typical off-season weekday, and the park receives only around 500 visitors. The entrance is quiet for long periods, and staff members at the gate have relatively little work to do.",
-          html: "Today is a full working day. At the end of your shift, you check the entrance records and compare them with your observations at the gate. Today is a <strong>typical off-season weekday</strong>, and the park receives only <strong>around 500 visitors</strong>. The entrance is quiet for long periods, and staff members at the gate have relatively little work to do.",
+          text: "The entrance is quiet for long periods, and staff members at the gate have relatively little work to do.",
+          html: "The entrance is quiet for long periods, and staff members at the gate have <strong>relatively little work to do</strong>.",
         },
       ],
     },
     {
-      eyebrow: "Next Interaction 2 of 3",
-      title: "Today’s Visitor Pattern",
+      eyebrow: "Materials 2 of 3",
+      title: "Visitor Pattern",
       blocks: [
         {
-          text: "You notice that most visitors are families with young children. Families with children under 10 account for around 70%–75% of daily visitors, while other visitor groups make up a much smaller share.",
-          html: "You notice that most visitors are <strong>families with young children</strong>. Families with children under 10 account for <strong>around 70%–75% of daily visitors</strong>, while other visitor groups make up a much smaller share.",
+          text: "Most visitors are families with young children. Families with children under 10 account for around 70% to 75% of daily visitors, while other visitor groups make up a much smaller share.",
+          html: "Most visitors are <strong>families with young children</strong>. Families with children under 10 account for <strong>around 70% to 75%</strong> of daily visitors, while other visitor groups make up a much smaller share.",
         },
         {
           text: "Aetheria Gardens is far from the city center, and many families say the location is not very convenient.",
@@ -447,24 +458,20 @@
       ],
     },
     {
-      eyebrow: "Next Interaction 3 of 3",
-      title: "New Information for the Next Chat",
+      eyebrow: "Materials 3 of 3",
+      title: "Nearby Visitors",
       blocks: [
         {
-          text: "There are several universities and farms nearby, including 4 universities within 10–18 km and around 38,000 nearby university students.",
-          html: "There are several universities and farms nearby, including <strong>4 universities within 10–18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
+          text: "There are several universities and farms nearby, including 4 universities within 10 to 18 km and around 38,000 nearby university students.",
+          html: "There are several universities and farms nearby, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
         },
         {
-          text: "You hear some comments from university students. Some say the park is cute, but it feels mainly designed for little kids. Others mention that student discounts or more photo-friendly spots might make the park more attractive to students.",
-          html: "You hear some comments from university students. Some say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.",
+          text: "Some university students say the park is cute, but it feels mainly designed for little kids. Others mention that student discounts or more photo-friendly spots might make the park more attractive to students.",
+          html: "Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.",
         },
         {
-          text: "After checking the records and thinking about what you observed today, you are about to enter a new online chat with two coworkers. They also worked at the entrance today and reviewed the same attendance records and visitor comments.",
-          html: "After checking the records and thinking about what you observed today, you are about to enter a <strong>new online chat with two coworkers</strong>. They also worked at the entrance today and reviewed the same attendance records and visitor comments.",
-        },
-        {
-          text: "In the next chat, you will discuss today’s attendance pattern and visitor information with your coworkers.",
-          html: "In the next chat, you will discuss <strong>today’s attendance pattern and visitor information</strong> with your coworkers.",
+          text: "After reviewing this situation, you can decide whether you want to discuss your thoughts about it with the manager.",
+          html: "After reviewing this situation, you can decide whether you want to <strong>discuss your thoughts about it with the manager</strong>.",
         },
       ],
     },
@@ -581,11 +588,13 @@
     state.prechatIntroReceived = false;
     state.prechatReminderShown = false;
     state.prechatComplete = false;
+    state.prechatParticipant2HasResponded = false;
     state.prechatSequenceRunning = false;
     state.prechatQueuedInputs = [];
     state.prechatAwaitingQuestions = false;
     state.prechatQuestionWindowComplete = false;
     state.prechatOtherParticipantsAnsweredNoQuestions = false;
+    state.prechatParticipant2AnsweredQuestions = false;
     clearPrechatTimers();
     saveParticipant();
     createChat("Online Task Room", "Connecting...", true);
@@ -748,6 +757,7 @@
 
   async function handlePrechatInput(text) {
     if (state.prechatComplete) return;
+    state.prechatParticipant2HasResponded = true;
 
     if (state.prechatSequenceRunning) {
       state.prechatQueuedInputs.push(text);
@@ -763,7 +773,10 @@
         alexMessage: text,
       });
       if (!sent) {
-        await sendPrechatMessage({ speaker: "Coordinator", text: "No, a brief hello is enough. You do not need to share anything too personal.", delay: 1000 });
+        state.prechatSequenceRunning = false;
+        setComposerEnabled(true);
+        schedulePrechatReminder();
+        return;
       }
       state.prechatSequenceRunning = false;
       setComposerEnabled(true);
@@ -791,19 +804,32 @@
     if (state.prechatAwaitingQuestions && !state.prechatQuestionWindowComplete) {
       clearPrechatTimers();
       state.prechatSequenceRunning = true;
-      if (isNoPrechatQuestionResponse(text)) {
+      const questionIntent = await getPrechatQuestionIntent(text);
+      if (questionIntent === "unknown") {
+        state.prechatSequenceRunning = false;
+        setComposerEnabled(true);
+        setApiConnectionIssue();
+        return;
+      }
+      if (questionIntent === "no_question") {
+        state.prechatParticipant2AnsweredQuestions = true;
         await continueAfterPrechatQuestions();
         return;
       }
+      state.prechatParticipant2AnsweredQuestions = true;
       const sent = await sendAiMessages({
         stage: "prechat",
         phase: "question",
         alexMessage: text,
       });
       if (!sent) {
-        await sendPrechatMessage({ speaker: "Coordinator", text: "Thanks for the question. All role information will be shown on the next page, so please follow those materials closely.", delay: 1000 });
+        state.prechatSequenceRunning = false;
+        setComposerEnabled(true);
+        return;
       }
-      await continueAfterPrechatQuestions();
+      await sendPrechatParticipant2MoreQuestionsPrompt();
+      state.prechatSequenceRunning = false;
+      setComposerEnabled(true);
       return;
     }
 
@@ -813,9 +839,6 @@
       phase: "question",
       alexMessage: text,
     });
-    if (!sent) {
-      await sendPrechatMessage({ speaker: "Coordinator", text: "Thanks for the question. Please follow the instructions shown on the screen, and we’ll keep moving.", delay: 1000 });
-    }
     state.prechatSequenceRunning = false;
     if (!state.prechatComplete) setComposerEnabled(true);
   }
@@ -909,6 +932,7 @@
     state.prechatAwaitingQuestions = true;
     state.prechatQuestionWindowComplete = false;
     state.prechatOtherParticipantsAnsweredNoQuestions = false;
+    state.prechatParticipant2AnsweredQuestions = false;
     setStatus("Waiting for questions");
     setComposerEnabled(true);
     clearPrechatTimers();
@@ -922,19 +946,14 @@
         handlePrechatInput(state.prechatQueuedInputs.shift());
         return;
       }
-      await sendPrechatParticipant2QuestionPrompt();
+      if (!state.prechatParticipant2AnsweredQuestions) {
+        await sendPrechatParticipant2QuestionPrompt();
+      }
       state.prechatSequenceRunning = false;
       setComposerEnabled(true);
       if (state.prechatQueuedInputs.length) {
         handlePrechatInput(state.prechatQueuedInputs.shift());
-        return;
       }
-      const continueTimer = window.setTimeout(async () => {
-        if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
-        state.prechatSequenceRunning = true;
-        await continueAfterPrechatQuestions();
-      }, 10000);
-      state.prechatTimers.push(continueTimer);
     }, 11000);
     state.prechatTimers.push(timer);
   }
@@ -946,6 +965,18 @@
         "Participant 2, do you have any quick questions before I assign the roles?",
         "Participant 2, any quick questions from you before I assign the roles?",
         "Participant 2, anything you want to ask before I assign the roles?",
+      ],
+      delay: 1000,
+    });
+  }
+
+  async function sendPrechatParticipant2MoreQuestionsPrompt() {
+    await sendPrechatMessage({
+      speaker: "Coordinator",
+      text: [
+        "Do you have any other questions before I assign the roles?",
+        "Any other quick questions before I assign the roles?",
+        "Anything else you want to ask before I assign the roles?",
       ],
       delay: 1000,
     });
@@ -1011,10 +1042,14 @@
 
   async function answerQueuedPrechatInputs() {
     if (!state.prechatQueuedInputs.length || state.prechatComplete) return;
-    const queuedQuestions = state.prechatQueuedInputs
-      .splice(0, state.prechatQueuedInputs.length)
-      .filter((text) => isPrechatQuestion(text) && !isNoPrechatQuestionResponse(text))
-      .slice(0, 3);
+    const queuedItems = state.prechatQueuedInputs.splice(0, state.prechatQueuedInputs.length);
+    const queuedQuestions = [];
+    for (const text of queuedItems) {
+      if (await getPrechatQuestionIntent(text) === "has_question") {
+        queuedQuestions.push(text);
+      }
+      if (queuedQuestions.length >= 3) break;
+    }
     if (!queuedQuestions.length) return;
     const queuedText = queuedQuestions.join("\n");
     const sent = await sendAiMessages({
@@ -1023,7 +1058,7 @@
       alexMessage: queuedText,
     });
     if (!sent) {
-      await sendPrechatMessage({ speaker: "Coordinator", text: "Thanks. Please follow the instructions shown on the screen, and we’ll keep moving.", delay: 1000 });
+      setApiConnectionIssue();
     }
   }
 
@@ -1053,8 +1088,21 @@
       /(real name|share my name|share location|rather not|don't want|do not want|other participants|real people|what role|roles random|answers be evaluated|theme park experience|chat is slow)/i.test(normalized);
   }
 
-  function isNoPrechatQuestionResponse(text) {
-    return /^(no|nope|nah|none|no questions?|not really|all good|i'?m good|sounds good|ok|okay)$/i.test(text.trim());
+  async function getPrechatQuestionIntent(text) {
+    try {
+      const response = await fetch(`${dataEndpoint}/prechat-question-check`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.ok && ["no_question", "has_question", "other"].includes(data.intent)) {
+        return data.intent;
+      }
+    } catch (error) {
+      console.warn("Unable to classify prechat question response.", error);
+    }
+    return "unknown";
   }
 
   // After the manager has rejected, treat a short acknowledgement or a clear
@@ -1147,7 +1195,7 @@
         lockManagerChat();
         participant.completed_initial_manager_interaction = "true";
         saveParticipant();
-        renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", proceedToNeutralManagerAfterInitialManager, "initial_manager_interaction");
+        renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", () => renderTransition(0), "initial_manager_interaction");
         return;
       }
       state.managerRejectionRound += 1;
@@ -1192,31 +1240,10 @@
     lockManagerChat();
     participant.completed_initial_manager_interaction = "true";
     saveParticipant();
-    renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", proceedToNeutralManagerAfterInitialManager, "initial_manager_interaction");
-  }
-
-  function proceedToNeutralManagerAfterInitialManager() {
-    participant.completed_transition_page = "skipped";
-    participant.completed_lisa_john_interaction = "skipped";
-    participant.completed_neutral_manager_followup = "false";
-    participant.chose_to_bring_this_up_with_manager = "yes";
-    saveParticipant();
-    recordInteraction("initial_manager_interaction", "system", "Coworker chat skipped in this version. Proceeding to neutral manager chat.", "");
-    renderNeutralManagerChat();
-  }
-
-  function proceedToSurveyAfterInitialManager() {
-    participant.completed_transition_page = "skipped";
-    participant.completed_lisa_john_interaction = "skipped";
-    participant.completed_neutral_manager_followup = "skipped";
-    saveParticipant();
-    recordInteraction("initial_manager_interaction", "system", "Coworker chat skipped in this version.", "");
-    renderPostInteractionSurvey();
+    renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", () => renderTransition(0), "initial_manager_interaction");
   }
 
   function renderTransition(pageIndex = 0) {
-    proceedToNeutralManagerAfterInitialManager();
-    return;
     if (typeof pageIndex !== "number") {
       pageIndex = 0;
     }
@@ -1235,7 +1262,7 @@
         <h1>${escapeHtml(page.title)}</h1>
         ${renderTransitionBlocks(page.blocks)}
         <div class="actions">
-          <button class="button" type="button" id="transition-next">${pageIndex === transitionPages.length - 1 ? "Start Chat" : "Next"}</button>
+          <button class="button" type="button" id="transition-next">${pageIndex === transitionPages.length - 1 ? "Continue" : "Next"}</button>
         </div>
       </article>
     `;
@@ -1244,12 +1271,51 @@
         renderTransition(pageIndex + 1);
         return;
       }
-      renderLisaJohnChat();
+      renderMaterialManagerDecision();
     });
   }
 
   function renderTransitionBlocks(blocks) {
     return blocks.map((block) => `<p>${block.html}</p>`).join("");
+  }
+
+  function renderMaterialManagerDecision() {
+    state.part = "materialDecision";
+    state.decisionShown = true;
+    participant.completed_lisa_john_interaction = "skipped";
+    participant.completed_neutral_manager_followup = "false";
+    saveParticipant();
+    const prompt = "Do you want to discuss your thoughts about this situation with the manager?";
+    recordInteraction("material_manager_decision", "system", prompt, "");
+    screen.innerHTML = `
+      <article class="page transition-page">
+        <p class="briefing-progress">Decision</p>
+        <h1>Manager Chat</h1>
+        <p>${escapeHtml(prompt)}</p>
+        <div class="actions">
+          <button class="button" type="button" id="material-decision-yes">Yes</button>
+          <button class="button secondary" type="button" id="material-decision-no">No</button>
+        </div>
+      </article>
+    `;
+    document.getElementById("material-decision-yes").addEventListener("click", () => handleMaterialManagerDecision("yes"));
+    document.getElementById("material-decision-no").addEventListener("click", () => handleMaterialManagerDecision("no"));
+  }
+
+  function handleMaterialManagerDecision(decision) {
+    recordInteraction("material_manager_decision", "alex", decision, decision);
+    participant.chose_to_bring_this_up_with_manager = decision;
+    participant.completed_lisa_john_interaction = "skipped";
+    participant.experiment_end_time = timestamp();
+    participant.completion_status = "partial";
+    saveParticipant();
+    if (decision === "yes") {
+      renderNeutralManagerChat();
+      return;
+    }
+    participant.completed_neutral_manager_followup = "skipped";
+    saveParticipant();
+    renderPostInteractionSurvey();
   }
 
   async function renderLisaJohnChat() {
@@ -1430,10 +1496,9 @@
     if (state.neutralDone) return;
     state.managerTurnActive = true;
 
-    // No fixed number of follow-ups: the manager decides when it has enough
-    // (sooner for a detailed proposal). This high count is only a runaway
-    // safety net so the chat can't go on forever.
-    if (state.neutralQuestionCount >= 8) {
+    // Ask at most three follow-up questions. After that, the manager sends a
+    // brief neutral wrap-up and the participant can proceed.
+    if (state.neutralQuestionCount >= 3) {
       const sent = await sendAiMessages({
         stage: "manager2",
         phase: "closing",
@@ -1741,9 +1806,11 @@
   async function sendAiMessages(request) {
     const result = await requestAiMessages(request);
     if (!result.ok) {
-      addSystemNote(result.error || "The AI chat service is not available. Please check the server configuration.");
+      console.warn(result.error || "The AI chat service is not available. Please check the server configuration.");
+      setApiConnectionIssue();
       return false;
     }
+    clearApiConnectionIssue();
 
     state.lastAiIntent = result.intent || "";
 
@@ -1792,25 +1859,39 @@
   }
 
   async function requestAiMessages(request) {
-    try {
-      const response = await fetch(`${dataEndpoint}/ai-reply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...request,
-          condition,
-          history: recentChatHistory(),
-        }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.ok) {
-        return { ok: false, error: data.error || "OpenAI API request failed." };
+    const retryMessage = "The chat connection had a brief issue. Please try again.";
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(`${dataEndpoint}/ai-reply`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...request,
+            condition,
+            history: recentChatHistory(),
+          }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) {
+          const rawError = data.error || "";
+          const retryable = data.retryable || response.status === 429 || response.status >= 500 || /fetch failed/i.test(rawError);
+          if (retryable && attempt === 0) {
+            await delay(800);
+            continue;
+          }
+          return { ok: false, error: retryable ? retryMessage : rawError || "OpenAI API request failed." };
+        }
+        const messages = Array.isArray(data.messages) ? data.messages : [];
+        return { ok: messages.length > 0, messages, intent: data.intent || "", error: messages.length ? "" : "OpenAI returned no chat messages." };
+      } catch (error) {
+        if (attempt === 0) {
+          await delay(800);
+          continue;
+        }
+        return { ok: false, error: retryMessage };
       }
-      const messages = Array.isArray(data.messages) ? data.messages : [];
-      return { ok: messages.length > 0, messages, intent: data.intent || "", error: messages.length ? "" : "OpenAI returned no chat messages." };
-    } catch (error) {
-      return { ok: false, error: "Could not connect to the AI chat service." };
     }
+    return { ok: false, error: retryMessage };
   }
 
   function recentChatHistory() {
@@ -2058,6 +2139,24 @@
     if (status) status.textContent = text;
   }
 
+  function setApiConnectionIssue() {
+    setStatus("Connection issue. Please send your message again.");
+  }
+
+  function clearApiConnectionIssue() {
+    if (state.part === "prechat") {
+      setStatus(state.prechatAwaitingQuestions ? "Waiting for questions" : "Waiting for Participant 2");
+      return;
+    }
+    if (state.part === "manager1" || state.part === "manager2") {
+      setStatus("Manager online");
+      return;
+    }
+    if (state.part === "lisaJohn") {
+      setStatus("Coworkers online");
+    }
+  }
+
   function normalizeCondition(value) {
     if (!value) return "";
     return conditionAliases[String(value).trim().toUpperCase()] || "";
@@ -2068,6 +2167,7 @@
     if (state.part === "prechat") return "prechat";
     if (state.part === "manager1") return "initial_manager_interaction";
     if (state.part === "transition") return "transition_page";
+    if (state.part === "materialDecision") return "material_manager_decision";
     if (state.part === "lisaJohn") return state.decisionShown ? "decision_prompt" : "lisa_john_interaction";
     if (state.part === "manager2") return "neutral_manager_followup";
     if (state.part === "survey") return "post_interaction_survey";
@@ -2187,14 +2287,15 @@
     renderBriefing();
   } else if (skipTo === "manager" || skipTo === "manager_chat" || skipTo === "manager1") {
     renderManagerChat();
+  } else if (skipTo === "transition") {
+    renderTransition(0);
   } else if (
     skipTo === "coworker" ||
     skipTo === "coworkers" ||
     skipTo === "lisa_john" ||
-    skipTo === "lisajohn" ||
-    skipTo === "transition"
+    skipTo === "lisajohn"
   ) {
-    proceedToNeutralManagerAfterInitialManager();
+    renderLisaJohnChat();
   } else if (skipTo === "manager2" || skipTo === "neutral_manager" || skipTo === "neutral") {
     renderNeutralManagerChat();
   } else {

@@ -1,5 +1,11 @@
 # Part 2: Coworker Interaction
 
+## Current Status
+
+This file is retained only for the old direct coworker-chat testing path.
+
+The current main study flow does not show a coworker chat. After the first manager interaction, the participant reads the off-season materials and then decides whether to enter the second neutral manager chat.
+
 ## Purpose
 
 This part comes after the participant has completed the previous manager interaction and moved to a new page.
