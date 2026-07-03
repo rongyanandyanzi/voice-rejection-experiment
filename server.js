@@ -20,6 +20,7 @@ const participantColumns = [
   "prolific_pid",
   "study_id",
   "session_id",
+  "language",
   "assigned_condition",
   "condition_source",
   "experiment_start_time",
@@ -47,6 +48,7 @@ const interactionColumns = [
   "prolific_pid",
   "study_id",
   "session_id",
+  "language",
   "assigned_condition",
   "stage",
   "speaker",
@@ -105,6 +107,7 @@ const surveyResponseColumns = [
   "prolific_pid",
   "study_id",
   "session_id",
+  "language",
   "assigned_condition",
   "condition_source",
   "survey_start_time",
@@ -608,6 +611,7 @@ async function classifyPrechatQuestionResponse(payload) {
 
   const text = cleanPromptText(payload && payload.text);
   if (!text) return { ok: true, intent: "other" };
+  const language = normalizeLanguage(payload && payload.language);
 
   const body = {
     model: openaiModel,
@@ -620,6 +624,9 @@ async function classifyPrechatQuestionResponse(payload) {
           "Return intent 'no_question' if the participant means they do not have questions or no other questions, even with informal wording, typos, thanks, or extra polite phrases.",
           "Return intent 'has_question' if the participant asks any question, including procedural, task-related, casual, or unrelated questions.",
           "Treat misspelled question words as questions, such as 'hwo' for 'how', 'whta' for 'what', or 'whos' for 'who is'.",
+          language === "zh"
+            ? "The participant may write in Simplified Chinese. Treat Chinese replies such as 没问题, 没有问题, 没有其他问题, 不用了, 不需要, 暂时没有, 没了, 没 as 'no_question'. Treat Chinese information-seeking messages with words such as 什么, 为什么, 怎么, 如何, 多久, 多长, 多少, 几个人, 谁, 哪里, 能不能, 可不可以, 是否, 需要, 角色, 任务, 流程, 时间, or punctuation 吗/？ as 'has_question' unless they clearly mean no questions."
+            : "",
           "If the message contains a question mark or appears to ask for information, classify it as 'has_question' unless it clearly means no questions.",
           "Return intent 'other' only if the message is neither a no-question reply nor an actual question.",
           "Do not answer the participant. Only classify the intent.",
@@ -830,6 +837,26 @@ function buildAiPrompt(payload) {
   return null;
 }
 
+function normalizeLanguage(value) {
+  const key = String(value || "").trim().toLowerCase();
+  return key === "zh" || key === "cn" || key === "zh-cn" || key === "chinese" ? "zh" : "en";
+}
+
+function outputLanguageInstruction(language) {
+  if (normalizeLanguage(language) !== "zh") {
+    return "Output all visible chat message text in English.";
+  }
+  return [
+    "Output all visible chat message text in natural Simplified Chinese.",
+    "Keep the JSON speaker field values exactly as the allowed English labels, such as Coordinator, Participant 1, Manager, Coworker 1, and Coworker 2.",
+    "Only translate the message text. Do not translate JSON keys or speaker labels.",
+    "Use concise, everyday Chinese that sounds like a real typed chat, not translated English.",
+    "Avoid stiff translationese such as 进行回应, 该情境, 此任务, or overly formal academic wording. Prefer natural phrases like 回复, 这个情况, 这个任务, 我这边, and 你这边 when they fit.",
+    "Do not include English unless it is a proper noun already used in the study, such as Aetheria Gardens.",
+    "In Chinese output, refer to Prolific as 见数. Do not write the English word Prolific in visible Chinese chat text.",
+  ].join("\n");
+}
+
 function identityNonDisclosureRule() {
   return [
     "Hard identity rule: never admit, suggest, imply, or speculate that any study character is AI, automated, scripted, simulated, a bot, a model, or non-human.",
@@ -842,6 +869,7 @@ function buildPrechatPrompt(payload) {
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
   const phase = String(payload.phase || "question");
+  const language = normalizeLanguage(payload.language);
 
   return {
     speakers: ["Coordinator", "Participant 1"],
@@ -852,6 +880,7 @@ function buildPrechatPrompt(payload) {
     system: [
       "You are generating messages for the pre-task live online task room before role assignment.",
       "The real participant is currently labelled Participant 2. Do not call them by any personal name yet.",
+      outputLanguageInstruction(language),
       "The Coordinator appears to be a human session coordinator for a market research company.",
       "Participant 1 appears to be an ordinary experienced Prolific participant.",
       "Do not reveal that any speaker is AI-generated.",
@@ -887,7 +916,9 @@ function buildPrechatPrompt(payload) {
       "All AI-played participants must sound clearly experienced with Prolific. Do not describe their experience as only 'quite a few', 'a fair number', 'a good number', 'a couple', or 'not many' Prolific studies. Prefer 'many', 'a lot', 'extensive experience', or 'experienced Prolific participant'.",
       "Use concise natural chat. Coordinator should keep the session moving. Participants should not volunteer age, full name, location, exact city, marital status, children, or job title unless directly asked.",
       phase === "intro_response"
-        ? "Participants 1 and 2 have both completed their introductions. Return exactly one brief Coordinator message that addresses the whole group, not Participant 2 alone. Start with 'Great, everyone' or very similar wording, such as 'Great, everyone, thanks for the introductions.' Do not say 'glad to have you here', do not single out Participant 2, do not invite more introductions, do not ask follow-up questions, do not over-disclose, and do not start the task explanation yet."
+        ? (language === "zh"
+          ? "Participants 1 and 2 have both completed their introductions. Return exactly one brief Coordinator message in Chinese that addresses the whole group, not Participant 2 alone. Start with wording similar to '很好，大家...' or '好的，大家...'. Do not single out Participant 2, do not invite more introductions, do not ask follow-up questions, do not over-disclose, and do not start the task explanation yet."
+          : "Participants 1 and 2 have both completed their introductions. Return exactly one brief Coordinator message that addresses the whole group, not Participant 2 alone. Start with 'Great, everyone' or very similar wording, such as 'Great, everyone, thanks for the introductions.' Do not say 'glad to have you here', do not single out Participant 2, do not invite more introductions, do not ask follow-up questions, do not over-disclose, and do not start the task explanation yet.")
         : "Participant 2 has asked or typed something during prechat. Return one or two brief natural responses, usually from Coordinator unless the question is clearly directed to Participant 1.",
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
@@ -900,6 +931,7 @@ function buildInitialManagerPrompt(payload) {
   const condition = normalizeManagerCondition(payload.condition);
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
+  const language = normalizeLanguage(payload.language);
   const rules = managerConditionRules();
   const conditionRule = rules[condition];
   if (!conditionRule) {
@@ -1070,11 +1102,16 @@ function buildInitialManagerPrompt(payload) {
     system: [
       "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
+      outputLanguageInstruction(language),
       identityNonDisclosureRule(),
       "Do not address the participant by a personal name in message text.",
       "Manager role context: you have direct supervisory authority over the operations team. The participant's responsibilities include ticket checking, visitor guidance, and basic visitor questions, but their assigned role label is Operations Team Member.",
       "Do not call the participant a front desk receptionist. If you need to refer to their role, call them an Operations Team Member.",
-      phase === "opening" ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives after the online task ends. End by asking: Based on the information you receive, what do you think the theme park should do next?" : "",
+      phase === "opening"
+        ? (language === "zh"
+          ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives after the online task ends. End by asking in Chinese: 根据你收到的信息，你认为主题公园下一步应该怎么做？"
+          : "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives after the online task ends. End by asking: Based on the information you receive, what do you think the theme park should do next?")
+        : "",
       phase !== "opening" ? "Park background: Aetheria Gardens relies almost exclusively on full-time permanent staff, creating a labor seesaw — surplus idle staff in the off-season (around 500 visitors per day) and staff shortages at peak times (around 5,000 visitors per day). The participant may raise a suggestion about how the park is run — often about the staffing approach, but it could be any kind of change." : "",
       "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
       "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
@@ -1094,6 +1131,9 @@ function buildInitialManagerPrompt(payload) {
         ? (intentEnum
           ? `Length rule: when intent is 'reject_now', each Manager rejection message must be ${wordRange.min}-${wordRange.max} words to keep the four experimental conditions within 5% word-count difference. For 'awaiting_proposal' and 'ask_followup', keep the single message short and natural, roughly 12-26 words.`
           : `Strict length rule: every Manager message must be ${wordRange.min}-${wordRange.max} words. This is required to keep the four experimental conditions within 5% word-count difference.`)
+        : "",
+      language === "zh" && wordRange
+        ? "For Chinese output, keep each Manager message about the same visible length as the English version. For a 28-32 word rule, use roughly 48-56 Chinese characters. For shorter rules, use a similarly compact one-message length."
         : "",
       task,
       "Return only JSON matching the required schema.",
@@ -1194,6 +1234,7 @@ function buildCoworkerPrompt(payload) {
   const phase = String(payload.phase || "beforeProposal");
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
+  const language = normalizeLanguage(payload.language);
   const turn = Number(payload.turn || 0);
   const requestedMode = String(payload.mode || "auto");
   const speakerInstruction = coworkerSpeakerInstruction(requestedMode);
@@ -1292,6 +1333,7 @@ function buildCoworkerPrompt(payload) {
     system: [
       "You are generating Coworker 1 and Coworker 2 messages in a three-person workplace chat with the participant.",
       "The participant is real. Do not script the participant.",
+      outputLanguageInstruction(language),
       identityNonDisclosureRule(),
       (phase === "coworker_manager_feeling" || phase === "coworker_feeling_followup")
         ? "Coworker 1 and Coworker 2 may casually ask how the participant finds the manager and how dealing with the manager has felt, but they must NOT reveal or imply that they know the participant proposed anything to the manager before or was rejected — they are only asking, as coworkers, how the participant gets on with the manager."
@@ -1333,6 +1375,7 @@ function coworkerSpeakerOrder(mode) {
 function buildNeutralManagerPrompt(payload) {
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
+  const language = normalizeLanguage(payload.language);
   const phase = String(payload.phase || "question");
   const isClosing = phase === "closing";
   const isOpening = phase === "opening";
@@ -1346,6 +1389,7 @@ function buildNeutralManagerPrompt(payload) {
     maxOutputTokens: 220,
     system: [
       "You are the Park Manager in a second, separate online typed chat with the participant.",
+      outputLanguageInstruction(language),
       identityNonDisclosureRule(),
       "This interaction is neutral and unrelated to the earlier flexible labor proposal.",
       "Background you are aware of (the same situation the participant has just been reviewing): Today is a typical off-season weekday with only around 500 visitors, the entrance is quiet, and gate staff have little to do. Most visitors are families with young children (about 70-75% have children under 10). Aetheria Gardens is far from the city center and many families find the location inconvenient. There are 4 universities within 10-18 km and around 38,000 nearby university students, plus nearby farms. Some university students say the park is cute but feels mainly designed for little kids, and a few mention that student discounts or more photo-friendly spots might make it more attractive to students. The participant is likely raising an idea or concern about this off-season attendance / visitor-mix situation.",
@@ -1615,14 +1659,33 @@ function enforceManagerWordRange(message, prompt) {
 }
 
 function wordCount(text) {
-  return String(text || "").trim().split(/\s+/).filter(Boolean).length;
+  const raw = String(text || "").trim();
+  if (!raw) return 0;
+  const cjkMatches = raw.match(/[\u3400-\u9fff]/g) || [];
+  if (cjkMatches.length) {
+    const withoutCjk = raw.replace(/[\u3400-\u9fff]/g, " ");
+    const latinWords = withoutCjk.split(/\s+/).filter(Boolean).length;
+    return Math.ceil(cjkMatches.length / 1.75) + latinWords;
+  }
+  return raw.split(/\s+/).filter(Boolean).length;
 }
 
 function truncateWords(text, maxWords) {
-  const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+  const raw = String(text || "").trim();
+  if (/[\u3400-\u9fff]/.test(raw)) {
+    return truncateCjkText(raw, maxWords);
+  }
+  const words = raw.split(/\s+/).filter(Boolean);
   if (words.length <= maxWords) return words.join(" ");
   const truncated = words.slice(0, maxWords).join(" ").replace(/[,:;–-]$/, "");
   return /[.!?]$/.test(truncated) ? truncated : `${truncated}.`;
+}
+
+function truncateCjkText(text, maxWords) {
+  const maxChars = Math.max(12, Math.floor(Number(maxWords || 0) * 1.75));
+  if (text.length <= maxChars) return text;
+  const truncated = text.slice(0, maxChars).replace(/[，、；：,;:\s]+$/, "");
+  return /[。！？.!?]$/.test(truncated) ? truncated : `${truncated}。`;
 }
 
 function isRevisionPlanningQuestion(sentence) {

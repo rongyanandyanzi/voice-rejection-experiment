@@ -21,6 +21,8 @@
   const sessionKey = `voice-rejection:${ids.prolific_pid}:${ids.study_id}:${ids.session_id}`;
   const storedSession = readStoredSession();
   const skipTo = (params.get("skip_to") || "").toLowerCase();
+  const language = normalizeLanguage(params.get("lang") || storedSession.language || "en");
+  const isChinese = language === "zh";
   const requestedCondition = normalizeCondition(params.get("condition"));
   const condition = requestedCondition || storedSession.assigned_condition || pick(conditionLabels);
   const conditionSource = requestedCondition ? "url" : (storedSession.condition_source || "random_assignment");
@@ -107,16 +109,19 @@
     john_ai_suspicion: storedSession.john_ai_suspicion || "",
     completion_status: storedSession.completion_status || "partial",
     forward_only_stage: storedSession.forward_only_stage || "human_verification",
+    language,
   };
   const interactionBackup = Array.isArray(storedSession.interactions) ? storedSession.interactions : [];
 
-  const likertOptions = [
-    "Strongly disagree",
-    "Disagree",
-    "Neither agree nor disagree",
-    "Agree",
-    "Strongly agree",
-  ];
+  const likertOptions = isChinese
+    ? ["非常不同意", "不同意", "既不同意也不反对", "同意", "非常同意"]
+    : [
+        "Strongly disagree",
+        "Disagree",
+        "Neither agree nor disagree",
+        "Agree",
+        "Strongly agree",
+      ];
   const surveySections = [
     {
       title: "Future Communication Intentions",
@@ -219,6 +224,7 @@
       ],
     },
   ];
+  localizeSurveySections();
 
   const surveyItemIds = surveySections.flatMap((section) => getSectionItems(section).map((item) => item.id));
 
@@ -493,6 +499,7 @@
       ],
     },
   ];
+  localizeStudyMaterials();
 
   let messagesEl = null;
   let composerEl = null;
@@ -509,13 +516,13 @@
 
     screen.innerHTML = `
       <article class="page">
-        <h1>Quick Verification</h1>
-        <p>Please complete this quick check before entering the task.</p>
+        <h1>${escapeHtml(inZh("Quick Verification", "快速确认"))}</h1>
+        <p>${escapeHtml(inZh("Please complete this quick check before entering the task.", "进入任务前，请先完成这个小检查。"))}</p>
         <form id="human-check-form" class="human-check" novalidate>
-          <label for="human-check-answer">What is ${humanCheckNumbers[0]} + ${humanCheckNumbers[1]}?</label>
+          <label for="human-check-answer">${escapeHtml(inZh(`What is ${humanCheckNumbers[0]} + ${humanCheckNumbers[1]}?`, `${humanCheckNumbers[0]} + ${humanCheckNumbers[1]} 等于多少？`))}</label>
           <div class="human-check-row">
             <input id="human-check-answer" name="human_check_answer" inputmode="numeric" autocomplete="off" required>
-            <button class="button" type="submit">Continue</button>
+            <button class="button" type="submit">${escapeHtml(inZh("Continue", "继续"))}</button>
           </div>
           <p class="validation-message" id="human-check-validation" aria-live="polite"></p>
         </form>
@@ -532,7 +539,7 @@
     const answer = (form.elements.human_check_answer.value || "").trim();
 
     if (answer !== state.humanCheckAnswer) {
-      validation.textContent = "Please check your answer and try again.";
+      validation.textContent = inZh("Please check your answer and try again.", "请检查答案后再试一次。");
       recordInteraction("human_verification", "system", "Quick verification answer was incorrect.", "");
       return;
     }
@@ -549,30 +556,29 @@
     saveParticipant();
     screen.innerHTML = `
       <article class="page">
-        <h1>Online Customer Feedback Task</h1>
-        <p>Thanks for taking part in this online customer feedback task.</p>
-        <p>This session is run by a market research company that helps clients review customer feedback and improve service experiences.</p>
-        <p>You will now enter an online task room with another participant. A session coordinator will welcome the group and explain what to do.</p>
-        <p>During the task, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.</p>
-        <p>Please stay on the page during the interaction and respond naturally in the chat.</p>
+        <h1>${escapeHtml(inZh("Online Customer Feedback Task", "任务介绍"))}</h1>
+        <p>${escapeHtml(inZh("Thanks for taking part in this online customer feedback task.", "感谢你参与本次在线任务。本次任务由一家市场调研公司组织，该公司专注于通过分析顾客反馈，帮助客户改进运营与服务体验。"))}</p>
+        <p>${escapeHtml(inZh("You will now enter an online task room with another participant. A session coordinator will welcome the group and explain what to do.", "接下来，你将和另一位参与者一起进入在线聊天室。任务协调员会欢迎大家，并说明具体的任务内容。"))}</p>
+        <p>${escapeHtml(inZh("During the task, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.", "任务过程中，你需要阅读一段简短的情境介绍，查看与你的角色相关的材料，并参与讨论。"))}</p>
+        <p>${escapeHtml(inZh("Please stay on the page during the interaction and respond naturally in the chat.", "任务期间请保持停留在本页面，不要关闭窗口。"))}</p>
         <form id="pre-room-check-form" class="comprehension-check" novalidate>
           <fieldset>
-            <legend>What is this online task mainly about?</legend>
+            <legend>${escapeHtml(inZh("What is this online task mainly about?", "这个在线任务主要关于什么？"))}</legend>
             <div class="choice-list">
               <label class="choice-option">
                 <input type="radio" name="pre_room_check" value="customer_feedback">
-                Reviewing customer feedback and service improvement issues
+                ${escapeHtml(inZh("Reviewing customer feedback and service improvement issues", "了解顾客反馈和服务改进问题"))}
               </label>
               <label class="choice-option">
                 <input type="radio" name="pre_room_check" value="personal_profile">
-                Sharing detailed personal background information
+                ${escapeHtml(inZh("Sharing detailed personal background information", "分享详细的个人背景信息"))}
               </label>
             </div>
           </fieldset>
           <p class="check-error" id="pre-room-check-error" aria-live="polite"></p>
-          <p>Click “Continue” when you are ready to enter the online task room.</p>
+          <p>${escapeHtml(inZh("Click “Continue” when you are ready to enter the online task room.", "准备好进入在线聊天室后，请点击“继续”。"))}</p>
           <div class="actions">
-            <button class="button" type="submit" id="enter-prechat">Continue</button>
+            <button class="button" type="submit" id="enter-prechat">${escapeHtml(inZh("Continue", "继续"))}</button>
           </div>
         </form>
       </article>
@@ -587,12 +593,12 @@
     const selected = form.elements.pre_room_check.value;
 
     if (!selected) {
-      error.textContent = "Please choose one answer before continuing.";
+      error.textContent = inZh("Please choose one answer before continuing.", "请先选择一个答案。");
       return;
     }
 
     if (selected !== "customer_feedback") {
-      error.textContent = "Please review the information above and try again.";
+      error.textContent = inZh("Please review the information above and try again.", "请再看一下上面的信息，然后重新作答。");
       recordInteraction("prechat_intro", "system", "Pre-room task check answer was incorrect.", "");
       return;
     }
@@ -617,13 +623,13 @@
     state.prechatParticipant2AnsweredQuestions = false;
     clearPrechatTimers();
     saveParticipant();
-    createChat("Online Task Room", "Connecting...", true);
+    createChat(inZh("Online Task Room", "在线聊天室"), inZh("Connecting...", "正在连接..."), true);
     setComposerEnabled(true);
     state.prechatSequenceRunning = true;
     await runPrechatSequence(prechatBeforeIntro);
     state.prechatSequenceRunning = false;
     state.prechatAwaitingIntro = true;
-    setStatus("Waiting for Participant 2");
+    setStatus(inZh("Waiting for Participant 2", "等待参与者2"));
     setComposerEnabled(true);
     if (state.prechatQueuedInputs.length) {
       handlePrechatInput(state.prechatQueuedInputs.shift());
@@ -657,7 +663,7 @@
           </fieldset>
           <p class="check-error" id="briefing-check-error" aria-live="polite"></p>
           <div class="actions">
-            <button class="button" type="submit">${pageIndex === briefingPages.length - 1 ? "Start Chat" : "Next"}</button>
+            <button class="button" type="submit">${escapeHtml(pageIndex === briefingPages.length - 1 ? inZh("Start Chat", "开始聊天") : inZh("Next", "下一步"))}</button>
           </div>
         </form>
       </article>
@@ -683,11 +689,11 @@
     const error = document.getElementById("briefing-check-error");
     const selected = form.querySelector('input[name="briefing-check"]:checked');
     if (!selected) {
-      error.textContent = "Please choose one answer before continuing.";
+      error.textContent = inZh("Please choose one answer before continuing.", "请先选择一个答案。");
       return;
     }
     if (selected.value !== page.check.correct) {
-      error.textContent = "Please review the information above and try again.";
+      error.textContent = inZh("Please review the information above and try again.", "请再看一下上面的信息，然后重新作答。");
       return;
     }
     if (pageIndex < briefingPages.length - 1) {
@@ -710,11 +716,11 @@
     clearManagerExitPromptTimer();
     state.lastAiIntent = "";
     saveParticipant();
-    createChat("Manager Chat", "Manager online", true);
+    createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     state.managerTurnActive = true;
-    await sendDelayed("Manager", "manager", "Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", null, { opening: true });
-    await sendDelayed("Manager", "manager", "That evaluation may affect your compensation after the task.", null, { opening: true });
-    await sendDelayed("Manager", "manager", "Based on the information you receive, what do you think the theme park should do next?", null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh("Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", "你好，这次在线任务中，我的角色是公园经理。我会评估你作为运营团队成员的表现。"), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh("That evaluation may affect your compensation after the task.", "这项评估可能会影响你完成任务后的报酬。"), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh("Based on the information you receive, what do you think the theme park should do next?", "根据你收到的信息，你认为主题公园接下来应该怎么做？"), null, { opening: true });
     finishManagerTurn();
   }
 
@@ -727,8 +733,8 @@
         </header>
         <div class="messages" id="messages" aria-live="polite"></div>
         <form class="composer" id="composer">
-          <textarea id="chat-input" rows="2" placeholder="Type your message..." ${canType ? "" : "disabled"}></textarea>
-          <button class="button" type="submit" ${canType ? "" : "disabled"}>Send</button>
+          <textarea id="chat-input" rows="2" placeholder="${escapeHtml(inZh("Type your message...", "请输入你的消息..."))}" ${canType ? "" : "disabled"}></textarea>
+          <button class="button" type="submit" ${canType ? "" : "disabled"}>${escapeHtml(inZh("Send", "发送"))}</button>
         </form>
       </section>
     `;
@@ -741,20 +747,23 @@
   function renderRestoredChatRoom(stage) {
     const chatMeta = restoredChatMeta(stage);
     state.part = stage;
-    createChat(chatMeta.title, "Chat restored after refresh", false);
+    createChat(chatMeta.title, inZh("Chat restored after refresh", "刷新后已恢复聊天记录"), false);
     if (inputEl) {
-      inputEl.placeholder = "Chat restored after refresh";
+      inputEl.placeholder = inZh("Chat restored after refresh", "刷新后已恢复聊天记录");
     }
-    const restoreMessage = "Please continue from the current task room. Your previous chat messages are shown below.";
+    const restoreMessage = inZh(
+      "Please continue from the current task room. Your previous chat messages are shown below.",
+      "请继续留在当前聊天室。你之前的聊天记录显示在下方。"
+    );
     showRestoreModal(restoreMessage, () => {
       setStatus(restoredChatStatus(stage));
-      if (inputEl) inputEl.placeholder = "Type your message...";
+      if (inputEl) inputEl.placeholder = inZh("Type your message...", "请输入你的消息...");
       setComposerEnabled(true);
     });
     addRestoredNotice(restoreMessage);
     const rows = restoredChatRows(stage);
     if (!rows.length) {
-      addRestoredNotice("No previous chat messages were found for this task room.");
+      addRestoredNotice(inZh("No previous chat messages were found for this task room.", "没有找到这个聊天室之前的聊天记录。"));
       return;
     }
     rows.forEach(addRestoredChatRow);
@@ -762,17 +771,17 @@
   }
 
   function restoredChatMeta(stage) {
-    if (stage === "prechat") return { title: "Online Task Room" };
-    if (stage === "manager1" || stage === "manager2") return { title: "Manager Chat" };
-    if (stage === "lisaJohn") return { title: "Coworker Chat" };
-    return { title: "Chat Room" };
+    if (stage === "prechat") return { title: inZh("Online Task Room", "在线聊天室") };
+    if (stage === "manager1" || stage === "manager2") return { title: inZh("Manager Chat", "经理聊天室") };
+    if (stage === "lisaJohn") return { title: inZh("Coworker Chat", "同事聊天室") };
+    return { title: inZh("Chat Room", "聊天室") };
   }
 
   function restoredChatStatus(stage) {
-    if (stage === "prechat") return "Waiting for Participant 2";
-    if (stage === "manager1" || stage === "manager2") return "Manager online";
-    if (stage === "lisaJohn") return "Coworkers online";
-    return "Online";
+    if (stage === "prechat") return inZh("Waiting for Participant 2", "等待参与者2");
+    if (stage === "manager1" || stage === "manager2") return inZh("Manager online", "经理在线");
+    if (stage === "lisaJohn") return inZh("Coworkers online", "同事在线");
+    return inZh("Online", "在线");
   }
 
   function restoredChatStageNames(stage) {
@@ -807,9 +816,9 @@
     backdrop.setAttribute("aria-labelledby", "restore-modal-title");
     backdrop.innerHTML = `
       <div class="restore-modal">
-        <h2 id="restore-modal-title">Chat Restored</h2>
+        <h2 id="restore-modal-title">${escapeHtml(inZh("Chat Restored", "聊天记录已恢复"))}</h2>
         <p>${escapeHtml(text)}</p>
-        <button class="button" type="button" id="restore-modal-continue">Continue</button>
+        <button class="button" type="button" id="restore-modal-continue">${escapeHtml(inZh("Continue", "继续"))}</button>
       </div>
     `;
     document.body.appendChild(backdrop);
@@ -838,7 +847,7 @@
     messageRow.dataset.message = message;
     messageRow.innerHTML = `
       <div class="bubble">
-        <span class="speaker">${escapeHtml(speaker)}</span>
+        <span class="speaker">${escapeHtml(displaySpeakerName(speaker))}</span>
         <span>${escapeHtml(message)}</span>
       </div>
     `;
@@ -936,7 +945,7 @@
       state.prechatAwaitingIntro = false;
       clearPrechatTimers();
       state.prechatSequenceRunning = true;
-      await sendPrechatMessage({ speaker: "Coordinator", text: "Great, everyone. We’ll keep moving.", delay: 1200 });
+      await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Great, everyone. We’ll keep moving.", "好的，大家都介绍完了。我们继续。"), delay: 1200 });
       await runPrechatSequence(prechatAfterIntro);
       await answerQueuedPrechatInputs();
       state.prechatSequenceRunning = false;
@@ -1055,12 +1064,12 @@
     const reminder = window.setTimeout(async () => {
       if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
       state.prechatReminderShown = true;
-      await sendPrechatMessage({ speaker: "Coordinator", text: "Participant 2, could you please type a quick hello so we know your chat is working?", delay: 500 });
+      await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Participant 2, could you please type a quick hello so we know your chat is working?", "参与者2，可以简单打个招呼吗？这样我们确认你的聊天窗口可以正常使用。"), delay: 500 });
       const continueTimer = window.setTimeout(async () => {
         if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
         state.prechatAwaitingIntro = false;
         state.prechatSequenceRunning = true;
-        await sendPrechatMessage({ speaker: "Coordinator", text: "No problem, we’ll continue so the session does not get held up.", delay: 1200 });
+        await sendPrechatMessage({ speaker: "Coordinator", text: inZh("No problem, we’ll continue so the session does not get held up.", "没关系，为了不耽误大家时间，我们继续。"), delay: 1200 });
         await runPrechatSequence(prechatAfterIntro);
         await answerQueuedPrechatInputs();
         state.prechatSequenceRunning = false;
@@ -1076,7 +1085,7 @@
     state.prechatQuestionWindowComplete = false;
     state.prechatOtherParticipantsAnsweredNoQuestions = false;
     state.prechatParticipant2AnsweredQuestions = false;
-    setStatus("Waiting for questions");
+    setStatus(inZh("Waiting for questions", "等待提问"));
     setComposerEnabled(true);
     clearPrechatTimers();
     const participant1Timer = window.setTimeout(async () => {
@@ -1118,9 +1127,9 @@
     await sendPrechatMessage({
       speaker: "Coordinator",
       text: [
-        "Participant 2, do you have any quick questions before I assign the roles?",
-        "Participant 2, any quick questions from you before I assign the roles?",
-        "Participant 2, anything you want to ask before I assign the roles?",
+        inZh("Participant 2, do you have any quick questions before I assign the roles?", "参与者2，分配角色前，你有什么问题吗？"),
+        inZh("Participant 2, any quick questions from you before I assign the roles?", "参与者2，分配角色前，你这边有什么问题吗？"),
+        inZh("Participant 2, anything you want to ask before I assign the roles?", "参与者2，在我分配角色之前，有什么想问的吗？"),
       ],
       delay: 1000,
     });
@@ -1130,9 +1139,9 @@
     await sendPrechatMessage({
       speaker: "Coordinator",
       text: [
-        "Do you have any other questions before I assign the roles?",
-        "Any other quick questions before I assign the roles?",
-        "Anything else you want to ask before I assign the roles?",
+        inZh("Do you have any other questions before I assign the roles?", "分配角色前，你还有其他问题吗？"),
+        inZh("Any other quick questions before I assign the roles?", "分配角色前，还有别的问题吗？"),
+        inZh("Anything else you want to ask before I assign the roles?", "分配角色前，还有什么想问的吗？"),
       ],
       delay: 1000,
     });
@@ -1141,9 +1150,9 @@
   async function sendPrechatNoQuestionMessages() {
     const options = {
       "Participant 1": [
-        "No questions from me.",
-        "Nothing from me at the moment.",
-        "No questions on my side.",
+        inZh("No questions from me.", "我没有问题。"),
+        inZh("Nothing from me at the moment.", "我这边暂时没有问题。"),
+        inZh("No questions on my side.", "我这边没有问题。"),
       ],
     };
     for (const speaker of shuffled(["Participant 1"], "prechatNoQuestions")) {
@@ -1156,9 +1165,9 @@
     await sendPrechatMessage({
       speaker: "Coordinator",
       text: [
-        "No problem, I’ll assign the roles now.",
-        "Okay, I’ll go ahead and assign the roles now.",
-        "That’s fine. I’ll continue with the role assignment now.",
+        inZh("No problem, I’ll assign the roles now.", "好的，那我现在分配角色。"),
+        inZh("Okay, I’ll go ahead and assign the roles now.", "好的，我现在开始分配角色。"),
+        inZh("That’s fine. I’ll continue with the role assignment now.", "好的，那我们进入角色分配。"),
       ],
       delay: 1000,
     });
@@ -1182,11 +1191,11 @@
     state.prechatSequenceRunning = false;
     state.prechatComplete = true;
     clearPrechatTimers();
-    setStatus("Role materials ready");
+    setStatus(inZh("Role materials ready", "角色材料已准备好"));
     setComposerEnabled(false);
     participant.completed_prechat = "true";
     saveParticipant();
-    renderNextAction("Please click “Next” when you are ready to continue to your individual role materials.", renderBriefing, "prechat");
+    renderNextAction(inZh("Please click “Next” when you are ready to continue to your individual role materials.", "准备好查看你的角色材料后，请点击“下一步”。"), renderBriefing, "prechat");
   }
 
   function clearPrechatTimers() {
@@ -1240,7 +1249,9 @@
   function isPrechatQuestion(text) {
     const normalized = text.trim().toLowerCase();
     return /\?$/.test(normalized) ||
+      /[？吗呢]$/.test(normalized) ||
       /^(do|what|why|are|is|will|should|can|could|am|who|where|how)\b/.test(normalized) ||
+      /(什么|为什么|怎么|如何|多久|多长|多少|几个人|几位|谁|哪里|能不能|可不可以|是否|需要|角色|任务|流程|时间|问题|真人|真实|名字|地点|经验)/.test(normalized) ||
       /(real name|share my name|share location|rather not|don't want|do not want|other participants|real people|what role|roles random|answers be evaluated|theme park experience|chat is slow)/i.test(normalized);
   }
 
@@ -1249,7 +1260,7 @@
       const response = await fetch(`${dataEndpoint}/prechat-question-check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, language }),
       });
       const data = await response.json().catch(() => ({}));
       if (response.ok && data.ok && ["no_question", "has_question", "other"].includes(data.intent)) {
@@ -1270,7 +1281,9 @@
     const wordCount = t.split(/\s+/).filter(Boolean).length;
     const ackStart = /^(ok|okay|k|kk|fine|alright|all ?right|sure|got it|gotcha|understood|i understand|i see|noted|fair|fair enough|no problem|np|makes sense|i get it|thanks|thank you|cheers|ok thanks)\b/.test(t);
     const closure = /(nothing else|that'?s all|that is all|no more|no further questions?|i'?ll think about it|i will think about it|i'?ll revise|leave it|forget it|never ?mind|that'?s fine)/.test(t);
-    return (ackStart && wordCount <= 6) || closure;
+    const chineseAck = /^(好的|好|行|可以|明白|知道了|了解|收到|没问题|谢谢|谢谢你|可以了|行吧)$/.test(t);
+    const chineseClosure = /(没有了|没了|没问题了|没其他问题|不用了|就这样|先这样|我会考虑|我想想|算了|可以结束|结束吧)/.test(t);
+    return (ackStart && wordCount <= 6) || closure || chineseAck || chineseClosure;
   }
 
   async function handleManagerInput(text) {
@@ -1346,12 +1359,12 @@
           finishManagerTurn();
           return;
         }
-        setStatus("Manager offline");
-        addSystemNote("Manager left the chat and is now offline.");
+        setStatus(inZh("Manager offline", "经理离线"));
+        addSystemNote(inZh("Manager left the chat and is now offline.", "经理已离开聊天室，目前离线。"));
         lockManagerChat();
         participant.completed_initial_manager_interaction = "true";
         saveParticipant();
-        renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", () => renderTransition(0), "initial_manager_interaction");
+        renderNextAction(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), () => renderTransition(0), "initial_manager_interaction");
         return;
       }
       state.managerRejectionRound += 1;
@@ -1391,12 +1404,12 @@
       setComposerEnabled(true);
       return;
     }
-    setStatus("Manager offline");
-    addSystemNote("Manager left the chat and is now offline.");
+    setStatus(inZh("Manager offline", "经理离线"));
+    addSystemNote(inZh("Manager left the chat and is now offline.", "经理已离开聊天室，目前离线。"));
     lockManagerChat();
     participant.completed_initial_manager_interaction = "true";
     saveParticipant();
-    renderNextAction("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", () => renderTransition(0), "initial_manager_interaction");
+    renderNextAction(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), () => renderTransition(0), "initial_manager_interaction");
   }
 
   function renderTransition(pageIndex = 0) {
@@ -1419,7 +1432,7 @@
         <h1>${escapeHtml(page.title)}</h1>
         ${renderTransitionBlocks(page.blocks)}
         <div class="actions">
-          <button class="button" type="button" id="transition-next">${pageIndex === transitionPages.length - 1 ? "Continue" : "Next"}</button>
+          <button class="button" type="button" id="transition-next">${escapeHtml(pageIndex === transitionPages.length - 1 ? inZh("Continue", "继续") : inZh("Next", "下一步"))}</button>
         </div>
       </article>
     `;
@@ -1443,16 +1456,16 @@
     participant.completed_lisa_john_interaction = "skipped";
     participant.completed_neutral_manager_followup = "false";
     saveParticipant();
-    const prompt = "Do you want to discuss your thoughts about this situation with the manager?";
+    const prompt = inZh("Do you want to discuss your thoughts about this situation with the manager?", "你想和经理讨论你对这个情况的想法吗？");
     recordInteraction("material_manager_decision", "system", prompt, "");
     screen.innerHTML = `
       <article class="page transition-page">
-        <p class="briefing-progress">Decision</p>
-        <h1>Manager Chat</h1>
+        <p class="briefing-progress">${escapeHtml(inZh("Decision", "选择"))}</p>
+        <h1>${escapeHtml(inZh("Manager Chat", "经理聊天室"))}</h1>
         <p>${escapeHtml(prompt)}</p>
         <div class="actions">
-          <button class="button" type="button" id="material-decision-yes">Yes</button>
-          <button class="button secondary" type="button" id="material-decision-no">No</button>
+          <button class="button" type="button" id="material-decision-yes">${escapeHtml(inZh("Yes", "是"))}</button>
+          <button class="button secondary" type="button" id="material-decision-no">${escapeHtml(inZh("No", "否"))}</button>
         </div>
       </article>
     `;
@@ -1490,7 +1503,7 @@
     state.coworkerQueue = [];
     state.decisionShown = false;
     saveParticipant();
-    createChat("Coworker Chat", "Coworkers online", true);
+    createChat(inZh("Coworker Chat", "同事聊天室"), inZh("Coworkers online", "同事在线"), true);
     setComposerEnabled(true);
     state.coworkerTurnActive = true;
     await sendAiMessages({
@@ -1566,14 +1579,15 @@
   function showDecisionPrompt() {
     state.decisionShown = true;
     setComposerEnabled(false);
-    recordInteraction("decision_prompt", "system", "Do you want to talk with the manager now?", "");
+    const decisionQuestion = inZh("Do you want to talk with the manager now?", "你现在想和经理谈谈吗？");
+    recordInteraction("decision_prompt", "system", decisionQuestion, "");
     const panel = document.createElement("div");
     panel.className = "decision-panel";
     panel.innerHTML = `
-      <p>Do you want to talk with the manager now?</p>
+      <p>${escapeHtml(decisionQuestion)}</p>
       <div class="actions">
-        <button class="button" type="button" id="decision-yes">Yes</button>
-        <button class="button secondary" type="button" id="decision-no">No</button>
+        <button class="button" type="button" id="decision-yes">${escapeHtml(inZh("Yes", "是"))}</button>
+        <button class="button secondary" type="button" id="decision-no">${escapeHtml(inZh("No", "否"))}</button>
       </div>
     `;
     document.querySelector(".chat").appendChild(panel);
@@ -1610,10 +1624,10 @@
     }
     screen.innerHTML = `
         <article class="page">
-          <h1>Interaction Complete</h1>
+          <h1>${escapeHtml(inZh("Interaction Complete", "本轮互动已完成"))}</h1>
           <p>${escapeHtml(message)}</p>
           <div class="actions">
-            <button class="button" type="button" id="completion-next">Next</button>
+            <button class="button" type="button" id="completion-next">${escapeHtml(inZh("Next", "下一步"))}</button>
           </div>
         </article>
       `;
@@ -1629,10 +1643,10 @@
     }
     screen.innerHTML = `
       <article class="page">
-        <h1>Thank You</h1>
-        <p>Your responses have been submitted. You may now close this page.</p>
+        <h1>${escapeHtml(inZh("Thank You", "谢谢"))}</h1>
+        <p>${escapeHtml(inZh("Your responses have been submitted. You may now close this page.", "你的回答已提交。现在可以关闭此页面。"))}</p>
         <div class="actions">
-          <button class="button" type="button" disabled>Done</button>
+          <button class="button" type="button" disabled>${escapeHtml(inZh("Done", "完成"))}</button>
         </div>
       </article>
     `;
@@ -1646,9 +1660,9 @@
     state.managerTurnActive = false;
     state.pendingManagerInput = "";
     saveParticipant();
-    createChat("Manager Chat", "Manager online", true);
+    createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     setComposerEnabled(true);
-    addSystemNote("You are now in a new chat with the manager. Please type what you would like to say.");
+    addSystemNote(inZh("You are now in a new chat with the manager. Please type what you would like to say.", "你现在进入了一个新的经理聊天室。请直接输入你想说的内容。"));
     state.managerTurnActive = true;
     await sendAiMessages({ stage: "manager2", phase: "opening", alexMessage: "" });
     finishManagerTurn();
@@ -1696,15 +1710,15 @@
   function showNeutralProceedChoice() {
     if (state.neutralDone) return;
     setComposerEnabled(false);
-    const question = "Do you want to proceed to the next page?";
+    const question = inZh("Do you want to proceed to the next page?", "你想进入下一页吗？");
     recordInteraction("neutral_manager_followup", "system", question, "");
     const panel = document.createElement("div");
     panel.className = "decision-panel";
     panel.innerHTML = `
       <p>${escapeHtml(question)}</p>
       <div class="actions">
-        <button class="button secondary" type="button" id="neutral-continue">Keep talking with the manager</button>
-        <button class="button" type="button" id="neutral-proceed">Proceed to the next page</button>
+        <button class="button secondary" type="button" id="neutral-continue">${escapeHtml(inZh("Keep talking with the manager", "继续和经理聊"))}</button>
+        <button class="button" type="button" id="neutral-proceed">${escapeHtml(inZh("Proceed to the next page", "进入下一页"))}</button>
       </div>
     `;
     document.querySelector(".chat").appendChild(panel);
@@ -1739,13 +1753,13 @@
 
     screen.innerHTML = `
       <article class="page survey-page">
-        <h1>Post-Interaction Questions</h1>
-        <p>Please answer the following questions based on your experience in this study. There are no right or wrong answers. Please indicate the extent to which you agree with each statement.</p>
+        <h1>${escapeHtml(inZh("Post-Interaction Questions", "互动后的问题"))}</h1>
+        <p>${escapeHtml(inZh("Please answer the following questions based on your experience in this study. There are no right or wrong answers. Please indicate the extent to which you agree with each statement.", "请根据你在本研究中的体验回答以下问题。答案没有对错，请选择你对每项陈述的同意程度。"))}</p>
         <form id="survey-form" novalidate>
           ${surveySections.map(renderSurveySection).join("")}
           <p class="validation-message" id="survey-validation" aria-live="polite"></p>
           <div class="survey-submit">
-            <button class="button" type="submit">Submit</button>
+            <button class="button" type="submit">${escapeHtml(inZh("Submit", "提交"))}</button>
           </div>
         </form>
       </article>
@@ -1781,7 +1795,7 @@
     return `
       <div class="survey-matrix" role="table">
         <div class="survey-row survey-head" role="row">
-          <div role="columnheader">Item</div>
+          <div role="columnheader">${escapeHtml(inZh("Item", "题项"))}</div>
           ${options.map((label, index) => `<div role="columnheader">${index + 1}<span>${escapeHtml(label)}</span></div>`).join("")}
         </div>
         ${items.map((item) => `
@@ -1807,7 +1821,7 @@
     const missingResponse = surveyItemIds.some((id) => !form.elements[id] || !form.elements[id].value);
 
     if (missingResponse) {
-      const message = "Please answer all questions before continuing.";
+      const message = inZh("Please answer all questions before continuing.", "请先回答所有问题。");
       validation.textContent = message;
       recordInteraction("post_interaction_survey", "system", message, "");
       return;
@@ -1818,6 +1832,7 @@
       prolific_pid: ids.prolific_pid,
       study_id: ids.study_id,
       session_id: ids.session_id,
+      language,
       assigned_condition: condition,
       condition_source: conditionSource,
       survey_start_time: state.surveyStartTime || participant.survey_start_time || submitTime,
@@ -1856,13 +1871,13 @@
 
     screen.innerHTML = `
       <article class="page ai-check-page">
-        <h1>One More Question</h1>
-        <p>In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.</p>
+        <h1>${escapeHtml(inZh("One More Question", "还有一个问题"))}</h1>
+        <p>${escapeHtml(inZh("In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.", "在见数招募中，有些研究可能会包含 AI 参与者。为了帮助我们保护数据质量，并减少 AI 参与者可能带来的影响，请回答下面的问题。"))}</p>
         <form id="ai-check-form" novalidate>
-          ${renderAiCheckQuestion("manager_ai_suspicion", "Do you think the manager you interacted with may have been AI?")}
+          ${renderAiCheckQuestion("manager_ai_suspicion", inZh("Do you think the manager you interacted with may have been AI?", "你认为与你互动的经理可能是 AI 吗？"))}
           <p class="validation-message" id="ai-check-validation" aria-live="polite"></p>
           <div class="actions">
-            <button class="button" type="submit">Submit</button>
+            <button class="button" type="submit">${escapeHtml(inZh("Submit", "提交"))}</button>
           </div>
         </form>
       </article>
@@ -1878,15 +1893,15 @@
         <div class="choice-list">
           <label class="choice-option">
             <input type="radio" name="${escapeHtml(name)}" value="yes" required>
-            <span>Yes</span>
+            <span>${escapeHtml(inZh("Yes", "是"))}</span>
           </label>
           <label class="choice-option">
             <input type="radio" name="${escapeHtml(name)}" value="no" required>
-            <span>No</span>
+            <span>${escapeHtml(inZh("No", "否"))}</span>
           </label>
           <label class="choice-option">
             <input type="radio" name="${escapeHtml(name)}" value="not_sure" required>
-            <span>Not sure</span>
+            <span>${escapeHtml(inZh("Not sure", "不确定"))}</span>
           </label>
         </div>
       </fieldset>
@@ -1902,7 +1917,7 @@
     const johnResponse = "not_shown";
 
     if (!managerResponse) {
-      const message = "Please answer all questions before continuing.";
+      const message = inZh("Please answer all questions before continuing.", "请先回答所有问题。");
       validation.textContent = message;
       recordInteraction("ai_check", "system", message, "");
       return;
@@ -1924,7 +1939,7 @@
       `manager=${managerResponse}; lisa=${lisaResponse}; john=${johnResponse}`,
       ""
     );
-    renderCompletionPage("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", participant.completed_neutral_manager_followup === "true");
+    renderCompletionPage(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), participant.completed_neutral_manager_followup === "true");
   }
 
   function addMessage(speaker, className, text) {
@@ -1938,7 +1953,7 @@
     row.dataset.message = displayText;
     row.innerHTML = `
       <div class="bubble">
-        <span class="speaker">${escapeHtml(displaySpeaker)}</span>
+        <span class="speaker">${escapeHtml(displaySpeakerName(displaySpeaker))}</span>
         <span>${escapeHtml(displayText)}</span>
       </div>
     `;
@@ -2023,7 +2038,7 @@
   }
 
   async function requestAiMessages(request) {
-    const retryMessage = "The chat connection had a brief issue. Please try again.";
+    const retryMessage = inZh("The chat connection had a brief issue. Please try again.", "聊天连接短暂出现问题。请再试一次。");
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
         const response = await fetch(`${dataEndpoint}/ai-reply`, {
@@ -2032,6 +2047,7 @@
           body: JSON.stringify({
             ...request,
             condition,
+            language,
             history: recentChatHistory(),
           }),
         });
@@ -2122,7 +2138,7 @@
     row.className = `message-row ${displayClassName || className} typing-row`;
     row.innerHTML = `
       <div class="bubble typing-bubble">
-        <span>${escapeHtml(displaySpeaker)} is typing...</span>
+        <span>${escapeHtml(inZh(`${displaySpeaker} is typing...`, `${displaySpeakerName(displaySpeaker)}正在输入...`))}</span>
       </div>
     `;
     messagesEl.appendChild(row);
@@ -2188,7 +2204,7 @@
     panel.innerHTML = `
       <p>${escapeHtml(text)}</p>
       <div class="actions">
-        <button class="button" type="button" id="next-action">Next</button>
+        <button class="button" type="button" id="next-action">${escapeHtml(inZh("Next", "下一步"))}</button>
       </div>
     `;
     document.querySelector(".chat")?.appendChild(panel);
@@ -2208,11 +2224,11 @@
     const panel = document.createElement("div");
     panel.className = "decision-panel manager-exit-panel";
     panel.id = "manager-exit-panel";
-    const question = "Do you want to end the chat and proceed to the next task?";
+    const question = inZh("Do you want to end the chat and proceed to the next task?", "你想结束聊天，并进入下一个任务吗？");
     panel.innerHTML = `
       <p>${escapeHtml(question)}</p>
       <div class="actions">
-        <button class="button" type="button" id="manager-exit-action">End chat and proceed</button>
+        <button class="button" type="button" id="manager-exit-action">${escapeHtml(inZh("End chat and proceed", "结束聊天并继续"))}</button>
       </div>
     `;
     const chat = document.querySelector(".chat");
@@ -2225,7 +2241,7 @@
     const button = document.getElementById("manager-exit-action");
     button?.addEventListener("click", async () => {
       button.disabled = true;
-      await completeInitialManagerInteraction("End chat and proceed");
+      await completeInitialManagerInteraction(inZh("End chat and proceed", "结束聊天并继续"));
     });
   }
 
@@ -2304,26 +2320,56 @@
   }
 
   function setApiConnectionIssue() {
-    setStatus("Connection issue. Please send your message again.");
+    setStatus(inZh("Connection issue. Please send your message again.", "连接出现问题。请再发送一次消息。"));
   }
 
   function clearApiConnectionIssue() {
     if (state.part === "prechat") {
-      setStatus(state.prechatAwaitingQuestions ? "Waiting for questions" : "Waiting for Participant 2");
+      setStatus(state.prechatAwaitingQuestions ? inZh("Waiting for questions", "等待提问") : inZh("Waiting for Participant 2", "等待参与者2"));
       return;
     }
     if (state.part === "manager1" || state.part === "manager2") {
-      setStatus("Manager online");
+      setStatus(inZh("Manager online", "经理在线"));
       return;
     }
     if (state.part === "lisaJohn") {
-      setStatus("Coworkers online");
+      setStatus(inZh("Coworkers online", "同事在线"));
     }
   }
 
   function normalizeCondition(value) {
     if (!value) return "";
     return conditionAliases[String(value).trim().toUpperCase()] || "";
+  }
+
+  function normalizeLanguage(value) {
+    const normalized = String(value || "").trim().toLowerCase();
+    if (["zh", "zh-cn", "cn", "chinese", "中文"].includes(normalized)) return "zh";
+    return "en";
+  }
+
+  function inZh(english, chinese) {
+    return isChinese ? chinese : english;
+  }
+
+  function inZhArray(english, chinese) {
+    return isChinese ? chinese : english;
+  }
+
+  function displaySpeakerName(speaker) {
+    if (!isChinese) return speaker;
+    const names = {
+      System: "系统",
+      Coordinator: "任务协调员",
+      "Participant 1": "参与者1",
+      "Participant 2": "参与者2",
+      "Participant 3": "参与者3",
+      You: "你",
+      Manager: "经理",
+      "Coworker 1": "同事1",
+      "Coworker 2": "同事2",
+    };
+    return names[speaker] || speaker;
   }
 
   function currentStage() {
@@ -2340,6 +2386,295 @@
     return "initial_manager_interaction";
   }
 
+  function localizeSurveySections() {
+    if (!isChinese) return;
+    const sectionCopy = [
+      {
+        title: "未来沟通意向",
+        instruction: "请根据你在任务中的体验，回答你接下来可能会怎么做，以及会如何继续推进自己的建议。",
+      },
+      {
+        title: "建议准备意向",
+        instruction: "请根据你在任务中的体验，回答你会如何进一步完善自己的建议。",
+      },
+      {
+        title: "对经理回应原因的感知",
+        instruction: "请回答你认为经理为什么拒绝了你的用工方案建议。",
+        stem: "经理拒绝我的建议是因为...",
+        groups: ["与经理有关的原因", "与建议有关的原因"],
+      },
+      {
+        title: "对经理回应语气的感知",
+        instruction: "请回答经理拒绝你的用工方案建议时，你觉得经理的态度如何。",
+        stem: "经理的回应是...",
+      },
+      {
+        title: "对经理回应有用性的感知",
+        instruction: "请回答经理拒绝你的用工方案建议时，你觉得经理的回应是否有帮助。",
+        stem: "在拒绝我的建议时，经理...",
+      },
+      {
+        title: "与经理相关的沟通意向 A",
+        instruction: "请根据你的想法，选择你对以下陈述的同意程度。",
+      },
+      {
+        title: "与经理相关的沟通意向 B",
+        instruction: "请根据你的想法，选择你对以下陈述的同意程度。",
+      },
+    ];
+    const itemCopy = {
+      VF1: "我会多次主动提出具体的改进建议，帮助园区在淡季工作日吸引更多游客。",
+      VF2: "我会特别提出吸引附近大学生的新方法。",
+      VF3: "即使经理看起来不太重视，我也会继续表达自己对改善淡季工作日客流的看法。",
+      VF4: "在整个任务中，我会抓住机会主动分享想法，帮助园区吸引低龄儿童家庭之外的游客。",
+      VF5: "在讨论如何吸引附近大学生、如何更好利用园区周边环境时，我会积极贡献想法。",
+      VF6: "我会继续提出建设性的建议和想法，帮助改善园区淡季工作日的游客策略。",
+      VQ1: "在提出建议时，我会努力展示一个经过充分研究的方案，并用入园记录、游客评论和位置信息作为支持。",
+      VQ2: "在表达意见时，我会尽量回应经理对游客需求、可行性和园区运营的具体顾虑。",
+      VQ3: "在提出吸引附近大学生的方法时，我会尽量解释这个游客群体为什么适合园区。",
+      VQ4: "在指出主要依赖低龄儿童家庭的局限时，我会为经理准备一个清晰、可执行的解决方案。",
+      MR1: "经理受到了自己情绪的影响。",
+      MR2: "经理想表现自己的权威。",
+      MR3: "经理个人不喜欢我。",
+      PR1: "我的改进建议比较一般。",
+      PR2: "我的建议并没有真正改善当前的方法或做法。",
+      PR3: "我提出的工作安排改变并没有太大帮助。",
+      PR4: "我对如何解决工作相关问题提出了不切实际的建议。",
+      PR5: "我的建议不是很有用。",
+      MA1: "礼貌。",
+      MA2: "尊重。",
+      MA3: "顾及我的感受。",
+      MA4: "对我尊重。",
+      MA5: "有正当理由。",
+      MA6: "有礼。",
+      MA7: "为我着想。",
+      MA8: "委婉得体。",
+      MC1: "聚焦在我可以实际改进的具体问题和行为上。",
+      MC2: "表明我的不足是可以克服或补救的。",
+      MC3: "提到了清晰、合理的可接受行为标准。",
+      MC4: "非常具体和详细。",
+      MC5: "提到了具体的问题情境或事件。",
+      MC6: "给出了足够清楚的指引，让我知道需要改变什么。",
+      NWG1: "我会问一位工作同事，他们是否对主题公园经理做过的某件事有负面印象。",
+      NWG2: "在和工作同事交谈时，我会质疑主题公园经理的能力。",
+      NWG3: "在和工作同事交谈时，我会批评主题公园经理。",
+      NWG4: "我会向一位工作同事抱怨主题公园经理做过的某件事。",
+      NWG5: "我会向一位工作同事讲一个关于主题公园经理的不太正面的故事。",
+      PWG1: "在和工作同事交谈时，我会称赞主题公园经理的做法。",
+      PWG2: "我会向一位工作同事说主题公园经理的好话。",
+      PWG3: "在和工作同事交谈时，我会为主题公园经理的做法辩护。",
+      PWG4: "在和工作同事交谈时，我会说一些关于主题公园经理的正面评价。",
+      PWG5: "我会告诉一位工作同事，我尊重主题公园经理。",
+    };
+    surveySections.forEach((section, index) => {
+      const copy = sectionCopy[index];
+      if (!copy) return;
+      section.title = copy.title;
+      section.instruction = copy.instruction;
+      if (copy.stem) section.stem = copy.stem;
+      if (copy.groups && Array.isArray(section.groups)) {
+        section.groups.forEach((group, groupIndex) => {
+          group.label = copy.groups[groupIndex] || group.label;
+        });
+      }
+      getSectionItems(section).forEach((item) => {
+        if (itemCopy[item.id]) item.text = itemCopy[item.id];
+      });
+    });
+  }
+
+  function localizeStudyMaterials() {
+    if (!isChinese) return;
+    prechatBeforeIntro.splice(0, prechatBeforeIntro.length, ...[
+      { speaker: "System", text: "正在连接到在线聊天室...", delay: 700 },
+      { speaker: "System", text: "你已作为参与者2进入聊天室。", delay: 800 },
+      { speaker: "System", text: "任务协调员已进入聊天室。", delay: 800 },
+      {
+        speaker: "Coordinator",
+        text: ["大家好，欢迎参加本次任务。", "大家好，欢迎加入。", "大家好，欢迎进入聊天室。"],
+        delay: 1600,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["谢谢大家今天参加。", "谢谢大家参加今天的任务。", "谢谢大家来到这里。"],
+        delay: 1000,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["我们稍等一下，让大家都连进来。", "我给大家一点时间完成连接。", "我们先短暂等一下另一位参与者加入。"],
+        delay: 1400,
+      },
+      { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "参与者1已进入聊天室。", delay: 800 },
+      {
+        speaker: "Coordinator",
+        text: ["好的，看起来大家都到了。", "好的，现在两位参与者都在聊天室里了。", "谢谢大家，两位参与者都到齐了。"],
+        delay: 1500,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["开始前，大家可以简单介绍一下自己吗？不需要分享太个人的信息。", "开始前，大家可以简单介绍一下自己吗？不需要说太私人的信息。", "我们先快速做一轮自我介绍。不需要分享太个人的信息。"],
+        delay: 2100,
+      },
+      {
+        speaker: "Participant 1",
+        shuffleGroup: "prechatParticipantIntro",
+        text: ["大家好，我做过很多见数任务，主要是问卷和决策类任务。", "大家好，我做过不少见数任务，大多是问卷和决策任务。", "大家好，我做见数任务比较多，不过这种小组聊天形式不太常见。"],
+        delay: 6000,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["谢谢。参与者2，你也简单介绍一下自己好吗？", "谢谢。参与者2，你也简单介绍一下自己吧。", "谢谢。参与者2，你也可以简单说一下自己吗？"],
+        delay: 4800,
+        skipIfParticipant2Introduced: true,
+      },
+    ]);
+
+    prechatAfterIntro.splice(0, prechatAfterIntro.length, ...[
+      {
+        speaker: "Coordinator",
+        text: ["我现在简单说明一下任务。", "我先简单介绍一下任务。", "我简单说一下接下来要做什么。"],
+        delay: 1500,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["这个任务由一家市场研究公司组织。", "这是一个顾客反馈任务。", "本次任务围绕顾客反馈展开。"],
+        delay: 2300,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["你们将两人一组，讨论一个主题公园可以如何改进服务。", "你们会进行一次两人讨论，主题是一个主题公园如何改进服务。", "你们将进行两人讨论，讨论主题公园如何提升服务。"],
+        delay: 2100,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["每个人都会被随机分配一个角色。", "角色会随机分配。", "系统会随机分配角色。"],
+        delay: 2200,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["一个人会担任公园经理，另一个人会担任运营团队成员。", "一位参与者会担任公园经理，另一位会担任运营团队成员。", "这里会有一位公园经理和一位运营团队成员。"],
+        delay: 1500,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["请认真阅读你自己的角色材料，并根据分配到的角色回复。", "请仔细阅读角色材料，并按照你获得的角色在聊天中回复。", "角色出现后，请专注于你自己的材料，并按照该角色回复。"],
+        delay: 1800,
+      },
+      {
+        speaker: "Coordinator",
+        text: ["分配角色之前，大家对任务有没有什么问题？", "角色分配之前，大家有没有什么问题？", "分配角色前我先停一下。大家对任务有没有什么问题？"],
+        delay: 1800,
+      },
+    ]);
+
+    prechatRoleAssignment.splice(0, prechatRoleAssignment.length, ...[
+      { speaker: "System", text: "正在随机分配角色...", delay: 900 },
+      { speaker: "System", text: "参与者1的角色是公园经理。", delay: 800 },
+      { speaker: "System", text: "你，参与者2，的角色是运营团队成员。", delay: 900 },
+      {
+        speaker: "Coordinator",
+        text: ["接下来，你会看到自己的角色材料。大家读完后，会进入聊天。", "接下来，你会看到自己的角色材料。阅读结束后，会进入聊天环节。", "现在你会进入自己的角色材料页面。大家读完后，聊天就会开始。"],
+        delay: 2200,
+      },
+      { speaker: "System", text: "你现在将进入角色材料页面。", delay: 900 },
+    ]);
+
+    briefingPages[0].eyebrow = "角色材料 1/3";
+    briefingPages[0].title = "你的角色";
+    briefingPages[0].blocks = [
+      { type: "p", text: "感谢你参加这项顾客反馈任务。" },
+      { type: "p", text: "在今天的情境中，你是 Aetheria Gardens 主题公园的一名运营团队成员。你将直接和一位公园经理互动。" },
+      { type: "p", text: "在这个角色中，你的主要工作包括在入口处检票、扫描二维码、确认游客类别、引导游客入园，并回答家庭游客的一些简单问题。" },
+    ];
+    briefingPages[0].check.question = "在接下来的互动中，你的角色是什么？";
+    briefingPages[0].check.options = [
+      { value: "manager", label: "公园经理" },
+      { value: "operations_team", label: "运营团队成员" },
+      { value: "visitor", label: "主题公园游客" },
+    ];
+
+    briefingPages[1].eyebrow = "角色材料 2/3";
+    briefingPages[1].title = "背景信息";
+    briefingPages[1].blocks = [
+      { type: "p", text: "Aetheria Gardens 目前面临明显的人员安排问题。园区几乎完全依赖全职长期员工，因此出现了淡旺季之间的“用工跷跷板”：" },
+      {
+        type: "ul",
+        items: [
+          "淡季：每天大约只有 500 名游客，园区有不少成本较高但工作量不多的员工。",
+          "旺季：每天游客量会增加到约 5,000 人，团队压力很大，人手也不够。",
+        ],
+      },
+      { type: "p", text: "目前的全职人员安排方案由园区管理层制定。但你认为这个方案不够灵活，也让用工成本变得越来越难以承担。" },
+    ];
+    briefingPages[1].check.question = "Aetheria Gardens 主要的人员配置问题是什么？";
+    briefingPages[1].check.options = [
+      { value: "labor_seesaw", label: "淡季闲置员工太多，旺季员工太少" },
+      { value: "too_few_visitors", label: "园区每个季节游客都太少" },
+      { value: "ticket_system", label: "二维码票务系统坏了" },
+    ];
+
+    briefingPages[2].eyebrow = "角色材料 3/3";
+    briefingPages[2].title = "你可能提出的建议";
+    briefingPages[2].blocks = [
+      { type: "p", text: "你认为主题公园需要采用更灵活的用工模式，才能更好地应对淡旺季变化。" },
+      { type: "p", text: "例如，园区可以在客流高峰时使用临时员工或实习生，也可以把一部分现有长期员工纳入灵活用工池，让人员安排更贴合实际需求。" },
+      { type: "p", text: "提出人员安排方面的改变并不是你这个角色的必需职责，但你仍然想建议调整目前的做法，帮助主题公园改善运营表现。" },
+      { type: "p", text: "你可以向经理提出实施灵活用工模式。这个话题比较敏感，因为现有的“全长期员工”方案目前被视为官方方案。" },
+      { type: "p", text: "接下来，你将进入与经理的在线聊天。" },
+    ];
+    briefingPages[2].check.question = "你可能会向经理提出什么建议？";
+    briefingPages[2].check.options = [
+      { value: "flexible_labor", label: "采用灵活用工模式，例如临时员工、实习生或灵活用工池" },
+      { value: "raise_prices", label: "在旺季提高票价" },
+      { value: "new_rides", label: "为家庭游客建造新的游乐设施" },
+    ];
+
+    transitionPages[0].eyebrow = "材料 1/3";
+    transitionPages[0].title = "淡季情况";
+    transitionPages[0].blocks = [
+      {
+        text: "现在，请继续阅读材料。下面的内容介绍主题公园淡季时的情况。",
+        html: "现在，请继续阅读材料。下面的内容介绍主题公园<strong>淡季</strong>时的情况。",
+      },
+      {
+        text: "在一个典型的淡季工作日，园区大约有 500 名游客。",
+        html: "在一个典型的淡季工作日，园区大约有<strong>500 名游客</strong>。",
+      },
+      {
+        text: "入口处大部分时间都比较安静，门口员工的工作量也比较少。",
+        html: "入口处大部分时间都比较安静，门口员工的工作量也<strong>比较少</strong>。",
+      },
+    ];
+    transitionPages[1].eyebrow = "材料 2/3";
+    transitionPages[1].title = "游客模式";
+    transitionPages[1].blocks = [
+      {
+        text: "大多数游客是带低龄儿童的家庭。其中，有 10 岁以下儿童的家庭约占每日游客的 70% 到 75%，其他游客群体占比明显更小。",
+        html: "大多数游客是<strong>带低龄儿童的家庭</strong>。其中，有 10 岁以下儿童的家庭约占每日游客的<strong>70% 到 75%</strong>，其他游客群体占比明显更小。",
+      },
+      {
+        text: "Aetheria Gardens 离市中心较远，许多家庭觉得这个位置不太方便。",
+        html: "Aetheria Gardens <strong>离市中心较远</strong>，许多家庭觉得这个位置<strong>不太方便</strong>。",
+      },
+    ];
+    transitionPages[2].eyebrow = "材料 3/3";
+    transitionPages[2].title = "附近游客";
+    transitionPages[2].blocks = [
+      {
+        text: "主题公园附近有几所大学和农场。距离园区 10 到 18 公里的范围内有 4 所大学，附近共有约 38,000 名大学生。",
+        html: "主题公园<strong>附近</strong>有几所大学和农场。距离园区 <strong>10 到 18 公里</strong>的范围内有<strong>4 所大学</strong>，附近共有<strong>约 38,000 名大学生</strong>。",
+      },
+      {
+        text: "一些大学生觉得这个园区很可爱，但更像是为小孩子设计的。也有人提到，如果有学生折扣，或者有更多适合拍照的地点，园区可能会更吸引学生。",
+        html: "一些大学生觉得这个园区很可爱，但更像是<strong>为小孩子设计的</strong>。也有人提到，如果有<strong>学生折扣</strong>，或者有<strong>更多适合拍照的地点</strong>，园区可能会更吸引学生。",
+      },
+      {
+        text: "看完这些材料后，你可以决定是否想和经理讨论你对这个情况的想法。",
+        html: "看完这些材料后，你可以决定是否想<strong>和经理讨论你对这个情况的想法</strong>。",
+      },
+    ];
+  }
+
   function getSectionItems(section) {
     if (section.items) return section.items;
     return (section.groups || []).flatMap((group) => group.items || []);
@@ -2350,6 +2685,7 @@
       prolific_pid: ids.prolific_pid,
       study_id: ids.study_id,
       session_id: ids.session_id,
+      language,
       assigned_condition: condition,
       stage,
       speaker: speaker.toLowerCase(),
@@ -2374,6 +2710,7 @@
   function persistLocal() {
     const payload = {
       ...participant,
+      language,
       response_order: responseOrder,
       interactions: interactionBackup,
     };
@@ -2530,7 +2867,7 @@
     if (stage === "ai_check") return renderAiCheckPage();
     if (stage === "completion") {
       return renderCompletionPage(
-        "You have completed this part of the interaction. Please click “Next” to proceed to the next page.",
+        inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"),
         participant.completed_neutral_manager_followup === "true",
         false
       );
