@@ -389,7 +389,7 @@
       blocks: [
         { type: "p", text: "Thanks for taking part in this online customer feedback task." },
         { type: "p", text: "Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager." },
-        { type: "p", text: "In this role, your main responsibilities include checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from families." },
+        { type: "p", text: "In this role, your main responsibilities include checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors." },
       ],
       check: {
         question: "What is your role in the upcoming interaction?",
@@ -413,7 +413,7 @@
             "Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.",
           ],
         },
-        { type: "p", text: "The current full-time staffing plan was developed by park management. However, you recognize that its lack of flexibility is driving labor costs to a breaking point." },
+        { type: "p", text: "The current full-time staffing plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage." },
       ],
       check: {
         question: "What is the main staffing problem at Aetheria Gardens?",
@@ -557,10 +557,10 @@
     screen.innerHTML = `
       <article class="page">
         <h1>${escapeHtml(inZh("Online Customer Feedback Task", "任务介绍"))}</h1>
-        <p>${escapeHtml(inZh("Thanks for taking part in this online customer feedback task.", "感谢你参与本次在线任务。本次任务由一家市场调研公司组织，该公司专注于通过分析顾客反馈，帮助客户改进运营与服务体验。"))}</p>
+        <p>${escapeHtml(inZh("Thanks for taking part in this online customer feedback task.", "感谢你参与本次在线任务。本次任务由一家市场调研公司组织。该公司通过分析顾客反馈，帮助客户改进运营和服务体验。"))}</p>
         <p>${escapeHtml(inZh("You will now enter an online task room with another participant. A session coordinator will welcome the group and explain what to do.", "接下来，你将和另一位参与者一起进入在线聊天室。任务协调员会欢迎大家，并说明具体的任务内容。"))}</p>
-        <p>${escapeHtml(inZh("During the task, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.", "任务过程中，你需要阅读一段简短的情境介绍，查看与你的角色相关的材料，并参与讨论。"))}</p>
-        <p>${escapeHtml(inZh("Please stay on the page during the interaction and respond naturally in the chat.", "任务期间请保持停留在本页面，不要关闭窗口。"))}</p>
+        <p>${escapeHtml(inZh("During the task, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.", "任务过程中，你需要阅读几段简短的情境介绍，查看与你的角色相关的材料，并参与讨论。"))}</p>
+        <p>${escapeHtml(inZh("Please stay on the page during the interaction and respond naturally in the chat.", "任务期间请保持停留在任务页面，不要关闭窗口。"))}</p>
         <form id="pre-room-check-form" class="comprehension-check" novalidate>
           <fieldset>
             <legend>${escapeHtml(inZh("What is this online task mainly about?", "这个在线任务主要关于什么？"))}</legend>
@@ -720,7 +720,7 @@
     state.managerTurnActive = true;
     await sendDelayed("Manager", "manager", inZh("Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", "你好，这次在线任务中，我的角色是公园经理。我会评估你作为运营团队成员的表现。"), null, { opening: true });
     await sendDelayed("Manager", "manager", inZh("That evaluation may affect your compensation after the task.", "这项评估可能会影响你完成任务后的报酬。"), null, { opening: true });
-    await sendDelayed("Manager", "manager", inZh("Based on the information you receive, what do you think the theme park should do next?", "根据你收到的信息，你认为主题公园接下来应该怎么做？"), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh("Based on the information you receive, what do you think the theme park should do next?", "根据你收到的信息，你认为主题乐园接下来应该怎么做？"), null, { opening: true });
     finishManagerTurn();
   }
 
@@ -916,47 +916,54 @@
       return;
     }
 
-    if (state.prechatAwaitingIntro && !state.prechatIntroReceived && isPrechatQuestion(text)) {
+    if (state.prechatAwaitingIntro && !state.prechatIntroReceived) {
       clearPrechatTimers();
       state.prechatSequenceRunning = true;
-      const sent = await sendAiMessages({
-        stage: "prechat",
-        phase: "question",
-        alexMessage: text,
-      });
-      if (!sent) {
+      const introIntent = await getChatIntent("prechat", "intro", text);
+      if (introIntent === "unknown") {
         state.prechatSequenceRunning = false;
         setComposerEnabled(true);
+        setApiConnectionIssue();
         schedulePrechatReminder();
+        return;
+      }
+      if (introIntent === "intro") {
+        await continueAfterPrechatIntro();
+        return;
+      }
+      if (introIntent === "question") {
+        const sent = await sendAiMessages({
+          stage: "prechat",
+          phase: "question",
+          alexMessage: text,
+        });
+        if (!sent) {
+          state.prechatSequenceRunning = false;
+          setComposerEnabled(true);
+          schedulePrechatReminder();
+          return;
+        }
+        state.prechatSequenceRunning = false;
+        setComposerEnabled(true);
+        if (state.prechatQueuedInputs.length) {
+          handlePrechatInput(state.prechatQueuedInputs.shift());
+        } else {
+          schedulePrechatReminder();
+        }
         return;
       }
       state.prechatSequenceRunning = false;
       setComposerEnabled(true);
-      if (state.prechatQueuedInputs.length) {
-        handlePrechatInput(state.prechatQueuedInputs.shift());
-      } else {
+      if (!state.prechatReminderShown) {
         schedulePrechatReminder();
       }
-      return;
-    }
-
-    if (state.prechatAwaitingIntro && !state.prechatIntroReceived) {
-      state.prechatIntroReceived = true;
-      state.prechatAwaitingIntro = false;
-      clearPrechatTimers();
-      state.prechatSequenceRunning = true;
-      await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Great, everyone. We’ll keep moving.", "好的，大家都介绍完了。我们继续。"), delay: 1200 });
-      await runPrechatSequence(prechatAfterIntro);
-      await answerQueuedPrechatInputs();
-      state.prechatSequenceRunning = false;
-      openPrechatQuestionWindow();
       return;
     }
 
     if (state.prechatAwaitingQuestions && !state.prechatQuestionWindowComplete) {
       clearPrechatTimers();
       state.prechatSequenceRunning = true;
-      const questionIntent = await getPrechatQuestionIntent(text);
+      const questionIntent = await getChatIntent("prechat", "question", text);
       if (questionIntent === "unknown") {
         state.prechatSequenceRunning = false;
         setComposerEnabled(true);
@@ -966,6 +973,12 @@
       if (questionIntent === "no_question") {
         state.prechatParticipant2AnsweredQuestions = true;
         await continueAfterPrechatQuestions();
+        return;
+      }
+      if (questionIntent === "other") {
+        await sendPrechatParticipant2QuestionPrompt();
+        state.prechatSequenceRunning = false;
+        setComposerEnabled(true);
         return;
       }
       state.prechatParticipant2AnsweredQuestions = true;
@@ -993,6 +1006,19 @@
     });
     state.prechatSequenceRunning = false;
     if (!state.prechatComplete) setComposerEnabled(true);
+  }
+
+  async function continueAfterPrechatIntro() {
+    if (state.prechatIntroReceived || state.prechatComplete) return;
+    state.prechatIntroReceived = true;
+    state.prechatAwaitingIntro = false;
+    clearPrechatTimers();
+    state.prechatSequenceRunning = true;
+    await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Great, everyone. We’ll keep moving.", "好的，谢谢大家。我们继续。"), delay: 1200 });
+    await runPrechatSequence(prechatAfterIntro);
+    await answerQueuedPrechatInputs();
+    state.prechatSequenceRunning = false;
+    openPrechatQuestionWindow();
   }
 
   async function runPrechatSequence(sequence) {
@@ -1033,14 +1059,16 @@
   }
 
   function hasQueuedPrechatIntro() {
-    return state.prechatQueuedInputs.some((text) => !isPrechatQuestion(text));
+    return state.prechatQueuedInputs.length > 0;
   }
 
   async function sendPrechatMessage(item) {
     const text = resolvePrechatText(item.text);
     const totalDelay = prechatMessageDelay(item, text);
     if (item.speaker !== "System") {
-      await showTypingBeforeMessage(item.speaker, speakerClassName(item.speaker), text, totalDelay);
+      await showTypingBeforeMessage(item.speaker, speakerClassName(item.speaker), text, totalDelay, {
+        preTypingDelay: item.preTypingDelay,
+      });
     } else {
       await delay(totalDelay);
     }
@@ -1129,7 +1157,7 @@
       text: [
         inZh("Participant 2, do you have any quick questions before I assign the roles?", "参与者2，分配角色前，你有什么问题吗？"),
         inZh("Participant 2, any quick questions from you before I assign the roles?", "参与者2，分配角色前，你这边有什么问题吗？"),
-        inZh("Participant 2, anything you want to ask before I assign the roles?", "参与者2，在我分配角色之前，有什么想问的吗？"),
+        inZh("Participant 2, anything you want to ask before I assign the roles?", "参与者2，分配角色前，有什么想问的吗？"),
       ],
       delay: 1000,
     });
@@ -1210,7 +1238,7 @@
     const queuedItems = state.prechatQueuedInputs.splice(0, state.prechatQueuedInputs.length);
     const queuedQuestions = [];
     for (const text of queuedItems) {
-      if (await getPrechatQuestionIntent(text) === "has_question") {
+      if (await getChatIntent("prechat", "question", text) === "has_question") {
         queuedQuestions.push(text);
       }
       if (queuedQuestions.length >= 3) break;
@@ -1236,54 +1264,44 @@
   function prechatDelayForText(speaker, text) {
     if (speaker === "System") return randomBetween(900, 1700);
 
-    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    const wordCount = prechatTextUnitCount(text);
     const isParticipant = /^Participant [123]$/.test(speaker);
     const wordsPerMinute = randomBetween(40, 53);
     const typingDelay = Math.round((wordCount / wordsPerMinute) * 60000);
     const readingPause = randomBetween(1200, 2600);
     const turnTakingPause = isParticipant ? randomBetween(900, 1800) : randomBetween(500, 1400);
     const rawDelay = Math.min(32000, Math.max(3500, typingDelay + readingPause + turnTakingPause));
-    return rawDelay;
+    return isChinese ? Math.round(rawDelay * (4 / 9)) : rawDelay;
   }
 
-  function isPrechatQuestion(text) {
-    const normalized = text.trim().toLowerCase();
-    return /\?$/.test(normalized) ||
-      /[？吗呢]$/.test(normalized) ||
-      /^(do|what|why|are|is|will|should|can|could|am|who|where|how)\b/.test(normalized) ||
-      /(什么|为什么|怎么|如何|多久|多长|多少|几个人|几位|谁|哪里|能不能|可不可以|是否|需要|角色|任务|流程|时间|问题|真人|真实|名字|地点|经验)/.test(normalized) ||
-      /(real name|share my name|share location|rather not|don't want|do not want|other participants|real people|what role|roles random|answers be evaluated|theme park experience|chat is slow)/i.test(normalized);
+  function prechatTextUnitCount(text) {
+    return chatTextUnitCount(text);
   }
 
-  async function getPrechatQuestionIntent(text) {
+  function chatTextUnitCount(text) {
+    const raw = String(text || "").trim();
+    if (!raw) return 0;
+    if (!isChinese) return raw.split(/\s+/).filter(Boolean).length;
+    const cjkChars = raw.match(/[\u3400-\u9fff]/g) || [];
+    const nonCjkWords = raw.replace(/[\u3400-\u9fff]/g, " ").split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.ceil(cjkChars.length / 1.8) + nonCjkWords);
+  }
+
+  async function getChatIntent(stage, phase, text) {
     try {
-      const response = await fetch(`${dataEndpoint}/prechat-question-check`, {
+      const response = await fetch(`${dataEndpoint}/chat-intent-check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, language }),
+        body: JSON.stringify({ stage, phase, text, language }),
       });
       const data = await response.json().catch(() => ({}));
-      if (response.ok && data.ok && ["no_question", "has_question", "other"].includes(data.intent)) {
+      if (response.ok && data.ok && typeof data.intent === "string") {
         return data.intent;
       }
     } catch (error) {
-      console.warn("Unable to classify prechat question response.", error);
+      console.warn("Unable to classify chat intent.", error);
     }
     return "unknown";
-  }
-
-  // After the manager has rejected, treat a short acknowledgement or a clear
-  // sign of disengagement as the participant accepting the outcome, so the
-  // manager can close gracefully instead of re-rejecting indefinitely.
-  function isManagerAcceptance(text) {
-    const t = text.trim().toLowerCase().replace(/[.!,\s]+$/, "");
-    if (!t) return false;
-    const wordCount = t.split(/\s+/).filter(Boolean).length;
-    const ackStart = /^(ok|okay|k|kk|fine|alright|all ?right|sure|got it|gotcha|understood|i understand|i see|noted|fair|fair enough|no problem|np|makes sense|i get it|thanks|thank you|cheers|ok thanks)\b/.test(t);
-    const closure = /(nothing else|that'?s all|that is all|no more|no further questions?|i'?ll think about it|i will think about it|i'?ll revise|leave it|forget it|never ?mind|that'?s fine)/.test(t);
-    const chineseAck = /^(好的|好|行|可以|明白|知道了|了解|收到|没问题|谢谢|谢谢你|可以了|行吧)$/.test(t);
-    const chineseClosure = /(没有了|没了|没问题了|没其他问题|不用了|就这样|先这样|我会考虑|我想想|算了|可以结束|结束吧)/.test(t);
-    return (ackStart && wordCount <= 6) || closure || chineseAck || chineseClosure;
   }
 
   async function handleManagerInput(text) {
@@ -1347,7 +1365,13 @@
       // per the assigned condition. Close only when the participant accepts or
       // disengages. The high round count is purely a runaway safety net, not a
       // normal limit.
-      const windDown = isManagerAcceptance(text) || state.managerRejectionRound >= 12;
+      const windDownIntent = await getChatIntent("manager1", "rejection_followup", text);
+      if (windDownIntent === "unknown") {
+        setApiConnectionIssue();
+        finishManagerTurn();
+        return;
+      }
+      const windDown = windDownIntent === "wind_down" || state.managerRejectionRound >= 12;
       if (windDown) {
         const sent = await sendAiMessages({
           stage: "manager1",
@@ -2022,7 +2046,24 @@
   }
 
   function cleanAiDisplayText(text) {
-    return cleanVisibleNames(String(text || "").replace(/[-\u2010-\u2015\u2212]/g, " ")).replace(/\s+/g, " ").trim();
+    const cleanedText = cleanVisibleNames(String(text || "").replace(/[-\u2010-\u2015\u2212]/g, " ")).replace(/\s+/g, " ").trim();
+    return isChinese ? normalizeChineseSpacing(cleanedText) : cleanedText;
+  }
+
+  function normalizeChineseSpacing(text) {
+    let cleanedText = String(text || "");
+    let previousText = "";
+    while (cleanedText !== previousText) {
+      previousText = cleanedText;
+      cleanedText = cleanedText.replace(/([\u3400-\u9fff])\s+([\u3400-\u9fff])/g, "$1$2");
+    }
+    return cleanedText
+      .replace(/([\u3400-\u9fff])\s+([，。！？、；：])/g, "$1$2")
+      .replace(/([，。！？、；：])\s+([\u3400-\u9fff])/g, "$1$2")
+      .replace(/\s+([，。！？、；：])/g, "$1")
+      .replace(/([（])\s+/g, "$1")
+      .replace(/\s+([）])/g, "$1")
+      .trim();
   }
 
   function cleanVisibleNames(text) {
@@ -2120,9 +2161,12 @@
     return normalized;
   }
 
-  async function showTypingBeforeMessage(speaker, className, text, totalDelay) {
+  async function showTypingBeforeMessage(speaker, className, text, totalDelay, opts = {}) {
     const delayMs = Math.max(900, Number(totalDelay) || responseDelayForText(text));
-    const thinkingDelay = Math.min(1400, Math.max(350, Math.round(delayMs * 0.35)));
+    const requestedPreTypingDelay = Number(opts.preTypingDelay);
+    const thinkingDelay = Number.isFinite(requestedPreTypingDelay) && requestedPreTypingDelay > 0
+      ? requestedPreTypingDelay
+      : Math.min(1400, Math.max(350, Math.round(delayMs * 0.35)));
     const typingDelay = Math.max(600, delayMs - thinkingDelay);
     await delay(thinkingDelay);
     const typingIndicator = showTypingIndicator(speaker, className);
@@ -2161,15 +2205,11 @@
   }
 
   function managerTimingPlan(text, opts = {}) {
-    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    const wordCount = chatTextUnitCount(text);
     const showTyping = true;
     const wordsPerMinute = randomBetween(75, 85);
     const readingDelay = randomBetween(1200, 2600);
-    // The scripted opening plays at half the normal manager pacing so the
-    // participant is not stuck watching ~50s of typing before they can act.
-    // Other manager turns (rejections, etc.) keep the normal pacing.
-    const speedFactor = opts.opening ? 0.5 : 1;
-    const totalDelay = Math.round(((wordCount / wordsPerMinute) * 60000 + readingDelay) * speedFactor);
+    const totalDelay = Math.round((wordCount / wordsPerMinute) * 60000 + readingDelay);
     state.lastManagerShowedTyping = true;
 
     const thinkingDelay = opts.closing
@@ -2414,11 +2454,11 @@
         stem: "在拒绝我的建议时，经理...",
       },
       {
-        title: "与经理相关的沟通意向 A",
+        title: "其他沟通意愿",
         instruction: "请根据你的想法，选择你对以下陈述的同意程度。",
       },
       {
-        title: "与经理相关的沟通意向 B",
+        title: "其他沟通意愿B",
         instruction: "请根据你的想法，选择你对以下陈述的同意程度。",
       },
     ];
@@ -2441,30 +2481,30 @@
       PR3: "我提出的工作安排改变并没有太大帮助。",
       PR4: "我对如何解决工作相关问题提出了不切实际的建议。",
       PR5: "我的建议不是很有用。",
-      MA1: "礼貌。",
-      MA2: "尊重。",
-      MA3: "顾及我的感受。",
-      MA4: "对我尊重。",
-      MA5: "有正当理由。",
-      MA6: "有礼。",
-      MA7: "为我着想。",
-      MA8: "委婉得体。",
+      MA1: "礼貌的",
+      MA2: "尊重的",
+      MA3: "顾及我的感受的",
+      MA4: "尊重我的",
+      MA5: "符合礼仪规范的",
+      MA6: "有礼的",
+      MA7: "为我着想的",
+      MA8: "委婉得体的",
       MC1: "聚焦在我可以实际改进的具体问题和行为上。",
-      MC2: "表明我的不足是可以克服或补救的。",
+      MC2: "指出了我的不足",
       MC3: "提到了清晰、合理的可接受行为标准。",
       MC4: "非常具体和详细。",
-      MC5: "提到了具体的问题情境或事件。",
+      MC5: "提到了具体的问题",
       MC6: "给出了足够清楚的指引，让我知道需要改变什么。",
-      NWG1: "我会问一位工作同事，他们是否对主题公园经理做过的某件事有负面印象。",
-      NWG2: "在和工作同事交谈时，我会质疑主题公园经理的能力。",
-      NWG3: "在和工作同事交谈时，我会批评主题公园经理。",
-      NWG4: "我会向一位工作同事抱怨主题公园经理做过的某件事。",
-      NWG5: "我会向一位工作同事讲一个关于主题公园经理的不太正面的故事。",
-      PWG1: "在和工作同事交谈时，我会称赞主题公园经理的做法。",
-      PWG2: "我会向一位工作同事说主题公园经理的好话。",
-      PWG3: "在和工作同事交谈时，我会为主题公园经理的做法辩护。",
-      PWG4: "在和工作同事交谈时，我会说一些关于主题公园经理的正面评价。",
-      PWG5: "我会告诉一位工作同事，我尊重主题公园经理。",
+      NWG1: "我会问其他同事，他们是否对主题乐园经理做过的某件事有负面印象。",
+      NWG2: "在和同事交谈时，我会质疑主题乐园经理的能力。",
+      NWG3: "在和同事交谈时，我会批评主题乐园经理。",
+      NWG4: "我会向其他同事抱怨主题乐园经理做过的某件事。",
+      NWG5: "我会向其他同事讲一个关于主题乐园经理的不太正面的故事。",
+      PWG1: "在和同事交谈时，我会称赞主题乐园经理的做法。",
+      PWG2: "我会向其他同事说主题乐园经理的好话。",
+      PWG3: "在和同事交谈时，我会为主题乐园经理的做法辩护。",
+      PWG4: "在和同事交谈时，我会说一些关于主题乐园经理的正面评价。",
+      PWG5: "我会告诉其他同事，我尊重主题乐园经理。",
     };
     surveySections.forEach((section, index) => {
       const copy = sectionCopy[index];
@@ -2491,28 +2531,32 @@
       { speaker: "System", text: "任务协调员已进入聊天室。", delay: 800 },
       {
         speaker: "Coordinator",
-        text: ["大家好，欢迎参加本次任务。", "大家好，欢迎加入。", "大家好，欢迎进入聊天室。"],
+        text: ["大家好，欢迎大家参加今天的任务。", "大家好，欢迎参加今天的任务。", "大家好，欢迎进入今天的任务聊天室。"],
         delay: 1600,
       },
       {
         speaker: "Coordinator",
-        text: ["谢谢大家今天参加。", "谢谢大家参加今天的任务。", "谢谢大家来到这里。"],
+        text: ["我先确认一下两位参与者是否都进来了。", "我们先确认一下两位参与者是否都连进来了。", "我先看一下两位参与者是不是都已经进入聊天室。"],
         delay: 1000,
       },
       {
         speaker: "Coordinator",
-        text: ["我们稍等一下，让大家都连进来。", "我给大家一点时间完成连接。", "我们先短暂等一下另一位参与者加入。"],
+        text: ["请先留在这个聊天室里。", "请先保持在线。", "请先在这个聊天室里稍等一下。"],
         delay: 1400,
       },
       { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "参与者1已进入聊天室。", delay: 800 },
       {
         speaker: "Coordinator",
-        text: ["好的，看起来大家都到了。", "好的，现在两位参与者都在聊天室里了。", "谢谢大家，两位参与者都到齐了。"],
+        text: ["好的，看来人已经到齐了。", "好的，看起来两位参与者都到了。", "好的，大家都已经在聊天室里了。"],
         delay: 1500,
       },
       {
         speaker: "Coordinator",
-        text: ["开始前，大家可以简单介绍一下自己吗？不需要分享太个人的信息。", "开始前，大家可以简单介绍一下自己吗？不需要说太私人的信息。", "我们先快速做一轮自我介绍。不需要分享太个人的信息。"],
+        text: [
+          "请大家先自我介绍一下，只要大致介绍一下你们过去见数的经历即可，不需要透露个人信息。",
+          "我们先简单做一轮自我介绍。大致说一下过去做见数任务的经历就可以，不需要透露个人信息。",
+          "请两位先简单介绍一下自己。说说你们过去参加见数任务的大致经历即可，不用分享个人信息。",
+        ],
         delay: 2100,
       },
       {
@@ -2520,11 +2564,13 @@
         shuffleGroup: "prechatParticipantIntro",
         text: ["大家好，我做过很多见数任务，主要是问卷和决策类任务。", "大家好，我做过不少见数任务，大多是问卷和决策任务。", "大家好，我做见数任务比较多，不过这种小组聊天形式不太常见。"],
         delay: 6000,
+        preTypingDelay: 8000,
       },
       {
         speaker: "Coordinator",
-        text: ["谢谢。参与者2，你也简单介绍一下自己好吗？", "谢谢。参与者2，你也简单介绍一下自己吧。", "谢谢。参与者2，你也可以简单说一下自己吗？"],
+        text: "谢谢。参与者2，请你也简要介绍一下自己好吗？",
         delay: 4800,
+        preTypingDelay: 8000,
         skipIfParticipant2Introduced: true,
       },
     ]);
@@ -2532,37 +2578,37 @@
     prechatAfterIntro.splice(0, prechatAfterIntro.length, ...[
       {
         speaker: "Coordinator",
-        text: ["我现在简单说明一下任务。", "我先简单介绍一下任务。", "我简单说一下接下来要做什么。"],
+        text: ["谢谢大家。接下来我简单说明一下任务。", "谢谢大家。下面我简单介绍一下任务。", "谢谢大家。接下来我说一下具体的任务内容。"],
         delay: 1500,
       },
       {
         speaker: "Coordinator",
-        text: ["这个任务由一家市场研究公司组织。", "这是一个顾客反馈任务。", "本次任务围绕顾客反馈展开。"],
+        text: ["本次任务由一家市场调研公司组织。", "这是一个由市场调研公司组织的顾客反馈任务。", "本次任务围绕顾客反馈和服务改进展开。"],
         delay: 2300,
       },
       {
         speaker: "Coordinator",
-        text: ["你们将两人一组，讨论一个主题公园可以如何改进服务。", "你们会进行一次两人讨论，主题是一个主题公园如何改进服务。", "你们将进行两人讨论，讨论主题公园如何提升服务。"],
+        text: ["你们将两人一组，讨论一个主题乐园可以如何改进服务。", "你们会进行一次两人讨论，主题是一个主题乐园如何改进服务。", "你们将进行两人讨论，讨论主题乐园如何提升服务。"],
         delay: 2100,
       },
       {
         speaker: "Coordinator",
-        text: ["每个人都会被随机分配一个角色。", "角色会随机分配。", "系统会随机分配角色。"],
+        text: ["稍后系统会随机分配角色。", "接下来系统会随机分配角色。", "一会儿系统会为大家分配角色。"],
         delay: 2200,
       },
       {
         speaker: "Coordinator",
-        text: ["一个人会担任公园经理，另一个人会担任运营团队成员。", "一位参与者会担任公园经理，另一位会担任运营团队成员。", "这里会有一位公园经理和一位运营团队成员。"],
+        text: "一人扮演主题乐园经理，一人扮演乐园运营团队成员。",
         delay: 1500,
       },
       {
         speaker: "Coordinator",
-        text: ["请认真阅读你自己的角色材料，并根据分配到的角色回复。", "请仔细阅读角色材料，并按照你获得的角色在聊天中回复。", "角色出现后，请专注于你自己的材料，并按照该角色回复。"],
+        text: ["角色分配好之后，请阅读你自己的材料，并根据角色信息参与后续任务。", "角色分配好之后，请仔细阅读自己的材料，并按照角色信息参与后续任务。", "角色分配完成后，请阅读你自己的材料，并根据角色信息参与接下来的任务。"],
         delay: 1800,
       },
       {
         speaker: "Coordinator",
-        text: ["分配角色之前，大家对任务有没有什么问题？", "角色分配之前，大家有没有什么问题？", "分配角色前我先停一下。大家对任务有没有什么问题？"],
+        text: ["现在大家还有什么问题吗？", "现在大家对任务还有什么问题吗？", "在继续之前，大家还有什么问题吗？"],
         delay: 1800,
       },
     ]);
@@ -2570,10 +2616,10 @@
     prechatRoleAssignment.splice(0, prechatRoleAssignment.length, ...[
       { speaker: "System", text: "正在随机分配角色...", delay: 900 },
       { speaker: "System", text: "参与者1的角色是公园经理。", delay: 800 },
-      { speaker: "System", text: "你，参与者2，的角色是运营团队成员。", delay: 900 },
+      { speaker: "System", text: "你的角色是运营团队成员。", delay: 900 },
       {
         speaker: "Coordinator",
-        text: ["接下来，你会看到自己的角色材料。大家读完后，会进入聊天。", "接下来，你会看到自己的角色材料。阅读结束后，会进入聊天环节。", "现在你会进入自己的角色材料页面。大家读完后，聊天就会开始。"],
+        text: ["接下来，你会看到自己的角色材料，请仔细阅读后进入新的聊天室。", "接下来，你会看到自己的角色材料。请仔细阅读，之后进入新的聊天室。", "现在你会进入自己的角色材料页面。请仔细阅读后，再进入新的聊天室。"],
         delay: 2200,
       },
       { speaker: "System", text: "你现在将进入角色材料页面。", delay: 900 },
@@ -2583,14 +2629,14 @@
     briefingPages[0].title = "你的角色";
     briefingPages[0].blocks = [
       { type: "p", text: "感谢你参加这项顾客反馈任务。" },
-      { type: "p", text: "在今天的情境中，你是 Aetheria Gardens 主题公园的一名运营团队成员。你将直接和一位公园经理互动。" },
-      { type: "p", text: "在这个角色中，你的主要工作包括在入口处检票、扫描二维码、确认游客类别、引导游客入园，并回答家庭游客的一些简单问题。" },
+      { type: "p", text: "在今天的情境中，你是 Aetheria Gardens 主题乐园的一名运营团队成员。你将直接和一位公园经理互动。" },
+      { type: "p", text: "在这个角色中，你的主要工作包括在入口处检票、扫描二维码、确认游客类别、引导游客入园，并回答游客的一些简单问题。" },
     ];
     briefingPages[0].check.question = "在接下来的互动中，你的角色是什么？";
     briefingPages[0].check.options = [
       { value: "manager", label: "公园经理" },
       { value: "operations_team", label: "运营团队成员" },
-      { value: "visitor", label: "主题公园游客" },
+      { value: "visitor", label: "主题乐园游客" },
     ];
 
     briefingPages[1].eyebrow = "角色材料 2/3";
@@ -2604,7 +2650,7 @@
           "旺季：每天游客量会增加到约 5,000 人，团队压力很大，人手也不够。",
         ],
       },
-      { type: "p", text: "目前的全职人员安排方案由园区管理层制定。但你认为这个方案不够灵活，也让用工成本变得越来越难以承担。" },
+      { type: "p", text: "目前的全职人员安排方案由园区管理层制定。但是这个方案不够灵活，也让用工成本变得越来越难以承担。" },
     ];
     briefingPages[1].check.question = "Aetheria Gardens 主要的人员配置问题是什么？";
     briefingPages[1].check.options = [
@@ -2616,9 +2662,9 @@
     briefingPages[2].eyebrow = "角色材料 3/3";
     briefingPages[2].title = "你可能提出的建议";
     briefingPages[2].blocks = [
-      { type: "p", text: "你认为主题公园需要采用更灵活的用工模式，才能更好地应对淡旺季变化。" },
+      { type: "p", text: "你认为主题乐园需要采用更灵活的用工模式，才能更好地应对淡旺季变化。" },
       { type: "p", text: "例如，园区可以在客流高峰时使用临时员工或实习生，也可以把一部分现有长期员工纳入灵活用工池，让人员安排更贴合实际需求。" },
-      { type: "p", text: "提出人员安排方面的改变并不是你这个角色的必需职责，但你仍然想建议调整目前的做法，帮助主题公园改善运营表现。" },
+      { type: "p", text: "提出人员安排方面的改变并不是你这个角色的必需职责，但你仍然想建议调整目前的做法，帮助主题乐园改善运营表现。" },
       { type: "p", text: "你可以向经理提出实施灵活用工模式。这个话题比较敏感，因为现有的“全长期员工”方案目前被视为官方方案。" },
       { type: "p", text: "接下来，你将进入与经理的在线聊天。" },
     ];
@@ -2633,8 +2679,8 @@
     transitionPages[0].title = "淡季情况";
     transitionPages[0].blocks = [
       {
-        text: "现在，请继续阅读材料。下面的内容介绍主题公园淡季时的情况。",
-        html: "现在，请继续阅读材料。下面的内容介绍主题公园<strong>淡季</strong>时的情况。",
+        text: "现在，请继续阅读材料。下面的内容介绍主题乐园淡季时的情况。",
+        html: "现在，请继续阅读材料。下面的内容介绍主题乐园<strong>淡季</strong>时的情况。",
       },
       {
         text: "在一个典型的淡季工作日，园区大约有 500 名游客。",
@@ -2661,8 +2707,8 @@
     transitionPages[2].title = "附近游客";
     transitionPages[2].blocks = [
       {
-        text: "主题公园附近有几所大学和农场。距离园区 10 到 18 公里的范围内有 4 所大学，附近共有约 38,000 名大学生。",
-        html: "主题公园<strong>附近</strong>有几所大学和农场。距离园区 <strong>10 到 18 公里</strong>的范围内有<strong>4 所大学</strong>，附近共有<strong>约 38,000 名大学生</strong>。",
+        text: "主题乐园附近有几所大学和农场。距离园区 10 到 18 公里的范围内有 4 所大学，附近共有约 38,000 名大学生。",
+        html: "主题乐园<strong>附近</strong>有几所大学和农场。距离园区 <strong>10 到 18 公里</strong>的范围内有<strong>4 所大学</strong>，附近共有<strong>约 38,000 名大学生</strong>。",
       },
       {
         text: "一些大学生觉得这个园区很可爱，但更像是为小孩子设计的。也有人提到，如果有学生折扣，或者有更多适合拍照的地点，园区可能会更吸引学生。",

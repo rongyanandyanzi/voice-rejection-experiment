@@ -167,9 +167,9 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "POST" && req.url === "/api/prechat-question-check") {
+  if (req.method === "POST" && req.url === "/api/chat-intent-check") {
     const payload = await readJson(req);
-    const result = await classifyPrechatQuestionResponse(payload);
+    const result = await classifyChatIntentResponse(payload);
     sendJson(res, result, result.ok ? 200 : result.status || 500);
     return;
   }
@@ -596,9 +596,9 @@ async function generateAiReply(payload) {
   }
 }
 
-async function classifyPrechatQuestionResponse(payload) {
+async function classifyChatIntentResponse(payload) {
   if (!openaiApiKey) {
-    logAiFailure("prechat-classifier-missing-openai-key", {
+    logAiFailure("chat-intent-missing-openai-key", {
       status: 503,
       error: "OPENAI_API_KEY is not configured on the server.",
     });
@@ -610,43 +610,38 @@ async function classifyPrechatQuestionResponse(payload) {
   }
 
   const text = cleanPromptText(payload && payload.text);
-  if (!text) return { ok: true, intent: "other" };
+  const stage = String(payload && payload.stage || "").trim();
+  const phase = String(payload && payload.phase || "").trim();
   const language = normalizeLanguage(payload && payload.language);
+  const config = chatIntentConfig(stage, phase, language);
+
+  if (!config) {
+    return { ok: false, status: 400, error: "Unsupported chat intent classification request." };
+  }
+  if (!text) return { ok: true, intent: config.emptyIntent };
 
   const body = {
     model: openaiModel,
     input: [
       {
         role: "system",
-        content: [
-          "Classify Participant 2's latest reply during the prechat question window.",
-          "The Coordinator has just asked whether Participant 2 has any quick questions or any other questions before role assignment.",
-          "Return intent 'no_question' if the participant means they do not have questions or no other questions, even with informal wording, typos, thanks, or extra polite phrases.",
-          "Return intent 'has_question' if the participant asks any question, including procedural, task-related, casual, or unrelated questions.",
-          "Treat misspelled question words as questions, such as 'hwo' for 'how', 'whta' for 'what', or 'whos' for 'who is'.",
-          language === "zh"
-            ? "The participant may write in Simplified Chinese. Treat Chinese replies such as 没问题, 没有问题, 没有其他问题, 不用了, 不需要, 暂时没有, 没了, 没 as 'no_question'. Treat Chinese information-seeking messages with words such as 什么, 为什么, 怎么, 如何, 多久, 多长, 多少, 几个人, 谁, 哪里, 能不能, 可不可以, 是否, 需要, 角色, 任务, 流程, 时间, or punctuation 吗/？ as 'has_question' unless they clearly mean no questions."
-            : "",
-          "If the message contains a question mark or appears to ask for information, classify it as 'has_question' unless it clearly means no questions.",
-          "Return intent 'other' only if the message is neither a no-question reply nor an actual question.",
-          "Do not answer the participant. Only classify the intent.",
-        ].join("\n"),
+        content: config.instructions,
       },
       {
         role: "user",
-        content: `Participant 2 message:\n${text}`,
+        content: `Latest participant message:\n${text}`,
       },
     ],
     text: {
       format: {
         type: "json_schema",
-        name: "prechat_question_check",
+        name: config.schemaName,
         strict: true,
         schema: {
           type: "object",
           additionalProperties: false,
           properties: {
-            intent: { type: "string", enum: ["no_question", "has_question", "other"] },
+            intent: { type: "string", enum: config.intents },
           },
           required: ["intent"],
         },
@@ -672,19 +667,23 @@ async function classifyPrechatQuestionResponse(payload) {
       body: JSON.stringify(body),
     });
   } catch (error) {
-    logAiFailure("prechat-classifier-fetch", {
+    logAiFailure("chat-intent-fetch", {
       status: 503,
       retryable: true,
-      error: error.message || "Unable to classify prechat question response.",
+      stage,
+      phase,
+      error: error.message || "Unable to classify chat intent.",
     });
-    return { ok: false, status: 503, retryable: true, error: "Unable to classify prechat question response." };
+    return { ok: false, status: 503, retryable: true, error: "Unable to classify chat intent." };
   }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    logAiFailure("prechat-classifier-openai-status", {
+    logAiFailure("chat-intent-openai-status", {
       status: response.status,
       retryable: response.status === 429 || response.status >= 500,
+      stage,
+      phase,
       error: data.error && data.error.message ? data.error.message : "OpenAI API request failed.",
     });
     return {
@@ -696,19 +695,79 @@ async function classifyPrechatQuestionResponse(payload) {
   }
 
   const parsedObject = extractParsedObject(data);
-  if (parsedObject && ["no_question", "has_question", "other"].includes(parsedObject.intent)) {
+  if (parsedObject && config.intents.includes(parsedObject.intent)) {
     return { ok: true, intent: parsedObject.intent };
   }
   const parsed = parseOpenAiJson(extractResponseText(data));
-  if (parsed && ["no_question", "has_question", "other"].includes(parsed.intent)) {
+  if (parsed && config.intents.includes(parsed.intent)) {
     return { ok: true, intent: parsed.intent };
   }
-  logAiFailure("prechat-classifier-invalid-json", {
+  logAiFailure("chat-intent-invalid-json", {
     status: 502,
     retryable: true,
-    error: "OpenAI returned an invalid prechat classification.",
+    stage,
+    phase,
+    error: "OpenAI returned an invalid chat intent classification.",
   });
-  return { ok: false, status: 502, retryable: true, error: "OpenAI returned an invalid prechat classification." };
+  return { ok: false, status: 502, retryable: true, error: "OpenAI returned an invalid chat intent classification." };
+}
+
+function chatIntentConfig(stage, phase, language) {
+  if (stage === "prechat" && phase === "intro") {
+    return {
+      schemaName: "prechat_intro_intent",
+      intents: ["intro", "question", "other"],
+      emptyIntent: "other",
+      instructions: [
+        "Classify Participant 2's latest reply in the prechat introduction moment.",
+        "The Coordinator has just asked Participant 2 to briefly introduce themselves. A suitable reply can be a greeting, a short self-introduction, or a brief description of prior Prolific or online task experience.",
+        "Judge the meaning semantically in this exact context. Do not classify by matching a fixed word list.",
+        "Return 'intro' if the participant is greeting the room, introducing themselves, or sharing roughly the kind of online tasks they have done.",
+        "Return 'question' if the participant is asking for information, clarification, help, or a procedural answer instead of introducing themselves.",
+        "Return 'other' only when it is neither an introduction/greeting nor a question.",
+        language === "zh" ? "The participant may write in Simplified Chinese. In Chinese, Prolific may be called 见数. Understand natural short Chinese replies in context." : "",
+        "Do not answer the participant. Only classify the intent.",
+      ].join("\n"),
+    };
+  }
+
+  if (stage === "prechat" && phase === "question") {
+    return {
+      schemaName: "prechat_question_intent",
+      intents: ["no_question", "has_question", "other"],
+      emptyIntent: "other",
+      instructions: [
+        "Classify Participant 2's latest reply during the prechat question window.",
+        "The Coordinator has just asked whether Participant 2 has any quick questions or any other questions before role assignment.",
+        "Judge the participant's meaning semantically in context, not by matching a fixed list of words.",
+        "Return 'no_question' if the participant means they have no questions, no additional questions, or are ready to continue.",
+        "Return 'has_question' if the participant is asking for information, clarification, help, or a procedural answer.",
+        "Return 'other' only if the message is neither a no-question reply nor an actual question.",
+        language === "zh" ? "The participant may write in Simplified Chinese. Understand short Chinese replies naturally in context." : "",
+        "Do not answer the participant. Only classify the intent.",
+      ].join("\n"),
+    };
+  }
+
+  if (stage === "manager1" && phase === "rejection_followup") {
+    return {
+      schemaName: "manager_rejection_followup_intent",
+      intents: ["wind_down", "continue_discussion"],
+      emptyIntent: "continue_discussion",
+      instructions: [
+        "Classify the participant's latest message after the manager has already rejected their proposal for now.",
+        "The manager should close only if the participant accepts the outcome, disengages, says they have nothing else, thanks the manager, or otherwise signals they are ready to stop.",
+        "The manager should continue if the participant explains more, pushes back, asks a substantive question, revises the proposal, gives a new reason, or still seems engaged.",
+        "Judge the meaning semantically in context. Do not classify by matching a fixed word list.",
+        "Return 'wind_down' only for acceptance, disengagement, or a clear readiness to end the chat.",
+        "Return 'continue_discussion' for any message that still needs a manager response.",
+        language === "zh" ? "The participant may write in Simplified Chinese. Understand brief Chinese replies naturally in context." : "",
+        "Do not answer the participant. Only classify the intent.",
+      ].join("\n"),
+    };
+  }
+
+  return null;
 }
 
 async function requestOpenAiMessages(prompt, correction) {
@@ -852,6 +911,7 @@ function outputLanguageInstruction(language) {
     "Only translate the message text. Do not translate JSON keys or speaker labels.",
     "Use concise, everyday Chinese that sounds like a real typed chat, not translated English.",
     "Avoid stiff translationese such as 进行回应, 该情境, 此任务, or overly formal academic wording. Prefer natural phrases like 回复, 这个情况, 这个任务, 我这边, and 你这边 when they fit.",
+    "For short Chinese chat messages, it is natural to omit the final full stop sometimes. Do not make every Chinese message end with 。",
     "Do not include English unless it is a proper noun already used in the study, such as Aetheria Gardens.",
     "In Chinese output, refer to Prolific as 见数. Do not write the English word Prolific in visible Chinese chat text.",
   ].join("\n");
@@ -1109,7 +1169,7 @@ function buildInitialManagerPrompt(payload) {
       "Do not call the participant a front desk receptionist. If you need to refer to their role, call them an Operations Team Member.",
       phase === "opening"
         ? (language === "zh"
-          ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives after the online task ends. End by asking in Chinese: 根据你收到的信息，你认为主题公园下一步应该怎么做？"
+          ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives after the online task ends. End by asking in Chinese: 根据你收到的信息，你认为主题乐园下一步应该怎么做？"
           : "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives after the online task ends. End by asking: Based on the information you receive, what do you think the theme park should do next?")
         : "",
       phase !== "opening" ? "Park background: Aetheria Gardens relies almost exclusively on full-time permanent staff, creating a labor seesaw — surplus idle staff in the off-season (around 500 visitors per day) and staff shortages at peak times (around 5,000 visitors per day). The participant may raise a suggestion about how the park is run — often about the staffing approach, but it could be any kind of change." : "",
@@ -1406,8 +1466,12 @@ function buildNeutralManagerPrompt(payload) {
       isOpening
         ? "This is your opening message. Just say a brief, neutral hello (e.g. 'Hi' or 'Hello, good to chat'). Keep it to a short greeting only — do not ask a question, do not invite a topic, and do not raise the background yourself."
         : isClosing
-          ? "Send one short neutral closing message based on the conversation: you have enough information for now and the participant should return to regular work."
-          : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. Otherwise set intent to 'ask_more' and ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain.",
+          ? (language === "zh"
+            ? "Send one short neutral closing message based on the conversation: you have enough information for now. End by telling the participant: 你先做你的任务吧。"
+            : "Send one short neutral closing message based on the conversation: you have enough information for now. End by telling the participant they can go back to their task for now.")
+          : (language === "zh"
+            ? "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant: 你先做你的任务吧。 Otherwise set intent to 'ask_more' and ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."
+            : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant they can go back to their task for now. Otherwise set intent to 'ask_more' and ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."),
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
