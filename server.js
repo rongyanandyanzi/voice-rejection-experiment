@@ -2,12 +2,12 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const root = __dirname;
+const root = path.resolve(__dirname);
 const port = Number(process.env.PORT || 8787);
 const dataDir = path.resolve(process.env.DATA_DIR || path.join(root, "data"));
 const adminToken = process.env.ADMIN_TOKEN || "";
 const openaiApiKey = process.env.OPENAI_API_KEY || "";
-const openaiModel = process.env.OPENAI_MODEL || "gpt-5.5";
+const openaiModel = process.env.OPENAI_MODEL || "gpt-5";
 const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT || "low";
 fs.mkdirSync(dataDir, { recursive: true });
 const participantsPath = path.join(dataDir, "participants.csv");
@@ -462,6 +462,7 @@ function logAiFailure(context, details = {}) {
     status: details.status || "",
     retryable: Boolean(details.retryable),
     error: details.error || "",
+    cause: details.cause || "",
     stage: details.stage || "",
     phase: details.phase || "",
     model: openaiModel,
@@ -674,7 +675,13 @@ async function classifyChatIntentResponse(payload) {
       phase,
       error: error.message || "Unable to classify chat intent.",
     });
-    return { ok: false, status: 503, retryable: true, error: "Unable to classify chat intent." };
+    return {
+      ok: false,
+      status: 503,
+      retryable: true,
+      error: "Unable to classify chat intent.",
+      cause: error.message || "",
+    };
   }
 
   const data = await response.json().catch(() => ({}));
@@ -837,6 +844,7 @@ async function requestOpenAiMessages(prompt, correction) {
       status: 503,
       retryable: true,
       error: "The chat connection had a brief issue. Please try again.",
+      cause: error.message || "",
     };
   }
 
@@ -952,7 +960,9 @@ function buildPrechatPrompt(payload) {
       "Current task summary the Coordinator may share: this is a short online customer feedback task run by a market research company. The two participants will take part in a two-person discussion about how a theme park could improve its service.",
       "Current prechat flow the Coordinator may share: the room is doing a brief welcome, short self-introductions, and quick questions before roles are assigned. After Participant 2 has no more questions, the system will assign roles and show private role materials.",
       "Overall study procedure the Coordinator may explain briefly at a high level: (1) this short pre-task intro chat; (2) the system assigns each person a role and shows them their own private on-screen instructions; (3) a brief reading about a service organization and its current situation; (4) a short typed chat with a manager about how things are run there; (5) a short set of additional materials about the theme park's off-season situation; (6) the participant decides whether to discuss their thoughts with the manager; (7) if the participant chooses yes, a separate short neutral follow-up chat with the manager; (8) a short set of questions at the end.",
-      "Timing answer guide: if asked about duration, say the whole study usually takes about 10 to 15 minutes, depending a little on reading and chat pace.",
+      language === "zh"
+        ? "Timing answer guide: if asked about duration, say in Chinese that the whole study usually takes about 10~15分钟, depending a little on reading and chat pace. Keep the wording natural; do not use a fixed template."
+        : "Timing answer guide: if asked about duration, say the whole study usually takes about 10 to 15 minutes, depending a little on reading and chat pace.",
       "Participant count answer guide: if asked how many people or participants will take part, say there are two participants in the task discussion, Participant 2 and another participant. The Coordinator is only here to guide the session.",
       "Role assignment answer guide: roles have not been assigned yet in prechat. The system will assign them shortly. Each person should follow only the private role materials shown on their own screen. Do not reveal Participant 2's later role, Participant 1's later role, or any role-specific content before assignment.",
       "Instruction answer guide: if asked what to do now, say to type naturally, keep responses brief, stay on the page, and follow the instructions shown on screen. If asked what to say later, say to read the role materials and respond naturally based on the assigned role.",

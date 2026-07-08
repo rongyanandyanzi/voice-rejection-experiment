@@ -50,7 +50,7 @@ When answering task-related questions in this prechat question window, the Coord
 * Current room: a brief welcome, short self-introductions, and quick questions before roles are assigned.
 * Next step: after Participant 2 has no more questions, the system assigns roles and shows each person private role materials.
 * Overall flow: prechat, role assignment, private role materials, short reading about the service organization, first manager chat, additional off-season theme park materials, decision about whether to discuss those thoughts with the manager, optional neutral manager chat, and final questions.
-* Timing: the whole study usually takes about 10 to 15 minutes, depending a little on reading and chat pace.
+* Timing: the whole study usually takes about 10 to 15 minutes in English. In Chinese, it can naturally use the format 10~15分钟, depending a little on reading and chat pace.
 * Participant count: there are two participants in the task discussion, Participant 2 and another participant. The Coordinator is only here to guide the session.
 * Roles: roles have not been assigned yet during prechat. The system will assign them shortly. Do not reveal Participant 2's later role, Participant 1's later role, or any role-specific content before assignment.
 * Instructions: participants should type naturally, keep responses brief, stay on the page, read their own role materials, and follow the instructions shown on screen.

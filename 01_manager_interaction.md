@@ -6,7 +6,7 @@ Thanks for participating in this live research interaction.
 
 Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.
 
-In this role, your main responsibilities include checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.
+The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.
 
 You are about to begin an online interaction with your manager. Before proceeding, please carefully review the background briefing below so that you are fully prepared for the discussion.
 
@@ -18,11 +18,11 @@ Off-season: Daily attendance drops to around 500 visitors, leaving the park with
 
 Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.
 
-The current full-time staffing plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage. You believe the theme park must adopt a more agile employment model in order to survive.
+The current labor plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage. You believe the theme park must adopt a more agile employment model in order to survive.
 
 For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.
 
-Although proposing staffing changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance.
+Although proposing labor-related changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance.
 
 Now, you are about to enter an online chat with your manager.
 

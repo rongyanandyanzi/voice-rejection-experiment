@@ -222,14 +222,14 @@ Use the same 1–5 Likert scale:
 5 = Strongly agree
 
 Items:
-MA1. Polite.
-MA2. Respectful.
-MA3. Sensitive to my feelings.
-MA4. Respectful toward me.
-MA5. Justified.
-MA6. Courteous.
-MA7. Considerate toward me.
-MA8. Tactful.
+MA1. Polite
+MA2. Courteous
+MA3. Sensitive to my feelings
+MA4. Respectful toward me
+MA5. Considerate toward me
+MA6. Appropriate
+MA7. Civil
+MA8. Tactful
 
 ## Section 5: Perceived Usefulness of Manager Response
 

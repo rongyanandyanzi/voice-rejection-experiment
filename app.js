@@ -177,14 +177,14 @@
       instructionRed: true,
       stem: "The manager's response was...",
       items: [
-        { id: "MA1", text: "Polite." },
-        { id: "MA2", text: "Respectful." },
-        { id: "MA3", text: "Sensitive to my feelings." },
-        { id: "MA4", text: "Respectful toward me." },
-        { id: "MA5", text: "Justified." },
-        { id: "MA6", text: "Courteous." },
-        { id: "MA7", text: "Considerate toward me." },
-        { id: "MA8", text: "Tactful." },
+        { id: "MA1", text: "Polite" },
+        { id: "MA2", text: "Courteous" },
+        { id: "MA3", text: "Sensitive to my feelings" },
+        { id: "MA4", text: "Respectful toward me" },
+        { id: "MA5", text: "Considerate toward me" },
+        { id: "MA6", text: "Appropriate" },
+        { id: "MA7", text: "Civil" },
+        { id: "MA8", text: "Tactful" },
       ],
     },
     {
@@ -389,7 +389,7 @@
       blocks: [
         { type: "p", text: "Thanks for taking part in this online customer feedback task." },
         { type: "p", text: "Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager." },
-        { type: "p", text: "In this role, your main responsibilities include checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors." },
+        { type: "p", text: "The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors." },
       ],
       check: {
         question: "What is your role in the upcoming interaction?",
@@ -413,7 +413,7 @@
             "Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.",
           ],
         },
-        { type: "p", text: "The current full-time staffing plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage." },
+        { type: "p", text: "The current labor plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage." },
       ],
       check: {
         question: "What is the main staffing problem at Aetheria Gardens?",
@@ -431,7 +431,7 @@
       blocks: [
         { type: "p", text: "You believe the theme park must adopt a more agile employment model in order to survive." },
         { type: "p", text: "For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand." },
-        { type: "p", text: "Although proposing staffing changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance." },
+        { type: "p", text: "Although proposing labor-related changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance." },
         { type: "p", text: "You may advocate for the implementation of a flexible labor model. This is a sensitive topic because the existing “all-permanent” staffing strategy is currently treated as the official plan." },
         { type: "p", text: "Now, you are about to enter an online chat with your manager." },
       ],
@@ -1014,7 +1014,7 @@
     state.prechatAwaitingIntro = false;
     clearPrechatTimers();
     state.prechatSequenceRunning = true;
-    await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Great, everyone. We’ll keep moving.", "好的，谢谢大家。我们继续。"), delay: 1200 });
+    await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Great, everyone. We’ll keep moving.", "好的，我们继续。"), delay: 1200 });
     await runPrechatSequence(prechatAfterIntro);
     await answerQueuedPrechatInputs();
     state.prechatSequenceRunning = false;
@@ -2481,14 +2481,14 @@
       PR3: "我提出的工作安排改变并没有太大帮助。",
       PR4: "我对如何解决工作相关问题提出了不切实际的建议。",
       PR5: "我的建议不是很有用。",
-      MA1: "礼貌的",
-      MA2: "尊重的",
+      MA1: "有礼貌的",
+      MA2: "彬彬有礼的",
       MA3: "顾及我的感受的",
       MA4: "尊重我的",
-      MA5: "符合礼仪规范的",
-      MA6: "有礼的",
-      MA7: "为我着想的",
-      MA8: "委婉得体的",
+      MA5: "体贴我的感受的",
+      MA6: "得体的",
+      MA7: "文明有礼的",
+      MA8: "说话有分寸的",
       MC1: "聚焦在我可以实际改进的具体问题和行为上。",
       MC2: "指出了我的不足",
       MC3: "提到了清晰、合理的可接受行为标准。",
@@ -2578,7 +2578,7 @@
     prechatAfterIntro.splice(0, prechatAfterIntro.length, ...[
       {
         speaker: "Coordinator",
-        text: ["谢谢大家。接下来我简单说明一下任务。", "谢谢大家。下面我简单介绍一下任务。", "谢谢大家。接下来我说一下具体的任务内容。"],
+        text: ["接下来我简单说明一下任务。", "下面我简单介绍一下任务。", "接下来我说一下具体的任务内容。"],
         delay: 1500,
       },
       {
@@ -2630,7 +2630,7 @@
     briefingPages[0].blocks = [
       { type: "p", text: "感谢你参加这项顾客反馈任务。" },
       { type: "p", text: "在今天的情境中，你是 Aetheria Gardens 主题乐园的一名运营团队成员。你将直接和一位公园经理互动。" },
-      { type: "p", text: "在这个角色中，你的主要工作包括在入口处检票、扫描二维码、确认游客类别、引导游客入园，并回答游客的一些简单问题。" },
+      { type: "p", text: "运营团队的日常工作包括：入口处检票、扫描二维码、确认游客类别、引导游客入园，并回答游客的一些简单问题。" },
     ];
     briefingPages[0].check.question = "在接下来的互动中，你的角色是什么？";
     briefingPages[0].check.options = [
@@ -2650,7 +2650,7 @@
           "旺季：每天游客量会增加到约 5,000 人，团队压力很大，人手也不够。",
         ],
       },
-      { type: "p", text: "目前的全职人员安排方案由园区管理层制定。但是这个方案不够灵活，也让用工成本变得越来越难以承担。" },
+      { type: "p", text: "目前的用工方案由园区管理层制定。但是这个方案不够灵活，也让用工成本变得越来越难以承担。" },
     ];
     briefingPages[1].check.question = "Aetheria Gardens 主要的人员配置问题是什么？";
     briefingPages[1].check.options = [
@@ -2664,7 +2664,7 @@
     briefingPages[2].blocks = [
       { type: "p", text: "你认为主题乐园需要采用更灵活的用工模式，才能更好地应对淡旺季变化。" },
       { type: "p", text: "例如，园区可以在客流高峰时使用临时员工或实习生，也可以把一部分现有长期员工纳入灵活用工池，让人员安排更贴合实际需求。" },
-      { type: "p", text: "提出人员安排方面的改变并不是你这个角色的必需职责，但你仍然想建议调整目前的做法，帮助主题乐园改善运营表现。" },
+      { type: "p", text: "提出人员用工方面的改变并不是你这个角色的必需职责，但你仍然想建议调整目前的做法，帮助主题乐园改善运营表现。" },
       { type: "p", text: "你可以向经理提出实施灵活用工模式。这个话题比较敏感，因为现有的“全长期员工”方案目前被视为官方方案。" },
       { type: "p", text: "接下来，你将进入与经理的在线聊天。" },
     ];
