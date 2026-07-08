@@ -27,6 +27,7 @@
   const condition = requestedCondition || storedSession.assigned_condition || pick(conditionLabels);
   const conditionSource = requestedCondition ? "url" : (storedSession.condition_source || "random_assignment");
   const dataEndpoint = `${window.location.protocol === "file:" ? "http://localhost:8787" : window.location.origin}/api`;
+  const apiRequestTimeoutMs = 60000;
   let responseOrder = Number(storedSession.response_order || 0);
   let allowStudyExit = false;
   const forwardStageOrder = {
@@ -1278,6 +1279,16 @@
     return chatTextUnitCount(text);
   }
 
+  async function fetchWithTimeout(url, options = {}, timeoutMs = apiRequestTimeoutMs) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
   function chatTextUnitCount(text) {
     const raw = String(text || "").trim();
     if (!raw) return 0;
@@ -1289,7 +1300,7 @@
 
   async function getChatIntent(stage, phase, text) {
     try {
-      const response = await fetch(`${dataEndpoint}/chat-intent-check`, {
+      const response = await fetchWithTimeout(`${dataEndpoint}/chat-intent-check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ stage, phase, text, language }),
@@ -2051,19 +2062,31 @@
   }
 
   function normalizeChineseSpacing(text) {
-    let cleanedText = String(text || "");
+    const rawText = String(text || "").trim();
+    const cjkCount = (rawText.match(/[\u3400-\u9fff]/g) || []).length;
+    const hasChinesePunctuation = /[，、。！？；：]/.test(rawText);
+    const hasChineseBreakSpaces = /[\u3400-\u9fff]\s+[\u3400-\u9fff]/.test(rawText);
+    if (cjkCount >= 32 && !hasChinesePunctuation && hasChineseBreakSpaces) {
+      return stripFinalChineseFullStop(rawText.replace(/\s+/g, " "));
+    }
+
+    let cleanedText = rawText;
     let previousText = "";
     while (cleanedText !== previousText) {
       previousText = cleanedText;
       cleanedText = cleanedText.replace(/([\u3400-\u9fff])\s+([\u3400-\u9fff])/g, "$1$2");
     }
-    return cleanedText
-      .replace(/([\u3400-\u9fff])\s+([，。！？、；：])/g, "$1$2")
-      .replace(/([，。！？、；：])\s+([\u3400-\u9fff])/g, "$1$2")
-      .replace(/\s+([，。！？、；：])/g, "$1")
+    return stripFinalChineseFullStop(cleanedText
+      .replace(/([\u3400-\u9fff])\s+([，、。！？；：])/g, "$1$2")
+      .replace(/([，、。！？；：])\s+([\u3400-\u9fff])/g, "$1$2")
+      .replace(/\s+([，、。！？；：])/g, "$1")
       .replace(/([（])\s+/g, "$1")
       .replace(/\s+([）])/g, "$1")
-      .trim();
+      .trim());
+  }
+
+  function stripFinalChineseFullStop(text) {
+    return String(text || "").replace(/。$/, "");
   }
 
   function cleanVisibleNames(text) {
@@ -2082,7 +2105,7 @@
     const retryMessage = inZh("The chat connection had a brief issue. Please try again.", "聊天连接短暂出现问题。请再试一次。");
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const response = await fetch(`${dataEndpoint}/ai-reply`, {
+        const response = await fetchWithTimeout(`${dataEndpoint}/ai-reply`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

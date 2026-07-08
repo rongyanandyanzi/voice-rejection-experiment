@@ -9,6 +9,7 @@ const adminToken = process.env.ADMIN_TOKEN || "";
 const openaiApiKey = process.env.OPENAI_API_KEY || "";
 const openaiModel = process.env.OPENAI_MODEL || "gpt-5";
 const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT || "low";
+const openaiRequestTimeoutMs = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 45000));
 fs.mkdirSync(dataDir, { recursive: true });
 const participantsPath = path.join(dataDir, "participants.csv");
 const interactionsPath = path.join(dataDir, "interactions.csv");
@@ -470,6 +471,31 @@ function logAiFailure(context, details = {}) {
   console.error(`[ai-failure] ${context}`, safeDetails);
 }
 
+async function fetchOpenAiResponses(body) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), openaiRequestTimeoutMs);
+  try {
+    return await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${openaiApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error && error.name === "AbortError") {
+      const timeoutError = new Error(`OpenAI request timed out after ${openaiRequestTimeoutMs}ms.`);
+      timeoutError.name = "OpenAIRequestTimeout";
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function generateAiReply(payload) {
   if (!openaiApiKey) {
     logAiFailure("missing-openai-key", {
@@ -576,6 +602,44 @@ async function generateAiReply(payload) {
         });
         return failure;
       }
+      const punctuationProblem = managerChinesePunctuationProblem(lastMessages, prompt);
+      if (punctuationProblem) {
+        if (attempt < 2) {
+          correction = punctuationProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate readable Chinese manager punctuation.",
+        };
+        logAiFailure("manager-chinese-punctuation-validation", {
+          ...failure,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return failure;
+      }
+      const optionQuestionProblem = neutralManagerOptionQuestionProblem(lastMessages, prompt, lastIntent);
+      if (optionQuestionProblem) {
+        if (attempt < 2) {
+          correction = optionQuestionProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate an open-ended neutral manager question.",
+        };
+        logAiFailure("neutral-manager-option-question-validation", {
+          ...failure,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return failure;
+      }
       const lengthProblem = shouldEnforceManagerLength(prompt, lastIntent)
         ? managerWordCountProblem(lastMessages, prompt)
         : "";
@@ -659,14 +723,7 @@ async function classifyChatIntentResponse(payload) {
 
   let response;
   try {
-    response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openaiApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    response = await fetchOpenAiResponses(body);
   } catch (error) {
     logAiFailure("chat-intent-fetch", {
       status: 503,
@@ -674,6 +731,7 @@ async function classifyChatIntentResponse(payload) {
       stage,
       phase,
       error: error.message || "Unable to classify chat intent.",
+      cause: error.message || "",
     });
     return {
       ok: false,
@@ -830,14 +888,7 @@ async function requestOpenAiMessages(prompt, correction) {
 
   let response;
   try {
-    response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openaiApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    response = await fetchOpenAiResponses(body);
   } catch (error) {
     return {
       ok: false,
@@ -918,8 +969,10 @@ function outputLanguageInstruction(language) {
     "Keep the JSON speaker field values exactly as the allowed English labels, such as Coordinator, Participant 1, Manager, Coworker 1, and Coworker 2.",
     "Only translate the message text. Do not translate JSON keys or speaker labels.",
     "Use concise, everyday Chinese that sounds like a real typed chat, not translated English.",
+    "Write complete, fluent Chinese sentences. Do not output chopped-up keyword strings or unnatural word piles.",
     "Avoid stiff translationese such as 进行回应, 该情境, 此任务, or overly formal academic wording. Prefer natural phrases like 回复, 这个情况, 这个任务, 我这边, and 你这边 when they fit.",
-    "For short Chinese chat messages, it is natural to omit the final full stop sometimes. Do not make every Chinese message end with 。",
+    "Use normal Chinese punctuation inside sentences, such as ，、。？！；：, so longer messages are easy to read. If you omit punctuation in a typed-chat style, use spaces only between fluent clauses or short phrases.",
+    "For natural typed Chinese chat, the final full stop at the very end of a message may be omitted, even if the message contains more than one sentence. Do not omit a final question mark or exclamation mark when the message is a question or exclamation. Keep punctuation between internal sentences or clauses, and do not make long messages one continuous unbroken string.",
     "Do not include English unless it is a proper noun already used in the study, such as Aetheria Gardens.",
     "In Chinese output, refer to Prolific as 见数. Do not write the English word Prolific in visible Chinese chat text.",
   ].join("\n");
@@ -1187,6 +1240,7 @@ function buildInitialManagerPrompt(payload) {
       "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
       "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
       "Sound natural, concise, and chat-like.",
+      language === "zh" ? "In Chinese, every Manager message must read as fluent natural sentences. Do not write clipped keyword chains like a note draft." : "",
       "Write like a real person typing to a coworker, not like a policy memo, rubric, evaluation form, or HR/admin instruction.",
       "Avoid robotic phrases such as 'Provide ... immediately', 'You must ...', 'This proposal is incomplete and overlooks clear operational needs', or similar command-style wording.",
       "Avoid imperative checklist wording. Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
@@ -1451,6 +1505,7 @@ function buildNeutralManagerPrompt(payload) {
   const isOpening = phase === "opening";
   const intentEnum = (!isOpening && !isClosing) ? ["ask_more", "enough"] : null;
   return {
+    kind: "manager2",
     speakers: ["Manager"],
     minMessages: 1,
     maxMessages: 1,
@@ -1472,6 +1527,7 @@ function buildNeutralManagerPrompt(payload) {
       "Do not approve or reject the new proposal.",
       "Do not praise or criticize the participant.",
       "Do not provide detailed suggestions.",
+      "When asking follow-up questions, do not provide answer choices, examples, suggested solutions, or A/B alternatives. Do not ask questions like 'is it X or Y', 'are you thinking X or Y', 'whether X or Y', or 'X 还是 Y / X 或者 Y'. Ask open-ended questions instead, such as what they think should be done, how they would solve the issue, or what the next step should be.",
       "Stay neutral, brief, and matter-of-fact; avoid warm, rude, constructive-rejection, or evaluative language.",
       isOpening
         ? "This is your opening message. Just say a brief, neutral hello (e.g. 'Hi' or 'Hello, good to chat'). Keep it to a short greeting only — do not ask a question, do not invite a topic, and do not raise the background yourself."
@@ -1480,8 +1536,8 @@ function buildNeutralManagerPrompt(payload) {
             ? "Send one short neutral closing message based on the conversation: you have enough information for now. End by telling the participant: 你先做你的任务吧。"
             : "Send one short neutral closing message based on the conversation: you have enough information for now. End by telling the participant they can go back to their task for now.")
           : (language === "zh"
-            ? "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant: 你先做你的任务吧。 Otherwise set intent to 'ask_more' and ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."
-            : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant they can go back to their task for now. Otherwise set intent to 'ask_more' and ask one basic neutral clarification question grounded in their wording (1-2 short sentences, no repeats). Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."),
+            ? "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant: 你先做你的任务吧。 Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask '你觉得该怎么解决这个问题？' rather than '你觉得主要应该调整目标游客群，还是调整淡季活动安排？' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."
+            : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant they can go back to their task for now. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask 'How do you think this issue should be solved?' rather than 'Do you think this is mainly about changing the target visitors or changing off-season activities?' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."),
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
@@ -1699,6 +1755,57 @@ function managerWordCountProblem(messages, prompt) {
     `Length correction required. Previous Manager message word count(s): ${counts}.`,
     `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
     "Preserve the same experimental condition and rejection outcome.",
+    "Return only valid JSON.",
+  ].join(" ");
+}
+
+function managerChinesePunctuationProblem(messages, prompt) {
+  if (!prompt || !["manager1", "manager2"].includes(prompt.kind)) return "";
+  if (!Array.isArray(messages) || !messages.length) return "";
+  const problems = messages
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || "").trim())
+    .filter((text) => {
+      const cjkCount = (text.match(/[\u3400-\u9fff]/g) || []).length;
+      const punctuationCount = (text.match(/[，、。？！；：]/g) || []).length;
+      const hasChineseBreakSpaces = /[\u3400-\u9fff]\s+[\u3400-\u9fff]/.test(text);
+      return cjkCount >= 32 && punctuationCount === 0 && !hasChineseBreakSpaces;
+    });
+
+  if (!problems.length) return "";
+  return [
+    "Chinese punctuation correction required.",
+    "The previous Manager message was a long Chinese sentence with no punctuation or spacing breaks.",
+    "Regenerate the Manager message as fluent, natural Simplified Chinese sentences, not chopped-up keyword strings.",
+    "Use normal Chinese punctuation such as ，、。？！；：, or use spaces only between fluent clauses or short phrases.",
+    "The final full stop at the very end of the message may be omitted, but final question marks and exclamation marks should be preserved for questions or exclamations. Long or multi-clause messages must not be one continuous unbroken string or a pile of separated keywords.",
+    "Preserve the same experimental condition, message count, meaning, and rejection outcome.",
+    "Return only valid JSON.",
+  ].join(" ");
+}
+
+function neutralManagerOptionQuestionProblem(messages, prompt, intent) {
+  if (!prompt || prompt.kind !== "manager2" || intent !== "ask_more") return "";
+  if (!Array.isArray(messages) || !messages.length) return "";
+  const managerText = messages
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || "").trim())
+    .join(" ");
+  if (!managerText) return "";
+
+  const hasChineseOptions = /[？?]/.test(managerText) && /(还是|或者|或是|还是说|或者说)/.test(managerText);
+  const hasEnglishOptions = /[?]/.test(managerText) && (
+    /\b(do you mean|are you thinking|is it|would it be|should it be|mainly|primarily)\b[\s\S]*\bor\b/i.test(managerText) ||
+    /\bwhether\b[\s\S]*\bor\b/i.test(managerText) ||
+    /\bor something else\b/i.test(managerText)
+  );
+  if (!hasChineseOptions && !hasEnglishOptions) return "";
+
+  return [
+    "Open-ended question correction required.",
+    "The previous neutral Manager question gave the participant answer choices or A/B alternatives.",
+    "Regenerate one neutral open-ended follow-up question without options, examples, suggested answers, or either/or wording.",
+    "Ask what the participant thinks should be done, how they would solve the issue, or what next step they would suggest, using only the participant's own wording and already-mentioned facts.",
     "Return only valid JSON.",
   ].join(" ");
 }

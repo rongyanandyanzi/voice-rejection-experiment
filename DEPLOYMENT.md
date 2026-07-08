@@ -31,6 +31,7 @@ Do not deploy on a platform/filesystem where server files disappear on restart u
 - `OPENAI_API_KEY`: required for AI-generated Manager, Lisa, and John chat replies.
 - `OPENAI_MODEL`: optional model name. Defaults to `gpt-5`.
 - `OPENAI_REASONING_EFFORT`: optional reasoning level for GPT-5-class models. Defaults to `low`. Use `medium` or `high` only if you want stronger but slower and more expensive replies.
+- `OPENAI_TIMEOUT_MS`: optional OpenAI request timeout. Defaults to `45000`.
 
 The OpenAI API key must be set on the server or in Render environment variables. Do not put the API key in `app.js`, `index.html`, GitHub, Prolific, or any browser-visible file.
 
@@ -49,6 +50,7 @@ The Render service should use:
 - Environment variable `OPENAI_API_KEY=<your OpenAI API key>`
 - Optional environment variable `OPENAI_MODEL=gpt-5`
 - Optional environment variable `OPENAI_REASONING_EFFORT=low`
+- Optional environment variable `OPENAI_TIMEOUT_MS=45000`
 
 After deployment, use the public service URL as the experiment URL:
 
@@ -148,6 +150,7 @@ Option B: create the web service manually.
    - `OPENAI_API_KEY=<your OpenAI API key>`
    - `OPENAI_MODEL=gpt-5`
    - `OPENAI_REASONING_EFFORT=low`
+   - `OPENAI_TIMEOUT_MS=45000`
 10. Click **Create Web Service**.
 
 ## Test the Deployed Experiment

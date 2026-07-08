@@ -61,6 +61,10 @@ The manager should not criticize Alex.
 
 The manager should not provide detailed suggestions.
 
+The manager should not provide answer choices, examples, suggested solutions, or A/B alternatives in follow-up questions.
+
+The manager should ask open-ended questions, such as what Alex thinks should be done, how Alex would solve the issue, or what next step Alex would suggest.
+
 The manager should not give a vague rejection.
 
 The manager should simply receive the proposal and ask basic clarification questions.
@@ -71,13 +75,15 @@ The manager may ask questions such as:
 
 - “What problem are you trying to address?”
 - “What specific change are you suggesting?”
-- “Who would this proposal mainly target?”
+- “Who do you think this proposal should focus on?”
 - “How would this affect current park operations?”
 - “What information are you basing this on?”
 - “What would be the first step if we considered this?”
 - “How would this fit with the park’s current visitor strategy?”
 - “What resources would this require?”
 - “How would we know whether it works?”
+
+Do not ask option-style questions such as “Do you think this is mainly about changing the target visitors or changing off-season activities?” Ask an open-ended version instead, such as “How do you think this issue should be solved?”
 
 ## Manager Response Style
 
