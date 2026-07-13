@@ -1723,8 +1723,8 @@
     }
     screen.innerHTML = `
       <article class="page">
-        <h1>${escapeHtml(inZh("Thank You", "谢谢"))}</h1>
-        <p>${escapeHtml(inZh("Your responses have been submitted. You may now close this page.", "你的回答已提交。现在可以关闭此页面。"))}</p>
+        <h1>${escapeHtml(inZh("Thank You", "谢谢您的参与"))}</h1>
+        <p>${escapeHtml(inZh("Your responses have been submitted. You may now close this page.", "谢谢您的参与，您的完卷码是：WORK888。请返回见数页面填入该码并提交问卷，以领取报酬。"))}</p>
         <div class="actions">
           <button class="button" type="button" disabled>${escapeHtml(inZh("Done", "完成"))}</button>
         </div>
