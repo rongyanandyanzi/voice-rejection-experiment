@@ -12,16 +12,23 @@
     LP_HC: "LP_HC",
     LP_LC: "LP_LC",
   };
+  const firstParam = (...names) => {
+    for (const name of names) {
+      const value = params.get(name);
+      if (value) return value;
+    }
+    return "";
+  };
   const ids = {
-    prolific_pid: params.get("PROLIFIC_PID") || "missing",
-    study_id: params.get("STUDY_ID") || "missing",
-    session_id: params.get("SESSION_ID") || "missing",
+    prolific_pid: firstParam("PROLIFIC_PID", "oid", "participant_id", "uid", "user_id", "respondent_id", "subject_id", "js_id") || "missing",
+    study_id: firstParam("STUDY_ID", "study_id", "project_id") || "missing",
+    session_id: firstParam("SESSION_ID", "session_id", "response_id", "submission_id", "record_id", "oid", "participant_id", "uid", "user_id", "respondent_id", "subject_id", "js_id") || "missing",
   };
   const completionRedirectUrl = params.get("completion_url") || params.get("redirect_url") || params.get("return_url") || "";
   const sessionKey = `voice-rejection:${ids.prolific_pid}:${ids.study_id}:${ids.session_id}`;
   const storedSession = readStoredSession();
   const skipTo = (params.get("skip_to") || "").toLowerCase();
-  const language = normalizeLanguage(params.get("lang") || storedSession.language || "en");
+  const language = normalizeLanguage(params.get("lang") || (params.get("oid") ? "zh" : "") || storedSession.language || "en");
   const isChinese = language === "zh";
   const requestedCondition = normalizeCondition(params.get("condition"));
   const condition = requestedCondition || storedSession.assigned_condition || pick(conditionLabels);
