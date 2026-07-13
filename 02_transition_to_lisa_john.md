@@ -8,11 +8,23 @@ The participant should continue reading study materials about the theme park's o
 
 The new situation is separate from the previous flexible labor proposal.
 
-After reviewing the materials, the participant decides whether they want to discuss their thoughts about the situation with the manager.
+After reviewing the materials, the participant continues to a second neutral manager chat.
 
 There is no coworker chat in the main flow for this version.
 
 ## Materials Text
+
+Before the three materials pages, show one short introduction page:
+
+### Intro Page: Next Materials
+
+You will now read a second set of materials about the theme park situation.
+
+If you see information that seems useful, you may use it in the next conversation with the manager.
+
+You may also take notes while reading, so it is easier to use the information later.
+
+In the second conversation, you can discuss the second set of materials with the manager. You can also choose not to mention these materials and end the conversation quickly.
 
 Display the materials as three short pages rather than one long page.
 
@@ -38,22 +50,21 @@ There are several universities and farms **near the theme park**, including **4 
 
 Some university students say the park is cute, but it feels mainly **designed for little kids**. Others mention that **student discounts** or **more photo-friendly spots** might make the park more attractive to students.
 
-After reviewing this situation, you can decide whether you want to **discuss your thoughts about it with the manager**.
+After reviewing this situation, you will continue to a **second conversation with the manager**.
 
-## Decision Prompt
+## Second Manager Chat Continue Page
 
 After the participant finishes the final materials page, show this prompt:
 
-Do you want to discuss your thoughts about this situation with the manager?
+If you are ready, please click Continue. You will enter the second conversation with the manager.
 
-Buttons:
+In this second conversation, you can discuss the second set of materials with the manager. You can also choose not to mention these materials and end the conversation quickly.
 
-- Yes
-- No
+Button:
 
-If the participant chooses Yes, open the second neutral manager chat.
+- Continue
 
-If the participant chooses No, skip the second manager chat and go directly to the post-interaction survey.
+When the participant clicks Continue, open the second neutral manager chat.
 
 ## Rules
 

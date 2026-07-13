@@ -61,6 +61,7 @@
     prechatTimers: [],
     secondPhase: "beforeProposal",
     neutralQuestionCount: 0,
+    neutralNoSubstancePrompted: false,
     postSuggestionTurns: 0,
     managerAskedFollowup: false,
     managerFollowupsAsked: 0,
@@ -494,8 +495,8 @@
           html: "Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.",
         },
         {
-          text: "After reviewing this situation, you can decide whether you want to discuss your thoughts about it with the manager.",
-          html: "After reviewing this situation, you can decide whether you want to <strong>discuss your thoughts about it with the manager</strong>.",
+          text: "After reviewing this situation, you will continue to a second conversation with the manager.",
+          html: "After reviewing this situation, you will continue to a <strong>second conversation with the manager</strong>.",
         },
       ],
     },
@@ -1399,7 +1400,7 @@
         lockManagerChat();
         participant.completed_initial_manager_interaction = "true";
         saveParticipant();
-        renderNextAction(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), () => renderTransition(0), "initial_manager_interaction");
+        renderNextAction(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), renderSecondMaterialsIntro, "initial_manager_interaction");
         return;
       }
       state.managerRejectionRound += 1;
@@ -1444,7 +1445,43 @@
     lockManagerChat();
     participant.completed_initial_manager_interaction = "true";
     saveParticipant();
-    renderNextAction(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), () => renderTransition(0), "initial_manager_interaction");
+    renderNextAction(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), renderSecondMaterialsIntro, "initial_manager_interaction");
+  }
+
+  function renderSecondMaterialsIntro() {
+    markForwardStage("transition");
+    state.part = "transition";
+    const title = inZh("Next Materials", "接下来的材料");
+    const blocks = [
+      inZh(
+        "You will now read a second set of materials about the theme park situation.",
+        "接下来，你会阅读第二份关于主题乐园情况的材料。"
+      ),
+      inZh(
+        "If you see information that seems useful, you may use it in the next conversation with the manager.",
+        "如果你看到有用的信息，可以在接下来的对话里和经理一起讨论。"
+      ),
+      inZh(
+        "You may also take notes while reading, so it is easier to use the information later.",
+        "你也可以一边阅读一边做一些笔记，方便之后运用这些信息。"
+      ),
+      inZh(
+        "In the second conversation, you can discuss the second set of materials with the manager. You can also choose not to mention these materials and end the conversation quickly.",
+        "在第二次对话中，你可以跟经理讨论第二份材料的内容，也可以不提这些内容，而是快速结束对话。"
+      ),
+    ];
+    blocks.forEach((block) => recordInteraction("transition_page", "system", block, ""));
+    screen.innerHTML = `
+      <article class="page transition-page">
+        <p class="briefing-progress">${escapeHtml(inZh("Materials", "材料说明"))}</p>
+        <h1>${escapeHtml(title)}</h1>
+        ${blocks.map((block) => `<p>${escapeHtml(block)}</p>`).join("")}
+        <div class="actions">
+          <button class="button" type="button" id="second-materials-intro-next">${escapeHtml(inZh("Next", "下一步"))}</button>
+        </div>
+      </article>
+    `;
+    document.getElementById("second-materials-intro-next").addEventListener("click", () => renderTransition(0));
   }
 
   function renderTransition(pageIndex = 0) {
@@ -1491,37 +1528,38 @@
     participant.completed_lisa_john_interaction = "skipped";
     participant.completed_neutral_manager_followup = "false";
     saveParticipant();
-    const prompt = inZh("Do you want to discuss your thoughts about this situation with the manager?", "你想和经理讨论你对这个情况的想法吗？");
+    const prompt = inZh(
+      "If you are ready, please click Continue. You will enter the second conversation with the manager.",
+      "如果你已经准备好了，请点击“继续”。你将进入和经理的第二次对话。"
+    );
+    const note = inZh(
+      "In this second conversation, you can discuss the second set of materials with the manager. You can also choose not to mention these materials and end the conversation quickly.",
+      "注意，在第二次对话中，你可以跟经理讨论第二份材料的内容，也可以不提这些内容，而是快速结束对话。"
+    );
     recordInteraction("material_manager_decision", "system", prompt, "");
+    recordInteraction("material_manager_decision", "system", note, "");
     screen.innerHTML = `
       <article class="page transition-page">
-        <p class="briefing-progress">${escapeHtml(inZh("Decision", "选择"))}</p>
-        <h1>${escapeHtml(inZh("Manager Chat", "经理聊天室"))}</h1>
+        <p class="briefing-progress">${escapeHtml(inZh("Next Conversation", "下一段对话"))}</p>
+        <h1>${escapeHtml(inZh("Second Manager Chat", "第二次经理对话"))}</h1>
         <p>${escapeHtml(prompt)}</p>
+        <p>${escapeHtml(note)}</p>
         <div class="actions">
-          <button class="button" type="button" id="material-decision-yes">${escapeHtml(inZh("Yes", "是"))}</button>
-          <button class="button secondary" type="button" id="material-decision-no">${escapeHtml(inZh("No", "否"))}</button>
+          <button class="button" type="button" id="material-decision-continue">${escapeHtml(inZh("Continue", "继续"))}</button>
         </div>
       </article>
     `;
-    document.getElementById("material-decision-yes").addEventListener("click", () => handleMaterialManagerDecision("yes"));
-    document.getElementById("material-decision-no").addEventListener("click", () => handleMaterialManagerDecision("no"));
+    document.getElementById("material-decision-continue").addEventListener("click", handleMaterialManagerContinue);
   }
 
-  function handleMaterialManagerDecision(decision) {
-    recordInteraction("material_manager_decision", "alex", decision, decision);
-    participant.chose_to_bring_this_up_with_manager = decision;
+  function handleMaterialManagerContinue() {
+    recordInteraction("material_manager_decision", "alex", "continue", "continue");
+    participant.chose_to_bring_this_up_with_manager = "continue";
     participant.completed_lisa_john_interaction = "skipped";
     participant.experiment_end_time = timestamp();
     participant.completion_status = "partial";
     saveParticipant();
-    if (decision === "yes") {
-      renderNeutralManagerChat();
-      return;
-    }
-    participant.completed_neutral_manager_followup = "skipped";
-    saveParticipant();
-    renderPostInteractionSurvey();
+    renderNeutralManagerChat();
   }
 
   async function renderLisaJohnChat() {
@@ -1691,13 +1729,14 @@
     markForwardStage("manager2");
     state.part = "manager2";
     state.neutralQuestionCount = 0;
+    state.neutralNoSubstancePrompted = false;
     state.neutralDone = false;
     state.managerTurnActive = false;
     state.pendingManagerInput = "";
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     setComposerEnabled(true);
-    addSystemNote(inZh("You are now in a new chat with the manager. Please type what you would like to say.", "你现在进入了一个新的经理聊天室。请直接输入你想说的内容。"));
+    addSystemNote(inZh("You can now start your second conversation with the manager.", "现在你可以开始和经理的第二次对话。"));
     state.managerTurnActive = true;
     await sendAiMessages({ stage: "manager2", phase: "opening", alexMessage: "" });
     finishManagerTurn();
@@ -1706,6 +1745,30 @@
   async function handleNeutralManagerInput(text) {
     if (state.neutralDone) return;
     state.managerTurnActive = true;
+
+    const substanceIntent = await getChatIntent("manager2", "substance", text);
+    if (substanceIntent !== "has_issue_or_idea") {
+      if (!state.neutralNoSubstancePrompted && state.neutralQuestionCount === 0) {
+        state.neutralNoSubstancePrompted = true;
+        const promptSent = await sendAiMessages({
+          stage: "manager2",
+          phase: "no_substance_prompt",
+          alexMessage: text,
+        });
+        state.managerTurnActive = false;
+        if (!promptSent) return;
+        return;
+      }
+      const sent = await sendAiMessages({
+        stage: "manager2",
+        phase: "closing",
+        alexMessage: text,
+      });
+      state.managerTurnActive = false;
+      if (!sent) return;
+      showNeutralProceedChoice();
+      return;
+    }
 
     // Ask at most three follow-up questions. After that, the manager sends a
     // brief neutral wrap-up and the participant can proceed.
@@ -1745,7 +1808,7 @@
   function showNeutralProceedChoice() {
     if (state.neutralDone) return;
     setComposerEnabled(false);
-    const question = inZh("Do you want to proceed to the next page?", "你想进入下一页吗？");
+    const question = inZh("Do you want to end this conversation?", "你想结束这次对话吗？");
     recordInteraction("neutral_manager_followup", "system", question, "");
     const panel = document.createElement("div");
     panel.className = "decision-panel";
@@ -1753,7 +1816,7 @@
       <p>${escapeHtml(question)}</p>
       <div class="actions">
         <button class="button secondary" type="button" id="neutral-continue">${escapeHtml(inZh("Keep talking with the manager", "继续和经理聊"))}</button>
-        <button class="button" type="button" id="neutral-proceed">${escapeHtml(inZh("Proceed to the next page", "进入下一页"))}</button>
+        <button class="button" type="button" id="neutral-proceed">${escapeHtml(inZh("End conversation", "结束对话"))}</button>
       </div>
     `;
     document.querySelector(".chat").appendChild(panel);
@@ -2738,8 +2801,8 @@
         html: "一些大学生觉得这个园区很可爱，但更像是<strong>为小孩子设计的</strong>。也有人提到，如果有<strong>学生折扣</strong>，或者有<strong>更多适合拍照的地点</strong>，园区可能会更吸引学生。",
       },
       {
-        text: "看完这些材料后，你可以决定是否想和经理讨论你对这个情况的想法。",
-        html: "看完这些材料后，你可以决定是否想<strong>和经理讨论你对这个情况的想法</strong>。",
+        text: "看完这些材料后，你将继续进入和经理的第二次对话。",
+        html: "看完这些材料后，你将继续进入<strong>和经理的第二次对话</strong>。",
       },
     ];
   }
@@ -2981,7 +3044,7 @@
   } else if (skipTo === "manager" || skipTo === "manager_chat" || skipTo === "manager1") {
     renderManagerChat();
   } else if (skipTo === "transition") {
-    renderTransition(0);
+    renderSecondMaterialsIntro();
   } else if (
     skipTo === "coworker" ||
     skipTo === "coworkers" ||

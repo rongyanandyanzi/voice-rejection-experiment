@@ -6,3 +6,23 @@ experiment_data.csv
 experiment_data.xlsx
 .DS_Store
 node_modules/
+
+# Local environment variables and API keys
+.env
+.env.*
+!.env.example
+*.local
+
+# Secret/key files
+*.pem
+*.key
+*.p8
+*.p12
+*.crt
+
+# Logs and local runtime output
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

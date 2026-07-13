@@ -832,6 +832,23 @@ function chatIntentConfig(stage, phase, language) {
     };
   }
 
+  if (stage === "manager2" && phase === "substance") {
+    return {
+      schemaName: "neutral_manager_substance_intent",
+      intents: ["has_issue_or_idea", "no_issue_or_idea"],
+      emptyIntent: "no_issue_or_idea",
+      instructions: [
+        "Classify the participant's latest message in the second neutral manager chat.",
+        "The manager should ask follow-up questions only when the participant has raised a problem, concern, suggestion, proposal, new thought, or substantive issue about the second set of materials or the theme park situation.",
+        "Judge the meaning semantically in this exact context. Do not classify by matching a fixed word list.",
+        "Return 'has_issue_or_idea' if the participant points out a problem, raises a concern, suggests a possible action, proposes an idea, asks a substantive task-related question, or gives any concrete thought that the manager could reasonably follow up on.",
+        "Return 'no_issue_or_idea' if the participant only greets the manager, says they have nothing to discuss, says they are done, gives a vague non-substantive reply, asks to end, or otherwise does not provide a problem, suggestion, or new idea.",
+        language === "zh" ? "The participant may write in Simplified Chinese. Understand brief Chinese replies naturally in context." : "",
+        "Do not answer the participant. Only classify the intent.",
+      ].join("\n"),
+    };
+  }
+
   return null;
 }
 
@@ -1503,7 +1520,8 @@ function buildNeutralManagerPrompt(payload) {
   const phase = String(payload.phase || "question");
   const isClosing = phase === "closing";
   const isOpening = phase === "opening";
-  const intentEnum = (!isOpening && !isClosing) ? ["ask_more", "enough"] : null;
+  const isNoSubstancePrompt = phase === "no_substance_prompt";
+  const intentEnum = (!isOpening && !isClosing && !isNoSubstancePrompt) ? ["ask_more", "enough"] : null;
   return {
     kind: "manager2",
     speakers: ["Manager"],
@@ -1531,13 +1549,17 @@ function buildNeutralManagerPrompt(payload) {
       "Stay neutral, brief, and matter-of-fact; avoid warm, rude, constructive-rejection, or evaluative language.",
       isOpening
         ? "This is your opening message. Just say a brief, neutral hello (e.g. 'Hi' or 'Hello, good to chat'). Keep it to a short greeting only — do not ask a question, do not invite a topic, and do not raise the background yourself."
+        : isNoSubstancePrompt
+          ? (language === "zh"
+            ? "The participant has not raised a problem, suggestion, or new idea yet. Ask exactly one brief neutral question inviting them to say whether there is anything they want to discuss with you. Use natural wording close to: 你有什么想和我讨论的吗？ Do not mention the private background, do not offer examples, and do not ask multiple questions."
+            : "The participant has not raised a problem, suggestion, or new idea yet. Ask exactly one brief neutral question inviting them to say whether there is anything they want to discuss with you. Use natural wording close to: Is there anything you would like to discuss with me? Do not mention the private background, do not offer examples, and do not ask multiple questions.")
         : isClosing
           ? (language === "zh"
-            ? "Send one short neutral closing message based on the conversation: you have enough information for now. End by telling the participant: 你先做你的任务吧。"
-            : "Send one short neutral closing message based on the conversation: you have enough information for now. End by telling the participant they can go back to their task for now.")
+            ? "Send one short neutral closing message based on the conversation. Thank the participant for taking part in this conversation and tell them they can end this conversation now."
+            : "Send one short neutral closing message based on the conversation. Thank the participant for taking part in this conversation and tell them they can end this conversation now.")
           : (language === "zh"
-            ? "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant: 你先做你的任务吧。 Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask '你觉得该怎么解决这个问题？' rather than '你觉得主要应该调整目标游客群，还是调整淡季活动安排？' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."
-            : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, tell the participant they can go back to their task for now. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask 'How do you think this issue should be solved?' rather than 'Do you think this is mainly about changing the target visitors or changing off-season activities?' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."),
+            ? "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, thank the participant for taking part in this conversation and tell them they can end this conversation now. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask '你觉得该怎么解决这个问题？' rather than '你觉得主要应该调整目标游客群，还是调整淡季活动安排？' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."
+            : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, thank the participant for taking part in this conversation and tell them they can end this conversation now. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask 'How do you think this issue should be solved?' rather than 'Do you think this is mainly about changing the target visitors or changing off-season activities?' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."),
       "Return only JSON matching the required schema.",
     ].join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
