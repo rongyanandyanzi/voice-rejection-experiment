@@ -30,6 +30,9 @@
   const skipTo = (params.get("skip_to") || "").toLowerCase();
   const language = normalizeLanguage(params.get("lang") || (params.get("oid") ? "zh" : "") || storedSession.language || "en");
   const isChinese = language === "zh";
+  if (isChinese) {
+    document.title = "星河乐园互动任务";
+  }
   const requestedCondition = normalizeCondition(params.get("condition"));
   const condition = requestedCondition || storedSession.assigned_condition || pick(conditionLabels);
   const conditionSource = requestedCondition ? "url" : (storedSession.condition_source || "random_assignment");
@@ -441,7 +444,7 @@
         { type: "p", text: "You believe the theme park must adopt a more agile employment model in order to survive." },
         { type: "p", text: "For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand." },
         { type: "p", text: "Although proposing labor-related changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance." },
-        { type: "p", text: "You may advocate for the implementation of a flexible labor model. This is a sensitive topic because the existing “all-permanent” staffing strategy is currently treated as the official plan." },
+        { type: "p", text: "You may propose adopting a more flexible employment model to the manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach." },
         { type: "p", text: "Now, you are about to enter an online chat with your manager." },
       ],
       check: {
@@ -728,7 +731,7 @@
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     state.managerTurnActive = true;
     await sendDelayed("Manager", "manager", inZh("Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", "你好，这次在线任务中，我的角色是公园经理。我会评估你作为运营团队成员的表现。"), null, { opening: true });
-    await sendDelayed("Manager", "manager", inZh("That evaluation may affect your compensation after the task.", "这项评估可能会影响你完成任务后的报酬。"), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh("This evaluation may affect the compensation you receive for completing this online task.", "这项评估可能会影响你这次线上任务结束后获得的报酬。"), null, { opening: true });
     await sendDelayed("Manager", "manager", inZh("Based on the information you receive, what do you think the theme park should do next?", "根据你收到的信息，你认为主题乐园接下来应该怎么做？"), null, { opening: true });
     finishManagerTurn();
   }
@@ -2722,7 +2725,7 @@
     briefingPages[0].title = "你的角色";
     briefingPages[0].blocks = [
       { type: "p", text: "感谢你参加这项顾客反馈任务。" },
-      { type: "p", text: "在今天的情境中，你是 Aetheria Gardens 主题乐园的一名运营团队成员。你将直接和一位公园经理互动。" },
+      { type: "p", text: "在今天的情境中，你是星河乐园的一名运营团队成员。你将直接和一位公园经理互动。" },
       { type: "p", text: "运营团队的日常工作包括：入口处检票、扫描二维码、确认游客类别、引导游客入园，并回答游客的一些简单问题。" },
     ];
     briefingPages[0].check.question = "在接下来的互动中，你的角色是什么？";
@@ -2735,7 +2738,7 @@
     briefingPages[1].eyebrow = "角色材料 2/3";
     briefingPages[1].title = "背景信息";
     briefingPages[1].blocks = [
-      { type: "p", text: "Aetheria Gardens 目前面临明显的人员安排问题。园区几乎完全依赖全职长期员工，因此出现了淡旺季之间的“用工跷跷板”：" },
+      { type: "p", text: "星河乐园目前面临明显的人员安排问题。园区几乎完全依赖全职长期员工，因此出现了淡旺季之间的“用工跷跷板”：" },
       {
         type: "ul",
         items: [
@@ -2745,7 +2748,7 @@
       },
       { type: "p", text: "目前的用工方案由园区管理层制定。但是这个方案不够灵活，也让用工成本变得越来越难以承担。" },
     ];
-    briefingPages[1].check.question = "Aetheria Gardens 主要的人员配置问题是什么？";
+    briefingPages[1].check.question = "星河乐园主要的人员配置问题是什么？";
     briefingPages[1].check.options = [
       { value: "labor_seesaw", label: "淡季闲置员工太多，旺季员工太少" },
       { value: "too_few_visitors", label: "园区每个季节游客都太少" },
@@ -2758,7 +2761,7 @@
       { type: "p", text: "你认为主题乐园需要采用更灵活的用工模式，才能更好地应对淡旺季变化。" },
       { type: "p", text: "例如，园区可以在客流高峰时使用临时员工或实习生，也可以把一部分现有长期员工纳入灵活用工池，让人员安排更贴合实际需求。" },
       { type: "p", text: "提出人员用工方面的改变并不是你这个角色的必需职责，但你仍然想建议调整目前的做法，帮助主题乐园改善运营表现。" },
-      { type: "p", text: "你可以向经理提出实施灵活用工模式。这个话题比较敏感，因为现有的“全长期员工”方案目前被视为官方方案。" },
+      { type: "p", text: "你可以向经理提出采用更灵活的用工模式。需要注意的是，当前的用工方案已经得到主题乐园管理层的一致同意，因此如果提出调整，就意味着对现有做法提出较大的挑战。" },
       { type: "p", text: "接下来，你将进入与经理的在线聊天。" },
     ];
     briefingPages[2].check.question = "你可能会向经理提出什么建议？";
@@ -2792,16 +2795,16 @@
         html: "大多数游客是<strong>带低龄儿童的家庭</strong>。其中，有 10 岁以下儿童的家庭约占每日游客的<strong>70% 到 75%</strong>，其他游客群体占比明显更小。",
       },
       {
-        text: "Aetheria Gardens 离市中心较远，许多家庭觉得这个位置不太方便。",
-        html: "Aetheria Gardens <strong>离市中心较远</strong>，许多家庭觉得这个位置<strong>不太方便</strong>。",
+        text: "星河乐园离市中心较远，许多家庭觉得这个位置不太方便。",
+        html: "星河乐园<strong>离市中心较远</strong>，许多家庭觉得这个位置<strong>不太方便</strong>。",
       },
     ];
     transitionPages[2].eyebrow = "材料 3/3";
     transitionPages[2].title = "附近游客";
     transitionPages[2].blocks = [
       {
-        text: "主题乐园附近有几所大学和农场。距离园区 10 到 18 公里的范围内有 4 所大学，附近共有约 38,000 名大学生。",
-        html: "主题乐园<strong>附近</strong>有几所大学和农场。距离园区 <strong>10 到 18 公里</strong>的范围内有<strong>4 所大学</strong>，附近共有<strong>约 38,000 名大学生</strong>。",
+        text: "主题乐园附近有几所大学，也有一些农家乐和采摘园。距离园区 10 到 18 公里的范围内有 4 所大学，附近共有约 38,000 名大学生。",
+        html: "主题乐园<strong>附近</strong>有几所大学，也有一些农家乐和采摘园。距离园区 <strong>10 到 18 公里</strong>的范围内有<strong>4 所大学</strong>，附近共有<strong>约 38,000 名大学生</strong>。",
       },
       {
         text: "一些大学生觉得这个园区很可爱，但更像是为小孩子设计的。也有人提到，如果有学生折扣，或者有更多适合拍照的地点，园区可能会更吸引学生。",
