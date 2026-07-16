@@ -1392,7 +1392,7 @@ function managerConditionRules() {
       "Include apology or hedging when rejecting.",
       "Make clear the issue is the current proposal, not the participant personally.",
       "Base the rejection on the participant's ACTUAL proposal AND engage the reasons they gave for it. Read both what they proposed and why. Your rejection must respond to their specific reasons and to what the idea would really do. For example, if they argue the park wastes money, has poor management, and gives a bad customer experience, address those points directly — e.g. those are reasons to fix and improve operations, not to throw the park away.",
-      "In rejection turns, explicitly explain that the participant's proposal is not supported by enough data or evidence. Ground this point in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a conversational diagnosis rather than a command.",
+      "In rejection turns, explicitly explain that the participant's proposal is not supported by enough data or evidence. Ground this point in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a conversational diagnosis rather than a command. This data point must still use the high-politeness style: respectful, appreciative, softened, and appropriately hedged or apologetic, never blunt or blaming.",
       "Only if the proposal is genuinely about staffing or flexible labor may you use staffing-specific concerns (maintaining consistent service quality, role-by-role flexibility, cost-benefit tradeoffs, training-gap prevention, ticketing, crowd control) and the standard that any staffing change must maintain service quality. If the proposal is about anything else, do NOT use that staffing vocabulary at all — naming service quality, cost tradeoffs, role-by-role flexibility, or front-desk fixes for a non-staffing proposal will read as if you did not understand them.",
       "Frame feedback as problems in the proposal, not as direct commands or a to-do list for the participant.",
       "Keep length comparable to other conditions.",
@@ -1422,7 +1422,7 @@ function managerConditionRules() {
       "You may criticize the proposal sharply and imply the participant overlooked obvious requirements, but do not insult the participant as a person.",
       "Base the rejection on the participant's ACTUAL proposal AND engage the reasons they gave for it, but deliver it bluntly, curtly, and dismissively — the substance targets their real idea while the tone stays rude and impatient. Read what they proposed and why, then hit those specific reasons sharply. For example, if they argue the park wastes money, has poor management, and gives a bad experience, push back with disdain — e.g. 'those are reasons to fix the place, not torch the whole business; shutting it down over this is a lazy, half-baked answer.'",
       "Include at least one sharp, face-threatening cue in the rejection (such as the phrases above). Even while engaging their actual idea, do not let the wording slide into a calm, balanced, or collegial counter-argument.",
-      "In rejection turns, explicitly say that the participant's proposal lacks enough data or evidence to support it. Ground this in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a blunt conversational diagnosis rather than a command.",
+      "In rejection turns, explicitly say that the participant's proposal lacks enough data or evidence to support it. Ground this in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a blunt conversational diagnosis rather than a command. This data point must still use the low-politeness style: blunt, curt, dismissive, and face-threatening, with no thanks, praise, apology, or hedging.",
       "Only if the proposal is genuinely about staffing or flexible labor may you use staffing-specific concerns (service quality, role-by-role flexibility, cost-benefit tradeoffs, training-gap prevention, ticketing, crowd control). If the proposal is about anything else, do NOT use that staffing vocabulary at all — it will read as if you did not understand them.",
       "Do not use robotic command wording like 'Provide this immediately', 'You must produce...', or command lists like 'Separate..., explain..., provide...'.",
       "Do not ask the participant how they plan to flesh it out.",
@@ -1954,10 +1954,15 @@ function managerDataSupportProblem(messages, prompt, intent) {
     /缺乏|缺少|不足|不够|没有|无法|不能|尚未|未能|支撑不了|支持不够|不支持/.test(managerText);
   if (hasSupportTerm && hasInsufficiencyTerm) return "";
 
+  const conditionStyle = prompt.condition === "HP_HC"
+    ? "Preserve HP_HC exactly: remain respectful, appreciative, softened, and appropriately hedged or apologetic while mentioning the data gap."
+    : "Preserve LP_HC exactly: remain blunt, curt, dismissive, and face-threatening while mentioning the data gap; do not add thanks, praise, apology, or hedging.";
+
   return [
     "Data-support correction required.",
     "The first rejection must explicitly say, in natural conversational language, that the participant's actual proposal lacks enough data or evidence to support it.",
     "Name one relevant kind of missing support chosen from the proposal itself. Do not use a generic list, fixed template, or command-style checklist.",
+    conditionStyle,
     "Preserve the same assigned condition, rejection outcome, message count, and required length. Return only valid JSON.",
   ].join(" ");
 }
