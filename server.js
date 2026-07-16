@@ -10,6 +10,8 @@ const openaiApiKey = process.env.OPENAI_API_KEY || "";
 const openaiModel = process.env.OPENAI_MODEL || "gpt-5";
 const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT || "low";
 const openaiRequestTimeoutMs = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 45000));
+const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || "";
+const turnstileSecretKey = process.env.TURNSTILE_SECRET_KEY || "";
 fs.mkdirSync(dataDir, { recursive: true });
 const participantsPath = path.join(dataDir, "participants.csv");
 const interactionsPath = path.join(dataDir, "interactions.csv");
@@ -158,6 +160,22 @@ const server = http.createServer(async (req, res) => {
     upsertSurveyResponse(row);
     persistAll();
     sendJson(res, { ok: true });
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/captcha-config") {
+    sendJson(res, {
+      ok: true,
+      provider: turnstileSiteKey && turnstileSecretKey ? "turnstile" : "math",
+      siteKey: turnstileSiteKey && turnstileSecretKey ? turnstileSiteKey : "",
+    });
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/verify-captcha") {
+    const payload = await readJson(req);
+    const result = await verifyCaptcha(payload, req);
+    sendJson(res, result, result.ok ? 200 : result.status || 400);
     return;
   }
 
@@ -356,6 +374,48 @@ function readJson(req) {
       }
     });
   });
+}
+
+async function verifyCaptcha(payload, req) {
+  if (!turnstileSecretKey) {
+    return { ok: false, status: 503, error: "captcha_not_configured" };
+  }
+
+  const token = String(payload && payload.token ? payload.token : "").trim();
+  if (!token) {
+    return { ok: false, status: 400, error: "missing_captcha_token" };
+  }
+
+  const form = new URLSearchParams();
+  form.set("secret", turnstileSecretKey);
+  form.set("response", token);
+  const ip = clientIp(req);
+  if (ip) form.set("remoteip", ip);
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: form,
+    });
+    const result = await response.json().catch(() => ({}));
+    if (result && result.success) {
+      return { ok: true };
+    }
+    return {
+      ok: false,
+      status: 400,
+      error: "captcha_failed",
+      codes: Array.isArray(result["error-codes"]) ? result["error-codes"] : [],
+    };
+  } catch (error) {
+    console.error("Turnstile verification failed", error);
+    return { ok: false, status: 502, error: "captcha_unavailable" };
+  }
+}
+
+function clientIp(req) {
+  const forwarded = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  return forwarded || req.socket.remoteAddress || "";
 }
 
 function serveStatic(req, res) {

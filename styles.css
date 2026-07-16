@@ -180,6 +180,11 @@ textarea {
   width: min(180px, 100%);
 }
 
+.captcha-widget {
+  margin-bottom: 14px;
+  min-height: 65px;
+}
+
 .ai-check-page fieldset {
   border: 0;
   margin: 24px 0 0;

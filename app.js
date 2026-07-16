@@ -40,6 +40,9 @@
   const apiRequestTimeoutMs = 60000;
   let responseOrder = Number(storedSession.response_order || 0);
   let allowStudyExit = false;
+  let captchaConfig = null;
+  let captchaConfigPromise = null;
+  let turnstileScriptPromise = null;
   const forwardStageOrder = {
     human_verification: 0,
     prechat_intro: 1,
@@ -517,10 +520,27 @@
   let composerEl = null;
   let inputEl = null;
 
-  function renderHumanVerification() {
+  async function renderHumanVerification() {
     markForwardStage("human_verification");
     state.part = "human_verification";
     state.humanCheckVerified = false;
+    screen.innerHTML = `
+      <article class="page">
+        <h1>${escapeHtml(inZh("Quick Verification", "快速确认"))}</h1>
+        <p>${escapeHtml(inZh("Loading verification check...", "正在加载验证检查..."))}</p>
+      </article>
+    `;
+
+    const config = await getCaptchaConfig();
+    if (config.provider === "turnstile" && config.siteKey) {
+      renderTurnstileVerification(config.siteKey);
+      return;
+    }
+
+    renderMathVerification();
+  }
+
+  function renderMathVerification() {
     const humanCheckNumbers = [randomBetween(2, 8), randomBetween(2, 8)];
     state.humanCheckAnswer = String(humanCheckNumbers[0] + humanCheckNumbers[1]);
     saveParticipant();
@@ -544,10 +564,68 @@
     document.getElementById("human-check-form").addEventListener("submit", handleHumanCheckSubmit);
   }
 
-  function handleHumanCheckSubmit(event) {
+  function renderTurnstileVerification(siteKey) {
+    saveParticipant();
+    recordInteraction("human_verification", "system", "CAPTCHA verification page displayed.", "");
+
+    screen.innerHTML = `
+      <article class="page">
+        <h1>${escapeHtml(inZh("Quick Verification", "快速确认"))}</h1>
+        <p>${escapeHtml(inZh("Please complete this quick check before entering the task.", "进入任务前，请先完成这个小检查。"))}</p>
+        <form id="human-check-form" class="human-check" novalidate>
+          <div id="turnstile-widget" class="captcha-widget"></div>
+          <button class="button" type="submit" id="human-check-submit">${escapeHtml(inZh("Continue", "继续"))}</button>
+          <p class="validation-message" id="human-check-validation" aria-live="polite"></p>
+        </form>
+      </article>
+    `;
+
+    document.getElementById("human-check-form").addEventListener("submit", handleHumanCheckSubmit);
+    loadTurnstileScript()
+      .then(() => {
+        if (!window.turnstile || state.part !== "human_verification") return;
+        window.turnstile.render("#turnstile-widget", {
+          sitekey: siteKey,
+        });
+      })
+      .catch(() => {
+        const validation = document.getElementById("human-check-validation");
+        if (validation) {
+          validation.textContent = inZh("The verification check could not load. Please refresh and try again.", "验证检查无法加载。请刷新后重试。");
+        }
+      });
+  }
+
+  async function handleHumanCheckSubmit(event) {
     event.preventDefault();
     const form = event.currentTarget;
     const validation = document.getElementById("human-check-validation");
+    const button = document.getElementById("human-check-submit") || form.querySelector("button[type='submit']");
+
+    if (captchaConfig && captchaConfig.provider === "turnstile") {
+      const token = getTurnstileToken(form);
+      if (!token) {
+        validation.textContent = inZh("Please complete the verification check before continuing.", "请先完成验证检查再继续。");
+        return;
+      }
+
+      if (button) button.disabled = true;
+      validation.textContent = inZh("Checking verification...", "正在检查验证...");
+      const verified = await verifyTurnstileToken(token);
+      if (!verified) {
+        validation.textContent = inZh("The verification check did not pass. Please try again.", "验证未通过。请再试一次。");
+        if (window.turnstile) window.turnstile.reset("#turnstile-widget");
+        if (button) button.disabled = false;
+        recordInteraction("human_verification", "system", "CAPTCHA verification failed.", "");
+        return;
+      }
+
+      state.humanCheckVerified = true;
+      recordInteraction("human_verification", "system", "CAPTCHA verification completed.", "");
+      renderPreRoomIntro();
+      return;
+    }
+
     const answer = (form.elements.human_check_answer.value || "").trim();
 
     if (answer !== state.humanCheckAnswer) {
@@ -559,6 +637,64 @@
     state.humanCheckVerified = true;
     recordInteraction("human_verification", "system", "Quick verification completed.", "");
     renderPreRoomIntro();
+  }
+
+  async function getCaptchaConfig() {
+    if (captchaConfig) return captchaConfig;
+    if (!captchaConfigPromise) {
+      captchaConfigPromise = fetchWithTimeout(`${dataEndpoint}/captcha-config`, {}, 8000)
+        .then((response) => response.ok ? response.json() : null)
+        .then((config) => {
+          captchaConfig = config && config.provider ? config : { provider: "math", siteKey: "" };
+          return captchaConfig;
+        })
+        .catch(() => {
+          captchaConfig = { provider: "math", siteKey: "" };
+          return captchaConfig;
+        });
+    }
+    return captchaConfigPromise;
+  }
+
+  function loadTurnstileScript() {
+    if (window.turnstile) return Promise.resolve();
+    if (turnstileScriptPromise) return turnstileScriptPromise;
+    turnstileScriptPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector("script[data-turnstile-script]");
+      if (existing) {
+        existing.addEventListener("load", resolve, { once: true });
+        existing.addEventListener("error", reject, { once: true });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.dataset.turnstileScript = "true";
+      script.addEventListener("load", resolve, { once: true });
+      script.addEventListener("error", reject, { once: true });
+      document.head.appendChild(script);
+    });
+    return turnstileScriptPromise;
+  }
+
+  function getTurnstileToken(form) {
+    const tokenField = form.querySelector('input[name="cf-turnstile-response"]');
+    return tokenField ? tokenField.value.trim() : "";
+  }
+
+  async function verifyTurnstileToken(token) {
+    try {
+      const response = await fetchWithTimeout(`${dataEndpoint}/verify-captcha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      }, 15000);
+      const result = await response.json().catch(() => ({}));
+      return response.ok && result.ok === true;
+    } catch (error) {
+      return false;
+    }
   }
 
   function renderPreRoomIntro() {
