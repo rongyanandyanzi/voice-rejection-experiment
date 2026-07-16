@@ -1873,15 +1873,15 @@
 
     screen.innerHTML = `
       <article class="page feedback-page">
-        <h1>任务反馈</h1>
-        <p>如果你愿意，欢迎告诉我们你对本次任务有什么建议。</p>
-        <p>没有建议也可以直接提交。请不要填写姓名或其他个人信息。</p>
+        <h1>${escapeHtml(inZh("Task Feedback", "任务反馈"))}</h1>
+        <p>${escapeHtml(inZh("If you have any suggestions about this online task, please share them with us.", "如果你愿意，欢迎告诉我们你对本次任务有什么建议。"))}</p>
+        <p>${escapeHtml(inZh("You may also submit without adding a suggestion. Please do not include your name or other personal information.", "没有建议也可以直接提交。请不要填写姓名或其他个人信息。"))}</p>
         <form id="task-feedback-form" class="feedback-form" novalidate>
-          <label for="task-feedback">你的建议（可选）</label>
-          <textarea id="task-feedback" name="task_feedback" rows="6" maxlength="2000" placeholder="请输入你的建议"></textarea>
+          <label for="task-feedback">${escapeHtml(inZh("Your suggestion (optional)", "你的建议（可选）"))}</label>
+          <textarea id="task-feedback" name="task_feedback" rows="6" maxlength="2000" placeholder="${escapeHtml(inZh("Enter your suggestion", "请输入你的建议"))}"></textarea>
           <p class="validation-message" id="task-feedback-validation" aria-live="polite"></p>
           <div class="actions">
-            <button class="button" type="submit">提交并继续</button>
+            <button class="button" type="submit">${escapeHtml(inZh("Submit and continue", "提交并继续"))}</button>
           </div>
         </form>
       </article>
@@ -2225,7 +2225,7 @@
     participant.lisa_ai_suspicion = lisaResponse;
     participant.john_ai_suspicion = johnResponse;
     participant.experiment_end_time = submitTime;
-    participant.completion_status = isChinese ? "partial" : "completed";
+    participant.completion_status = "partial";
     saveParticipant();
     recordInteraction(
       "ai_check",
@@ -2233,11 +2233,7 @@
       `manager=${managerResponse}; lisa=${lisaResponse}; john=${johnResponse}`,
       ""
     );
-    if (isChinese) {
-      renderTaskFeedbackPage();
-      return;
-    }
-    renderCompletionPage(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), participant.completed_neutral_manager_followup === "true");
+    renderTaskFeedbackPage();
   }
 
   function addMessage(speaker, className, text) {
@@ -3161,7 +3157,7 @@
     }
     if (savedStage === "task_feedback") return "task_feedback";
     if (storedSession.completed_ai_check === "true") {
-      return isChinese ? "task_feedback" : "completion";
+      return "task_feedback";
     }
     if (storedSession.completed_post_interaction_survey === "true") {
       return "ai_check";
