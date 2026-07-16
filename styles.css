@@ -198,6 +198,30 @@ textarea {
   margin-bottom: 14px;
 }
 
+.feedback-form {
+  max-width: 720px;
+  margin-top: 24px;
+}
+
+.feedback-form label {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.feedback-form textarea {
+  display: block;
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  line-height: 1.45;
+}
+
 .actions {
   margin-top: 26px;
   display: flex;

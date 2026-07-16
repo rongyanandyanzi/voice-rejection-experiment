@@ -643,6 +643,25 @@ async function generateAiReply(payload) {
         });
         return failure;
       }
+      const dataSupportProblem = managerDataSupportProblem(lastMessages, prompt, lastIntent);
+      if (dataSupportProblem) {
+        if (attempt < 2) {
+          correction = dataSupportProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate the required proposal-specific data-support feedback.",
+        };
+        logAiFailure("manager-data-support-validation", {
+          ...failure,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return failure;
+      }
       const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt, lastIntent);
       if (coworkerProblem) {
         if (attempt < 2) {
@@ -1373,7 +1392,7 @@ function managerConditionRules() {
       "Include apology or hedging when rejecting.",
       "Make clear the issue is the current proposal, not the participant personally.",
       "Base the rejection on the participant's ACTUAL proposal AND engage the reasons they gave for it. Read both what they proposed and why. Your rejection must respond to their specific reasons and to what the idea would really do. For example, if they argue the park wastes money, has poor management, and gives a bad customer experience, address those points directly — e.g. those are reasons to fix and improve operations, not to throw the park away.",
-      "Diagnose 2-3 concrete weaknesses of THAT specific idea on whatever angle honestly fits it — financial impact, feasibility, safety, guest experience, risk, the fact that it discards a viable business and all its revenue and jobs, an over-reaction to the actual problem, etc. Do not fall back on a fixed template, and do not demand generic 'evidence', 'cost tradeoffs', 'data', or 'specific fixes' that the proposal does not actually need.",
+      "In rejection turns, explicitly explain that the participant's proposal is not supported by enough data or evidence. Ground this point in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a conversational diagnosis rather than a command.",
       "Only if the proposal is genuinely about staffing or flexible labor may you use staffing-specific concerns (maintaining consistent service quality, role-by-role flexibility, cost-benefit tradeoffs, training-gap prevention, ticketing, crowd control) and the standard that any staffing change must maintain service quality. If the proposal is about anything else, do NOT use that staffing vocabulary at all — naming service quality, cost tradeoffs, role-by-role flexibility, or front-desk fixes for a non-staffing proposal will read as if you did not understand them.",
       "Frame feedback as problems in the proposal, not as direct commands or a to-do list for the participant.",
       "Keep length comparable to other conditions.",
@@ -1403,7 +1422,7 @@ function managerConditionRules() {
       "You may criticize the proposal sharply and imply the participant overlooked obvious requirements, but do not insult the participant as a person.",
       "Base the rejection on the participant's ACTUAL proposal AND engage the reasons they gave for it, but deliver it bluntly, curtly, and dismissively — the substance targets their real idea while the tone stays rude and impatient. Read what they proposed and why, then hit those specific reasons sharply. For example, if they argue the park wastes money, has poor management, and gives a bad experience, push back with disdain — e.g. 'those are reasons to fix the place, not torch the whole business; shutting it down over this is a lazy, half-baked answer.'",
       "Include at least one sharp, face-threatening cue in the rejection (such as the phrases above). Even while engaging their actual idea, do not let the wording slide into a calm, balanced, or collegial counter-argument.",
-      "Call out 2-3 concrete weaknesses of THAT specific idea on whatever angle honestly fits it — financial impact, feasibility, safety, guest experience, risk, the fact that it throws away a working business and everyone's jobs, an over-reaction to the actual problem, etc. Do not fall back on a fixed template, and do not demand generic 'evidence', 'cost tradeoffs', 'data', or 'specific fixes' the proposal does not actually need.",
+      "In rejection turns, explicitly say that the participant's proposal lacks enough data or evidence to support it. Ground this in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a blunt conversational diagnosis rather than a command.",
       "Only if the proposal is genuinely about staffing or flexible labor may you use staffing-specific concerns (service quality, role-by-role flexibility, cost-benefit tradeoffs, training-gap prevention, ticketing, crowd control). If the proposal is about anything else, do NOT use that staffing vocabulary at all — it will read as if you did not understand them.",
       "Do not use robotic command wording like 'Provide this immediately', 'You must produce...', or command lists like 'Separate..., explain..., provide...'.",
       "Do not ask the participant how they plan to flesh it out.",
@@ -1911,6 +1930,35 @@ function managerMessageCountProblem(messages, prompt, intent) {
       ? "Regenerate exactly two separate Manager messages. Each message must be 28-32 words and both must preserve the same assigned condition."
       : "Regenerate exactly one short Manager message.",
     "Return only valid JSON.",
+  ].join(" ");
+}
+
+function managerDataSupportProblem(messages, prompt, intent) {
+  if (!prompt || prompt.kind !== "manager1") return "";
+  if (!["HP_HC", "LP_HC"].includes(prompt.condition)) return "";
+
+  const firstRejection = prompt.phase === "discussion"
+    ? intent === "reject_now"
+    : ["rejection_initial", "rejection"].includes(prompt.phase);
+  if (!firstRejection || !Array.isArray(messages) || !messages.length) return "";
+
+  const managerText = messages
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || "").trim())
+    .join(" ");
+  if (!managerText) return "";
+
+  const hasSupportTerm = /\b(?:data|evidence|records?|figures?|statistics?|research|surveys?|attendance|demand|costs?|revenue|financial|operational)\b/i.test(managerText) ||
+    /数据|证据|记录|统计|调研|调查|客流|需求|成本|收入|财务|运营/.test(managerText);
+  const hasInsufficiencyTerm = /\b(?:no|not enough|insufficient|lack(?:s|ing)?|without|doesn['’]?t|does not|cannot|can't|unsupported|not backed|not supported|unclear|doesn['’]?t establish)\b/i.test(managerText) ||
+    /缺乏|缺少|不足|不够|没有|无法|不能|尚未|未能|支撑不了|支持不够|不支持/.test(managerText);
+  if (hasSupportTerm && hasInsufficiencyTerm) return "";
+
+  return [
+    "Data-support correction required.",
+    "The first rejection must explicitly say, in natural conversational language, that the participant's actual proposal lacks enough data or evidence to support it.",
+    "Name one relevant kind of missing support chosen from the proposal itself. Do not use a generic list, fixed template, or command-style checklist.",
+    "Preserve the same assigned condition, rejection outcome, message count, and required length. Return only valid JSON.",
   ].join(" ");
 }
 

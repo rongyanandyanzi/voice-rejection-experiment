@@ -55,7 +55,8 @@
     manager2: 8,
     survey: 9,
     ai_check: 10,
-    completion: 11,
+    task_feedback: 11,
+    completion: 12,
   };
 
   const state = {
@@ -1853,6 +1854,45 @@
     document.getElementById("completion-next").addEventListener("click", handleCompletionNext);
   }
 
+  function renderTaskFeedbackPage() {
+    markForwardStage("task_feedback");
+    state.part = "task_feedback";
+    participant.completion_status = "partial";
+    saveParticipant();
+    recordInteraction("task_feedback", "system", "Task feedback page displayed.", "");
+
+    screen.innerHTML = `
+      <article class="page feedback-page">
+        <h1>任务反馈</h1>
+        <p>如果你愿意，欢迎告诉我们你对本次任务有什么建议。</p>
+        <p>没有建议也可以直接提交。请不要填写姓名或其他个人信息。</p>
+        <form id="task-feedback-form" class="feedback-form" novalidate>
+          <label for="task-feedback">你的建议（可选）</label>
+          <textarea id="task-feedback" name="task_feedback" rows="6" maxlength="2000" placeholder="请输入你的建议"></textarea>
+          <p class="validation-message" id="task-feedback-validation" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button" type="submit">提交并继续</button>
+          </div>
+        </form>
+      </article>
+    `;
+
+    document.getElementById("task-feedback-form").addEventListener("submit", handleTaskFeedbackSubmit);
+  }
+
+  function handleTaskFeedbackSubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const feedback = String(form.elements.task_feedback.value || "").trim();
+    recordInteraction("task_feedback", "alex", feedback, feedback ? "submitted" : "no_suggestion");
+    participant.completion_status = "partial";
+    saveParticipant();
+    renderCompletionPage(
+      inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"),
+      participant.completed_neutral_manager_followup === "true"
+    );
+  }
+
   function handleCompletionNext() {
     recordInteraction("completion_page", "alex", "Next", "completed");
     if (completionRedirectUrl) {
@@ -2175,7 +2215,7 @@
     participant.lisa_ai_suspicion = lisaResponse;
     participant.john_ai_suspicion = johnResponse;
     participant.experiment_end_time = submitTime;
-    participant.completion_status = "completed";
+    participant.completion_status = isChinese ? "partial" : "completed";
     saveParticipant();
     recordInteraction(
       "ai_check",
@@ -2183,6 +2223,10 @@
       `manager=${managerResponse}; lisa=${lisaResponse}; john=${johnResponse}`,
       ""
     );
+    if (isChinese) {
+      renderTaskFeedbackPage();
+      return;
+    }
     renderCompletionPage(inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"), participant.completed_neutral_manager_followup === "true");
   }
 
@@ -2654,6 +2698,7 @@
     if (state.part === "manager2") return "neutral_manager_followup";
     if (state.part === "survey") return "post_interaction_survey";
     if (state.part === "ai_check") return "ai_check";
+    if (state.part === "task_feedback") return "task_feedback";
     if (state.part === "completion") return "completion_page";
     return "initial_manager_interaction";
   }
@@ -3101,8 +3146,12 @@
       return savedStage;
     }
     if (skipTo) return "";
-    if (storedSession.completed_ai_check === "true" || storedSession.completion_status === "completed") {
+    if (storedSession.completion_status === "completed") {
       return "completion";
+    }
+    if (savedStage === "task_feedback") return "task_feedback";
+    if (storedSession.completed_ai_check === "true") {
+      return isChinese ? "task_feedback" : "completion";
     }
     if (storedSession.completed_post_interaction_survey === "true") {
       return "ai_check";
@@ -3143,6 +3192,7 @@
     if (stage === "manager2") return renderRestoredChatRoom("manager2");
     if (stage === "survey") return renderPostInteractionSurvey();
     if (stage === "ai_check") return renderAiCheckPage();
+    if (stage === "task_feedback") return renderTaskFeedbackPage();
     if (stage === "completion") {
       return renderCompletionPage(
         inZh("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", "你已完成这一部分。请点击“下一步”进入下一页。"),
