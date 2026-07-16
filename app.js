@@ -3241,6 +3241,8 @@
     renderPostInteractionSurvey();
   } else if (skipTo === "ai_check" || skipTo === "robot_check") {
     renderAiCheckPage();
+  } else if (skipTo === "task_feedback" || skipTo === "feedback") {
+    renderTaskFeedbackPage();
   } else if (skipTo === "briefing") {
     renderBriefing();
   } else if (skipTo === "manager" || skipTo === "manager_chat" || skipTo === "manager1") {
