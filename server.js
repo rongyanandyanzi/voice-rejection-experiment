@@ -700,6 +700,25 @@ async function generateAiReply(payload) {
         });
         return failure;
       }
+      const sentenceProblem = managerChineseSentenceProblem(lastMessages, prompt, lastIntent);
+      if (sentenceProblem) {
+        if (attempt < 2) {
+          correction = sentenceProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate complete Chinese manager sentences.",
+        };
+        logAiFailure("manager-chinese-sentence-validation", {
+          ...failure,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return failure;
+      }
       const optionQuestionProblem = neutralManagerOptionQuestionProblem(lastMessages, prompt, lastIntent);
       if (optionQuestionProblem) {
         if (attempt < 2) {
@@ -1337,6 +1356,7 @@ function buildInitialManagerPrompt(payload) {
       "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
       "Sound natural, concise, and chat-like.",
       language === "zh" ? "In Chinese, every Manager message must read as fluent natural sentences. Do not write clipped keyword chains like a note draft." : "",
+      language === "zh" ? "Every Chinese Manager message must end as a complete, grammatical sentence. Never stop mid-phrase or mid-clause, and do not truncate a sentence to meet the length rule." : "",
       "Write like a real person typing to a coworker, not like a policy memo, rubric, evaluation form, or HR/admin instruction.",
       "Avoid robotic phrases such as 'Provide ... immediately', 'You must ...', 'This proposal is incomplete and overlooks clear operational needs', or similar command-style wording.",
       "Avoid imperative checklist wording. Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
@@ -1948,8 +1968,8 @@ function managerDataSupportProblem(messages, prompt, intent) {
     .join(" ");
   if (!managerText) return "";
 
-  const hasSupportTerm = /\b(?:data|evidence|records?|figures?|statistics?|research|surveys?|attendance|demand|costs?|revenue|financial|operational)\b/i.test(managerText) ||
-    /数据|证据|记录|统计|调研|调查|客流|需求|成本|收入|财务|运营/.test(managerText);
+  const hasSupportTerm = /\b(?:data|evidence|records?|figures?|statistics?|research|surveys?)\b/i.test(managerText) ||
+    /数据|证据|记录|统计|调研|调查|数字/.test(managerText);
   const hasInsufficiencyTerm = /\b(?:no|not enough|insufficient|lack(?:s|ing)?|without|doesn['’]?t|does not|cannot|can't|unsupported|not backed|not supported|unclear|doesn['’]?t establish)\b/i.test(managerText) ||
     /缺乏|缺少|不足|不够|没有|无法|不能|尚未|未能|支撑不了|支持不够|不支持/.test(managerText);
   if (hasSupportTerm && hasInsufficiencyTerm) return "";
@@ -1967,11 +1987,34 @@ function managerDataSupportProblem(messages, prompt, intent) {
   ].join(" ");
 }
 
+function managerChineseSentenceProblem(messages, prompt, intent) {
+  if (!prompt || prompt.kind !== "manager1") return "";
+  const rejectionPhase = prompt.phase === "discussion"
+    ? intent === "reject_now"
+    : ["rejection_initial", "rejection_followup", "rejection"].includes(prompt.phase);
+  if (!rejectionPhase || !Array.isArray(messages) || !messages.length) return "";
+
+  const incomplete = messages
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || "").trim())
+    .filter((text) => {
+      const cjkCount = (text.match(/[\u3400-\u9fff]/g) || []).length;
+      return cjkCount >= 18 && !/[。！？!?…」』）)】]$/.test(text);
+    });
+  if (!incomplete.length) return "";
+
+  return [
+    "Complete-sentence correction required.",
+    "Every Chinese Manager rejection message must be a complete, grammatical sentence and end naturally. Do not stop at a fragment, noun phrase, or unfinished clause.",
+    "Preserve the same assigned condition, rejection outcome, message count, proposal-specific meaning, and required length. Return only valid JSON.",
+  ].join(" ");
+}
+
 function enforceManagerWordRange(message, prompt) {
   if (!prompt.wordRange || message.speaker !== "Manager") return message;
   const count = wordCount(message.text);
   if (count <= prompt.wordRange.max) return message;
-  return { ...message, text: truncateWords(message.text, prompt.wordRange.max) };
+  return { ...message, text: truncateWords(message.text, prompt.wordRange.max, prompt) };
 }
 
 function wordCount(text) {
@@ -1986,10 +2029,10 @@ function wordCount(text) {
   return raw.split(/\s+/).filter(Boolean).length;
 }
 
-function truncateWords(text, maxWords) {
+function truncateWords(text, maxWords, prompt) {
   const raw = String(text || "").trim();
   if (/[\u3400-\u9fff]/.test(raw)) {
-    return truncateCjkText(raw, maxWords);
+    return truncateCjkText(raw, maxWords, prompt);
   }
   const words = raw.split(/\s+/).filter(Boolean);
   if (words.length <= maxWords) return words.join(" ");
@@ -1997,11 +2040,37 @@ function truncateWords(text, maxWords) {
   return /[.!?]$/.test(truncated) ? truncated : `${truncated}.`;
 }
 
-function truncateCjkText(text, maxWords) {
+function truncateCjkText(text, maxWords, prompt) {
   const maxChars = Math.max(12, Math.floor(Number(maxWords || 0) * 1.75));
   if (text.length <= maxChars) return text;
-  const truncated = text.slice(0, maxChars).replace(/[，、；：,;:\s]+$/, "");
-  return /[。！？.!?]$/.test(truncated) ? truncated : `${truncated}。`;
+  const candidate = text.slice(0, maxChars);
+  const boundaryIndexes = [
+    candidate.lastIndexOf("。"),
+    candidate.lastIndexOf("！"),
+    candidate.lastIndexOf("？"),
+    candidate.lastIndexOf("!"),
+    candidate.lastIndexOf("?"),
+    candidate.lastIndexOf("…"),
+  ].filter((index) => index >= 0);
+  const boundary = Math.max(...boundaryIndexes, -1);
+  if (boundary < Math.floor(maxChars * 0.55)) return text;
+
+  const completeText = candidate.slice(0, boundary + 1).trim();
+  const highConstructiveness = prompt && ["HP_HC", "LP_HC"].includes(prompt.condition);
+  const supportTerm =
+    /\b(?:data|evidence|records?|figures?|statistics?|research|surveys?)\b/i.test(text) ||
+    /数据|证据|记录|统计|调研|调查|数字/.test(text);
+  if (
+    highConstructiveness &&
+    supportTerm &&
+    !(
+      /\b(?:data|evidence|records?|figures?|statistics?|research|surveys?)\b/i.test(completeText) ||
+      /数据|证据|记录|统计|调研|调查|数字/.test(completeText)
+    )
+  ) {
+    return text;
+  }
+  return completeText;
 }
 
 function isRevisionPlanningQuestion(sentence) {
