@@ -1618,11 +1618,21 @@
       ),
     ];
     blocks.forEach((block) => recordInteraction("transition_page", "system", block, ""));
+    const renderedBlocks = blocks.map((block, index) => {
+      const safeBlock = escapeHtml(block);
+      if (index === 2) {
+        const highlighted = isChinese
+          ? safeBlock.replace("一边阅读一边做一些笔记", "<strong>一边阅读一边做一些笔记</strong>")
+          : safeBlock.replace("take notes while reading", "<strong>take notes while reading</strong>");
+        return `<p>${highlighted}</p>`;
+      }
+      return `<p>${safeBlock}</p>`;
+    }).join("");
     screen.innerHTML = `
       <article class="page transition-page">
         <p class="briefing-progress">${escapeHtml(inZh("Materials", "材料说明"))}</p>
         <h1>${escapeHtml(title)}</h1>
-        ${blocks.map((block) => `<p>${escapeHtml(block)}</p>`).join("")}
+        ${renderedBlocks}
         <div class="actions">
           <button class="button" type="button" id="second-materials-intro-next">${escapeHtml(inZh("Next", "下一步"))}</button>
         </div>
