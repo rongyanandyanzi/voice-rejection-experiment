@@ -25,11 +25,12 @@ Do not begin the manager chat until the checks are correct.
 
 ## Manager Opening
 
-The manager opens with exactly three short messages:
+The manager opens with exactly two short messages:
 
-1. Explain that they have been assigned to the Park Manager role, can evaluate the participant's performance, and that the evaluation may affect the participant's compensation for this online task.
-2. Explain that the task helps a market research company understand how teams respond to market needs and customer feedback.
-3. Ask what the participant thinks the theme park should do next.
+1. Continue from the role assignment the participant already saw in the task room, then state that the manager can evaluate the participant's performance and that the evaluation may affect the participant's compensation for this online task.
+2. Ask what the participant thinks the theme park should do next.
+
+The manager does not re-announce the role assignment and does not explain the market research framing. Both were already delivered in the task room, and a manager who is supposedly another participant would not restate the sponsor's goals. Repeating them made the opening read as a fresh script rather than the same person continuing.
 
 Do not mention staffing, flexible labor, or a proposal before the participant raises an idea.
 

@@ -1570,17 +1570,22 @@ function buildInitialManagerPrompt(payload) {
         ].join("\n");
     maxOutputTokens = 180;
   } else if (phase === "opening") {
+    // Unreachable: the first manager chat opens with the fixed script in renderManagerChat, and the
+    // second manager chat is built by buildNeutralManagerPrompt. Kept only so an unexpected
+    // manager1 opening request still produces the current two-message shape rather than the older
+    // three-message one, which re-announced the role assignment and the market research framing
+    // that the coordinator already delivered in the task room.
     task = [
-      "The chat has just started. Send exactly three short opening messages.",
-      "In the first message, explain naturally that you have been assigned to the Park Manager role for this online task and that you can evaluate the participant's performance as an Operations Team Member.",
+      "The chat has just started. Send exactly two short opening messages.",
+      "In the first message, continue from the role assignment the participant already saw in the task room rather than re-announcing it, then say that you can evaluate the participant's performance as an Operations Team Member.",
       "Also mention that this evaluation may affect the participant's compensation after the online task ends.",
-      "In the second message, explain that the task is meant to help a market research company understand how teams respond to market needs and customer feedback.",
-      "In the third message, ask: Based on the information you receive, what do you think the theme park should do next?",
+      "In the second message, ask: Based on the information you receive, what do you think the theme park should do next?",
+      "Do not explain who runs the task or why. The coordinator already covered that.",
       "Do not mention staffing, flexible labor, or proposals in the opening.",
       "Sound like a real manager opening a routine end-of-shift chat.",
     ].join("\n");
-    minMessages = 3;
-    maxMessages = 3;
+    minMessages = 2;
+    maxMessages = 2;
     maxOutputTokens = 240;
     wordRange = { min: 18, max: 32 };
   } else if (phase === "rejection_initial") {

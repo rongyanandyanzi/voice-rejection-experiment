@@ -324,24 +324,17 @@
     },
   ];
 
+  // Seven separate coordinator lines read as a script dump and stretched the pre-chat past five
+  // minutes with nobody else speaking. The same information now fits in four turns.
   const prechatAfterIntro = [
     {
       speaker: "Coordinator",
       text: [
-        "I’ll now explain the task briefly.",
-        "I’ll give a short overview of the task now.",
-        "I’ll quickly explain what will happen next.",
+        "I’ll give a short overview now. This task is run by a market research company.",
+        "Quick overview of the task: it is run by a market research company.",
+        "Let me explain what happens next. This is an online customer feedback task.",
       ],
-      delay: 1500,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "This task is run by a market research company.",
-        "This is part of an online customer feedback task.",
-        "The session is run as a customer feedback task.",
-      ],
-      delay: 2300,
+      delay: 1800,
     },
     {
       speaker: "Coordinator",
@@ -355,44 +348,36 @@
     {
       speaker: "Coordinator",
       text: [
-        "Each person will be randomly assigned a role.",
-        "Roles will be assigned randomly.",
-        "The system will randomly assign roles.",
+        "Roles are assigned randomly: one of you will be the park manager, the other an operations team member.",
+        "Each of you gets a random role, one park manager and one operations team member.",
+        "The system assigns roles randomly, one park manager and one operations team member.",
       ],
       delay: 2200,
     },
     {
       speaker: "Coordinator",
       text: [
-        "One person will be the park manager, and the other person will be an operations team member.",
-        "One participant will be the park manager, and the other will be an operations team member.",
-        "There will be one park manager and one operations team member.",
+        "Please read your own role materials carefully when they appear. Any quick questions before I assign the roles?",
+        "Read your own role materials carefully once they show up. Any questions before the role assignment?",
+        "You’ll get your own role materials in a moment, so please read them carefully. Any quick questions first?",
       ],
-      delay: 1500,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "Please read your own role materials carefully and respond based on your assigned role.",
-        "Please read the role materials carefully and respond in the chat based on the role you receive.",
-        "Once your role appears, please focus on your own materials and respond according to that role.",
-      ],
-      delay: 1800,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "Before I assign the roles, does anyone have any quick questions about the task?",
-        "Before the role assignment, does anyone have any quick questions?",
-        "I’ll pause briefly before assigning roles. Any quick questions about the task?",
-      ],
-      delay: 1800,
+      delay: 2000,
     },
   ];
 
   const prechatRoleAssignment = [
     { speaker: "System", text: "Randomly assigning team roles...", delay: 900 },
     { speaker: "System", text: "Participant 1 has been assigned the role of Park Manager.", delay: 800 },
+    // Being handed the lead role in silence is not what a real person does.
+    {
+      speaker: "Participant 1",
+      text: [
+        "ok got it",
+        "oh ok, interesting",
+        "alright, works for me",
+      ],
+      delay: 2600,
+    },
     { speaker: "System", text: "You, Participant 2, have been assigned the role of Operations Team Member.", delay: 900 },
     {
       speaker: "Coordinator",
@@ -875,14 +860,15 @@
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     state.managerTurnActive = true;
+    // The role assignment was already announced in the task room and acknowledged there, so
+    // re-introducing it here reads as a script restart rather than the same person continuing.
+    // The evaluation and compensation content is the power manipulation and stays verbatim.
     await sendDelayed("Manager", "manager", inZh(
-      "Hi, I have been assigned as the Park Manager for this online task. I will evaluate your performance as an Operations Team Member, and this evaluation may affect your compensation for completing the task.",
-      "你好，这次在线任务中，我被分配担任公园经理。我会评估你作为运营团队成员的表现，这项评估可能会影响你完成本次任务后获得的报酬。"
+      "Hi again. Now that I'm the Park Manager here, I will evaluate your performance as an Operations Team Member, and this evaluation may affect your compensation for completing the task.",
+      "你好，我们又见面了。既然这次由我担任公园经理，我会评估你作为运营团队成员的表现，这项评估可能会影响你完成本次任务后获得的报酬。"
     ), null, { opening: true });
-    await sendDelayed("Manager", "manager", inZh(
-      "This task helps a market research company understand how teams respond to market needs and customer feedback.",
-      "这项任务旨在帮助一家市场调研公司了解团队如何回应市场需求和顾客反馈。"
-    ), null, { opening: true });
+    // The market research framing was already given by the coordinator in the task room, and a
+    // manager who is supposedly just another participant would not explain the sponsor's goals.
     await sendDelayed("Manager", "manager", inZh(
       "Based on the information you received, what do you think the theme park should do next?",
       "根据你收到的信息，你认为主题乐园下一步应该怎么做？"
@@ -1180,7 +1166,27 @@
     state.prechatAwaitingIntro = false;
     clearPrechatTimers();
     state.prechatSequenceRunning = true;
-    await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Great, everyone. We’ll keep moving.", "好的，我们继续。"), delay: 1200 });
+    // Participant 1 used to go silent the moment the participant introduced themselves, which is
+    // the clearest tell that nobody else is in the room. A short peer reaction carries no task
+    // content and cannot touch the manipulation.
+    await sendPrechatMessage({
+      speaker: "Participant 1",
+      text: [
+        inZh("nice to meet you", "你好呀"),
+        inZh("hi, good to meet you", "你好，很高兴认识你"),
+        inZh("hey, same here, first time doing a group one", "你好，我也是第一次做这种多人的"),
+      ],
+      delay: 3200,
+    });
+    await sendPrechatMessage({
+      speaker: "Coordinator",
+      text: [
+        inZh("Great, good to have you both. We’ll keep moving.", "好的，两位都在，我们继续。"),
+        inZh("Thanks both. Let’s keep moving.", "谢谢两位，我们继续。"),
+        inZh("Great, everyone. We’ll keep moving.", "好的，我们继续。"),
+      ],
+      delay: 1200,
+    });
     await runPrechatSequence(prechatAfterIntro);
     await answerQueuedPrechatInputs();
     state.prechatSequenceRunning = false;

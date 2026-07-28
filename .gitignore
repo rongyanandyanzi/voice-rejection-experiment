@@ -10,6 +10,7 @@ experiment_data.csv
 experiment_data.xlsx
 data_export_*/
 pilot_exports/
+outputs/
 
 __pycache__/
 *.pyc
