@@ -1,13 +1,30 @@
 # Participant data and analysis results never leave this machine. The analysis scripts
 # themselves are tracked so the code that produces a result is versioned and shared, while
 # the result and the data behind it are not.
+#
+# These rules deny by file type rather than by folder name, because naming a new output folder
+# should not be enough to expose participant data. A 56 MB export once appeared in outputs/ and
+# was only caught because that folder happened to be checked. Anything below matches at any
+# depth, so a new folder is covered the moment it is created.
+*.csv
+*.xlsx
+*.xls
+*.sav
+*.dta
+*.por
+*.ndjson
+*.parquet
+*.feather
+
+# Result files written by the analysis and QA scripts. JSON is not denied wholesale because the
+# project's own configuration files use it, so these name the outputs explicitly.
+constructiveness_qa.json
+*_gate.json
+*_analysis.json
+*_pilot_gate.json
+
+# Known data folders, kept as a second layer in case a future export uses an unlisted extension.
 data/
-participants.csv
-interactions.csv
-survey_responses.csv
-ai_requests.csv
-experiment_data.csv
-experiment_data.xlsx
 data_export_*/
 pilot_exports/
 outputs/
