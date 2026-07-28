@@ -255,17 +255,23 @@ When rejecting my suggestion, the manager...
 
 ## Items
 
+These items are adapted from the destructive criticism and feedback constructiveness literature. The original wording asks about performance feedback directed at the respondent personally: identifiable behaviors, my weaknesses, standards for acceptable behavior, problematic incidents.
+
+That framing does not fit this paradigm. The manager evaluates a proposal the participant volunteered, and is instructed never to criticise the participant's intelligence, competence, effort, identity, or personal worth. Items phrased around the participant's own deficiencies therefore ask about something the design deliberately never provides, and a truthful high constructiveness participant has to disagree with them.
+
+Each item below refers to the proposal rather than the respondent. Report the adapted wording and fresh reliability rather than citing the source scale's psychometrics.
+
 ### MC1
 
-Focused on identifiable problems and behaviors upon which I can take action.
+Pointed to specific aspects of my proposal that I could actually work on.
 
 ### MC2
 
-Suggested that my weaknesses can be overcome or remedied.
+Suggested that the problems with my proposal could be fixed.
 
 ### MC3
 
-Made reference to clear, legitimate standards for acceptable behavior.
+Made reference to clear, legitimate standards my proposal would have to meet.
 
 ### MC4
 
@@ -273,11 +279,20 @@ Was very specific and detailed.
 
 ### MC5
 
-Made reference to specific situations or incidents that were problematic.
+Made reference to specific parts of my proposal that were problematic.
 
 ### MC6
 
 Provided clear enough guidance that I knew what to change.
+
+Each item maps onto one component of the high constructiveness manipulation, so the check covers what the manipulation actually delivers:
+
+| Item | Manipulation component |
+| --- | --- |
+| MC1, MC5 | `proposal_problem` |
+| MC3 | `relevant_standard` |
+| MC2, MC6 | `revision_path` |
+| MC4 | Overall specificity |
 
 
 

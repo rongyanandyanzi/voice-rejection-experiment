@@ -18,6 +18,7 @@ Set `DATA_DIR` to a persistent disk or volume path. The server writes:
 - `participants.csv`
 - `interactions.csv`
 - `survey_responses.csv`
+- `ai_requests.csv`
 - `experiment_data.csv`
 - `experiment_data.xlsx`
 
@@ -30,8 +31,10 @@ Do not deploy on a platform/filesystem where server files disappear on restart u
 - `ADMIN_TOKEN`: optional secret for protected data downloads.
 - `OPENAI_API_KEY`: required for AI-generated Manager, Lisa, and John chat replies.
 - `OPENAI_MODEL`: optional model name. Defaults to `gpt-5`.
+- `OPENAI_EVALUATOR_MODEL`: optional model for the independent constructiveness scorer. Defaults to `OPENAI_MODEL`.
 - `OPENAI_REASONING_EFFORT`: optional reasoning level for GPT-5-class models. Defaults to `low`. Use `medium` or `high` only if you want stronger but slower and more expensive replies.
 - `OPENAI_TIMEOUT_MS`: optional OpenAI request timeout. Defaults to `45000`.
+- `AI_PIPELINE_TIMEOUT_MS`: optional total time limit for one complete AI reply pipeline, including classification, generation, validation, and regeneration. Defaults to `135000`.
 
 The OpenAI API key must be set on the server or in Render environment variables. Do not put the API key in `app.js`, `index.html`, GitHub, Prolific, or any browser-visible file.
 
@@ -75,6 +78,7 @@ If `ADMIN_TOKEN` is set, authorized downloads are available at:
 https://YOUR-SERVICE.onrender.com/admin/download/participants.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/interactions.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/survey_responses.csv?token=YOUR_ADMIN_TOKEN
+https://YOUR-SERVICE.onrender.com/admin/download/ai_requests.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/experiment_data.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/experiment_data.xlsx?token=YOUR_ADMIN_TOKEN
 ```

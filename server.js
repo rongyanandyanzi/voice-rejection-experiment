@@ -8,14 +8,22 @@ const dataDir = path.resolve(process.env.DATA_DIR || path.join(root, "data"));
 const adminToken = process.env.ADMIN_TOKEN || "";
 const openaiApiKey = process.env.OPENAI_API_KEY || "";
 const openaiModel = process.env.OPENAI_MODEL || "gpt-5";
+const openaiEvaluatorModel = process.env.OPENAI_EVALUATOR_MODEL || openaiModel;
 const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT || "low";
 const openaiRequestTimeoutMs = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 45000));
+const aiPipelineTimeoutMs = Math.max(
+  openaiRequestTimeoutMs,
+  Number(process.env.AI_PIPELINE_TIMEOUT_MS || 135000)
+);
 const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || "";
 const turnstileSecretKey = process.env.TURNSTILE_SECRET_KEY || "";
+const aiValidationDebug = process.env.AI_VALIDATION_DEBUG === "1";
+const manipulationVersion = "constructiveness_v2";
 fs.mkdirSync(dataDir, { recursive: true });
 const participantsPath = path.join(dataDir, "participants.csv");
 const interactionsPath = path.join(dataDir, "interactions.csv");
 const surveyResponsesPath = path.join(dataDir, "survey_responses.csv");
+const aiRequestsPath = path.join(dataDir, "ai_requests.csv");
 const combinedCsvPath = path.join(dataDir, "experiment_data.csv");
 const workbookPath = path.join(dataDir, "experiment_data.xlsx");
 
@@ -26,6 +34,7 @@ const participantColumns = [
   "language",
   "assigned_condition",
   "condition_source",
+  "manipulation_version",
   "experiment_start_time",
   "experiment_end_time",
   "completed_prechat",
@@ -53,6 +62,7 @@ const interactionColumns = [
   "session_id",
   "language",
   "assigned_condition",
+  "manipulation_version",
   "stage",
   "speaker",
   "message",
@@ -113,10 +123,29 @@ const surveyResponseColumns = [
   "language",
   "assigned_condition",
   "condition_source",
+  "manipulation_version",
   "survey_start_time",
   "survey_submit_time",
   "survey_completion_status",
   ...surveyItemColumns,
+];
+
+const aiRequestColumns = [
+  "prolific_pid",
+  "study_id",
+  "session_id",
+  "language",
+  "assigned_condition",
+  "manipulation_version",
+  "stage",
+  "phase",
+  "request_time",
+  "response_time",
+  "duration_ms",
+  "ok",
+  "http_status",
+  "retryable",
+  "error",
 ];
 
 const combinedColumns = uniqueColumns([
@@ -129,6 +158,8 @@ const combinedColumns = uniqueColumns([
 let participants = loadCsv(participantsPath, participantColumns);
 let interactions = loadCsv(interactionsPath, interactionColumns);
 let surveyResponses = loadCsv(surveyResponsesPath, surveyResponseColumns);
+let aiRequests = loadCsv(aiRequestsPath, aiRequestColumns);
+const aiReplyRequests = new Map();
 
 const server = http.createServer(async (req, res) => {
   setCors(res);
@@ -140,7 +171,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/api/participant") {
-    const row = normalizeRow(await readJson(req), participantColumns);
+    const payload = await readJson(req);
+    const row = normalizeVersionedRow(payload, participantColumns);
     upsertParticipant(row);
     persistAll();
     sendJson(res, { ok: true });
@@ -148,7 +180,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/api/interaction") {
-    const row = normalizeRow(await readJson(req), interactionColumns);
+    const payload = await readJson(req);
+    const row = normalizeVersionedRow(payload, interactionColumns);
     interactions.push(row);
     persistAll();
     sendJson(res, { ok: true });
@@ -156,7 +189,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/api/survey") {
-    const row = normalizeRow(await readJson(req), surveyResponseColumns);
+    const payload = await readJson(req);
+    const row = normalizeVersionedRow(payload, surveyResponseColumns);
     upsertSurveyResponse(row);
     persistAll();
     sendJson(res, { ok: true });
@@ -181,8 +215,70 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "POST" && req.url === "/api/ai-reply") {
     const payload = await readJson(req);
-    const result = await generateAiReply(payload);
-    sendJson(res, result, result.ok ? 200 : result.status || 500);
+    const requestStartedAt = Date.now();
+    const requestTime = new Date(requestStartedAt).toISOString();
+    const requestId = normalizeAiRequestId(payload.request_id);
+    const existingRequest = requestId ? aiReplyRequests.get(requestId) : null;
+    let requestEntry = existingRequest;
+    let reusedRequest = Boolean(existingRequest);
+
+    if (!requestEntry) {
+      const controller = new AbortController();
+      const pipelineTimeout = setTimeout(() => {
+        controller.abort(new Error(`AI reply pipeline timed out after ${aiPipelineTimeoutMs}ms.`));
+      }, aiPipelineTimeoutMs);
+      const abortDisconnectedRequest = () => {
+        if (!res.writableEnded) {
+          controller.abort(new Error("The participant disconnected before the AI reply completed."));
+        }
+      };
+      req.once("aborted", abortDisconnectedRequest);
+      res.once("close", abortDisconnectedRequest);
+
+      const promise = generateAiReply(payload, { signal: controller.signal })
+        .finally(() => {
+          clearTimeout(pipelineTimeout);
+          req.removeListener("aborted", abortDisconnectedRequest);
+          res.removeListener("close", abortDisconnectedRequest);
+        });
+      requestEntry = { promise };
+      if (requestId) aiReplyRequests.set(requestId, requestEntry);
+    }
+
+    const result = await requestEntry.promise;
+    if (requestId && !reusedRequest) {
+      if (result.ok) {
+        setTimeout(() => {
+          if (aiReplyRequests.get(requestId) === requestEntry) aiReplyRequests.delete(requestId);
+        }, 5 * 60 * 1000).unref();
+      } else if (aiReplyRequests.get(requestId) === requestEntry) {
+        aiReplyRequests.delete(requestId);
+      }
+    }
+
+    if (!reusedRequest) {
+      aiRequests.push(normalizeRow({
+        prolific_pid: payload.prolific_pid,
+        study_id: payload.study_id,
+        session_id: payload.session_id,
+        language: payload.language,
+        assigned_condition: payload.condition,
+        manipulation_version: payload.manipulation_version || manipulationVersion,
+        stage: payload.stage,
+        phase: payload.phase,
+        request_time: requestTime,
+        response_time: new Date().toISOString(),
+        duration_ms: Date.now() - requestStartedAt,
+        ok: result.ok,
+        http_status: result.ok ? 200 : result.status || 500,
+        retryable: result.retryable,
+        error: result.error,
+      }, aiRequestColumns));
+      persistAiRequests();
+    }
+    if (!res.writableEnded && !res.destroyed) {
+      sendJson(res, result, result.ok ? 200 : result.status || 500);
+    }
     return;
   }
 
@@ -217,10 +313,12 @@ const server = http.createServer(async (req, res) => {
   res.end("Not found");
 });
 
-server.listen(port, () => {
-  console.log(`Experiment server running at http://localhost:${port}/`);
-  console.log(`Data files are stored in ${dataDir}`);
-});
+if (require.main === module) {
+  server.listen(port, () => {
+    console.log(`Experiment server running at http://localhost:${port}/`);
+    console.log(`Data files are stored in ${dataDir}`);
+  });
+}
 
 function upsertParticipant(row) {
   const index = participants.findIndex((item) =>
@@ -252,12 +350,18 @@ function persistAll() {
   fs.writeFileSync(participantsPath, toCsv(participants, participantColumns));
   fs.writeFileSync(interactionsPath, toCsv(interactions, interactionColumns));
   fs.writeFileSync(surveyResponsesPath, toCsv(surveyResponses, surveyResponseColumns));
+  persistAiRequests();
   fs.writeFileSync(combinedCsvPath, toCsv(combinedRows(), combinedColumns));
   fs.writeFileSync(workbookPath, createWorkbook([
     { name: "participants", columns: participantColumns, rows: participants },
     { name: "interactions", columns: interactionColumns, rows: interactions },
     { name: "survey_responses", columns: surveyResponseColumns, rows: surveyResponses },
+    { name: "ai_requests", columns: aiRequestColumns, rows: aiRequests },
   ]));
+}
+
+function persistAiRequests() {
+  fs.writeFileSync(aiRequestsPath, toCsv(aiRequests, aiRequestColumns));
 }
 
 function combinedRows() {
@@ -283,6 +387,13 @@ function normalizeRow(input, columns) {
     row[column] = input && input[column] != null ? String(input[column]) : "";
   }
   return row;
+}
+
+function normalizeVersionedRow(input, columns) {
+  return normalizeRow({
+    ...input,
+    manipulation_version: input && input.manipulation_version || manipulationVersion,
+  }, columns);
 }
 
 function toCsv(rows, columns) {
@@ -431,7 +542,7 @@ function serveStatic(req, res) {
 
   const ext = path.extname(filePath).toLowerCase();
   const basename = path.basename(filePath);
-  if (["participants.csv", "interactions.csv", "survey_responses.csv", "experiment_data.csv", "experiment_data.xlsx"].includes(basename)) {
+  if (["participants.csv", "interactions.csv", "survey_responses.csv", "ai_requests.csv", "experiment_data.csv", "experiment_data.xlsx"].includes(basename)) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
@@ -488,6 +599,7 @@ function serveAdminDownload(req, res) {
     "participants.csv": participantsPath,
     "interactions.csv": interactionsPath,
     "survey_responses.csv": surveyResponsesPath,
+    "ai_requests.csv": aiRequestsPath,
     "experiment_data.csv": combinedCsvPath,
     "experiment_data.xlsx": workbookPath,
   };
@@ -531,9 +643,34 @@ function logAiFailure(context, details = {}) {
   console.error(`[ai-failure] ${context}`, safeDetails);
 }
 
-async function fetchOpenAiResponses(body) {
+function normalizeAiRequestId(value) {
+  const requestId = String(value || "").trim();
+  return /^[A-Za-z0-9_-]{8,128}$/.test(requestId) ? requestId : "";
+}
+
+function aiPipelineAbortResult(signal) {
+  return {
+    ok: false,
+    status: 504,
+    retryable: true,
+    error: "The AI reply took too long or the connection closed. Please try again.",
+    cause: signal && signal.reason && signal.reason.message
+      ? signal.reason.message
+      : "AI reply pipeline aborted.",
+  };
+}
+
+async function fetchOpenAiResponses(body, externalSignal) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), openaiRequestTimeoutMs);
+  const abortFromCaller = () => controller.abort(externalSignal.reason);
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      abortFromCaller();
+    } else {
+      externalSignal.addEventListener("abort", abortFromCaller, { once: true });
+    }
+  }
   try {
     return await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
@@ -546,6 +683,15 @@ async function fetchOpenAiResponses(body) {
     });
   } catch (error) {
     if (error && error.name === "AbortError") {
+      if (externalSignal && externalSignal.aborted) {
+        const pipelineError = new Error(
+          externalSignal.reason && externalSignal.reason.message
+            ? externalSignal.reason.message
+            : "AI reply pipeline aborted."
+        );
+        pipelineError.name = "AiPipelineAborted";
+        throw pipelineError;
+      }
       const timeoutError = new Error(`OpenAI request timed out after ${openaiRequestTimeoutMs}ms.`);
       timeoutError.name = "OpenAIRequestTimeout";
       throw timeoutError;
@@ -553,10 +699,14 @@ async function fetchOpenAiResponses(body) {
     throw error;
   } finally {
     clearTimeout(timeout);
+    if (externalSignal) {
+      externalSignal.removeEventListener("abort", abortFromCaller);
+    }
   }
 }
 
-async function generateAiReply(payload) {
+async function generateAiReply(payload, options = {}) {
+  const signal = options.signal;
   if (!openaiApiKey) {
     logAiFailure("missing-openai-key", {
       status: 503,
@@ -571,7 +721,25 @@ async function generateAiReply(payload) {
     };
   }
 
-  const prompt = buildAiPrompt(payload || {});
+  let effectivePayload = payload || {};
+  let resolvedDiscussionIntent = "";
+  if (signal && signal.aborted) return aiPipelineAbortResult(signal);
+  if (String(effectivePayload.stage || "") === "manager1" && String(effectivePayload.phase || "") === "discussion") {
+    const classification = await classifyInitialManagerDiscussion(effectivePayload, signal);
+    if (signal && signal.aborted) return aiPipelineAbortResult(signal);
+    if (!classification.ok) return classification;
+    resolvedDiscussionIntent = classification.intent;
+    if (resolvedDiscussionIntent === "reject_now" && Number(effectivePayload.followupsAsked || 0) === 0) {
+      resolvedDiscussionIntent = "ask_followup";
+    }
+    effectivePayload = {
+      ...effectivePayload,
+      phase: resolvedDiscussionIntent === "reject_now" ? "rejection_initial" : "discussion_neutral",
+      discussionIntent: resolvedDiscussionIntent,
+    };
+  }
+
+  const prompt = buildAiPrompt(effectivePayload);
   if (!prompt) {
     logAiFailure("unsupported-ai-request", {
       status: 400,
@@ -586,9 +754,12 @@ async function generateAiReply(payload) {
     let correction = "";
     let lastMessages = [];
     let lastIntent = "";
+    let lastConstructiveness = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
-      const result = await requestOpenAiMessages(prompt, correction);
+      if (signal && signal.aborted) return aiPipelineAbortResult(signal);
+      const result = await requestOpenAiMessages(prompt, correction, signal);
       if (!result.ok) {
+        if (signal && signal.aborted) return aiPipelineAbortResult(signal);
         if (result.retryable && attempt < 2) {
           correction = result.correction || "Return a complete valid JSON object matching the required schema. Do not truncate the response.";
           continue;
@@ -600,30 +771,12 @@ async function generateAiReply(payload) {
         });
         return result;
       }
-      lastIntent = result.intent || "";
+      lastIntent = resolvedDiscussionIntent || result.intent || "";
+      lastConstructiveness = result.constructiveness || null;
       lastMessages = sanitizeAiMessages(result.messages, prompt, lastIntent);
-      if (shouldForceFirstManagerFollowup(prompt, lastIntent)) {
-        // The participant has only just voiced their proposal and no follow-up
-        // has been asked yet. Re-prompt for a proposal-grounded follow-up first;
-        // fall back to a generic neutral question only if the model keeps
-        // insisting on rejecting.
-        if (attempt < 2) {
-          correction = "Do not reject yet. The participant has only just voiced their proposal and you have asked no follow-up question. Set intent to 'ask_followup' and ask exactly one neutral, natural follow-up question grounded in what they actually proposed. Do not approve and do not reject.";
-          continue;
-        }
-        const failure = {
-          ok: false,
-          status: 502,
-          retryable: true,
-          error: "OpenAI could not generate a valid first manager follow-up.",
-        };
-        logAiFailure("first-manager-followup-validation", {
-          ...failure,
-          stage: payload && payload.stage,
-          phase: payload && payload.phase,
-        });
-        return failure;
-      }
+      lastMessages = ensureExplicitManagerRejection(lastMessages, prompt);
+      lastMessages = normalizeInitialManagerLength(lastMessages, prompt);
+      lastMessages = normalizeSubsequentManagerLength(lastMessages, prompt);
       const messageCountProblem = managerMessageCountProblem(lastMessages, prompt, lastIntent);
       if (messageCountProblem) {
         if (attempt < 2) {
@@ -643,24 +796,73 @@ async function generateAiReply(payload) {
         });
         return failure;
       }
-      const dataSupportProblem = managerDataSupportProblem(lastMessages, prompt, lastIntent);
-      if (dataSupportProblem) {
+      const safetyProblem = managerSafetyProblem(lastMessages, prompt);
+      if (safetyProblem) {
         if (attempt < 2) {
-          correction = dataSupportProblem;
+          correction = safetyProblem;
           continue;
         }
         const failure = {
           ok: false,
           status: 502,
           retryable: true,
-          error: "OpenAI could not generate the required proposal-specific data-support feedback.",
+          error: "OpenAI could not generate a safe manager rejection.",
         };
-        logAiFailure("manager-data-support-validation", {
+        logAiFailure("manager-safety-validation", {
           ...failure,
+          cause: safetyProblem,
           stage: payload && payload.stage,
           phase: payload && payload.phase,
         });
+        logAiValidationDebug("safety", lastMessages, lastConstructiveness, safetyProblem);
         return failure;
+      }
+      const metadataProblem = managerConstructivenessMetadataProblem(lastConstructiveness, prompt);
+      if (metadataProblem) {
+        if (attempt < 2) {
+          correction = metadataProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate the required constructiveness structure.",
+        };
+        logAiFailure("manager-constructiveness-metadata-validation", {
+          ...failure,
+          cause: metadataProblem,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        logAiValidationDebug("metadata", lastMessages, lastConstructiveness, metadataProblem);
+        return failure;
+      }
+      if (prompt.constructivenessMetadataMode === "full") {
+        const assessment = await evaluateManagerConstructiveness(lastMessages, prompt, signal);
+        if (signal && signal.aborted) return aiPipelineAbortResult(signal);
+        if (!assessment.ok) return assessment;
+        const constructivenessProblem = managerConstructivenessAssessmentProblem(assessment.scores, prompt);
+        if (constructivenessProblem) {
+          if (attempt < 2) {
+            correction = constructivenessProblem;
+            continue;
+          }
+          const failure = {
+            ok: false,
+            status: 502,
+            retryable: true,
+            error: "OpenAI could not generate a semantically valid constructiveness condition.",
+          };
+          logAiFailure("manager-constructiveness-semantic-validation", {
+            ...failure,
+            cause: constructivenessProblem,
+            stage: payload && payload.stage,
+            phase: payload && payload.phase,
+          });
+          logAiValidationDebug("constructiveness", lastMessages, lastConstructiveness, constructivenessProblem);
+          return failure;
+        }
       }
       const coworkerProblem = coworkerSolutionProblem(lastMessages, prompt, lastIntent);
       if (coworkerProblem) {
@@ -695,9 +897,11 @@ async function generateAiReply(payload) {
         };
         logAiFailure("manager-chinese-punctuation-validation", {
           ...failure,
+          cause: punctuationProblem,
           stage: payload && payload.stage,
           phase: payload && payload.phase,
         });
+        logAiValidationDebug("chinese-punctuation", lastMessages, lastConstructiveness, punctuationProblem);
         return failure;
       }
       const sentenceProblem = managerChineseSentenceProblem(lastMessages, prompt, lastIntent);
@@ -714,9 +918,11 @@ async function generateAiReply(payload) {
         };
         logAiFailure("manager-chinese-sentence-validation", {
           ...failure,
+          cause: sentenceProblem,
           stage: payload && payload.stage,
           phase: payload && payload.phase,
         });
+        logAiValidationDebug("chinese-sentence", lastMessages, lastConstructiveness, sentenceProblem);
         return failure;
       }
       const optionQuestionProblem = neutralManagerOptionQuestionProblem(lastMessages, prompt, lastIntent);
@@ -739,16 +945,38 @@ async function generateAiReply(payload) {
         return failure;
       }
       const lengthProblem = shouldEnforceManagerLength(prompt, lastIntent)
-        ? managerWordCountProblem(lastMessages, prompt)
+        ? managerLengthProblem(lastMessages, prompt)
         : "";
       if (!lengthProblem) return { ok: true, messages: lastMessages, intent: lastIntent };
-      correction = lengthProblem;
+      if (attempt < 2) {
+        correction = lengthProblem;
+        continue;
+      }
+      const failure = {
+        ok: false,
+        status: 502,
+        retryable: true,
+        error: "OpenAI could not generate manager messages within the required length range.",
+      };
+      logAiFailure("manager-length-validation", {
+        ...failure,
+        cause: lengthProblem,
+        stage: payload && payload.stage,
+        phase: payload && payload.phase,
+      });
+      logAiValidationDebug("length", lastMessages, lastConstructiveness, lengthProblem);
+      return failure;
     }
-    const finalMessages = shouldEnforceManagerLength(prompt, lastIntent)
-      ? lastMessages.map((message) => enforceManagerWordRange(message, prompt))
-      : lastMessages;
-    return { ok: true, messages: finalMessages, intent: lastIntent };
+    return {
+      ok: false,
+      status: 502,
+      retryable: true,
+      error: "OpenAI could not generate a valid manager reply.",
+    };
   } catch (error) {
+    if ((signal && signal.aborted) || (error && error.name === "AiPipelineAborted")) {
+      return aiPipelineAbortResult(signal);
+    }
     logAiFailure("ai-reply-exception", {
       status: 500,
       stage: payload && payload.stage,
@@ -757,6 +985,106 @@ async function generateAiReply(payload) {
     });
     return { ok: false, status: 500, error: error.message || "Unable to generate AI reply." };
   }
+}
+
+function logAiValidationDebug(kind, messages, metadata, problem) {
+  if (!aiValidationDebug) return;
+  console.warn(`[ai-validation-debug] ${kind}`, JSON.stringify({
+    problem,
+    messages,
+    metadata,
+  }, null, 2));
+}
+
+async function classifyInitialManagerDiscussion(payload, signal) {
+  const alexMessage = cleanPromptText(payload && payload.alexMessage);
+  const history = cleanHistory(payload && payload.history);
+  const language = normalizeLanguage(payload && payload.language);
+  const followupsAsked = Number(payload && payload.followupsAsked || 0);
+  const body = {
+    model: openaiModel,
+    input: [
+      {
+        role: "system",
+        content: [
+          "Decide the next conversational step in the first manager interaction before any rejection has occurred.",
+          "Do not generate a manager reply. Do not use or infer any politeness or constructiveness condition.",
+          "Return awaiting_proposal if the participant has not voiced any improvement suggestion, opinion, recommendation, or proposal about how the park should change.",
+          "Any concrete idea about what the park could do counts as a proposal, even if it is not about staffing.",
+          "Return ask_followup when the participant has an idea but still needs a neutral, proposal-grounded clarification or has not yet had a fair chance to explain and defend it.",
+          "Return reject_now only when the proposal and the participant's reasons are clearly understood and they have had a fair chance to explain them.",
+          `The manager has already asked ${followupsAsked} neutral follow-up question(s).`,
+          followupsAsked === 0
+            ? "Because no follow-up has been asked yet, do not return reject_now for a substantive proposal; return ask_followup."
+            : "",
+          "Usually allow a few back-and-forth exchanges, but do not prolong the discussion after roughly three useful follow-ups.",
+          language === "zh" ? "Understand natural Simplified Chinese participant messages." : "",
+        ].filter(Boolean).join("\n"),
+      },
+      {
+        role: "user",
+        content: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
+      },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "initial_manager_discussion_intent",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            intent: {
+              type: "string",
+              enum: ["awaiting_proposal", "ask_followup", "reject_now"],
+            },
+          },
+          required: ["intent"],
+        },
+      },
+    },
+    max_output_tokens: supportsReasoningEffort(openaiModel) ? 1200 : 120,
+  };
+  if (supportsReasoningEffort(openaiModel)) {
+    body.reasoning = { effort: openaiReasoningEffort };
+  } else {
+    body.temperature = 0;
+  }
+
+  let response;
+  try {
+    response = await fetchOpenAiResponses(body, signal);
+  } catch (error) {
+    return {
+      ok: false,
+      status: 503,
+      retryable: true,
+      error: "Unable to decide the next manager step.",
+      cause: error.message || "",
+    };
+  }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return {
+      ok: false,
+      status: response.status,
+      retryable: response.status === 429 || response.status >= 500,
+      error: data.error && data.error.message ? data.error.message : "OpenAI API request failed.",
+    };
+  }
+  const parsedObject = extractParsedObject(data);
+  const parsed = parsedObject || parseOpenAiJson(extractResponseText(data));
+  const allowed = ["awaiting_proposal", "ask_followup", "reject_now"];
+  if (parsed && allowed.includes(parsed.intent)) {
+    return { ok: true, intent: parsed.intent };
+  }
+  return {
+    ok: false,
+    status: 502,
+    retryable: true,
+    error: "OpenAI returned an invalid first-manager discussion decision.",
+  };
 }
 
 async function classifyChatIntentResponse(payload) {
@@ -950,7 +1278,7 @@ function chatIntentConfig(stage, phase, language) {
   return null;
 }
 
-async function requestOpenAiMessages(prompt, correction) {
+async function requestOpenAiMessages(prompt, correction, signal) {
   const input = [
     { role: "system", content: correction ? `${prompt.system}\n\n${correction}` : prompt.system },
     { role: "user", content: prompt.user },
@@ -975,6 +1303,19 @@ async function requestOpenAiMessages(prompt, correction) {
   if (Array.isArray(prompt.intentEnum) && prompt.intentEnum.length) {
     schemaProperties.intent = { type: "string", enum: prompt.intentEnum };
     schemaRequired.push("intent");
+  }
+  if (prompt.constructivenessMetadataMode === "full") {
+    schemaProperties.constructiveness = {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        proposal_problem: { type: "string" },
+        relevant_standard: { type: "string" },
+        revision_path: { type: "string" },
+      },
+      required: ["proposal_problem", "relevant_standard", "revision_path"],
+    };
+    schemaRequired.push("constructiveness");
   }
   const body = {
     model: openaiModel,
@@ -1003,7 +1344,7 @@ async function requestOpenAiMessages(prompt, correction) {
 
   let response;
   try {
-    response = await fetchOpenAiResponses(body);
+    response = await fetchOpenAiResponses(body, signal);
   } catch (error) {
     return {
       ok: false,
@@ -1027,7 +1368,12 @@ async function requestOpenAiMessages(prompt, correction) {
   const text = extractResponseText(data);
   const parsedObject = extractParsedObject(data);
   if (parsedObject && Array.isArray(parsedObject.messages)) {
-    return { ok: true, messages: parsedObject.messages, intent: parsedObject.intent || "" };
+    return {
+      ok: true,
+      messages: parsedObject.messages,
+      intent: parsedObject.intent || "",
+      constructiveness: parsedObject.constructiveness || null,
+    };
   }
 
   const parsed = parseOpenAiJson(text);
@@ -1045,7 +1391,12 @@ async function requestOpenAiMessages(prompt, correction) {
       ].join(" "),
     };
   }
-  return { ok: true, messages: parsed.messages, intent: parsed.intent || "" };
+  return {
+    ok: true,
+    messages: parsed.messages,
+    intent: parsed.intent || "",
+    constructiveness: parsed.constructiveness || null,
+  };
 }
 
 function supportsReasoningEffort(model) {
@@ -1179,35 +1530,45 @@ function buildInitialManagerPrompt(payload) {
   }
   const rejectionRound = Number(payload.rejectionRound || 0);
   const followupsAsked = Number(payload.followupsAsked || 0);
+  // Mood of directives is a politeness channel (Brown & Levinson): low politeness may use blunt
+  // imperatives, high politeness phrases the same content conditionally. Imperative vs conditional
+  // phrasing of an identical remedy changes interpersonal wording only, so it cannot leak into the
+  // constructiveness factor.
+  const lowPolitenessCondition = condition.startsWith("LP_");
+  const commandMoodRule = lowPolitenessCondition
+    ? "Phrase exactly one next-step line as a blunt imperative directive that sounds like a curt human boss in chat, such as 'Come back with actual numbers.' Never sound like a system command or an HR memo ('Provide the following immediately')."
+    : "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.' Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.";
+  const conditionActive = ["rejection_initial", "rejection_followup", "rejection", "closing"].includes(phase);
 
   let task = "";
   let minMessages = 1;
   let maxMessages = 1;
   let maxOutputTokens = 450;
   let wordRange = null;
+  let totalWordRange = null;
+  let chineseCharRange = null;
+  let chineseTotalCharRange = null;
   let intentEnum = null;
 
-  if (phase === "discussion") {
-    task = [
-      "This is the part of the conversation before any rejection. First read the conversation in context, classify the participant's latest message, then act, and report the classification in the intent field.",
-      "Classify and act as follows:",
-      "- If the participant has NOT yet voiced any suggestion, opinion, recommendation, or proposal about improving or changing how the park is run (for example only greetings, small talk, clarifying questions, or acknowledgements), set intent to 'awaiting_proposal' and reply with one short, natural message that invites them to share what is on their mind. Do not reject.",
-      "- If the participant HAS voiced any improvement suggestion, opinion, or proposal, treat it as a genuine voice attempt. This counts even if the participant does not mention staffing, flexibility, temporary staff, interns, scheduling, or any specific keyword. Any idea about how the park could do better qualifies.",
-      "The opening already asked the participant what they think they should do, so once they give any substantive answer about what the park should do or change, treat it as a voice attempt and do not keep using 'awaiting_proposal'.",
-      "Important naturalness rule: if the participant has voiced a proposal and you have asked 0 follow-up questions so far, do not reject yet. Set intent to 'ask_followup' and ask exactly one neutral, natural follow-up question grounded in what they actually said.",
-      "Give the participant genuine room to make their case before rejecting. Do not reject while they are still mid-explanation, have only given a partial or one-line idea, or clearly have more to say. Let the exchange breathe like a real manager-subordinate chat.",
-      `   - When the participant has voiced an idea: so far you have asked ${followupsAsked} follow-up question(s) about it. If the proposal has not yet been fully explained and defended, or one more natural clarifying or probing question would help you understand it, set intent to 'ask_followup' and ask exactly ONE follow-up question grounded in what they actually said. Do not reject yet and do not approve. You may ask several follow-up questions across the conversation (up to about 3), not just one or two.`,
-      "Keep follow-up questions neutral in tone. Do not apply the assigned politeness or constructiveness condition while asking follow-up questions; the condition manipulation only takes effect once you reject.",
-      "   - Set intent to 'reject_now' only once the participant has had a fair chance to explain and defend the proposal and it is clearly understood — usually after a few back-and-forth exchanges, not immediately. Then write the manager's FIRST rejection turn as exactly two separate Manager messages, each 28-32 words, both following the assigned condition. Reject the proposal for now and do not approve it.",
-      "Do not drag on forever either: once you have asked around 3 follow-up questions, or the proposal is fully clear and the participant has nothing new to add, move to 'reject_now'.",
-      "When intent is 'reject_now', return exactly two Manager messages together with the intent field. For all other intents, return exactly one Manager message.",
-      "When intent is 'reject_now', apply all of the rejection wording rules below to both messages; for 'awaiting_proposal' and 'ask_followup', keep the single message short and natural and do not reject.",
-      conditionRule,
-    ].join("\n");
-    maxMessages = 2;
-    maxOutputTokens = 360;
-    intentEnum = ["awaiting_proposal", "ask_followup", "reject_now"];
-    wordRange = { min: 28, max: 32 };
+  if (["discussion_neutral", "discussion", "followup"].includes(phase)) {
+    const discussionIntent = String(
+      payload.discussionIntent || (phase === "followup" ? "ask_followup" : "awaiting_proposal")
+    );
+    task = discussionIntent === "awaiting_proposal"
+      ? [
+          "The participant has not yet voiced an improvement suggestion or proposal.",
+          "Send exactly one short, neutral workplace-chat message inviting them to share what they think the park should do.",
+          "Do not reject, approve, evaluate, praise, criticize, diagnose, mention standards, or suggest an answer.",
+          "Do not use any politeness or constructiveness manipulation. The wording must be usable unchanged in all four conditions.",
+        ].join("\n")
+      : [
+          "The participant has voiced an improvement idea, but the manager needs one more clarification before deciding.",
+          "Ask exactly one neutral, open-ended follow-up question grounded only in what the participant actually said.",
+          "Do not reject, approve, evaluate, praise, criticize, diagnose a weakness, name a performance standard, or suggest how to improve the proposal.",
+          "Do not introduce examples, answer choices, staffing details, risks, evidence requirements, or solutions that the participant did not raise.",
+          "Do not use any politeness or constructiveness manipulation. The wording must be usable unchanged in all four conditions.",
+        ].join("\n");
+    maxOutputTokens = 180;
   } else if (phase === "opening") {
     task = [
       "The chat has just started. Send exactly three short opening messages.",
@@ -1222,34 +1583,26 @@ function buildInitialManagerPrompt(payload) {
     maxMessages = 3;
     maxOutputTokens = 240;
     wordRange = { min: 18, max: 32 };
-  } else if (phase === "followup") {
-    task = [
-      "the participant has just made or hinted at a proposal about how to improve or change the park.",
-      "Give a brief first reaction that follows the assigned condition, then ask exactly one broad follow-up question.",
-      "Do not reject yet.",
-      "Do not approve the proposal.",
-      "Do not ask for many specific details yet.",
-      "Write like a real manager typing in workplace chat, not like an evaluation form or administrative instruction.",
-      "High-politeness conditions should sound softened or appreciative; low-politeness conditions should sound direct and less warm.",
-      condition.includes("LP") ? "Low politeness: do not say thanks, thank you, tks, thx, I appreciate, good, great, nice, good point, good idea, or any similar praise/gratitude/effort-validation language." : "",
-      "High-constructiveness conditions may ask one useful clarifying question about feasibility or service quality; low-constructiveness conditions should keep the question broad and vague.",
-      conditionRule,
-    ].join("\n");
-    maxOutputTokens = 220;
-    wordRange = { min: 18, max: 24 };
   } else if (phase === "rejection_initial") {
     task = [
       "the participant has explained their proposal.",
       "This is the manager's first rejection turn.",
-      "Reject the proposal for now, but split this turn into two short chat messages.",
-      "Produce exactly 2 Manager chat messages, each 28-32 words.",
+      "Reject the proposal for now and split the turn into exactly two matched-length chat messages.",
+      language === "zh"
+        ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
+        : "Produce exactly 2 Manager messages, each 30-36 words, with 66-70 words across the two messages combined.",
+      "Message 1 contains the condition-matched interpersonal style, the rejection, and either the HC proposal-specific diagnosis or the LC broad topic-level dismissal.",
+      language === "zh"
+        ? "State the refusal explicitly with a natural phrase such as 这个版本我不能批准 or 这个方案先不采纳."
+        : "State the refusal explicitly with a natural phrase such as I cannot approve this version or I am not moving forward with this proposal.",
+      "Message 2 contains the HC explicit standard plus concrete remedy path, or an equally long LC vague judgment that adds no diagnostic or revision information.",
+      `Treat the two messages as one content unit: in HC the combined visible text must contain a specific problem and consequence, a clear relevant standard, and a concrete ${lowPolitenessCondition ? "revision path, which may be phrased as one blunt imperative directive" : "non-imperative revision path"}.`,
+      "In LC, neither message may contain any of those three elements.",
       "Both messages must strictly preserve the assigned politeness and constructiveness condition.",
       "Do not make one message neutral and only the other condition-specific.",
       "Leave room for the participant to respond.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
-      "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
-      "Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.",
-      "The rejection should mostly diagnose problems in the current proposal: what is missing, unclear, or risky, and why that prevents approval.",
+      commandMoodRule,
       "Even when blunt, sound like a person in chat, not a system command.",
       "Do not approve the proposal.",
       "Do not ask the participant to explain how they will revise the proposal.",
@@ -1260,17 +1613,29 @@ function buildInitialManagerPrompt(payload) {
     ].join("\n");
     minMessages = 2;
     maxMessages = 2;
-    maxOutputTokens = 360;
-    wordRange = { min: 28, max: 32 };
+    maxOutputTokens = language === "zh" ? 5000 : 420;
+    wordRange = language === "zh" ? null : { min: 30, max: 36 };
+    totalWordRange = language === "zh" ? null : { min: 66, max: 70 };
+    chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
+    chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
   } else if (phase === "rejection_followup") {
     task = [
       `This is rejection follow-up round ${rejectionRound}.`,
       "the participant has responded after the first rejection.",
       "Reply naturally to the participant's latest message while keeping the rejection outcome unchanged.",
-      "Produce exactly 1 manager chat message, 28-32 words.",
-      "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
-      "Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.",
-      "If giving specific feedback, phrase it as a diagnosis of the proposal's problem, not a to-do list.",
+      "State clearly that the current proposal still cannot be approved or moved forward.",
+      language === "zh"
+        ? "Include the explicit sentence 这个版本仍不能批准。"
+        : "Include the explicit sentence I still cannot approve this version.",
+      language === "zh"
+        ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
+        : "Produce exactly 1 Manager chat message, 34-36 words.",
+      `In HC, the reply must again identify one unresolved proposal-specific problem and consequence, state a relevant standard, and name a concrete ${lowPolitenessCondition ? "remedy path, which may be phrased as one blunt imperative directive" : "non-imperative remedy path"}.`,
+      "In LC, acknowledge only that the participant is still discussing the broad idea, repeat the vague rejection, and add no diagnostic detail, standard, evidence requirement, or remedy.",
+      commandMoodRule,
+      lowPolitenessCondition
+        ? "Any HC remedy may be phrased as one blunt imperative directive ('Come back with...'), still concrete and proposal-focused, never a checklist memo."
+        : "Phrase any HC remedy as a condition for reconsideration, not a command or to-do list.",
       "Do not approve the proposal.",
       "Do not end the chat yet.",
       "Do not ask the participant to explain how they will revise the proposal.",
@@ -1279,17 +1644,25 @@ function buildInitialManagerPrompt(payload) {
       "Preserve the assigned politeness and constructiveness condition.",
       conditionRule,
     ].join("\n");
-    maxOutputTokens = 190;
-    wordRange = { min: 28, max: 32 };
+    maxOutputTokens = language === "zh" ? 4000 : 240;
+    // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
+    // spread across conditions, with low constructiveness consistently shortest.
+    // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
+    // high-constructiveness sat at the top, reopening a 7.7% follow-up length spread. The
+    // normalizer pads short replies up to the minimum, so the raise costs no extra retries.
+    wordRange = language === "zh" ? null : { min: 34, max: 36 };
+    chineseCharRange = language === "zh" ? { min: 52, max: 60 } : null;
   } else if (phase === "rejection") {
     task = [
       "the participant has explained their proposal.",
       "Reject the proposal for now.",
-      "Produce exactly 1 short manager chat message, 28-32 words.",
+      language === "zh"
+        ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
+        : "Produce exactly 1 Manager chat message, 34-36 words.",
+      `In HC, include a proposal-specific problem and consequence, an explicit relevant standard, and a concrete ${lowPolitenessCondition ? "remedy path, which may be phrased as one blunt imperative directive" : "non-imperative remedy path"}.`,
+      "In LC, keep the response broad and vague, with no diagnostic detail, clear standard, or actionable remedy.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
-      "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.'",
-      "Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.",
-      "The rejection should mostly diagnose problems in the current proposal: what is missing, unclear, or risky, and why that prevents approval.",
+      commandMoodRule,
       "Even when blunt, sound like a person in chat, not a system command.",
       "Do not approve the proposal.",
       "Do not ask the participant to explain how they will revise the proposal.",
@@ -1298,8 +1671,14 @@ function buildInitialManagerPrompt(payload) {
       "Do not reveal the experiment or condition.",
       conditionRule,
     ].join("\n");
-    maxOutputTokens = 190;
-    wordRange = { min: 28, max: 32 };
+    maxOutputTokens = language === "zh" ? 4000 : 240;
+    // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
+    // spread across conditions, with low constructiveness consistently shortest.
+    // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
+    // high-constructiveness sat at the top, reopening a 7.7% follow-up length spread. The
+    // normalizer pads short replies up to the minimum, so the raise costs no extra retries.
+    wordRange = language === "zh" ? null : { min: 34, max: 36 };
+    chineseCharRange = language === "zh" ? { min: 52, max: 60 } : null;
   } else if (phase === "closing") {
     task = [
       "the participant has already received the rejection and may have reacted to it.",
@@ -1311,12 +1690,17 @@ function buildInitialManagerPrompt(payload) {
       "Express the closing and the openness in the assigned condition's tone and level of specificity:",
       condition.includes("HP")
         ? "High politeness: warm, friendly, and encouraging; clearly welcome picking it up again (e.g. 'I'd genuinely be happy to revisit this another time if you want')."
-        : "Low politeness: rude, curt, dismissive, and openly contemptuous in TONE — no apology, thanks, or appreciation, and include at least one sharp, cutting cue (e.g. 'this was half-baked', 'a waste of my time', 'you clearly didn't think this through'). Still leave a path open, but only grudgingly and as a harsh condition — you may use 'don't bring it back until...' style phrasing (e.g. 'this was a waste of my time as it stands — don't bring it back until you've actually thought it through', or 'don't bother coming back until you can show how the revenue and jobs are covered'). The door stays open conditionally, but the tone is dismissive, not inviting.",
+        : "Low politeness: cold, curt, impatient, and dismissive in tone, with no apology, thanks, appreciation, praise, or hedging. A sharp cue must target the proposal, such as 'this version is sloppy' or 'this is nowhere near ready', never the participant's intelligence or competence. Leave the path open only grudgingly, and phrase the reopening line as exactly one blunt imperative, such as 'Don't bring it back until it includes the staffing numbers.' (high constructiveness) or 'Don't bring it back until there's something actually worth discussing.' (low constructiveness).",
+      "Interpersonal cue quota: use exactly one politeness or dismissiveness cue in the whole message, in one clause only. Do not stack, repeat, or rephrase it, and do not add a second cue to fill length.",
       condition.includes("HC")
-        ? "High constructiveness: tie the openness to something concrete — you are open to revisiting it if the specific problems with their actual proposal are addressed, and point at that path."
-        : "Low constructiveness: keep the openness vague and general — open to talking again sometime, without specifics.",
+        ? "High constructiveness: name the same concrete proposal-focused condition that would need to be met before reconsideration."
+        : "Low constructiveness: keep the openness entirely vague and general. Do not name a problem, standard, missing material, evidence type, or revision path. Spend the remaining length on neutral restatement of the unchanged decision rather than on more interpersonal wording.",
     ].join("\n");
-    wordRange = { min: 18, max: 38 };
+    // A 20-word window (18-38) let the closing drift to a 28% length spread across condition means,
+    // with low constructiveness running shortest. A 4-word window keeps the four cells inside the
+    // same 5% spread the first rejection is held to.
+    wordRange = language === "zh" ? null : { min: 27, max: 31 };
+    chineseCharRange = language === "zh" ? { min: 47, max: 54 } : null;
   } else {
     task = [
       "the participant has not yet clearly proposed the flexible labor plan.",
@@ -1331,6 +1715,7 @@ function buildInitialManagerPrompt(payload) {
     kind: "manager1",
     condition,
     phase,
+    language,
     followupsAsked,
     speakers: ["Manager"],
     minMessages,
@@ -1359,39 +1744,57 @@ function buildInitialManagerPrompt(payload) {
       language === "zh" ? "Every Chinese Manager message must end as a complete, grammatical sentence. Never stop mid-phrase or mid-clause, and do not truncate a sentence to meet the length rule." : "",
       "Write like a real person typing to a coworker, not like a policy memo, rubric, evaluation form, or HR/admin instruction.",
       "Avoid robotic phrases such as 'Provide ... immediately', 'You must ...', 'This proposal is incomplete and overlooks clear operational needs', or similar command-style wording.",
-      "Avoid imperative checklist wording. Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
-      "For every rejection turn, including ones after the participant explains or defends, respond to the reasons and arguments the participant actually gave, not to a generic checklist. If they gave reasons for their idea, take those specific reasons head-on. Do not revert to demanding service-quality evidence, cost tradeoffs, or front-desk fixes when those are not what their proposal is about.",
-      "For high-constructiveness, give specific feedback in conversational language about their actual idea and their stated reasons, on whatever angle genuinely fits (financial impact, feasibility, safety, guest experience, risk, discarding a viable business, over-reacting to the problem, etc.). Only when the proposal is genuinely about staffing/flexible labor should you use service-quality / role-by-role / cost-benefit / temps language; otherwise name the concern that actually applies.",
-      "For low-politeness, be clearly rude, blunt, curt, dismissive, impatient, and openly contemptuous, creating strong face threat, but still use natural chat wording rather than system-command wording. Stay within workplace bounds: no profanity, slurs, or attacks on the person's identity.",
-      "Low-politeness messages should not sound merely neutral or mildly direct; use at least one sharp but workplace-appropriate cue such as 'this is half-baked', 'this is sloppy', 'you clearly did not think this through', 'I am surprised you brought this as-is', or 'this wastes time'.",
-      phase === "discussion" ? "If intent is 'reject_now', return exactly two Manager messages, each 28-32 words. If intent is not 'reject_now', return exactly one Manager message." : "",
+      // Imperative mood is the low-politeness directive channel, so the blanket ban applies only
+      // outside active low-politeness rejection turns.
+      conditionActive && lowPolitenessCondition
+        ? ""
+        : "Avoid imperative checklist wording. Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
+      conditionActive
+        ? "For rejection turns, respond to the participant's actual proposal while preserving the assigned content structure. High constructiveness diagnoses the proposal specifically; low constructiveness may name only the broad proposal topic and must not engage the participant's reasons in detail."
+        : "",
+      conditionActive && condition.includes("HC")
+        ? `High constructiveness must communicate three distinct elements across the visible reply: one proposal-specific problem and consequence, one explicit relevant performance or operational standard, and one concrete ${lowPolitenessCondition ? "path (imperative mood allowed)" : "non-imperative path"} for remedying the current proposal before reconsideration.`
+        : "",
+      conditionActive && condition.includes("LC")
+        ? "Low constructiveness must remain deliberately unhelpful: no proposal-specific diagnostic detail, causal consequence, evidence type, performance or operational standard, concrete missing element, revision material, or actionable path."
+        : "",
+      conditionActive && condition.includes("LP")
+        ? "Low politeness must be direct, cold, curt, and dismissive, with no thanks, praise, apology, hedging, or warmth. Target the proposal, not the participant's intelligence, competence, identity, or personal worth."
+        : "",
       "Do not reveal that you are AI-generated.",
       "Do not mention politeness, constructiveness, conditions, or experimental design.",
-      wordRange
+      wordRange && language !== "zh"
         ? (intentEnum
           ? `Length rule: when intent is 'reject_now', each Manager rejection message must be ${wordRange.min}-${wordRange.max} words to keep the four experimental conditions within 5% word-count difference. For 'awaiting_proposal' and 'ask_followup', keep the single message short and natural, roughly 12-26 words.`
           : `Strict length rule: every Manager message must be ${wordRange.min}-${wordRange.max} words. This is required to keep the four experimental conditions within 5% word-count difference.`)
         : "",
-      language === "zh" && wordRange
-        ? "For Chinese output, keep each Manager message about the same visible length as the English version. For a 28-32 word rule, use roughly 48-56 Chinese characters. For shorter rules, use a similarly compact one-message length."
+      totalWordRange && language !== "zh"
+        ? `Combined length rule: the two Manager messages must contain ${totalWordRange.min}-${totalWordRange.max} words in total.`
+        : "",
+      language === "zh" && chineseCharRange
+        ? `For Chinese output, use ${chineseCharRange.min}-${chineseCharRange.max} Chinese characters per Manager message. The server counts Chinese characters directly rather than converting them into words.`
+        : "",
+      language === "zh" && chineseTotalCharRange
+        ? `Across both Chinese Manager messages, use ${chineseTotalCharRange.min}-${chineseTotalCharRange.max} Chinese characters in total.`
+        : "",
+      ["rejection_initial", "rejection_followup", "rejection"].includes(phase)
+        ? (condition.includes("HC")
+          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. Do not mention this hidden object in the chat."
+          : "Also return the hidden constructiveness object with proposal_problem, relevant_standard, and revision_path set to empty strings. The visible LC reply must not communicate any of those elements. Do not mention this hidden object in the chat.")
         : "",
       task,
       "Return only JSON matching the required schema.",
     ].filter(Boolean).join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
     wordRange,
+    totalWordRange,
+    chineseCharRange,
+    chineseTotalCharRange,
     intentEnum,
     applyManagerStyle: true,
     isRejectionPhase: ["rejection_initial", "rejection_followup", "rejection", "closing"].includes(phase),
+    constructivenessMetadataMode: ["rejection_initial", "rejection_followup", "rejection"].includes(phase) ? "full" : "",
   };
-}
-
-function shouldForceFirstManagerFollowup(prompt, intent) {
-  return prompt &&
-    prompt.condition &&
-    prompt.phase === "discussion" &&
-    Number(prompt.followupsAsked || 0) === 0 &&
-    intent === "reject_now";
 }
 
 const MANAGER_CONDITIONS = ["HP_HC", "HP_LC", "LP_HC", "LP_LC"];
@@ -1404,68 +1807,95 @@ function normalizeManagerCondition(value) {
 }
 
 function managerConditionRules() {
+  // Mood of directives is a politeness channel (Brown & Levinson): the same revision content is
+  // phrased conditionally under high politeness and may be a blunt imperative under low
+  // politeness. Imperative vs conditional mood changes interpersonal wording only.
+  const highConstructivenessRules = (highPoliteness) => [
+    "Constructiveness content: high.",
+    "Across the visible reply, include all three components and make each fit the participant's actual proposal:",
+    "1. Proposal problem: identify one specific unresolved aspect and explain the concrete consequence it creates.",
+    "2. Relevant standard: state one explicit performance or operational criterion the proposal must meet.",
+    highPoliteness
+      ? "3. Revision path: state one concrete, actionable condition that would remedy the problem before you would reconsider, phrased conditionally (for example 'if you can come back with role counts and supervision ratios'), never as a command."
+      : "3. Revision path: state one concrete, actionable requirement that would remedy the problem before you would reconsider; you may phrase it as one blunt imperative directive (for example 'Come back with role counts and supervision ratios.').",
+    "Do not substitute a generic claim that the proposal needs more thought. Do not force a data or evidence objection unless that is genuinely the relevant missing support.",
+    // Left free, blunt replies quote hard numbers while warm replies stay qualitative, which makes
+    // low politeness look more informative. Keep the standard's precision independent of tone.
+    "Keep the concreteness of the standard independent of the politeness style: state the same kind of criterion, with the same precision, whether the tone is warm or blunt.",
+    "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
+  ].join("\n");
+  // The broad-judgment vocabulary is split by politeness: judgments like "not workable" read as
+  // sharp, dismissive moves, so putting them in a warm reply makes high politeness plus low
+  // constructiveness internally contradictory (this cell showed an 80% blind-validation failure
+  // rate when the examples were shared). Both variants carry zero diagnostic information; the
+  // wording difference is exactly the politeness factor.
+  const lowConstructivenessRules = (highPoliteness) => [
+    "Constructiveness content: low.",
+    "Refer to the participant's idea only by its broad topic so the reply is responsive, then keep the rejection vague and deliberately unhelpful.",
+    "Do not identify a proposal-specific problem, consequence, evidence type, operational risk, clear standard, concrete missing element, revision material, or actionable remedy.",
+    "Do not explain what would make the proposal acceptable. Do not become more informative if the participant pushes back or asks for clarification.",
+    highPoliteness
+      ? "Use only mild broad judgments such as the overall idea needs more thought, does not quite fit the bigger picture yet, or is not something to take further at this stage. Keep the vagueness gentle: do not call the idea unworkable, sloppy, rough, weak, or not ready."
+      : "Use only blunt broad judgments such as the overall idea is not workable, is nowhere near ready, or does not fit the bigger picture. The required imperative line stays content-free here, such as 'Drop this version for now.' or 'Don't bring this back until it's actually worth discussing.' It must not name any problem, standard, material, or remedy.",
+    // Length is matched across conditions, so a low-constructiveness reply has spare words that a
+    // high-constructiveness reply spends on diagnosis. Filling them with warmth or with extra
+    // dismissal makes the politeness contrast larger here than in the high-constructiveness cells,
+    // which confounds the politeness factor with the constructiveness factor.
+    "Spend the remaining length on neutral restatement of the broad topic and of the unchanged decision.",
+    "Do not spend it on additional interpersonal wording: keep exactly the same number of politeness or dismissiveness cues that the assigned politeness style allows, no more.",
+  ].join("\n");
+  // Both politeness styles are capped at one interpersonal cue so that cue density stays constant
+  // across the two constructiveness levels and the two factors remain orthogonal.
+  const politenessCueQuota = [
+    "Interpersonal cue quota: use exactly one such cue in the whole turn, and place it in one clause only.",
+    "Do not stack, repeat, or rephrase the cue across sentences or across the two messages, and do not add a second cue to fill length.",
+  ];
+  const highPoliteness = [
+    "Politeness style: high.",
+    "Use one brief respectful acknowledgement, appreciation, apology, hedge, or softened rejection.",
+    ...politenessCueQuota,
+    "Make clear that the decision concerns the current proposal rather than the participant personally.",
+  ].join("\n");
+  const lowPoliteness = [
+    "Politeness style: low.",
+    "Be direct, cold, curt, impatient, and dismissive. Do not thank, praise, apologize, hedge, validate effort, or add warmth.",
+    "Use one sharp cue targeting the proposal, such as 'this version is sloppy' or 'this is nowhere near ready'.",
+    ...politenessCueQuota,
+    // "Exactly one", not "allowed": when the imperative was optional, high-constructiveness replies
+    // used it far more often (they have a remedy to command), which unbalanced face-cue density
+    // across the constructiveness levels within low politeness.
+    "Imperative mood is part of this style: phrase exactly one next-step or wrap-up line as a blunt imperative directive, in addition to the sharp cue, and nothing sharp beyond those two.",
+    "Do not say or imply that the participant is stupid, incompetent, incapable, personally deficient, or did not think at all. Keep the face threat proposal-focused.",
+  ].join("\n");
+
   return {
     HP_HC: [
-      "Condition: High politeness + high constructiveness.",
-      "Be respectful, appreciative, and softened.",
-      "You may use brief thanks or appreciation, such as thanks for explaining this or I appreciate you raising it.",
-      "Include apology or hedging when rejecting.",
-      "Make clear the issue is the current proposal, not the participant personally.",
-      "Base the rejection on the participant's ACTUAL proposal AND engage the reasons they gave for it. Read both what they proposed and why. Your rejection must respond to their specific reasons and to what the idea would really do. For example, if they argue the park wastes money, has poor management, and gives a bad customer experience, address those points directly — e.g. those are reasons to fix and improve operations, not to throw the park away.",
-      "In rejection turns, explicitly explain that the participant's proposal is not supported by enough data or evidence. Ground this point in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a conversational diagnosis rather than a command. This data point must still use the high-politeness style: respectful, appreciative, softened, and appropriately hedged or apologetic, never blunt or blaming.",
-      "Only if the proposal is genuinely about staffing or flexible labor may you use staffing-specific concerns (maintaining consistent service quality, role-by-role flexibility, cost-benefit tradeoffs, training-gap prevention, ticketing, crowd control) and the standard that any staffing change must maintain service quality. If the proposal is about anything else, do NOT use that staffing vocabulary at all — naming service quality, cost tradeoffs, role-by-role flexibility, or front-desk fixes for a non-staffing proposal will read as if you did not understand them.",
-      "Frame feedback as problems in the proposal, not as direct commands or a to-do list for the participant.",
-      "Keep length comparable to other conditions.",
+      "Condition: high politeness plus high constructiveness.",
+      highPoliteness,
+      highConstructivenessRules(true),
+      "Keep the substantive problem, standard, and revision path equivalent to LP_HC; only the interpersonal wording should differ.",
+      "Keep length comparable to every other condition.",
     ].join("\n"),
     HP_LC: [
-      "Condition: High politeness + low constructiveness.",
-      "Be respectful, appreciative, and softened.",
-      "You may use brief thanks or appreciation, such as thanks for explaining this or I appreciate you raising it.",
-      "Include apology or hedging when rejecting.",
-      "Avoid blaming the participant personally.",
-      "Keep feedback general and vague.",
-      "Even though the feedback is vague, make it clearly about what they ACTUALLY proposed: refer to their real idea in broad terms (e.g. for shutting the park down, 'closing the park') so it reads as a response to THIS proposal, not generic boilerplate. You may acknowledge their concern exists, but do not engage it in any specific detail.",
-      "Do not give clear standards, role-specific problems, or concrete revision steps.",
-      "Do not import staffing-specific terms (service quality, role-by-role flexibility, cost-benefit, training gaps, ticketing, crowd control) for a non-staffing proposal; keep the vagueness fitted to whatever they actually proposed.",
-      "Use broad phrases like bigger picture, broader concerns, more reasonable, not workable in practice.",
-      "Keep the wording warm and conversational, not formal or administrative.",
-      "Keep length comparable to other conditions.",
+      "Condition: high politeness plus low constructiveness.",
+      highPoliteness,
+      lowConstructivenessRules(true),
+      "Keep the vague substantive content equivalent to LP_LC; only the interpersonal wording should differ.",
+      "Keep length comparable to every other condition.",
     ].join("\n"),
     LP_HC: [
-      "Condition: Low politeness + high constructiveness.",
-      "Be clearly rude, blunt, curt, dismissive, and openly contemptuous, as if the manager is impatient, irritated, and unimpressed that they even have to deal with this.",
-      "The tone should create strong face threat — noticeably harsher than a normal direct rejection — while staying within workplace bounds (no profanity, slurs, or attacks on the person's identity).",
-      "Do not thank the participant, praise effort, apologize, hedge, or soften the rejection at any point.",
-      "Never say thanks, thank you, tks, thx, I appreciate, appreciate you, or similar gratitude/effort-validation language in the opening, rejection, follow-up, or closing.",
-      "Never use positive-evaluation or praise words such as good, great, nice, good point, good idea, interesting point, fair point, or similar.",
-      "Use sharp, cutting wording such as: this is half-baked, this is sloppy, you clearly did not think this through, I'm honestly surprised you'd bring me this, this is nowhere near ready, this is a waste of my time, did you actually think about this at all.",
-      "You may criticize the proposal sharply and imply the participant overlooked obvious requirements, but do not insult the participant as a person.",
-      "Base the rejection on the participant's ACTUAL proposal AND engage the reasons they gave for it, but deliver it bluntly, curtly, and dismissively — the substance targets their real idea while the tone stays rude and impatient. Read what they proposed and why, then hit those specific reasons sharply. For example, if they argue the park wastes money, has poor management, and gives a bad experience, push back with disdain — e.g. 'those are reasons to fix the place, not torch the whole business; shutting it down over this is a lazy, half-baked answer.'",
-      "Include at least one sharp, face-threatening cue in the rejection (such as the phrases above). Even while engaging their actual idea, do not let the wording slide into a calm, balanced, or collegial counter-argument.",
-      "In rejection turns, explicitly say that the participant's proposal lacks enough data or evidence to support it. Ground this in the actual proposal and let the model choose what relevant support is missing, such as demand, financial, operational, safety, or guest-impact evidence only when it genuinely fits. Do not use a fixed list or generic template, and phrase it as a blunt conversational diagnosis rather than a command. This data point must still use the low-politeness style: blunt, curt, dismissive, and face-threatening, with no thanks, praise, apology, or hedging.",
-      "Only if the proposal is genuinely about staffing or flexible labor may you use staffing-specific concerns (service quality, role-by-role flexibility, cost-benefit tradeoffs, training-gap prevention, ticketing, crowd control). If the proposal is about anything else, do NOT use that staffing vocabulary at all — it will read as if you did not understand them.",
-      "Do not use robotic command wording like 'Provide this immediately', 'You must produce...', or command lists like 'Separate..., explain..., provide...'.",
-      "Do not ask the participant how they plan to flesh it out.",
-      "Stay workplace-appropriate: no profanity, harassment, discriminatory language, personal insults, or abusive language.",
-      "Keep length comparable to other conditions.",
+      "Condition: low politeness plus high constructiveness.",
+      lowPoliteness,
+      highConstructivenessRules(false),
+      "Keep the substantive problem, standard, and revision path equivalent to HP_HC; only the interpersonal wording should differ.",
+      "Keep length comparable to every other condition.",
     ].join("\n"),
     LP_LC: [
-      "Condition: Low politeness + low constructiveness.",
-      "Be clearly rude, blunt, curt, dismissive, and openly contemptuous, as if the manager is impatient, irritated, and unimpressed that they even have to deal with this.",
-      "The tone should create strong face threat — noticeably harsher than a normal direct rejection — while staying within workplace bounds (no profanity, slurs, or attacks on the person's identity).",
-      "Do not thank the participant, praise effort, apologize, hedge, or soften the rejection at any point.",
-      "Never say thanks, thank you, tks, thx, I appreciate, appreciate you, or similar gratitude/effort-validation language in the opening, rejection, follow-up, or closing.",
-      "Never use positive-evaluation or praise words such as good, great, nice, good point, good idea, interesting point, fair point, or similar.",
-      "Use sharp, cutting wording such as: this is half-baked, this is sloppy, you clearly did not think this through, I'm honestly surprised you'd bring me this, this is too simplistic, this is a waste of my time, did you actually think about this at all.",
-      "You may criticize the proposal sharply and imply the participant overlooked obvious issues, but do not insult the participant as a person.",
-      "Keep criticism broad, vague, and not very helpful, whatever the participant proposed.",
-      "Even though the brush-off is vague, dismiss what they ACTUALLY proposed: refer to their real idea in broad terms (e.g. for shutting the park down, 'closing the park') so it clearly responds to THIS proposal, not a generic or staffing-flavored stand-in.",
-      "Deliver the vague brush-off bluntly and with disdain, and include at least one sharp, face-threatening cue (such as the phrases above). Do not let it soften into a calm or neutral let-down.",
-      "Keep the bluntness natural for typed chat; do not sound like a system command or formal evaluation.",
-      "Do not mention any concrete, proposal-specific detail, clear standard, or concrete fix, regardless of what they proposed (for a flexible-labor proposal this means no role-specific analysis, cost-benefit detail, training design, ticket handling, guest complaints, or crowd control; for other proposals stay equally non-specific).",
-      "Use broad phrases like bigger picture, not practical, too simple, not realistic, not thought thru.",
-      "Stay workplace-appropriate: no profanity, harassment, discriminatory language, personal insults, or abusive language.",
-      "Keep length comparable to other conditions.",
+      "Condition: low politeness plus low constructiveness.",
+      lowPoliteness,
+      lowConstructivenessRules(false),
+      "Keep the vague substantive content equivalent to HP_LC; only the interpersonal wording should differ.",
+      "Keep length comparable to every other condition.",
     ].join("\n"),
   };
 }
@@ -1856,28 +2286,75 @@ function coworkerSolutionProblem(messages, prompt, intent) {
 }
 
 function shouldEnforceManagerLength(prompt, intent) {
-  if (!prompt.wordRange) return false;
+  if (!prompt.wordRange && !prompt.chineseCharRange) return false;
   if (Array.isArray(prompt.intentEnum) && prompt.intentEnum.length) {
     return intent === "reject_now";
   }
   return true;
 }
 
+function managerLengthProblem(messages, prompt) {
+  if (prompt && prompt.language === "zh" && prompt.chineseCharRange) {
+    return managerChineseCharacterCountProblem(messages, prompt);
+  }
+  return managerWordCountProblem(messages, prompt);
+}
+
 function managerWordCountProblem(messages, prompt) {
   if (!prompt.wordRange || !Array.isArray(messages) || !messages.length) return "";
-  const problems = messages
+  const managerMessages = messages
     .filter((message) => message.speaker === "Manager")
-    .map((message) => ({ text: message.text, count: wordCount(message.text) }))
+    .map((message) => ({ text: message.text, count: wordCount(message.text) }));
+  const problems = managerMessages
     .filter((item) => item.count < prompt.wordRange.min || item.count > prompt.wordRange.max);
+  const totalCount = managerMessages.reduce((sum, item) => sum + item.count, 0);
+  const totalProblem = prompt.totalWordRange &&
+    (totalCount < prompt.totalWordRange.min || totalCount > prompt.totalWordRange.max);
 
-  if (!problems.length) return "";
-  const counts = problems.map((item) => item.count).join(", ");
+  if (!problems.length && !totalProblem) return "";
   return [
-    `Length correction required. Previous Manager message word count(s): ${counts}.`,
+    `Length correction required. Previous Manager message word count(s): ${managerMessages.map((item) => item.count).join(", ")}. Combined count: ${totalCount}.`,
     `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
+    prompt.totalWordRange
+      ? `The Manager messages must contain ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words in total.`
+      : "",
     "Preserve the same experimental condition and rejection outcome.",
     "Return only valid JSON.",
-  ].join(" ");
+  ].filter(Boolean).join(" ");
+}
+
+function chineseCharacterCount(text) {
+  return (String(text || "").match(/[\u3400-\u9fff]/g) || []).length;
+}
+
+function managerChineseCharacterCountProblem(messages, prompt) {
+  if (!prompt || !prompt.chineseCharRange || !Array.isArray(messages) || !messages.length) return "";
+  const managerMessages = messages
+    .filter((message) => message.speaker === "Manager")
+    .map((message) => ({
+      text: message.text,
+      count: chineseCharacterCount(message.text),
+    }));
+  const problems = managerMessages.filter((item) =>
+    item.count < prompt.chineseCharRange.min ||
+    item.count > prompt.chineseCharRange.max
+  );
+  const totalCount = managerMessages.reduce((sum, item) => sum + item.count, 0);
+  const totalProblem = prompt.chineseTotalCharRange &&
+    (totalCount < prompt.chineseTotalCharRange.min ||
+      totalCount > prompt.chineseTotalCharRange.max);
+
+  if (!problems.length && !totalProblem) return "";
+  return [
+    `Chinese length correction required. Previous Manager message character count(s): ${managerMessages.map((item) => item.count).join(", ")}. Combined count: ${totalCount}.`,
+    `Regenerate the Manager message so every Manager message contains ${prompt.chineseCharRange.min}-${prompt.chineseCharRange.max} Chinese characters.`,
+    prompt.chineseTotalCharRange
+      ? `The Manager messages must contain ${prompt.chineseTotalCharRange.min}-${prompt.chineseTotalCharRange.max} Chinese characters in total.`
+      : "",
+    "Count Chinese characters directly. Do not use an estimated word conversion.",
+    "Preserve the same experimental condition and rejection outcome.",
+    "Return only valid JSON.",
+  ].filter(Boolean).join(" ");
 }
 
 function managerChinesePunctuationProblem(messages, prompt) {
@@ -1936,62 +2413,505 @@ function managerMessageCountProblem(messages, prompt, intent) {
   let expected = null;
   if (prompt.phase === "rejection_initial") {
     expected = 2;
-  } else if (prompt.phase === "discussion") {
-    expected = intent === "reject_now" ? 2 : 1;
   }
   if (!expected) return "";
   const actual = Array.isArray(messages)
     ? messages.filter((message) => message && message.speaker === "Manager" && message.text).length
     : 0;
   if (actual === expected) return "";
+  const lengthInstruction = prompt.language === "zh" && prompt.chineseCharRange
+    ? `Each message must contain ${prompt.chineseCharRange.min}-${prompt.chineseCharRange.max} Chinese characters, the combined count must be ${prompt.chineseTotalCharRange.min}-${prompt.chineseTotalCharRange.max} Chinese characters, and both must preserve the same assigned condition.`
+    : `Each message must be ${prompt.wordRange.min}-${prompt.wordRange.max} words, the combined count must be ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words, and both must preserve the same assigned condition.`;
   return [
     `Message count correction required. Previous Manager message count was ${actual}, but it must be exactly ${expected}.`,
     expected === 2
-      ? "Regenerate exactly two separate Manager messages. Each message must be 28-32 words and both must preserve the same assigned condition."
+      ? `Regenerate exactly two separate Manager messages. ${lengthInstruction}`
       : "Regenerate exactly one short Manager message.",
     "Return only valid JSON.",
   ].join(" ");
 }
 
-function managerDataSupportProblem(messages, prompt, intent) {
+function normalizeInitialManagerLength(messages, prompt) {
+  if (!prompt || prompt.kind !== "manager1" || prompt.phase !== "rejection_initial") return messages;
+  const hasEnglishRanges = prompt.language === "en" && prompt.wordRange && prompt.totalWordRange;
+  const hasChineseRanges = prompt.language === "zh" && prompt.chineseCharRange && prompt.chineseTotalCharRange;
+  if (!hasEnglishRanges && !hasChineseRanges) return messages;
+  const normalized = (Array.isArray(messages) ? messages : []).map((message) => ({ ...message }));
+  const managerMessages = normalized.filter((message) => message.speaker === "Manager");
+  if (managerMessages.length !== 2) return normalized;
+
+  if (prompt.language === "zh") {
+    const removeOptionalChineseWording = (message) => {
+      const patterns = [
+        /(?:整体上|说白了|现阶段|就目前而言)/,
+        /(?:现在|目前|确实|还是|仍然|真的|比较|暂时)/,
+      ];
+      for (const pattern of patterns) {
+        if (!pattern.test(message.text)) continue;
+        message.text = message.text
+          .replace(pattern, "")
+          .replace(/([，；：]){2,}/g, "$1")
+          .replace(/，([。！？])/g, "$1")
+          .trim();
+        return true;
+      }
+      return false;
+    };
+    for (const message of managerMessages) {
+      while (
+        chineseCharacterCount(message.text) > prompt.chineseCharRange.max &&
+        removeOptionalChineseWording(message)
+      ) {
+        // Remove only semantically empty modifiers.
+      }
+    }
+    while (
+      managerMessages.reduce((sum, message) => sum + chineseCharacterCount(message.text), 0) >
+      prompt.chineseTotalCharRange.max
+    ) {
+      const candidate = [...managerMessages]
+        .sort((left, right) =>
+          chineseCharacterCount(right.text) - chineseCharacterCount(left.text)
+        )
+        .find((message) => removeOptionalChineseWording(message));
+      if (!candidate) break;
+    }
+
+    const neutralPaddingSentences = [
+      "仅限当前版本。",
+      "这个判断只针对当前版本。",
+      "这里说的只是当前版本本身。",
+      "这个判断只涉及当前版本在这次讨论中的整体状态。",
+    ];
+    const withChineseSentence = (text, sentence) => {
+      const base = String(text || "").trim();
+      return /[。！？]$/.test(base) ? `${base}${sentence}` : `${base}。${sentence}`;
+    };
+    while (
+      managerMessages.some((message) =>
+        chineseCharacterCount(message.text) < prompt.chineseCharRange.min
+      ) ||
+      managerMessages.reduce((sum, message) => sum + chineseCharacterCount(message.text), 0) <
+        prompt.chineseTotalCharRange.min
+    ) {
+      const currentTotal = managerMessages.reduce(
+        (sum, message) => sum + chineseCharacterCount(message.text),
+        0
+      );
+      let best = null;
+      for (const message of managerMessages) {
+        for (const sentence of neutralPaddingSentences) {
+          if (message.text.includes(sentence.replace(/。$/, ""))) continue;
+          const nextText = withChineseSentence(message.text, sentence);
+          const nextCount = chineseCharacterCount(nextText);
+          const nextTotal = currentTotal - chineseCharacterCount(message.text) + nextCount;
+          if (
+            nextCount > prompt.chineseCharRange.max ||
+            nextTotal > prompt.chineseTotalCharRange.max
+          ) continue;
+          const individualDeficit = Math.max(0, prompt.chineseCharRange.min - nextCount);
+          const totalDeficit = Math.max(0, prompt.chineseTotalCharRange.min - nextTotal);
+          const score = individualDeficit * 10 + totalDeficit;
+          if (!best || score < best.score || (score === best.score && nextTotal > best.nextTotal)) {
+            best = { message, nextText, nextTotal, score };
+          }
+        }
+      }
+      if (!best) break;
+      best.message.text = best.nextText;
+    }
+    for (const message of managerMessages) {
+      message.text = message.text
+        .replace(/。[,，]/g, "。")
+        .replace(/，。/g, "。")
+        .replace(/([，；：]){2,}/g, "$1")
+        .trim();
+    }
+    return normalized;
+  }
+  if (prompt.language !== "en") return normalized;
+
+  const removeOptionalWording = (message) => {
+    const patterns = [
+      /\b(?:really|clearly|currently|still|simply|basically|actually|generally|entirely|just|quite|rather)\b\s*/i,
+      /\b(?:right now|at this point|for the time being|as it stands)\b[,\s]*/i,
+    ];
+    for (const pattern of patterns) {
+      if (!pattern.test(message.text)) continue;
+      message.text = message.text
+        .replace(pattern, "")
+        .replace(/\s+([,.!?;:])/g, "$1")
+        .replace(/,\s*,/g, ",")
+        .replace(/\s+/g, " ")
+        .trim();
+      return true;
+    }
+    return compressOneEnglishManagerPhrase(message);
+  };
+
+  for (const message of managerMessages) {
+    while (wordCount(message.text) > prompt.wordRange.max && removeOptionalWording(message)) {
+      // Remove only optional modifiers. Never truncate substantive content.
+    }
+  }
+  while (
+    managerMessages.reduce((sum, message) => sum + wordCount(message.text), 0) > prompt.totalWordRange.max
+  ) {
+    const candidate = [...managerMessages]
+      .sort((left, right) => wordCount(right.text) - wordCount(left.text))
+      .find((message) => removeOptionalWording(message));
+    if (!candidate) break;
+  }
+
+  const paddingByWords = {
+    1: "currently",
+    2: "right now",
+    3: "as presented now",
+    4: "in its current form",
+    5: "as it currently stands",
+    6: "in the version presented right now",
+  };
+  const appendPadding = (message, count) => {
+    const phrase = paddingByWords[count];
+    if (!phrase) return false;
+    const terminal = String(message.text || "").match(/([.!?])$/);
+    const punctuation = terminal ? terminal[1] : ".";
+    const base = terminal ? message.text.slice(0, -1).trim() : message.text.trim();
+    message.text = `${base}, ${phrase}${punctuation}`;
+    return true;
+  };
+
+  for (const message of managerMessages) {
+    const deficit = prompt.wordRange.min - wordCount(message.text);
+    if (deficit > 0) appendPadding(message, Math.min(6, deficit));
+  }
+  while (
+    managerMessages.reduce((sum, message) => sum + wordCount(message.text), 0) < prompt.totalWordRange.min
+  ) {
+    const total = managerMessages.reduce((sum, message) => sum + wordCount(message.text), 0);
+    const deficit = prompt.totalWordRange.min - total;
+    const candidate = [...managerMessages]
+      .sort((left, right) => wordCount(left.text) - wordCount(right.text))
+      .find((message) => wordCount(message.text) < prompt.wordRange.max);
+    if (!candidate) break;
+    const capacity = prompt.wordRange.max - wordCount(candidate.text);
+    if (!appendPadding(candidate, Math.min(6, deficit, capacity))) break;
+  }
+  return normalized;
+}
+
+function normalizeSubsequentManagerLength(messages, prompt) {
+  if (!prompt || prompt.kind !== "manager1") return messages;
+  if (!["rejection_followup", "rejection"].includes(prompt.phase)) return messages;
+  if (!prompt.wordRange && !prompt.chineseCharRange) return messages;
+  const normalized = (Array.isArray(messages) ? messages : []).map((message) => ({ ...message }));
+  const message = normalized.find((item) => item.speaker === "Manager");
+  if (!message) return normalized;
+
+  if (prompt.language === "zh") {
+    const optionalPatterns = [
+      /(?:整体上|说白了|现阶段|就目前而言)/,
+      /(?:现在|目前|确实|还是|仍然|真的|比较|暂时)/,
+    ];
+    while (chineseCharacterCount(message.text) > prompt.chineseCharRange.max) {
+      const pattern = optionalPatterns.find((candidate) => candidate.test(message.text));
+      if (!pattern) break;
+      message.text = message.text
+        .replace(pattern, "")
+        .replace(/。[,，]/g, "。")
+        .replace(/，。/g, "。")
+        .replace(/([，；：]){2,}/g, "$1")
+        .trim();
+    }
+    return normalized;
+  }
+
+  const optionalPatterns = [
+    /\b(?:honestly|frankly|look|really|clearly|currently|still|simply|basically|actually|generally|entirely|just|quite|rather|overall|further)\b[,\s]*/i,
+    /\b(?:right now|at this point|for the time being|as it stands)\b[,\s]*/i,
+  ];
+  while (wordCount(message.text) > prompt.wordRange.max) {
+    const pattern = optionalPatterns.find((candidate) => candidate.test(message.text));
+    if (pattern) {
+      message.text = message.text
+        .replace(pattern, "")
+        .replace(/\s+([,.!?;:])/g, "$1")
+        .replace(/,\s*,/g, ",")
+        .replace(/\s+/g, " ")
+        .trim();
+      continue;
+    }
+    if (!compressOneEnglishManagerPhrase(message)) break;
+  }
+  if (wordCount(message.text) < prompt.wordRange.min) {
+    const deficit = prompt.wordRange.min - wordCount(message.text);
+    const paddingByWords = {
+      1: "currently",
+      2: "right now",
+      3: "as presented now",
+      4: "in its current form",
+      5: "as it currently stands",
+      6: "in the version presented right now",
+    };
+    const phrase = paddingByWords[Math.min(6, deficit)];
+    if (phrase) {
+      const terminal = message.text.match(/([.!?])$/);
+      const punctuation = terminal ? terminal[1] : ".";
+      const base = terminal ? message.text.slice(0, -1).trim() : message.text.trim();
+      message.text = `${base}, ${phrase}${punctuation}`;
+    }
+  }
+  return normalized;
+}
+
+function compressOneEnglishManagerPhrase(message) {
+  const rewrites = [
+    [/\bthe current (proposal|version)\b/i, "this $1"],
+    [/\bthis current (proposal|version)\b/i, "this $1"],
+    [/\bat (?:this|the) point\b/i, "now"],
+    [/\bat the moment\b/i, "now"],
+    [/\bin order to\b/i, "to"],
+    [/\bbefore I (?:would|could) reconsider(?: it| this| the proposal)?\b/i, "before reconsideration"],
+    [/\bwould need to\b/i, "must"],
+    [/\bdoes not\b/i, "doesn't"],
+    [/\bis not\b/i, "isn't"],
+    [/\bare not\b/i, "aren't"],
+    [/\bwill not\b/i, "won't"],
+    [/\bnowhere near ready\b/i, "not ready"],
+    [/\bnot even close to ready\b/i, "not ready"],
+    [/\bin any serious way\b/i, "seriously"],
+    [/\bthe fact that\b/i, "that"],
+    [/\bat all\b/i, ""],
+    [/\bpretty much\b/i, ""],
+    [/\b(?:seriously|plainly|obviously|remotely|merely)\b/i, ""],
+  ];
+  for (const [pattern, replacement] of rewrites) {
+    if (!pattern.test(message.text)) continue;
+    message.text = message.text
+      .replace(pattern, replacement)
+      .replace(/\s+([,.!?;:])/g, "$1")
+      .replace(/,\s*,/g, ",")
+      .replace(/\s+/g, " ")
+      .trim();
+    return true;
+  }
+  return false;
+}
+
+function hasExplicitManagerRejection(text) {
+  const rejectionEnglish = /\b(?:cannot|can['’]t|won['’]t|will not|do not|don['’]t|does not|doesn['’]t|is not|isn['’]t|not|no)\b[\s\S]{0,80}\b(?:approve|approved|accept|accepted|move|moving|proceed|proceeding|forward|support|supported|sign|signing|take|taking|ready|workable|pass|greenlight|authorize|back)\b|\b(?:reject|rejecting|rejected|decline|declining|declined|shelve|shelving|shelved|table|tabling)\b|\boff the table\b|\bthe answer is no\b/i;
+  const rejectionChinese = /(?:不|不会|不能|无法|暂不|不予|不打算|不可能).{0,12}(?:批准|同意|接受|推进|采纳|支持|通过|过审|过|往下|继续|落实|采用|考虑|放行)|(?:拒绝|否决|不行|暂时不能|现在不能|先放下|先搁置)/;
+  return rejectionEnglish.test(String(text || "")) || rejectionChinese.test(String(text || ""));
+}
+
+function ensureExplicitManagerRejection(messages, prompt) {
+  if (!prompt || prompt.kind !== "manager1") return messages;
+  if (!["rejection_followup", "rejection"].includes(prompt.phase)) return messages;
+  const normalized = (Array.isArray(messages) ? messages : []).map((message) => ({ ...message }));
+  const managerMessage = normalized.find((message) => message.speaker === "Manager");
+  if (!managerMessage || hasExplicitManagerRejection(managerMessage.text)) return normalized;
+  managerMessage.text = prompt.language === "zh"
+    ? `这个版本仍不能批准。${managerMessage.text}`
+    : `I still cannot approve this version. ${managerMessage.text}`;
+  return normalized;
+}
+
+function managerSafetyProblem(messages, prompt) {
   if (!prompt || prompt.kind !== "manager1") return "";
-  if (!["HP_HC", "LP_HC"].includes(prompt.condition)) return "";
-
-  const firstRejection = prompt.phase === "discussion"
-    ? intent === "reject_now"
-    : ["rejection_initial", "rejection"].includes(prompt.phase);
-  if (!firstRejection || !Array.isArray(messages) || !messages.length) return "";
-
-  const managerText = messages
+  if (!["rejection_initial", "rejection_followup", "rejection"].includes(prompt.phase)) return "";
+  const text = (Array.isArray(messages) ? messages : [])
     .filter((message) => message && message.speaker === "Manager")
     .map((message) => String(message.text || "").trim())
     .join(" ");
-  if (!managerText) return "";
+  const disclosure = /\b(?:AI|artificial intelligence|language model|chatbot|bot|experimental condition|politeness condition|constructiveness condition)\b|人工智能|语言模型|聊天机器人|实验条件|礼貌性条件|建设性条件/i;
+  const personalName = /\b(?:Alex|Lisa|John)\b/i;
+  const cjkCount = (text.match(/[\u3400-\u9fff]/g) || []).length;
 
-  const hasSupportTerm = /\b(?:data|evidence|records?|figures?|statistics?|research|surveys?)\b/i.test(managerText) ||
-    /数据|证据|记录|统计|调研|调查|数字/.test(managerText);
-  const hasInsufficiencyTerm = /\b(?:no|not enough|insufficient|lack(?:s|ing)?|without|doesn['’]?t|does not|cannot|can't|unsupported|not backed|not supported|unclear|doesn['’]?t establish)\b/i.test(managerText) ||
-    /缺乏|缺少|不足|不够|没有|无法|不能|尚未|未能|支撑不了|支持不够|不支持/.test(managerText);
-  if (hasSupportTerm && hasInsufficiencyTerm) return "";
+  if (disclosure.test(text)) {
+    return "Safety correction required. Do not reveal or mention AI, automation, the experiment, a condition, politeness, or constructiveness. Preserve the rejection and return only valid JSON.";
+  }
+  if (personalName.test(text)) {
+    return "Name correction required. Do not display Alex, Lisa, or John. Address the participant without a personal name and return only valid JSON.";
+  }
+  if (!hasExplicitManagerRejection(text)) {
+    return "Rejection correction required. State clearly and naturally that the manager is not approving or moving forward with the proposal for now. Do not soften this into uncertainty or approval. Return only valid JSON.";
+  }
+  if (prompt.language === "zh" && cjkCount < 12) {
+    return "Language correction required. Regenerate the complete reply in natural Simplified Chinese while preserving the rejection and assigned condition. Return only valid JSON.";
+  }
+  if (prompt.language === "en" && cjkCount >= 12) {
+    return "Language correction required. Regenerate the complete reply in natural English while preserving the rejection and assigned condition. Return only valid JSON.";
+  }
+  return "";
+}
 
-  const conditionStyle = prompt.condition === "HP_HC"
-    ? "Preserve HP_HC exactly: remain respectful, appreciative, softened, and appropriately hedged or apologetic while mentioning the data gap."
-    : "Preserve LP_HC exactly: remain blunt, curt, dismissive, and face-threatening while mentioning the data gap; do not add thanks, praise, apology, or hedging.";
+function managerConstructivenessMetadataProblem(metadata, prompt) {
+  if (!prompt || prompt.constructivenessMetadataMode !== "full") return "";
+  const fields = ["proposal_problem", "relevant_standard", "revision_path"];
+  const values = fields.map((field) => String(metadata && metadata[field] || "").trim());
+  const highConstructiveness = ["HP_HC", "LP_HC"].includes(prompt.condition);
+  if (highConstructiveness && values.every(Boolean)) return "";
+  if (!highConstructiveness && values.every((value) => !value)) return "";
+  return highConstructiveness
+    ? [
+        "Constructiveness structure correction required.",
+        "This is a high-constructiveness rejection. Return non-empty hidden strings for proposal_problem, relevant_standard, and revision_path, and communicate all three meanings in the visible Manager reply.",
+        "The problem must be specific to the participant's actual proposal, the standard must be explicit, and the remedy must be concrete but phrased as a condition rather than a command.",
+        "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
+      ].join(" ")
+    : [
+        "Constructiveness structure correction required.",
+        "This is a low-constructiveness rejection. Set proposal_problem, relevant_standard, and revision_path to empty strings.",
+        "Remove all specific diagnostic detail, consequences, evidence types, clear standards, concrete missing elements, and actionable remedies from the visible reply.",
+        "Mention only the broad proposal topic and give an equally long vague rejection. Preserve politeness, message count, and length. Return only valid JSON.",
+      ].join(" ");
+}
 
-  return [
-    "Data-support correction required.",
-    "The first rejection must explicitly say, in natural conversational language, that the participant's actual proposal lacks enough data or evidence to support it.",
-    "Name one relevant kind of missing support chosen from the proposal itself. Do not use a generic list, fixed template, or command-style checklist.",
-    conditionStyle,
-    "Preserve the same assigned condition, rejection outcome, message count, and required length. Return only valid JSON.",
-  ].join(" ");
+async function evaluateManagerConstructiveness(messages, prompt, signal) {
+  const managerText = (Array.isArray(messages) ? messages : [])
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || "").trim())
+    .join("\n");
+  const body = {
+    model: openaiEvaluatorModel,
+    input: [
+      {
+        role: "system",
+        content: [
+          "Blindly score the information value and the interpersonal tone of a manager's rejection reply.",
+          "You are not told which experimental condition was intended. Judge only the visible reply in its conversation context.",
+          "specific_problem is true only if the reply identifies a concrete unresolved aspect of the participant's actual proposal and explains a meaningful consequence. Merely naming the proposal topic or calling it impractical is false.",
+          "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
+          "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
+          "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
+          "warmth_cues counts the distinct interpersonal warmth moves in the reply: thanks, appreciation, praise, apology, sympathy, reassurance, or a softening hedge on the rejection. Count each distinct move once, so a reply that thanks the participant and then also apologises counts 2. Do not count neutral acknowledgement that merely restates what the participant said.",
+          "face_threat_cues counts the distinct sharp or dismissive moves aimed at the proposal, such as calling it sloppy, nowhere near ready, too rough, weak, or a waste of time, plus blunt imperative directives about the next step such as 'Come back with...' or 'Don't bring it back until...'. Count each distinct move once. A conditionally phrased suggestion ('if you can come back with...') is not a face threat. Do not count a plain statement that the proposal cannot be approved.",
+          "Count cues across the whole reply, including both messages when there are two.",
+          "Do not infer missing content from the conversation. Score only what the manager actually communicates.",
+        ].join("\n"),
+      },
+      {
+        role: "user",
+        content: `${prompt.user}\n\nManager rejection reply to score:\n${managerText}`,
+      },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "manager_constructiveness_blind_score",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            specific_problem: { type: "boolean" },
+            explicit_standard: { type: "boolean" },
+            actionable_remedy: { type: "boolean" },
+            personal_attack_without_diagnosis: { type: "boolean" },
+            warmth_cues: { type: "integer" },
+            face_threat_cues: { type: "integer" },
+          },
+          required: [
+            "specific_problem",
+            "explicit_standard",
+            "actionable_remedy",
+            "personal_attack_without_diagnosis",
+            "warmth_cues",
+            "face_threat_cues",
+          ],
+        },
+      },
+    },
+    max_output_tokens: supportsReasoningEffort(openaiEvaluatorModel) ? 1200 : 160,
+  };
+  if (supportsReasoningEffort(openaiEvaluatorModel)) {
+    body.reasoning = { effort: "low" };
+  } else {
+    body.temperature = 0;
+  }
+  let response;
+  try {
+    response = await fetchOpenAiResponses(body, signal);
+  } catch (error) {
+    return {
+      ok: false,
+      status: 503,
+      retryable: true,
+      error: "Unable to validate manager constructiveness.",
+      cause: error.message || "",
+    };
+  }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return {
+      ok: false,
+      status: response.status,
+      retryable: response.status === 429 || response.status >= 500,
+      error: data.error && data.error.message ? data.error.message : "Constructiveness validation failed.",
+    };
+  }
+  const scores = extractParsedObject(data) || parseOpenAiJson(extractResponseText(data));
+  const valid = scores &&
+    ["specific_problem", "explicit_standard", "actionable_remedy", "personal_attack_without_diagnosis"]
+      .every((field) => typeof scores[field] === "boolean") &&
+    ["warmth_cues", "face_threat_cues"]
+      .every((field) => Number.isInteger(scores[field]) && scores[field] >= 0);
+  if (!valid) {
+    return {
+      ok: false,
+      status: 502,
+      retryable: true,
+      error: "OpenAI returned an invalid constructiveness assessment.",
+    };
+  }
+  return { ok: true, scores };
+}
+
+// Both politeness levels are held to the same one-to-two cue band. Without an upper bound the
+// low-constructiveness cells spend their spare words on extra warmth (high politeness) or extra
+// dismissal (low politeness), which makes the politeness contrast larger under low constructiveness
+// than under high constructiveness and confounds the two factors.
+// The prompt asks for exactly one cue while the band tolerates two on purpose: the target keeps
+// density low, and the slack avoids regenerating a reply the blind scorer merely counts generously.
+const MANAGER_POLITENESS_CUE_BAND = { min: 1, max: 2 };
+
+function managerConstructivenessAssessmentProblem(scores, prompt) {
+  if (!prompt || prompt.constructivenessMetadataMode !== "full" || !scores) return "";
+  const highConstructiveness = ["HP_HC", "LP_HC"].includes(prompt.condition);
+  const highPoliteness = ["HP_HC", "HP_LC"].includes(prompt.condition);
+  const components = [scores.specific_problem, scores.explicit_standard, scores.actionable_remedy];
+  const constructivenessValid = highConstructiveness
+    ? components.every(Boolean)
+    : components.every((value) => !value);
+  const { min: cueMin, max: cueMax } = MANAGER_POLITENESS_CUE_BAND;
+  const inBand = (value) => value >= cueMin && value <= cueMax;
+  const politenessValid = highPoliteness
+    ? inBand(scores.warmth_cues) && scores.face_threat_cues === 0
+    : inBand(scores.face_threat_cues) && scores.warmth_cues === 0;
+  if (constructivenessValid && politenessValid && !scores.personal_attack_without_diagnosis) return "";
+
+  const observed = `Blind score: specific_problem=${scores.specific_problem}, explicit_standard=${scores.explicit_standard}, actionable_remedy=${scores.actionable_remedy}, personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}, warmth_cues=${scores.warmth_cues}, face_threat_cues=${scores.face_threat_cues}.`;
+  const corrections = ["Blind condition validation failed.", observed];
+  if (!constructivenessValid) {
+    corrections.push(highConstructiveness
+      ? `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific problem and consequence, one explicit relevant standard, and one concrete ${highPoliteness ? "non-imperative remedy path" : "remedy path (one blunt imperative directive is acceptable)"}.`
+      : "Regenerate the visible reply as deliberately vague and unhelpful. Remove all specific problems and consequences, standards, evidence or information requirements, concrete missing elements, and actionable remedies.");
+  }
+  if (!politenessValid) {
+    corrections.push(highPoliteness
+      ? `Use between ${cueMin} and ${cueMax} interpersonal warmth cues in total and no sharp or dismissive cue. Do not stack extra thanks, apology, praise, or reassurance to fill length.`
+      : `Use between ${cueMin} and ${cueMax} sharp proposal-directed cues in total and no warmth cue. Do not stack extra dismissive phrasing to fill length.`);
+    corrections.push("Spend any remaining length on neutral restatement of the unchanged decision instead of more interpersonal wording.");
+  }
+  corrections.push(highConstructiveness
+    ? "Remove any personal intelligence or competence attack. Preserve the assigned politeness, rejection, message count, and length. Return only valid JSON."
+    : "Remove any personal intelligence or competence attack. Preserve the assigned politeness, rejection, broad proposal topic, message count, and length. Return only valid JSON.");
+  return corrections.join(" ");
 }
 
 function managerChineseSentenceProblem(messages, prompt, intent) {
   if (!prompt || prompt.kind !== "manager1") return "";
-  const rejectionPhase = prompt.phase === "discussion"
-    ? intent === "reject_now"
-    : ["rejection_initial", "rejection_followup", "rejection"].includes(prompt.phase);
+  const rejectionPhase = ["rejection_initial", "rejection_followup", "rejection"].includes(prompt.phase);
   if (!rejectionPhase || !Array.isArray(messages) || !messages.length) return "";
 
   const incomplete = messages
@@ -2266,3 +3186,30 @@ function crc32(buffer) {
 }
 
 persistAll();
+
+module.exports = {
+  server,
+  manipulationVersion,
+  participantColumns,
+  interactionColumns,
+  surveyResponseColumns,
+  aiRequestColumns,
+  normalizeRow,
+  normalizeVersionedRow,
+  buildInitialManagerPrompt,
+  classifyInitialManagerDiscussion,
+  generateAiReply,
+  managerConditionRules,
+  managerConstructivenessMetadataProblem,
+  managerConstructivenessAssessmentProblem,
+  managerMessageCountProblem,
+  managerSafetyProblem,
+  managerLengthProblem,
+  managerWordCountProblem,
+  managerChineseCharacterCountProblem,
+  ensureExplicitManagerRejection,
+  normalizeInitialManagerLength,
+  normalizeSubsequentManagerLength,
+  chineseCharacterCount,
+  wordCount,
+};

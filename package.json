@@ -5,7 +5,9 @@
   "description": "Aetheria Gardens online experiment with server-side data recording.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "qa:constructiveness": "node scripts/constructiveness-qa.js"
   },
   "engines": {
     "node": "22.x"

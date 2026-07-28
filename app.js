@@ -36,6 +36,8 @@
   const requestedCondition = normalizeCondition(params.get("condition"));
   const condition = requestedCondition || storedSession.assigned_condition || pick(conditionLabels);
   const conditionSource = requestedCondition ? "url" : (storedSession.condition_source || "random_assignment");
+  const manipulationVersion = storedSession.manipulation_version ||
+    (storedSession.experiment_start_time ? "constructiveness_v1" : "constructiveness_v2");
   const dataEndpoint = `${window.location.protocol === "file:" ? "http://localhost:8787" : window.location.origin}/api`;
   const apiRequestTimeoutMs = 60000;
   let responseOrder = Number(storedSession.response_order || 0);
@@ -105,6 +107,7 @@
     session_id: ids.session_id,
     assigned_condition: condition,
     condition_source: conditionSource,
+    manipulation_version: manipulationVersion,
     experiment_start_time: storedSession.experiment_start_time || timestamp(),
     experiment_end_time: storedSession.experiment_end_time || timestamp(),
     completed_prechat: storedSession.completed_prechat || "false",
@@ -209,11 +212,16 @@
       instructionRed: true,
       stem: "When rejecting my suggestion, the manager...",
       items: [
-        { id: "MC1", text: "Focused on identifiable problems and behaviors upon which I can take action." },
-        { id: "MC2", text: "Suggested that my weaknesses can be overcome or remedied." },
-        { id: "MC3", text: "Made reference to clear, legitimate standards for acceptable behavior." },
+        // Adapted from the destructive-criticism feedback scales to refer to the proposal rather
+        // than the recipient. The original wording presupposes performance feedback about the
+        // participant ("my weaknesses", "behaviors", "acceptable behavior"), but the manager is
+        // instructed never to criticise the participant personally, so those items asked about
+        // something the design deliberately never provides.
+        { id: "MC1", text: "Pointed to specific aspects of my proposal that I could actually work on." },
+        { id: "MC2", text: "Suggested that the problems with my proposal could be fixed." },
+        { id: "MC3", text: "Made reference to clear, legitimate standards my proposal would have to meet." },
         { id: "MC4", text: "Was very specific and detailed." },
-        { id: "MC5", text: "Made reference to specific situations or incidents that were problematic." },
+        { id: "MC5", text: "Made reference to specific parts of my proposal that were problematic." },
         { id: "MC6", text: "Provided clear enough guidance that I knew what to change." },
       ],
     },
@@ -867,9 +875,18 @@
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     state.managerTurnActive = true;
-    await sendDelayed("Manager", "manager", inZh("Hi, I have been assigned as the Park Manager for this online task, and I will evaluate your performance as an Operations Team Member.", "你好，这次在线任务中，我的角色是公园经理。我会评估你作为运营团队成员的表现。"), null, { opening: true });
-    await sendDelayed("Manager", "manager", inZh("This evaluation may affect the compensation you receive for completing this online task.", "这项评估可能会影响你这次线上任务结束后获得的报酬。"), null, { opening: true });
-    await sendDelayed("Manager", "manager", inZh("Based on the information you receive, what do you think the theme park should do next?", "根据你收到的信息，你认为主题乐园接下来应该怎么做？"), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh(
+      "Hi, I have been assigned as the Park Manager for this online task. I will evaluate your performance as an Operations Team Member, and this evaluation may affect your compensation for completing the task.",
+      "你好，这次在线任务中，我被分配担任公园经理。我会评估你作为运营团队成员的表现，这项评估可能会影响你完成本次任务后获得的报酬。"
+    ), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh(
+      "This task helps a market research company understand how teams respond to market needs and customer feedback.",
+      "这项任务旨在帮助一家市场调研公司了解团队如何回应市场需求和顾客反馈。"
+    ), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh(
+      "Based on the information you received, what do you think the theme park should do next?",
+      "根据你收到的信息，你认为主题乐园下一步应该怎么做？"
+    ), null, { opening: true });
     finishManagerTurn();
   }
 
@@ -2129,6 +2146,7 @@
       language,
       assigned_condition: condition,
       condition_source: conditionSource,
+      manipulation_version: manipulationVersion,
       survey_start_time: state.surveyStartTime || participant.survey_start_time || submitTime,
       survey_submit_time: submitTime,
       survey_completion_status: "completed",
@@ -2362,18 +2380,26 @@
 
   async function requestAiMessages(request) {
     const retryMessage = inZh("The chat connection had a brief issue. Please try again.", "聊天连接短暂出现问题。请再试一次。");
+    const requestId = createAiRequestId();
+    const requestTimeoutMs = aiRequestTimeoutFor(request);
+    const requestPayload = {
+      ...request,
+      request_id: requestId,
+      condition,
+      language,
+      prolific_pid: ids.prolific_pid,
+      study_id: ids.study_id,
+      session_id: ids.session_id,
+      manipulation_version: manipulationVersion,
+      history: recentChatHistory(),
+    };
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
         const response = await fetchWithTimeout(`${dataEndpoint}/ai-reply`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...request,
-            condition,
-            language,
-            history: recentChatHistory(),
-          }),
-        });
+          body: JSON.stringify(requestPayload),
+        }, requestTimeoutMs);
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.ok) {
           const rawError = data.error || "";
@@ -2387,6 +2413,9 @@
         const messages = Array.isArray(data.messages) ? data.messages : [];
         return { ok: messages.length > 0, messages, intent: data.intent || "", error: messages.length ? "" : "OpenAI returned no chat messages." };
       } catch (error) {
+        if (error && error.name === "AbortError") {
+          return { ok: false, error: retryMessage };
+        }
         if (attempt === 0) {
           await delay(800);
           continue;
@@ -2395,6 +2424,21 @@
       }
     }
     return { ok: false, error: retryMessage };
+  }
+
+  function aiRequestTimeoutFor(request) {
+    const validatedManagerPhase =
+      request &&
+      request.stage === "manager1" &&
+      ["discussion", "rejection_initial", "rejection_followup", "rejection"].includes(request.phase);
+    return validatedManagerPhase ? 150000 : apiRequestTimeoutMs;
+  }
+
+  function createAiRequestId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+    return `${ids.session_id || "session"}_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
   }
 
   function recentChatHistory() {
@@ -2772,11 +2816,11 @@
       MA6: "得体的",
       MA7: "文明有礼的",
       MA8: "说话有分寸的",
-      MC1: "聚焦在我可以实际改进的具体问题和行为上。",
-      MC2: "指出了我的不足",
-      MC3: "提到了清晰、合理的可接受行为标准。",
+      MC1: "指出了我的方案中我确实可以着手改进的具体方面。",
+      MC2: "表明我的方案存在的问题是可以解决的。",
+      MC3: "提到了我的方案需要达到的清晰、合理的标准。",
       MC4: "非常具体和详细。",
-      MC5: "提到了具体的问题",
+      MC5: "提到了我的方案中具体有问题的部分。",
       MC6: "给出了足够清楚的指引，让我知道需要改变什么。",
       NWG1: "我会问其他同事，他们是否对主题乐园经理做过的某件事有负面印象。",
       NWG2: "在和同事交谈时，我会质疑主题乐园经理的能力。",
@@ -3016,6 +3060,7 @@
       session_id: ids.session_id,
       language,
       assigned_condition: condition,
+      manipulation_version: manipulationVersion,
       stage,
       speaker: speaker.toLowerCase(),
       message,

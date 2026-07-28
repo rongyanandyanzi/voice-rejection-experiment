@@ -4,6 +4,14 @@ interactions.csv
 survey_responses.csv
 experiment_data.csv
 experiment_data.xlsx
+data_export_*/
+analyze_survey_factorial.py
+analyze_dual_mediation.py
+analyze_*.py
+pilot_exports/
+__pycache__/
+*.pyc
+.pnpm-store/
 .DS_Store
 node_modules/
 
