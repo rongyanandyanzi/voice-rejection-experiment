@@ -1841,6 +1841,13 @@ function managerConditionRules() {
     // weakness of the earlier version.
     "The revision path must always name the specific evidence that is missing: the figures, records, or first-hand accounts that would let you reconsider. Examples of the kind of thing to name are attendance by day or season, how the visitor mix breaks down, what the people affected actually say, the cost of the change, or the time it takes. Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract.",
     "Name one or two pieces of evidence, not four, and say it the way a person would in chat rather than as a request form.",
+    // In a 36-word follow-up the diagnosis and the revision path collapse into the same sentence
+    // twice over: "it lacks role counts ... reconsideration would need role counts". The two parts
+    // have different jobs, so they must not name the same item.
+    "Do not name the same missing item in both the diagnosis and the revision path. The diagnosis says what the gap puts at risk; the revision path names the evidence that would settle it. Never write the equivalent of 'it lacks X, so it would need X'.",
+    // The closing refers back to a conversation the participant has already had, so introducing a
+    // new requirement there reads as moving the goalposts.
+    "Keep the evidence consistent across the turn and with what you asked for earlier in this conversation. Do not introduce a new kind of requirement that has not come up before.",
     // Left free, blunt replies quote hard numbers while warm replies stay qualitative, which makes
     // low politeness look more informative. Keep the standard's precision independent of tone.
     "Keep the concreteness of the standard independent of the politeness style: state the same kind of criterion, with the same precision, whether the tone is warm or blunt.",
@@ -1864,6 +1871,10 @@ function managerConditionRules() {
     // dismissal makes the politeness contrast larger here than in the high-constructiveness cells,
     // which confounds the politeness factor with the constructiveness factor.
     "Spend the remaining length on neutral restatement of the broad topic and of the unchanged decision.",
+    // "...in its current form right now", "...today at all", "...at this point" are filler tails
+    // bolted onto a finished sentence to reach the word count. Restating costs the same words and
+    // reads as speech.
+    "Reach the length with additional complete sentences, not by bolting redundant time or manner phrases onto the end of one. Do not write tails such as 'in its current form right now', 'today at all', or 'at this point in this discussion'.",
     "Do not spend it on additional interpersonal wording: keep exactly the same number of politeness or dismissiveness cues that the assigned politeness style allows, no more.",
   ].join("\n");
   // Both politeness styles are capped at one interpersonal cue so that cue density stays constant
