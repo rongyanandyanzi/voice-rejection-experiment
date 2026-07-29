@@ -402,7 +402,7 @@ test("Chinese MC2 wording and legacy-session version fallback are present", () =
   assert.match(source, /storedSession\.manipulation_version \|\|[\s\S]*constructiveness_v1[\s\S]*constructiveness_v2/);
 });
 
-test("the actual browser manager opening contains the required two-message structure", () => {
+test("the actual browser manager opening contains the required three-message structure", () => {
   const source = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
   const start = source.indexOf("async function renderManagerChat()");
   const end = source.indexOf("function createChat", start);
@@ -410,8 +410,8 @@ test("the actual browser manager opening contains the required two-message struc
   assert.notEqual(start, -1);
   assert.notEqual(end, -1);
   // The market research framing moved to the coordinator in the task room, so the manager opens
-  // with the evaluation stakes and the question only.
-  assert.equal((opening.match(/await sendDelayed\("Manager"/g) || []).length, 2);
+  // with the evaluation stakes, split across two short messages, and then the question.
+  assert.equal((opening.match(/await sendDelayed\("Manager"/g) || []).length, 3);
   assert.match(opening, /Park Manager/);
   assert.match(opening, /evaluate your performance/);
   assert.match(opening, /affect your compensation/);

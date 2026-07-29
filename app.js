@@ -874,8 +874,12 @@
     // re-introducing it here reads as a script restart rather than the same person continuing.
     // The evaluation and compensation content is the power manipulation and stays verbatim.
     await sendDelayed("Manager", "manager", inZh(
-      "Hi again. Now that I'm the Park Manager here, I will evaluate your performance as an Operations Team Member, and this evaluation may affect your compensation for completing the task.",
-      "你好，我们又见面了。既然这次由我担任公园经理，我会评估你作为运营团队成员的表现，这项评估可能会影响你完成本次任务后获得的报酬。"
+      "Hi again. Now that I'm the Park Manager here, I will evaluate your performance as an Operations Team Member.",
+      "你好，我们又见面了。既然这次由我担任公园经理，我会评估你作为运营团队成员的表现。"
+    ), null, { opening: true });
+    await sendDelayed("Manager", "manager", inZh(
+      "This evaluation may affect your compensation for completing the task.",
+      "这项评估可能会影响你完成本次任务后获得的报酬。"
     ), null, { opening: true });
     // The market research framing was already given by the coordinator in the task room, and a
     // manager who is supposedly just another participant would not explain the sponsor's goals.

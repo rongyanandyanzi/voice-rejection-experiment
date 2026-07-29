@@ -31,10 +31,13 @@ The coordinator and the manager both use standard punctuation and capitalisation
 
 ## Manager Opening
 
-The manager opens with exactly two short messages:
+The manager opens with exactly three short messages:
 
-1. Continue from the role assignment the participant already saw in the task room, then state that the manager can evaluate the participant's performance and that the evaluation may affect the participant's compensation for this online task.
-2. Ask what the participant thinks the theme park should do next.
+1. Continue from the role assignment the participant already saw in the task room, then state that the manager can evaluate the participant's performance as an Operations Team Member.
+2. State that the evaluation may affect the participant's compensation for this online task.
+3. Ask what the participant thinks the theme park should do next.
+
+The evaluation and the compensation stake are two messages rather than one sentence. Together they run past thirty words, which arrives as a wall of text in a chat bubble and buries the part that matters.
 
 The manager does not re-announce the role assignment and does not explain the market research framing. Both were already delivered in the task room, and a manager who is supposedly another participant would not restate the sponsor's goals. Repeating them made the opening read as a fresh script rather than the same person continuing.
 
