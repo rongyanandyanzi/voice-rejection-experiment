@@ -745,7 +745,7 @@
         <h1>${escapeHtml(inZh("How the Task Will Work", "任务流程"))}</h1>
         <p>${escapeHtml(inZh("You will join an online task room with the other participant and a session coordinator.", "你将和另一位参与者、以及一位任务协调员一起进入在线聊天室。"))}</p>
         <p>${escapeHtml(inZh("Roles are assigned randomly: one park manager, one operations team member. You will then read your own role materials before the discussion starts.", "角色随机分配：一人担任乐园经理，一人担任运营团队成员。讨论开始前，你会先阅读属于自己角色的材料。"))}</p>
-        <p>${escapeHtml(inZh("Once the task starts, please do not close or refresh this tab. Reply in the chat in your own words.", "任务开始后，请不要关闭或刷新此标签页。请用自己的话在聊天中作答。"))}</p>
+        <p>${escapeHtml(inZh("Once the task starts, please keep this browser tab open until you finish. Reply in the chat in your own words.", "任务开始后，请保持此浏览器标签页打开，直到任务结束。请用自己的话在聊天中作答。"))}</p>
         <div class="actions">
           <button class="button" type="button" id="enter-task-room">${escapeHtml(inZh("Continue", "继续"))}</button>
         </div>
