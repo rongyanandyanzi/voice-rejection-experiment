@@ -1745,8 +1745,13 @@ function buildInitialManagerPrompt(payload) {
       "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
       "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
       "Sound natural, concise, and chat-like.",
-      language === "zh" ? "In Chinese, every Manager message must read as fluent natural sentences. Do not write clipped keyword chains like a note draft." : "",
-      language === "zh" ? "Every Chinese Manager message must end as a complete, grammatical sentence. Never stop mid-phrase or mid-clause, and do not truncate a sentence to meet the length rule." : "",
+      // These were originally written for Chinese only, but the same failure appears in English:
+      // a tight word budget gets met by dropping articles and stacking noun phrases, producing
+      // lines like "Standard: 95% peak posts filled." that meet every content requirement and are
+      // still hard to read.
+      "Every Manager message must read as fluent, natural sentences. Do not write clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases like a note draft.",
+      "Every Manager message must end as a complete, grammatical sentence. Never stop mid-phrase or mid-clause, and do not truncate a sentence to meet the length rule.",
+      "If the required content does not fit as natural sentences, say less rather than compressing it into fragments. Readability comes first.",
       "Write like a real person typing to a coworker, not like a policy memo, rubric, evaluation form, or HR/admin instruction.",
       "Avoid robotic phrases such as 'Provide ... immediately', 'You must ...', 'This proposal is incomplete and overlooks clear operational needs', or similar command-style wording.",
       // Imperative mood is the low-politeness directive channel, so the blanket ban applies only
@@ -1784,7 +1789,7 @@ function buildInitialManagerPrompt(payload) {
         : "",
       ["rejection_initial", "rejection_followup", "rejection"].includes(phase)
         ? (condition.includes("HC")
-          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. Do not mention this hidden object in the chat."
+          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. The revision_path must include the specific evidence named in the reply. Do not mention this hidden object in the chat."
           : "Also return the hidden constructiveness object with proposal_problem, relevant_standard, and revision_path set to empty strings. The visible LC reply must not communicate any of those elements. Do not mention this hidden object in the chat.")
         : "",
       task,
@@ -1820,10 +1825,22 @@ function managerConditionRules() {
     "Across the visible reply, include all three components and make each fit the participant's actual proposal:",
     "1. Proposal problem: identify one specific unresolved aspect and explain the concrete consequence it creates.",
     "2. Relevant standard: state one explicit performance or operational criterion the proposal must meet.",
+    // Under a tight word budget the three parts get emitted as a list of correct-looking clauses
+    // that do not connect: a supervision-ratio diagnosis followed by a two-minute response-time
+    // standard passes every content check and still reads as nonsense.
+    "The three components must be about the same thing. The standard has to be the one the identified problem would breach, and the revision path has to be what would meet that standard. Do not pair a diagnosis with an unrelated metric.",
     highPoliteness
       ? "3. Revision path: state one concrete, actionable condition that would remedy the problem before you would reconsider, phrased conditionally (for example 'if you can come back with role counts and supervision ratios'), never as a command."
       : "3. Revision path: state one concrete, actionable requirement that would remedy the problem before you would reconsider; you may phrase it as one blunt imperative directive (for example 'Come back with role counts and supervision ratios.').",
-    "Do not substitute a generic claim that the proposal needs more thought. Do not force a data or evidence objection unless that is genuinely the relevant missing support.",
+    "Do not substitute a generic claim that the proposal needs more thought.",
+    // Naming the evidence is required, not optional, because it is the part the participant can
+    // act on: a manager who says "bring more data" gives them nothing to fetch, while one who says
+    // which figures would settle the question gives them a specific errand. It is attached to the
+    // revision path rather than replacing the diagnosis, so the problem still fits whatever the
+    // participant actually proposed. Vague evidence complaints with no named figures were the main
+    // weakness of the earlier version.
+    "The revision path must always name the specific evidence that is missing: the figures, records, or first-hand accounts that would let you reconsider. Examples of the kind of thing to name are attendance by day or season, how the visitor mix breaks down, what the people affected actually say, the cost of the change, or the time it takes. Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract.",
+    "Name one or two pieces of evidence, not four, and say it the way a person would in chat rather than as a request form.",
     // Left free, blunt replies quote hard numbers while warm replies stay qualitative, which makes
     // low politeness look more informative. Keep the standard's precision independent of tone.
     "Keep the concreteness of the standard independent of the politeness style: state the same kind of criterion, with the same precision, whether the tone is warm or blunt.",
@@ -2762,6 +2779,7 @@ function managerConstructivenessMetadataProblem(metadata, prompt) {
         "Constructiveness structure correction required.",
         "This is a high-constructiveness rejection. Return non-empty hidden strings for proposal_problem, relevant_standard, and revision_path, and communicate all three meanings in the visible Manager reply.",
         "The problem must be specific to the participant's actual proposal, the standard must be explicit, and the remedy must be concrete but phrased as a condition rather than a command.",
+        "The revision path must name the specific evidence that is missing, such as particular figures, records, or first-hand accounts, not 'more data' or 'more detail' in the abstract.",
         "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
       ].join(" ")
     : [
