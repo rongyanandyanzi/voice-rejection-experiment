@@ -685,8 +685,8 @@
     screen.innerHTML = `
       <article class="page">
         <h1>${escapeHtml(inZh("Online Customer Feedback Task", "任务介绍"))}</h1>
-        <p>${escapeHtml(inZh("Thanks for taking part in this online customer feedback task. It is run by a market research company that helps its clients improve how they operate and serve customers.", "感谢你参与本次在线任务。本次任务由一家市场调研公司组织。该公司通过分析顾客反馈，帮助客户改进运营和服务体验。"))}</p>
-        <p>${escapeHtml(inZh("You will take part in a two-person discussion about how a theme park could improve its service.", "你将和另一位参与者进行两人讨论，主题是一个主题乐园可以如何改进服务。"))}</p>
+        <p>${escapeHtml(inZh("Thanks for taking part. This task is run by a market research company that helps its clients improve how they operate and serve customers.", "感谢你参与本次任务。本次任务由一家市场调研公司组织，该公司帮助客户改进运营和服务。"))}</p>
+        <p>${escapeHtml(inZh("You and one other participant will discuss how a theme park could improve its service.", "你将和另一位参与者一起讨论：一个主题乐园可以如何改进服务。"))}</p>
         <form id="pre-room-check-form" class="comprehension-check" novalidate>
           <fieldset>
             <legend>${escapeHtml(inZh("What is this online task mainly about?", "这个在线任务主要关于什么？"))}</legend>
@@ -743,11 +743,9 @@
     screen.innerHTML = `
       <article class="page">
         <h1>${escapeHtml(inZh("How the Task Will Work", "任务流程"))}</h1>
-        <p>${escapeHtml(inZh("Roles are assigned randomly once everyone has joined: one of you will be the park manager, and the other an operations team member.", "所有人进入聊天室后，系统会随机分配角色：一人担任乐园经理，另一人担任运营团队成员。"))}</p>
-        <p>${escapeHtml(inZh("After the roles are assigned you will read your own role materials, so please read them carefully, then move into the team chat.", "角色分配后，你会看到属于自己角色的材料，请仔细阅读，然后进入团队讨论。"))}</p>
-        <p>${escapeHtml(inZh("You will now enter an online task room with another participant. A session coordinator will welcome the group and get things started.", "接下来，你将和另一位参与者一起进入在线聊天室。任务协调员会欢迎大家并主持流程。"))}</p>
-        <p>${escapeHtml(inZh("Please stay on the page during the interaction and respond naturally in the chat.", "任务期间请保持停留在任务页面，不要关闭窗口，并在聊天中自然作答。"))}</p>
-        <p>${escapeHtml(inZh("Click “Continue” when you are ready to enter the online task room.", "准备好进入在线聊天室后，请点击“继续”。"))}</p>
+        <p>${escapeHtml(inZh("You will join an online task room with the other participant and a session coordinator.", "你将和另一位参与者、以及一位任务协调员一起进入在线聊天室。"))}</p>
+        <p>${escapeHtml(inZh("Roles are assigned randomly: one park manager, one operations team member. You will then read your own role materials before the discussion starts.", "角色随机分配：一人担任乐园经理，一人担任运营团队成员。讨论开始前，你会先阅读属于自己角色的材料。"))}</p>
+        <p>${escapeHtml(inZh("Please stay on this page and reply in the chat as you normally would.", "任务期间请停留在本页面，并像平常一样在聊天中作答。"))}</p>
         <div class="actions">
           <button class="button" type="button" id="enter-task-room">${escapeHtml(inZh("Continue", "继续"))}</button>
         </div>
