@@ -259,52 +259,52 @@
     {
       speaker: "Coordinator",
       text: [
-        "Hi everyone, welcome to the task.",
-        "Hi everyone, welcome in.",
-        "Hello everyone, welcome in.",
+        "Hi everyone, welcome in",
+        "hi both, welcome in",
+        "Hello everyone, welcome in",
       ],
       delay: 1600,
     },
     {
       speaker: "Coordinator",
       text: [
-        "Thanks for joining today.",
-        "Thanks for joining the session today.",
-        "Thanks for being here today.",
+        "thanks for joining today",
+        "Thanks for being here today",
+        "Thanks for joining the session",
       ],
       delay: 1000,
     },
     {
       speaker: "Coordinator",
       text: [
-        "We’ll give it a moment for everyone to connect.",
-        "I’ll just give everyone a moment to get connected.",
-        "Let’s wait briefly while the rest of the group joins.",
+        "Just giving it a moment for everyone to connect",
+        "ill give everyone a sec to get connected",
+        "Lets wait a moment while the group joins",
       ],
       delay: 1400,
     },
-    { speaker: "System", shuffleGroup: "prechatParticipantJoin", text: "Participant 1 has joined the room.", delay: 800 },
+    { speaker: "System", shuffleGroup: "PrechatParticipantJoin", text: "Participant 1 has joined the room.", delay: 800 },
     {
       speaker: "Coordinator",
       text: [
-        "Great, looks like everyone is here.",
-        "Great, it looks like both participants are here now.",
-        "Thanks everyone, it looks like we have the full group.",
+        "Great, looks like everyone is here",
+        "Ok both of you are here now",
+        "great, thats the full group",
       ],
       delay: 1500,
     },
     {
       speaker: "Coordinator",
       text: [
-        "Before we start, could everyone give a brief self-introduction? No need to share anything too personal.",
-        "Before we begin, could everyone type a quick self-introduction? No need to share anything too personal.",
-        "Let’s do a quick round of self-introductions first. No need to share anything too personal.",
+        "Before we start, could you both give a quick intro? nothing too personal",
+        "quick round of intros first if thats ok - nothing too personal",
+        "Could you both type a quick intro? no need for anything personal",
       ],
       delay: 2100,
     },
     {
       speaker: "Participant 1",
-      shuffleGroup: "prechatParticipantIntro",
+      shuffleGroup: "PrechatParticipantIntro",
       text: [
         "Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks.",
         "Hi all, I’ve done many Prolific tasks, mostly surveys and decision tasks.",
@@ -315,53 +315,39 @@
     {
       speaker: "Coordinator",
       text: [
-        "Thanks. Participant 2, could you also briefly introduce yourself?",
-        "Thanks. Participant 2, could you give a brief introduction as well?",
-        "Thanks. Participant 2, could you type a quick introduction too?",
+        "Thanks. Participant 2, could you introduce yourself too?",
+        "Thanks. Participant 2, your turn",
+        "Thanks. Participant 2, could you do a quick intro as well?",
       ],
       delay: 4800,
       skipIfParticipant2Introduced: true,
     },
   ];
 
-  // Seven separate coordinator lines read as a script dump and stretched the pre-chat past five
-  // minutes with nobody else speaking. The same information now fits in four turns.
+  // The task description now lives on the page before the room, where it can be read at the
+  // participant's own pace, so the coordinator only has to confirm it and move on. Seven scripted
+  // turns of setup became two. Wording is deliberately looser than the rest of the script: real
+  // participants in this study capitalised the first letter only 75% of the time, ended a message
+  // with punctuation only 33% of the time, and dropped apostrophes in contractions in 41% of
+  // messages. The coordinator carries no manipulation, so it can absorb that register safely.
   const prechatAfterIntro = [
     {
       speaker: "Coordinator",
       text: [
-        "I’ll give a short overview now. This task is run by a market research company.",
-        "Quick overview of the task: it is run by a market research company.",
-        "Let me explain what happens next. This is an online customer feedback task.",
+        "Ok so you've both seen the task description on the previous page",
+        "Right, you'll both have read the task description just now",
+        "So you've both had the task description on the last page",
       ],
-      delay: 1800,
+      delay: 1600,
     },
     {
       speaker: "Coordinator",
       text: [
-        "You will take part in a two-person discussion about how a theme park could improve its service.",
-        "You will join a two-person discussion about how a theme park could improve its service.",
-        "You will participate in a two-person discussion about how a theme park could improve its service.",
+        "Im about to assign the roles - any quick questions first?",
+        "any quick questions before i assign the roles?",
+        "Anything you want to ask before i do the role assignment?",
       ],
-      delay: 2100,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "Roles are assigned randomly: one of you will be the park manager, the other an operations team member.",
-        "Each of you gets a random role, one park manager and one operations team member.",
-        "The system assigns roles randomly, one park manager and one operations team member.",
-      ],
-      delay: 2200,
-    },
-    {
-      speaker: "Coordinator",
-      text: [
-        "Please read your own role materials carefully when they appear. Any quick questions before I assign the roles?",
-        "Read your own role materials carefully once they show up. Any questions before the role assignment?",
-        "You’ll get your own role materials in a moment, so please read them carefully. Any quick questions first?",
-      ],
-      delay: 2000,
+      delay: 1900,
     },
   ];
 
@@ -372,9 +358,9 @@
     {
       speaker: "Participant 1",
       text: [
-        "ok got it",
-        "oh ok, interesting",
-        "alright, works for me",
+        "Ok got it",
+        "Oh ok, interesting",
+        "Alright, works for me",
       ],
       delay: 2600,
     },
@@ -382,9 +368,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "Next, you will be redirected to your individual role materials. After everyone finishes reading, you will enter the team chat.",
-        "Next, you’ll see your individual role materials. After the reading step, you’ll move into the team chat.",
-        "You’ll now be redirected to your own role materials. Once everyone has finished reading, the team chat will begin.",
+        "Right, youll each get your own role materials next, then the team chat",
+        "Next up is your own role materials, then youll move into the team chat",
+        "Youll see your role materials now, team chat starts after that",
       ],
       delay: 2200,
     },
@@ -699,9 +685,10 @@
     screen.innerHTML = `
       <article class="page">
         <h1>${escapeHtml(inZh("Online Customer Feedback Task", "任务介绍"))}</h1>
-        <p>${escapeHtml(inZh("Thanks for taking part in this online customer feedback task.", "感谢你参与本次在线任务。本次任务由一家市场调研公司组织。该公司通过分析顾客反馈，帮助客户改进运营和服务体验。"))}</p>
-        <p>${escapeHtml(inZh("You will now enter an online task room with another participant. A session coordinator will welcome the group and explain what to do.", "接下来，你将和另一位参与者一起进入在线聊天室。任务协调员会欢迎大家，并说明具体的任务内容。"))}</p>
-        <p>${escapeHtml(inZh("During the task, you will be asked to read a short scenario, review role-specific materials, and take part in team discussions.", "任务过程中，你需要阅读几段简短的情境介绍，查看与你的角色相关的材料，并参与讨论。"))}</p>
+        <p>${escapeHtml(inZh("Thanks for taking part in this online customer feedback task. It is run by a market research company that helps its clients improve how they operate and serve customers.", "感谢你参与本次在线任务。本次任务由一家市场调研公司组织。该公司通过分析顾客反馈，帮助客户改进运营和服务体验。"))}</p>
+        <p>${escapeHtml(inZh("You will take part in a two-person discussion about how a theme park could improve its service. Roles are assigned randomly once everyone has joined: one of you will be the park manager, and the other an operations team member.", "你将和另一位参与者进行两人讨论，主题是一个主题乐园可以如何改进服务。所有人进入聊天室后，系统会随机分配角色：一人担任乐园经理，另一人担任运营团队成员。"))}</p>
+        <p>${escapeHtml(inZh("After the roles are assigned you will read your own role materials, so please read them carefully, then move into the team chat.", "角色分配后，你会看到属于自己角色的材料，请仔细阅读，然后进入团队讨论。"))}</p>
+        <p>${escapeHtml(inZh("You will now enter an online task room with another participant. A session coordinator will welcome the group and get things started.", "接下来，你将和另一位参与者一起进入在线聊天室。任务协调员会欢迎大家并主持流程。"))}</p>
         <p>${escapeHtml(inZh("Please stay on the page during the interaction and respond naturally in the chat.", "任务期间请保持停留在任务页面，不要关闭窗口。"))}</p>
         <form id="pre-room-check-form" class="comprehension-check" novalidate>
           <fieldset>
@@ -1172,18 +1159,18 @@
     await sendPrechatMessage({
       speaker: "Participant 1",
       text: [
-        inZh("nice to meet you", "你好呀"),
-        inZh("hi, good to meet you", "你好，很高兴认识你"),
-        inZh("hey, same here, first time doing a group one", "你好，我也是第一次做这种多人的"),
+        inZh("Nice to meet you", "你好呀"),
+        inZh("Hi, good to meet you", "你好，很高兴认识你"),
+        inZh("Hey, same here, first time doing a group one", "你好，我也是第一次做这种多人的"),
       ],
       delay: 3200,
     });
     await sendPrechatMessage({
       speaker: "Coordinator",
       text: [
-        inZh("Great, good to have you both. We’ll keep moving.", "好的，两位都在，我们继续。"),
-        inZh("Thanks both. Let’s keep moving.", "谢谢两位，我们继续。"),
-        inZh("Great, everyone. We’ll keep moving.", "好的，我们继续。"),
+        inZh("Great, good to have you both. lets keep moving", "好的，两位都在，我们继续。"),
+        inZh("thanks both, lets keep moving", "谢谢两位，我们继续。"),
+        inZh("Great, lets keep moving", "好的，我们继续。"),
       ],
       delay: 1200,
     });
@@ -1271,13 +1258,13 @@
     const reminder = window.setTimeout(async () => {
       if (introStillPending()) return;
       state.prechatReminderShown = true;
-      const shown = await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Participant 2, could you please type a quick hello so we know your chat is working?", "参与者2，可以简单打个招呼吗？这样我们确认你的聊天窗口可以正常使用。"), delay: 500, abortIf: introStillPending });
+      const shown = await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Participant 2, could you type a quick hello so we know your chat is working?", "参与者2，可以简单打个招呼吗？这样我们确认你的聊天窗口可以正常使用。"), delay: 500, abortIf: introStillPending });
       if (!shown) return;
       const continueTimer = window.setTimeout(async () => {
         if (introStillPending()) return;
         state.prechatAwaitingIntro = false;
         state.prechatSequenceRunning = true;
-        await sendPrechatMessage({ speaker: "Coordinator", text: inZh("No problem, we’ll continue so the session does not get held up.", "没关系，为了不耽误大家时间，我们继续。"), delay: 1200 });
+        await sendPrechatMessage({ speaker: "Coordinator", text: inZh("No problem, ill keep things moving so we dont hold the session up", "没关系，为了不耽误大家时间，我们继续。"), delay: 1200 });
         await runPrechatSequence(prechatAfterIntro);
         await answerQueuedPrechatInputs();
         state.prechatSequenceRunning = false;
@@ -1341,9 +1328,9 @@
       abortIf,
       speaker: "Coordinator",
       text: [
-        inZh("Participant 2, do you have any quick questions before I assign the roles?", "参与者2，分配角色前，你有什么问题吗？"),
-        inZh("Participant 2, any quick questions from you before I assign the roles?", "参与者2，分配角色前，你这边有什么问题吗？"),
-        inZh("Participant 2, anything you want to ask before I assign the roles?", "参与者2，分配角色前，有什么想问的吗？"),
+        inZh("Participant 2, any quick questions before i assign the roles?", "参与者2，分配角色前，你有什么问题吗？"),
+        inZh("Participant 2, anything you want to ask before i assign the roles?", "参与者2，分配角色前，你这边有什么问题吗？"),
+        inZh("Participant 2, anything from you before the role assignment?", "参与者2，分配角色前，有什么想问的吗？"),
       ],
       delay: 1000,
     });
@@ -1353,9 +1340,9 @@
     await sendPrechatMessage({
       speaker: "Coordinator",
       text: [
-        inZh("Do you have any other questions before I assign the roles?", "分配角色前，你还有其他问题吗？"),
-        inZh("Any other quick questions before I assign the roles?", "分配角色前，还有别的问题吗？"),
-        inZh("Anything else you want to ask before I assign the roles?", "分配角色前，还有什么想问的吗？"),
+        inZh("Any other questions before i assign the roles?", "分配角色前，你还有其他问题吗？"),
+        inZh("anything else before i assign the roles?", "分配角色前，还有别的问题吗？"),
+        inZh("Anything else you want to ask first?", "分配角色前，还有什么想问的吗？"),
       ],
       delay: 1000,
     });
@@ -1379,9 +1366,9 @@
     await sendPrechatMessage({
       speaker: "Coordinator",
       text: [
-        inZh("No problem, I’ll assign the roles now.", "好的，那我现在分配角色。"),
-        inZh("Okay, I’ll go ahead and assign the roles now.", "好的，我现在开始分配角色。"),
-        inZh("That’s fine. I’ll continue with the role assignment now.", "好的，那我们进入角色分配。"),
+        inZh("no problem, ill assign the roles now", "好的，那我现在分配角色。"),
+        inZh("Ok, ill go ahead and assign the roles now", "好的，我现在开始分配角色。"),
+        inZh("Thats fine, ill carry on with the role assignment", "好的，那我们进入角色分配。"),
       ],
       delay: 1000,
     });

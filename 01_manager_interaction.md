@@ -23,6 +23,14 @@ Present the briefing across several short pages. Each page has one brief compreh
 
 Do not begin the manager chat until the checks are correct.
 
+## Task Room Setup
+
+What the task is, who runs it, that roles are assigned randomly, and which two roles exist are all stated on the page before the task room, where the participant can read at their own pace. The coordinator does not repeat any of it. Delivering the same description as seven scripted chat turns stretched the room past five minutes while the participant typed a median of thirteen words.
+
+The coordinator's register is calibrated against the participants in this study, who capitalised the first letter of a message 75 percent of the time, ended a message with punctuation 33 percent of the time, and dropped apostrophes in contractions in 41 percent of messages. The coordinator carries no manipulation, so it can use that register. Consistently lowercase would be as artificial as consistently formal; the point is the mixture.
+
+The manager keeps standard punctuation and capitalisation. Manager text is length-matched and scored by the blind rater, and any typing informality would have to be balanced across all four cells or it would become part of the politeness manipulation.
+
 ## Manager Opening
 
 The manager opens with exactly two short messages:
