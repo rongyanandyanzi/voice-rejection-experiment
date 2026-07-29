@@ -297,7 +297,7 @@
       speaker: "Coordinator",
       text: [
         "Before we start, could you both give a quick intro? nothing too personal",
-        "quick round of intros first if thats ok - nothing too personal",
+        "Quick round of intros first if thats ok - nothing too personal",
         "Could you both type a quick intro? no need for anything personal",
       ],
       delay: 2100,
@@ -344,7 +344,7 @@
       speaker: "Coordinator",
       text: [
         "Im about to assign the roles - any quick questions first?",
-        "any quick questions before i assign the roles?",
+        "Any quick questions before i assign the roles?",
         "Anything you want to ask before i do the role assignment?",
       ],
       delay: 1900,
@@ -1341,7 +1341,7 @@
       speaker: "Coordinator",
       text: [
         inZh("Any other questions before i assign the roles?", "分配角色前，你还有其他问题吗？"),
-        inZh("anything else before i assign the roles?", "分配角色前，还有别的问题吗？"),
+        inZh("Anything else before i assign the roles?", "分配角色前，还有别的问题吗？"),
         inZh("Anything else you want to ask first?", "分配角色前，还有什么想问的吗？"),
       ],
       delay: 1000,
