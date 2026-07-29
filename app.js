@@ -686,10 +686,7 @@
       <article class="page">
         <h1>${escapeHtml(inZh("Online Customer Feedback Task", "任务介绍"))}</h1>
         <p>${escapeHtml(inZh("Thanks for taking part in this online customer feedback task. It is run by a market research company that helps its clients improve how they operate and serve customers.", "感谢你参与本次在线任务。本次任务由一家市场调研公司组织。该公司通过分析顾客反馈，帮助客户改进运营和服务体验。"))}</p>
-        <p>${escapeHtml(inZh("You will take part in a two-person discussion about how a theme park could improve its service. Roles are assigned randomly once everyone has joined: one of you will be the park manager, and the other an operations team member.", "你将和另一位参与者进行两人讨论，主题是一个主题乐园可以如何改进服务。所有人进入聊天室后，系统会随机分配角色：一人担任乐园经理，另一人担任运营团队成员。"))}</p>
-        <p>${escapeHtml(inZh("After the roles are assigned you will read your own role materials, so please read them carefully, then move into the team chat.", "角色分配后，你会看到属于自己角色的材料，请仔细阅读，然后进入团队讨论。"))}</p>
-        <p>${escapeHtml(inZh("You will now enter an online task room with another participant. A session coordinator will welcome the group and get things started.", "接下来，你将和另一位参与者一起进入在线聊天室。任务协调员会欢迎大家并主持流程。"))}</p>
-        <p>${escapeHtml(inZh("Please stay on the page during the interaction and respond naturally in the chat.", "任务期间请保持停留在任务页面，不要关闭窗口。"))}</p>
+        <p>${escapeHtml(inZh("You will take part in a two-person discussion about how a theme park could improve its service.", "你将和另一位参与者进行两人讨论，主题是一个主题乐园可以如何改进服务。"))}</p>
         <form id="pre-room-check-form" class="comprehension-check" novalidate>
           <fieldset>
             <legend>${escapeHtml(inZh("What is this online task mainly about?", "这个在线任务主要关于什么？"))}</legend>
@@ -705,7 +702,6 @@
             </div>
           </fieldset>
           <p class="check-error" id="pre-room-check-error" aria-live="polite"></p>
-          <p>${escapeHtml(inZh("Click “Continue” when you are ready to enter the online task room.", "准备好进入在线聊天室后，请点击“继续”。"))}</p>
           <div class="actions">
             <button class="button" type="submit" id="enter-prechat">${escapeHtml(inZh("Continue", "继续"))}</button>
           </div>
@@ -733,7 +729,34 @@
     }
 
     recordInteraction("prechat_intro", "system", "Pre-room task check completed.", "");
-    renderPrechat();
+    renderPreRoomProcedure();
+  }
+
+  // Second half of the pre-room briefing. Splitting it keeps each page to a couple of paragraphs:
+  // this one is what will happen, the previous one is what the task is.
+  function renderPreRoomProcedure() {
+    markForwardStage("prechat_intro");
+    state.part = "prechat_intro";
+    clearPrechatTimers();
+    saveParticipant();
+    recordInteraction("prechat_intro", "system", "Pre-room procedure page displayed.", "");
+    screen.innerHTML = `
+      <article class="page">
+        <h1>${escapeHtml(inZh("How the Task Will Work", "任务流程"))}</h1>
+        <p>${escapeHtml(inZh("Roles are assigned randomly once everyone has joined: one of you will be the park manager, and the other an operations team member.", "所有人进入聊天室后，系统会随机分配角色：一人担任乐园经理，另一人担任运营团队成员。"))}</p>
+        <p>${escapeHtml(inZh("After the roles are assigned you will read your own role materials, so please read them carefully, then move into the team chat.", "角色分配后，你会看到属于自己角色的材料，请仔细阅读，然后进入团队讨论。"))}</p>
+        <p>${escapeHtml(inZh("You will now enter an online task room with another participant. A session coordinator will welcome the group and get things started.", "接下来，你将和另一位参与者一起进入在线聊天室。任务协调员会欢迎大家并主持流程。"))}</p>
+        <p>${escapeHtml(inZh("Please stay on the page during the interaction and respond naturally in the chat.", "任务期间请保持停留在任务页面，不要关闭窗口，并在聊天中自然作答。"))}</p>
+        <p>${escapeHtml(inZh("Click “Continue” when you are ready to enter the online task room.", "准备好进入在线聊天室后，请点击“继续”。"))}</p>
+        <div class="actions">
+          <button class="button" type="button" id="enter-task-room">${escapeHtml(inZh("Continue", "继续"))}</button>
+        </div>
+      </article>
+    `;
+    document.getElementById("enter-task-room").addEventListener("click", () => {
+      recordInteraction("prechat_intro", "system", "Pre-room procedure page completed.", "");
+      renderPrechat();
+    });
   }
 
   async function renderPrechat() {
