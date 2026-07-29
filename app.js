@@ -1234,6 +1234,9 @@
     return state.prechatQueuedInputs.length > 0;
   }
 
+  // `abortIf` is re-checked after the typing delay, not just before it. A prompt can spend fifteen
+  // seconds "typing" while the participant answers, and without the second check it still lands:
+  // 17% of pilot sessions were asked to "type a quick hello" straight after introducing themselves.
   async function sendPrechatMessage(item) {
     const text = resolvePrechatText(item.text);
     const totalDelay = prechatMessageDelay(item, text);
@@ -1244,7 +1247,9 @@
     } else {
       await delay(totalDelay);
     }
+    if (typeof item.abortIf === "function" && item.abortIf()) return false;
     addPrechatMessage(item.speaker, text);
+    return true;
   }
 
   function resolvePrechatText(text) {
@@ -1261,12 +1266,15 @@
 
   function schedulePrechatReminder() {
     clearPrechatTimers();
+    const introStillPending = () =>
+      !state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete;
     const reminder = window.setTimeout(async () => {
-      if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
+      if (introStillPending()) return;
       state.prechatReminderShown = true;
-      await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Participant 2, could you please type a quick hello so we know your chat is working?", "参与者2，可以简单打个招呼吗？这样我们确认你的聊天窗口可以正常使用。"), delay: 500 });
+      const shown = await sendPrechatMessage({ speaker: "Coordinator", text: inZh("Participant 2, could you please type a quick hello so we know your chat is working?", "参与者2，可以简单打个招呼吗？这样我们确认你的聊天窗口可以正常使用。"), delay: 500, abortIf: introStillPending });
+      if (!shown) return;
       const continueTimer = window.setTimeout(async () => {
-        if (!state.prechatAwaitingIntro || state.prechatIntroReceived || state.prechatComplete) return;
+        if (introStillPending()) return;
         state.prechatAwaitingIntro = false;
         state.prechatSequenceRunning = true;
         await sendPrechatMessage({ speaker: "Coordinator", text: inZh("No problem, we’ll continue so the session does not get held up.", "没关系，为了不耽误大家时间，我们继续。"), delay: 1200 });
@@ -1288,10 +1296,14 @@
     setStatus(inZh("Waiting for questions", "等待提问"));
     setComposerEnabled(true);
     clearPrechatTimers();
+    // Same staleness risk as the introduction reminder: these prompts spend seconds "typing" and
+    // must not land after the participant has already answered.
+    const questionsSettled = () =>
+      !state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete;
     const participant1Timer = window.setTimeout(async () => {
-      if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
+      if (questionsSettled()) return;
       state.prechatSequenceRunning = true;
-      await sendPrechatNoQuestionMessages();
+      await sendPrechatNoQuestionMessages(questionsSettled);
       if (state.prechatQueuedInputs.length) {
         state.prechatSequenceRunning = false;
         setComposerEnabled(true);
@@ -1301,7 +1313,7 @@
       state.prechatSequenceRunning = false;
       setComposerEnabled(true);
       const participant2PromptTimer = window.setTimeout(async () => {
-        if (!state.prechatAwaitingQuestions || state.prechatQuestionWindowComplete || state.prechatComplete) return;
+        if (questionsSettled()) return;
         state.prechatSequenceRunning = true;
         if (state.prechatQueuedInputs.length) {
           state.prechatSequenceRunning = false;
@@ -1310,7 +1322,8 @@
           return;
         }
         if (!state.prechatParticipant2AnsweredQuestions) {
-          await sendPrechatParticipant2QuestionPrompt();
+          await sendPrechatParticipant2QuestionPrompt(
+            () => questionsSettled() || state.prechatParticipant2AnsweredQuestions);
         }
         state.prechatSequenceRunning = false;
         setComposerEnabled(true);
@@ -1323,8 +1336,9 @@
     state.prechatTimers.push(participant1Timer);
   }
 
-  async function sendPrechatParticipant2QuestionPrompt() {
+  async function sendPrechatParticipant2QuestionPrompt(abortIf) {
     await sendPrechatMessage({
+      abortIf,
       speaker: "Coordinator",
       text: [
         inZh("Participant 2, do you have any quick questions before I assign the roles?", "参与者2，分配角色前，你有什么问题吗？"),
@@ -1347,7 +1361,7 @@
     });
   }
 
-  async function sendPrechatNoQuestionMessages() {
+  async function sendPrechatNoQuestionMessages(abortIf) {
     const options = {
       "Participant 1": [
         inZh("No questions from me.", "我没有问题。"),
@@ -1356,7 +1370,7 @@
       ],
     };
     for (const speaker of shuffled(["Participant 1"], "prechatNoQuestions")) {
-      await sendPrechatMessage({ speaker, text: options[speaker], delay: 1200 });
+      await sendPrechatMessage({ speaker, text: options[speaker], delay: 1200, abortIf });
     }
     state.prechatOtherParticipantsAnsweredNoQuestions = true;
   }
