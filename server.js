@@ -1843,7 +1843,7 @@ function managerConditionRules() {
     // standard passes every content check and still reads as nonsense.
     "The three components must be about the same thing. The standard has to be the one the identified problem would breach, and the revision path has to be what would meet that standard. Do not pair a diagnosis with an unrelated metric.",
     highPoliteness
-      ? "3. Revision path: state one concrete, actionable condition that would remedy the problem before you would reconsider, phrased conditionally (for example 'if you can come back with role counts and supervision ratios'), never as a command."
+      ? "3. Revision path: state one concrete, actionable condition that would remedy the problem before you would reconsider, phrased conditionally around what the participant would bring you (for example 'I would reconsider if you came back with role counts and last season's peak hour arrivals'), never as a command and never as the evidence proving the standard is already met."
       : "3. Revision path: state one concrete, actionable requirement that would remedy the problem before you would reconsider; you may phrase it as one blunt imperative directive (for example 'Come back with role counts and supervision ratios.').",
     "Do not substitute a generic claim that the proposal needs more thought.",
     // Naming the evidence is required, not optional, because it is the part the participant can
@@ -1854,6 +1854,11 @@ function managerConditionRules() {
     // weakness of the earlier version.
     "The revision path must always name the specific evidence that is missing: the figures, records, or first-hand accounts that would let you reconsider. Examples of the kind of thing to name are attendance by day or season, how the visitor mix breaks down, what the people affected actually say, the cost of the change, or the time it takes. Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract.",
     "Name one or two pieces of evidence, not four, and say it the way a person would in chat rather than as a request form.",
+    // Under high politeness the revision path is a conditional, and the model welds the standard and
+    // the evidence into "if last season's entry counts showed that, I would reconsider". That is
+    // circular: past figures cannot show that a future plan meets a standard, and if the standard
+    // were already met there would be nothing to revise. Ask for the inputs, not for the conclusion.
+    "Ask the participant to bring the named evidence so you can judge the proposal. Do not phrase it as the evidence showing, proving, or confirming that the standard is already met, and do not refer back to the standard with a bare 'that'.",
     // In a 36-word follow-up the diagnosis and the revision path collapse into the same sentence
     // twice over: "it lacks role counts ... reconsideration would need role counts". The two parts
     // have different jobs, so they must not name the same item.
