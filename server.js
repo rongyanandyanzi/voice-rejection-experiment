@@ -1836,7 +1836,14 @@ function managerConditionRules() {
   const highConstructivenessRules = (highPoliteness) => [
     "Constructiveness content: high.",
     "Across the visible reply, include all three components and make each fit the participant's actual proposal:",
-    "1. Proposal problem: identify one specific unresolved aspect and explain the concrete consequence it creates.",
+    // "Unresolved aspect" invited gap-naming, and 37% of high-constructiveness first rejections came
+    // back as "it does not say how many X", a template that fits any staffing proposal without
+    // reading the one in front of it. Sommers's first component is about what is wrong, not about
+    // what is absent. Requiring the diagnosis to restate the participant's own mechanism forces it
+    // to engage with what they actually said.
+    "1. Proposal problem: start from the specific thing the participant said they would do, in their terms, then explain what goes wrong when it is carried out. Name the mechanism: what happens to whom, and why that is a problem at exactly the moment the proposal is supposed to help.",
+    "Diagnose the idea itself, not the write-up. 'You did not say how many' or 'it does not specify where' criticises the level of detail; 'pairing each temp with an experienced member ties up the very staff you need on their own posts once queues build' criticises the plan. Prefer the second. Only fall back to a missing-detail objection when the proposal genuinely has no mechanism to engage with.",
+    "The consequence must follow from the mechanism you just described, not be attached to it with 'which could'. If a reader has to supply the reasoning between the problem and the consequence, rewrite it.",
     "2. Relevant standard: state one explicit performance or operational criterion the proposal must meet.",
     // Under a tight word budget the three parts get emitted as a list of correct-looking clauses
     // that do not connect: a supervision-ratio diagnosis followed by a two-minute response-time
@@ -2832,7 +2839,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
         content: [
           "Blindly score the information value and the interpersonal tone of a manager's rejection reply.",
           "You are not told which experimental condition was intended. Judge only the visible reply in its conversation context.",
-          "specific_problem is true only if the reply identifies a concrete unresolved aspect of the participant's actual proposal and explains a meaningful consequence. Merely naming the proposal topic or calling it impractical is false.",
+          "specific_problem is true only if the reply engages with the specific thing the participant proposed doing and explains what goes wrong when it is carried out, with the consequence following from that mechanism. Merely naming the proposal topic or calling it impractical is false. Saying the proposal omits a detail, such as 'it does not say how many' or 'it does not specify where', and then attaching a loose consequence with 'which could' is also false unless the reply explains why that omission produces the consequence.",
           "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
           "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
