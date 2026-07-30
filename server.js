@@ -1568,7 +1568,7 @@ function buildInitialManagerPrompt(payload) {
           "Do not introduce examples, answer choices, staffing details, risks, evidence requirements, or solutions that the participant did not raise.",
           "Do not use any politeness or constructiveness manipulation. The wording must be usable unchanged in all four conditions.",
         ].join("\n");
-    maxOutputTokens = 180;
+    maxOutputTokens = 600;
   } else if (phase === "opening") {
     // Unreachable: the first manager chat opens with the fixed script in renderManagerChat, and the
     // second manager chat is built by buildNeutralManagerPrompt. Kept only so an unexpected
@@ -1586,7 +1586,7 @@ function buildInitialManagerPrompt(payload) {
     ].join("\n");
     minMessages = 2;
     maxMessages = 2;
-    maxOutputTokens = 240;
+    maxOutputTokens = 700;
     wordRange = { min: 18, max: 32 };
   } else if (phase === "rejection_initial") {
     task = [
@@ -1618,7 +1618,12 @@ function buildInitialManagerPrompt(payload) {
     ].join("\n");
     minMessages = 2;
     maxMessages = 2;
-    maxOutputTokens = language === "zh" ? 5000 : 420;
+    // gpt-5.5 counts reasoning tokens against this budget, and the reply itself needs roughly 200
+    // (two 35-word messages plus the hidden three-field constructiveness object plus JSON
+    // scaffolding). At 420 with OPENAI_REASONING_EFFORT=high the model regularly ran out mid-JSON
+    // and the reply came back as "incomplete", which was 3 of 4 failures in the last batch. Raising
+    // the ceiling costs nothing when it is not used.
+    maxOutputTokens = language === "zh" ? 5000 : 1400;
     // Mins raised from 30/66. High constructiveness has a problem, a consequence, a standard and
     // named evidence to fit, so it writes to the top of the window every time; low constructiveness
     // has nothing to say and stops at the floor. Left at 66 the two settled at 69-70 against a flat
@@ -1660,7 +1665,7 @@ function buildInitialManagerPrompt(payload) {
       "Preserve the assigned politeness and constructiveness condition.",
       conditionRule,
     ].join("\n");
-    maxOutputTokens = language === "zh" ? 4000 : 240;
+    maxOutputTokens = language === "zh" ? 4000 : 900;
     // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
     // spread across conditions, with low constructiveness consistently shortest.
     // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
@@ -1687,7 +1692,7 @@ function buildInitialManagerPrompt(payload) {
       "Do not reveal the experiment or condition.",
       conditionRule,
     ].join("\n");
-    maxOutputTokens = language === "zh" ? 4000 : 240;
+    maxOutputTokens = language === "zh" ? 4000 : 900;
     // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
     // spread across conditions, with low constructiveness consistently shortest.
     // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
@@ -1833,49 +1838,29 @@ function managerConditionRules() {
   // Mood of directives is a politeness channel (Brown & Levinson): the same revision content is
   // phrased conditionally under high politeness and may be a blunt imperative under low
   // politeness. Imperative vs conditional mood changes interpersonal wording only.
+  // One constraint per component, plus the three cross-cutting rules. This block had grown to
+  // fifteen separate instructions as each generation defect was patched, and several of them said
+  // the same thing from different angles: not repeating the missing item, keeping the evidence
+  // consistent, not asking evidence to prove the standard, and not requesting evidence in the
+  // abstract were four rules for one idea. Every constraint is a reasoning cost on a model whose
+  // thinking shares the output token budget, and the pile-up drove failures from 3% to 14%.
   const highConstructivenessRules = (highPoliteness) => [
     "Constructiveness content: high.",
-    "Across the visible reply, include all three components and make each fit the participant's actual proposal:",
-    // "Unresolved aspect" invited gap-naming, and 37% of high-constructiveness first rejections came
-    // back as "it does not say how many X", a template that fits any staffing proposal without
-    // reading the one in front of it. Sommers's first component is about what is wrong, not about
-    // what is absent. Requiring the diagnosis to restate the participant's own mechanism forces it
-    // to engage with what they actually said.
-    "1. Proposal problem: start from the specific thing the participant said they would do, in their terms, then explain what goes wrong when it is carried out. Name the mechanism: what happens to whom, and why that is a problem at exactly the moment the proposal is supposed to help.",
-    "Diagnose the idea itself, not the write-up. 'You did not say how many' or 'it does not specify where' criticises the level of detail; 'pairing each temp with an experienced member ties up the very staff you need on their own posts once queues build' criticises the plan. Prefer the second. Only fall back to a missing-detail objection when the proposal genuinely has no mechanism to engage with.",
-    "The consequence must follow from the mechanism you just described, not be attached to it with 'which could'. If a reader has to supply the reasoning between the problem and the consequence, rewrite it.",
-    "2. Relevant standard: state one explicit performance or operational criterion the proposal must meet.",
-    // Under a tight word budget the three parts get emitted as a list of correct-looking clauses
-    // that do not connect: a supervision-ratio diagnosis followed by a two-minute response-time
-    // standard passes every content check and still reads as nonsense.
-    "The three components must be about the same thing. The standard has to be the one the identified problem would breach, and the revision path has to be what would meet that standard. Do not pair a diagnosis with an unrelated metric.",
+    "Across the visible reply, include all three components. They must be about the same thing: the standard is the one the diagnosed problem would breach, and the revision path is what would meet that standard.",
+    // Sommers's first component is about what is wrong, not what is absent. Asking for an
+    // "unresolved aspect" produced "it does not say how many X" in 37% of replies, a template that
+    // fits any staffing proposal without reading the one in front of it.
+    "1. Proposal problem. Start from the specific thing the participant said they would do, in their terms, then explain what goes wrong when it is carried out and why that bites at exactly the moment the proposal is meant to help. Diagnose the idea, not the write-up: 'pairing each temp with an experienced member ties up the very staff you need on their own posts once queues build' is the target; 'you did not say how many' is not. The consequence must follow from the mechanism you just described rather than being attached with 'which could'.",
+    "2. Relevant standard. State one explicit performance or operational criterion the proposal must meet, with the same kind of precision whether your tone is warm or blunt.",
+    // Naming the evidence is what the participant can act on: "bring more data" gives them nothing
+    // to fetch. Attached to the revision path rather than replacing the diagnosis, so the problem
+    // still fits whatever was actually proposed.
     highPoliteness
-      ? "3. Revision path: state one concrete, actionable condition that would remedy the problem before you would reconsider, phrased conditionally around what the participant would bring you (for example 'I would reconsider if you came back with role counts and last season's peak hour arrivals'), never as a command and never as the evidence proving the standard is already met."
-      : "3. Revision path: state one concrete, actionable requirement that would remedy the problem before you would reconsider; you may phrase it as one blunt imperative directive (for example 'Come back with role counts and supervision ratios.').",
-    "Do not substitute a generic claim that the proposal needs more thought.",
-    // Naming the evidence is required, not optional, because it is the part the participant can
-    // act on: a manager who says "bring more data" gives them nothing to fetch, while one who says
-    // which figures would settle the question gives them a specific errand. It is attached to the
-    // revision path rather than replacing the diagnosis, so the problem still fits whatever the
-    // participant actually proposed. Vague evidence complaints with no named figures were the main
-    // weakness of the earlier version.
-    "The revision path must always name the specific evidence that is missing: the figures, records, or first-hand accounts that would let you reconsider. Examples of the kind of thing to name are attendance by day or season, how the visitor mix breaks down, what the people affected actually say, the cost of the change, or the time it takes. Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract.",
-    "Name one or two pieces of evidence, not four, and say it the way a person would in chat rather than as a request form.",
-    // Under high politeness the revision path is a conditional, and the model welds the standard and
-    // the evidence into "if last season's entry counts showed that, I would reconsider". That is
-    // circular: past figures cannot show that a future plan meets a standard, and if the standard
-    // were already met there would be nothing to revise. Ask for the inputs, not for the conclusion.
-    "Ask the participant to bring the named evidence so you can judge the proposal. Do not phrase it as the evidence showing, proving, or confirming that the standard is already met, and do not refer back to the standard with a bare 'that'.",
-    // In a 36-word follow-up the diagnosis and the revision path collapse into the same sentence
-    // twice over: "it lacks role counts ... reconsideration would need role counts". The two parts
-    // have different jobs, so they must not name the same item.
-    "Do not name the same missing item in both the diagnosis and the revision path. The diagnosis says what the gap puts at risk; the revision path names the evidence that would settle it. Never write the equivalent of 'it lacks X, so it would need X'.",
-    // The closing refers back to a conversation the participant has already had, so introducing a
-    // new requirement there reads as moving the goalposts.
-    "Keep the evidence consistent across the turn and with what you asked for earlier in this conversation. Do not introduce a new kind of requirement that has not come up before.",
-    // Left free, blunt replies quote hard numbers while warm replies stay qualitative, which makes
-    // low politeness look more informative. Keep the standard's precision independent of tone.
-    "Keep the concreteness of the standard independent of the politeness style: state the same kind of criterion, with the same precision, whether the tone is warm or blunt.",
+      ? "3. Revision path. Name the one or two specific figures, records, or first-hand accounts you would need to judge the proposal, and ask for them conditionally: 'I would reconsider if you came back with role counts and last season's peak hour arrivals.' Never a command."
+      : "3. Revision path. Name the one or two specific figures, records, or first-hand accounts you would need to judge the proposal, and ask for them as one blunt imperative: 'Come back with role counts and supervision ratios.'",
+    // These three cover what were previously seven overlapping prohibitions.
+    "The evidence must be named concretely, never requested as 'more data', 'evidence', 'research', or 'detail', and never framed as proving the standard is already met. Ask for what you need to judge, not for the conclusion.",
+    "The revision path must ask for something the diagnosis did not already name, and must stay consistent with what you asked for earlier in this conversation. Never write the equivalent of 'it lacks X, so bring X', and do not introduce a new kind of requirement at the end.",
     "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
   ].join("\n");
   // The broad-judgment vocabulary is split by politeness: judgments like "not workable" read as

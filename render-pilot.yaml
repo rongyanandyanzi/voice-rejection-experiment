@@ -19,7 +19,7 @@ services:
       - key: OPENAI_EVALUATOR_MODEL
         value: gpt-5.5
       - key: OPENAI_REASONING_EFFORT
-        value: low
+        value: medium
       - key: OPENAI_TIMEOUT_MS
         value: "45000"
     disk:

@@ -241,8 +241,8 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
 test("directive mood is split by politeness: LP may use imperatives, HP must stay conditional", () => {
   const rules = managerConditionRules();
   // The revision-path mood in the condition rules.
-  assert.match(rules.HP_HC, /phrased conditionally.*never as a command/i);
-  assert.match(rules.LP_HC, /one blunt imperative directive/i);
+  assert.match(rules.HP_HC, /ask for them conditionally.*Never a command/is);
+  assert.match(rules.LP_HC, /ask for them as one blunt imperative/i);
   assert.match(rules.LP_HC, /Imperative mood is part of this style/i);
   assert.match(rules.LP_LC, /Imperative mood is part of this style/i);
   assert.doesNotMatch(rules.HP_HC, /Imperative mood is part of this style/i);
