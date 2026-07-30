@@ -181,9 +181,7 @@ function effectiveWordCount(text) {
   return raw.split(/\s+/).filter(Boolean).length;
 }
 
-function hasPoliteCue(text) {
-  return /\b(thanks|thank you|appreciate|sorry|understand|please|glad|respect)\b|谢谢|感谢|抱歉|理解|体谅|辛苦|请/i.test(text);
-}
+
 
 // Cue counts, not just presence. Holding total length constant means a low-constructiveness reply
 // has spare words that a high-constructiveness reply spends on diagnosis; if those words go into
@@ -211,6 +209,13 @@ const FACE_THREAT_CUE_PATTERNS = [
   // once you bring...") from matching.
   /(?:^|[.!?;:]["'”]?\s+)(?!(?:if|once|when|unless|after|provided|assuming)\b)(?:come back|go back|don'?t bring|do not bring|bring|drop|rework|redo|fix|stop|add|show|get)\b(?!\s+(?:it|this|that) back another time)/gi,
 ];
+
+// Reuses the cue patterns below rather than its own narrower list. The old regex missed
+// "happy to revisit" and "I can see", so warm closings were scored as impolite and the politeness
+// accuracy gate failed on correct output.
+function hasPoliteCue(text) {
+  return warmthCueCount(text) > 0;
+}
 
 function countCues(text, patterns) {
   const raw = String(text || "");
