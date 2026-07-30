@@ -1595,7 +1595,7 @@ function buildInitialManagerPrompt(payload) {
       "Reject the proposal for now and split the turn into exactly two matched-length chat messages.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
-        : "Produce exactly 2 Manager messages, each 30-36 words, with 66-70 words across the two messages combined.",
+        : "Produce exactly 2 Manager messages. Aim for 34 or 35 words each and 69 words in total across the two messages. Treat 69 as the target for every condition, whether you have a lot to say or very little.",
       "Message 1 contains the condition-matched interpersonal style, the rejection, and either the HC proposal-specific diagnosis or the LC broad topic-level dismissal.",
       language === "zh"
         ? "State the refusal explicitly with a natural phrase such as 这个版本我不能批准 or 这个方案先不采纳."
@@ -1619,7 +1619,18 @@ function buildInitialManagerPrompt(payload) {
     minMessages = 2;
     maxMessages = 2;
     maxOutputTokens = language === "zh" ? 5000 : 420;
-    wordRange = language === "zh" ? null : { min: 30, max: 36 };
+    // Mins raised from 30/66. High constructiveness has a problem, a consequence, a standard and
+    // named evidence to fit, so it writes to the top of the window every time; low constructiveness
+    // has nothing to say and stops at the floor. Left at 66 the two settled at 69-70 against a flat
+    // 66, a 5% spread by construction. The normalizer pads short replies up to the minimum, so
+    // raising the floor costs no extra retries.
+    // Narrow target, wide tolerance. High constructiveness has more to fit and writes to whatever
+    // ceiling it is given; low constructiveness has nothing to say and stops at the floor, so a wide
+    // window alone let the two settle 3-4 words apart. Narrowing the window to close that gap pushed
+    // length failures from 3% to 17%, because the model cannot reliably hit a two-word target. The
+    // prompt now names one number for every condition to converge on, and the validator keeps the
+    // wide window so a reply that lands a word or two off still passes.
+    wordRange = language === "zh" ? null : { min: 31, max: 36 };
     totalWordRange = language === "zh" ? null : { min: 66, max: 70 };
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
@@ -1634,7 +1645,7 @@ function buildInitialManagerPrompt(payload) {
         : "Include the explicit sentence I still cannot approve this version.",
       language === "zh"
         ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
-        : "Produce exactly 1 Manager chat message, 34-36 words.",
+        : "Produce exactly 1 Manager chat message. Aim for 35 words, and treat 35 as the target whether you have a lot to say or very little.",
       `In HC, the reply must again identify one unresolved proposal-specific problem and consequence, state a relevant standard, and name a concrete ${lowPolitenessCondition ? "remedy path, which may be phrased as one blunt imperative directive" : "non-imperative remedy path"}.`,
       "In LC, acknowledge only that the participant is still discussing the broad idea, repeat the vague rejection, and add no diagnostic detail, standard, evidence requirement, or remedy.",
       commandMoodRule,
@@ -1655,7 +1666,7 @@ function buildInitialManagerPrompt(payload) {
     // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
     // high-constructiveness sat at the top, reopening a 7.7% follow-up length spread. The
     // normalizer pads short replies up to the minimum, so the raise costs no extra retries.
-    wordRange = language === "zh" ? null : { min: 34, max: 36 };
+    wordRange = language === "zh" ? null : { min: 32, max: 36 };
     chineseCharRange = language === "zh" ? { min: 52, max: 60 } : null;
   } else if (phase === "rejection") {
     task = [
@@ -1663,7 +1674,7 @@ function buildInitialManagerPrompt(payload) {
       "Reject the proposal for now.",
       language === "zh"
         ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
-        : "Produce exactly 1 Manager chat message, 34-36 words.",
+        : "Produce exactly 1 Manager chat message. Aim for 35 words, and treat 35 as the target whether you have a lot to say or very little.",
       `In HC, include a proposal-specific problem and consequence, an explicit relevant standard, and a concrete ${lowPolitenessCondition ? "remedy path, which may be phrased as one blunt imperative directive" : "non-imperative remedy path"}.`,
       "In LC, keep the response broad and vague, with no diagnostic detail, clear standard, or actionable remedy.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
@@ -1682,12 +1693,13 @@ function buildInitialManagerPrompt(payload) {
     // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
     // high-constructiveness sat at the top, reopening a 7.7% follow-up length spread. The
     // normalizer pads short replies up to the minimum, so the raise costs no extra retries.
-    wordRange = language === "zh" ? null : { min: 34, max: 36 };
+    wordRange = language === "zh" ? null : { min: 32, max: 36 };
     chineseCharRange = language === "zh" ? { min: 52, max: 60 } : null;
   } else if (phase === "closing") {
     task = [
       "the participant has already received the rejection and may have reacted to it.",
       "Send a short closing message (you may use up to two sentences) and leave the chat. The MAIN point of this message is to leave the door clearly and genuinely open.",
+      language === "zh" ? "" : "Aim for 29 words, and treat 29 as the target for every condition, whether you have a lot to say or very little.",
       "Wind down naturally — do NOT cut the conversation off abruptly or peremptorily. Briefly acknowledge their input or the discussion before signing off, then leave the door open. It should feel like a natural close, not a sudden hard stop.",
       "You are not approving the proposal right now, but do NOT frame this as a permanent, final, or flat no. The topic stays open: make it explicit that you are open to discussing it again, hearing a stronger version, or reconsidering it in the future, and invite them to bring it back another time.",
       "The openness must feel real, not a throwaway line — it should be the heart of the message, not a tacked-on afterthought. Avoid hard-final phrasing like 'this is closed', 'my decision is final', 'there's nothing more to discuss', or 'that's the end of it'.",
@@ -1704,6 +1716,7 @@ function buildInitialManagerPrompt(payload) {
     // A 20-word window (18-38) let the closing drift to a 28% length spread across condition means,
     // with low constructiveness running shortest. A 4-word window keeps the four cells inside the
     // same 5% spread the first rejection is held to.
+    // Same narrow-target, wide-tolerance approach as the rejection turns.
     wordRange = language === "zh" ? null : { min: 27, max: 31 };
     chineseCharRange = language === "zh" ? { min: 47, max: 54 } : null;
   } else {

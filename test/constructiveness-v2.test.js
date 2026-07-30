@@ -60,7 +60,7 @@ function responseJson(value, status = 200) {
   });
 }
 
-function exactWords(prefix, target = 33) {
+function exactWords(prefix, target = 34) {
   const words = String(prefix).trim().split(/\s+/).filter(Boolean);
   while (words.length < target) words.push("today");
   return words.slice(0, target).join(" ");
@@ -113,7 +113,7 @@ test("initial rejection uses two matched structured messages", () => {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
     assert.equal(prompt.minMessages, 2);
     assert.equal(prompt.maxMessages, 2);
-    assert.deepEqual(prompt.wordRange, { min: 30, max: 36 });
+    assert.deepEqual(prompt.wordRange, { min: 31, max: 36 });
     assert.deepEqual(prompt.totalWordRange, { min: 66, max: 70 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.match(prompt.system, /proposal_problem, relevant_standard, and revision_path/);
@@ -211,7 +211,7 @@ test("blind politeness cue band is enforced identically under high and low const
 test("rejection follow-up and closing keep the four conditions in a narrow length window", () => {
   for (const condition of conditions) {
     const followup = buildInitialManagerPrompt(managerPayload({ phase: "rejection_followup", condition }));
-    assert.deepEqual(followup.wordRange, { min: 34, max: 36 });
+    assert.deepEqual(followup.wordRange, { min: 32, max: 36 });
     const closing = buildInitialManagerPrompt(managerPayload({ phase: "closing", condition }));
     assert.deepEqual(closing.wordRange, { min: 27, max: 31 });
     assert.match(closing.system, /Interpersonal cue quota: use exactly one/i);
@@ -293,7 +293,7 @@ test("English first rejection length normalization preserves content and reaches
   assert.equal(managerWordCountProblem(normalized, prompt), "");
   assert.match(normalized[0].text, /cannot approve/i);
   assert.match(normalized[1].text, /role training/i);
-  assert.ok(normalized.every((message) => wordCount(message.text) >= 30 && wordCount(message.text) <= 36));
+  assert.ok(normalized.every((message) => wordCount(message.text) >= 31 && wordCount(message.text) <= 36));
   assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 66);
 });
 
