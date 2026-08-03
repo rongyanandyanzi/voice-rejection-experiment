@@ -191,7 +191,9 @@ const WARMTH_CUE_PATTERNS = [
   /\b(?:thanks|thank you)\b|谢谢|感谢/gi,
   /\bappreciate\b|理解你|体谅/gi,
   /\b(?:i am sorry|i'm sorry|i’m sorry|apolog)\w*|抱歉|不好意思/gi,
-  /\b(?:i can see|i understand|that makes sense|fair point|good thinking|sensible|helps)\b|辛苦/gi,
+  // "I hear you", "noted" and "worth noting" are deliberately absent: they acknowledge receipt
+  // without warmth and were being generated in the acknowledgement slot instead of a warm move.
+  /\b(?:i can see|that makes sense|good thinking|sensible|helps)\b|辛苦/gi,
   /\b(?:genuinely|happy to revisit|glad|respect|not a reflection on you)\b/gi,
 ];
 const FACE_THREAT_CUE_PATTERNS = [

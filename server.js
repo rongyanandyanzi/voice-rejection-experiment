@@ -1896,6 +1896,11 @@ function managerConditionRules() {
   const highPoliteness = [
     "Politeness style: high.",
     "Use one brief respectful acknowledgement, appreciation, apology, hedge, or softened rejection.",
+    // "I hear you" and "worth noting" are filing-away moves: they occupy the acknowledgement slot
+    // and read as politely dismissing the person, which is the opposite of the manipulation. They
+    // appeared almost entirely in closings, where the model reaches for a way to wrap up.
+    "The acknowledgement must name what the participant actually contributed and say something positive about it: 'thanks for thinking through a small pilot', 'this was useful to discuss', 'I appreciate you talking this through'. It has to be an appreciation, not a confirmation of receipt.",
+    "Never open by reporting that you received the message. Any variant of hearing, noting, or understanding the point is banned: 'I hear you', 'I hear your point', 'I've heard your point', 'noted', 'worth noting', 'understood', 'fair enough', 'point taken'. These sound like politely closing someone down, which is the opposite of high politeness.",
     ...politenessCueQuota,
     "Make clear that the decision concerns the current proposal rather than the participant personally.",
   ].join("\n");
@@ -2828,7 +2833,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
           "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
-          "warmth_cues counts the distinct interpersonal warmth moves in the reply: thanks, appreciation, praise, apology, sympathy, reassurance, or a softening hedge on the rejection. Count each distinct move once, so a reply that thanks the participant and then also apologises counts 2. Do not count neutral acknowledgement that merely restates what the participant said.",
+          "warmth_cues counts the distinct interpersonal warmth moves in the reply: thanks, appreciation, praise, apology, sympathy, reassurance, or a softening hedge on the rejection. Count each distinct move once, so a reply that thanks the participant and then also apologises counts 2. Do not count neutral acknowledgement that merely restates what the participant said, and do not count receipt-of-message phrases such as 'I hear you', 'noted', 'worth noting', 'understood', or 'fair enough', which acknowledge without warmth.",
           "face_threat_cues counts the distinct sharp or dismissive moves aimed at the proposal, such as calling it sloppy, nowhere near ready, too rough, weak, or a waste of time. Count each distinct move once. Do not count a plain statement that the proposal cannot be approved, and do not count imperatives here.",
           "imperative_directives counts the blunt imperative instructions about what to do next, such as 'Come back with role counts.' or 'Don't bring it back until it includes the numbers.' Count each distinct directive once. A conditionally phrased request ('I would reconsider if you came back with...') is not an imperative.",
           "Count cues across the whole reply, including both messages when there are two.",
