@@ -1713,7 +1713,7 @@ function buildInitialManagerPrompt(payload) {
       condition.includes("HP")
         ? "High politeness: warm, friendly, and encouraging; clearly welcome picking it up again (e.g. 'I'd genuinely be happy to revisit this another time if you want')."
         : "Low politeness: cold, curt, impatient, and dismissive in tone, with no apology, thanks, appreciation, praise, or hedging. A sharp cue must target the proposal, such as 'this version is sloppy' or 'this is nowhere near ready', never the participant's intelligence or competence. Leave the path open only grudgingly, and phrase the reopening line as exactly one blunt imperative, such as 'Don't bring it back until it includes the staffing numbers.' (high constructiveness) or 'Don't bring it back until there's something actually worth discussing.' (low constructiveness).",
-      "Interpersonal cue quota: use exactly one politeness or dismissiveness cue in the whole message, in one clause only. Do not stack, repeat, or rephrase it, and do not add a second cue to fill length.",
+      "Interpersonal cue quota: use one politeness or dismissiveness cue in this message, in one clause only. Do not stack, repeat, or rephrase it, and do not add a second cue to fill length.",
       condition.includes("HC")
         ? "High constructiveness: name the same concrete proposal-focused condition that would need to be met before reconsideration."
         : "Low constructiveness: keep the openness entirely vague and general. Do not name a problem, standard, missing material, evidence type, or revision path. Spend the remaining length on neutral restatement of the unchanged decision rather than on more interpersonal wording.",
@@ -1890,8 +1890,8 @@ function managerConditionRules() {
   // Both politeness styles are capped at one interpersonal cue so that cue density stays constant
   // across the two constructiveness levels and the two factors remain orthogonal.
   const politenessCueQuota = [
-    "Interpersonal cue quota: use exactly one such cue in the whole turn, and place it in one clause only.",
-    "Do not stack, repeat, or rephrase the cue across sentences or across the two messages, and do not add a second cue to fill length.",
+    "Interpersonal cue quota: use one such cue in each message you send, in one clause of that message. When the turn is two messages, that is one cue in each, not one for the pair and not two in the same message.",
+    "Do not stack, repeat, or rephrase the cue within a message, and do not add cues beyond that to fill length.",
   ];
   const highPoliteness = [
     "Politeness style: high.",
@@ -1907,7 +1907,7 @@ function managerConditionRules() {
     // "Exactly one", not "allowed": when the imperative was optional, high-constructiveness replies
     // used it far more often (they have a remedy to command), which unbalanced face-cue density
     // across the constructiveness levels within low politeness.
-    "Imperative mood is part of this style: phrase exactly one next-step or wrap-up line as a blunt imperative directive, in addition to the sharp cue, and nothing sharp beyond those two.",
+    "Imperative mood is part of this style: alongside the sharp cue, phrase one next-step or wrap-up line as a blunt imperative directive. In a two-message turn put it in one of the two messages, not both.",
     "Do not say or imply that the participant is stupid, incompetent, incapable, personally deficient, or did not think at all. Keep the face threat proposal-focused.",
   ].join("\n");
 
@@ -2920,7 +2920,11 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
 // than under high constructiveness and confounds the two factors.
 // The prompt asks for exactly one cue while the band tolerates two on purpose: the target keeps
 // density low, and the slack avoids regenerating a reply the blind scorer merely counts generously.
-const MANAGER_POLITENESS_CUE_BAND = { min: 1, max: 2 };
+// Per message, not per turn. The first rejection is two messages, and a single cue for the pair
+// left the second one reading as pure business: the participant saw one warm bubble and one flat
+// one. The band scales with message count so each message carries its own cue, while the density
+// stays identical across all four cells, which is what protects the two factors from confounding.
+const MANAGER_POLITENESS_CUE_BAND = { minPerMessage: 1, maxPerMessage: 2 };
 
 function managerConstructivenessAssessmentProblem(scores, prompt) {
   if (!prompt || prompt.constructivenessMetadataMode !== "full" || !scores) return "";
@@ -2930,7 +2934,9 @@ function managerConstructivenessAssessmentProblem(scores, prompt) {
   const constructivenessValid = highConstructiveness
     ? components.every(Boolean)
     : components.every((value) => !value);
-  const { min: cueMin, max: cueMax } = MANAGER_POLITENESS_CUE_BAND;
+  const messageCount = Math.max(1, Number(prompt.minMessages) || 1);
+  const cueMin = MANAGER_POLITENESS_CUE_BAND.minPerMessage * messageCount;
+  const cueMax = MANAGER_POLITENESS_CUE_BAND.maxPerMessage * messageCount;
   const inBand = (value) => value >= cueMin && value <= cueMax;
   // Sharp cues and imperatives are separate channels. Low politeness is specified as one of each,
   // so folding them into a single count put a compliant reply at the top of the 1-2 band with no

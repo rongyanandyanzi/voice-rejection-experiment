@@ -144,8 +144,9 @@ test("HC requires all three fields while LC requires all three fields empty", ()
 
 // highPrompt is LP_HC, so its politeness cues must be one face threat and no warmth; lowPrompt is
 // HP_LC, so the reverse.
-const lowPolitenessCues = { warmth_cues: 0, face_threat_cues: 1, imperative_directives: 1 };
-const highPolitenessCues = { warmth_cues: 1, face_threat_cues: 0, imperative_directives: 0 };
+// The default payload is rejection_initial, which sends two messages, so the band is 2-4.
+const lowPolitenessCues = { warmth_cues: 0, face_threat_cues: 2, imperative_directives: 2 };
+const highPolitenessCues = { warmth_cues: 2, face_threat_cues: 0, imperative_directives: 0 };
 
 test("blind semantic scores enforce HC presence, LC absence, and no personal-only attack", () => {
   const highPrompt = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
@@ -186,26 +187,26 @@ test("blind politeness cue band is enforced identically under high and low const
     explicit_standard: condition.endsWith("_HC"),
     actionable_remedy: condition.endsWith("_HC"),
     personal_attack_without_diagnosis: false,
-    imperative_directives: condition.startsWith("LP") ? 1 : 0,
+    imperative_directives: condition.startsWith("LP") ? 2 : 0,
     ...cues,
   });
   // The band has to bite the same way in HC and LC, otherwise the low-constructiveness cells can
   // buy a larger politeness contrast with the words they save on diagnosis.
   for (const condition of ["HP_HC", "HP_LC"]) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 1, face_threat_cues: 0 }), prompt), "");
     assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 0 }), prompt), "");
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 3, face_threat_cues: 0 }), prompt), /between 1 and 2 interpersonal warmth cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 1 and 2 interpersonal warmth cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 1, face_threat_cues: 1 }), prompt), /no sharp or dismissive cue/i);
+    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 4, face_threat_cues: 0 }), prompt), "");
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 5, face_threat_cues: 0 }), prompt), /between 2 and 4 interpersonal warmth cues/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 interpersonal warmth cues/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 1 }), prompt), /no sharp or dismissive cue/i);
   }
   for (const condition of ["LP_HC", "LP_LC"]) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 1 }), prompt), "");
     assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 2 }), prompt), "");
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 3 }), prompt), /between 1 and 2 sharp proposal-directed cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 1 and 2 sharp proposal-directed cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 1, face_threat_cues: 1 }), prompt), /no warmth cue/i);
+    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 4 }), prompt), "");
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 5 }), prompt), /between 2 and 4 sharp proposal-directed cues/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 sharp proposal-directed cues/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 1 }), prompt), /no warmth cue/i);
   }
 });
 
@@ -215,7 +216,7 @@ test("rejection follow-up and closing keep the four conditions in a narrow lengt
     assert.deepEqual(followup.wordRange, { min: 32, max: 36 });
     const closing = buildInitialManagerPrompt(managerPayload({ phase: "closing", condition }));
     assert.deepEqual(closing.wordRange, { min: 27, max: 31 });
-    assert.match(closing.system, /Interpersonal cue quota: use exactly one/i);
+    assert.match(closing.system, /Interpersonal cue quota: use one politeness or dismissiveness cue/i);
   }
 });
 
@@ -230,8 +231,8 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   // The cue quota has to be present in all four cells, and the low-constructiveness cells must be
   // told to spend their spare length on neutral wording rather than on more interpersonal cues.
   for (const condition of conditions) {
-    assert.match(rules[condition], /Interpersonal cue quota: use exactly one such cue/i);
-    assert.match(rules[condition], /Do not stack, repeat, or rephrase the cue/i);
+    assert.match(rules[condition], /Interpersonal cue quota: use one such cue in each message/i);
+    assert.match(rules[condition], /Do not stack, repeat, or rephrase the cue within a message/i);
   }
   for (const condition of ["HP_LC", "LP_LC"]) {
     assert.match(rules[condition], /Spend the remaining length on neutral restatement/i);
@@ -454,7 +455,7 @@ test("failed HC structure regenerates and internal fields never reach the browse
       explicit_standard: true,
       actionable_remedy: true,
       personal_attack_without_diagnosis: false,
-      warmth_cues: 1,
+      warmth_cues: 2,
       face_threat_cues: 0,
       imperative_directives: 0,
     }),

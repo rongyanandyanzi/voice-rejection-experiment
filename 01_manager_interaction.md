@@ -152,7 +152,7 @@ For the same proposal:
 
 ### Interpersonal Cue Quota
 
-Both politeness levels use exactly one interpersonal cue per turn, placed in a single clause. The cue is never stacked, repeated, or rephrased across sentences or across the two messages.
+Both politeness levels use one interpersonal cue per message, placed in a single clause of that message. The first rejection is two messages, so it carries one cue in each rather than one for the pair: a single cue left the second message reading as pure business, so a high politeness participant saw one warm bubble and one flat one. The cue is never stacked or rephrased within a message.
 
 The quota exists because total length is matched across conditions. A low constructiveness reply has spare words that a high constructiveness reply spends on diagnosis. If those words go into extra warmth or extra dismissal, the politeness contrast becomes larger under low constructiveness than under high constructiveness, and the two factors stop being orthogonal.
 
@@ -223,10 +223,10 @@ Acceptance rules:
 
 * HC requires the first three scores to be true and the personal attack score to be false.
 * LC requires the first three scores to be false and the personal attack score to be false.
-* HP requires one or two warmth cues and zero face threat cues.
-* LP requires one or two face threat cues and zero warmth cues.
+* HP requires one to two warmth cues per message and zero face threat cues and zero imperatives.
+* LP requires one to two face threat cues per message, one to two imperative directives, and zero warmth cues.
 
-The same one to two cue band applies at both constructiveness levels, so cue density cannot vary with constructiveness.
+The same per-message band applies at both constructiveness levels, so cue density cannot vary with constructiveness. Sharp cues and imperatives are counted separately, since low politeness is specified as one of each and a combined count left a compliant reply at the ceiling with no headroom.
 
 If validation fails, the rejection is regenerated up to two times. If all three attempts fail, the server returns a retryable error. A condition incorrect reply is never shown to the participant.
 
