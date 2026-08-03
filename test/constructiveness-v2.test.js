@@ -144,8 +144,8 @@ test("HC requires all three fields while LC requires all three fields empty", ()
 
 // highPrompt is LP_HC, so its politeness cues must be one face threat and no warmth; lowPrompt is
 // HP_LC, so the reverse.
-const lowPolitenessCues = { warmth_cues: 0, face_threat_cues: 1 };
-const highPolitenessCues = { warmth_cues: 1, face_threat_cues: 0 };
+const lowPolitenessCues = { warmth_cues: 0, face_threat_cues: 1, imperative_directives: 1 };
+const highPolitenessCues = { warmth_cues: 1, face_threat_cues: 0, imperative_directives: 0 };
 
 test("blind semantic scores enforce HC presence, LC absence, and no personal-only attack", () => {
   const highPrompt = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
@@ -186,6 +186,7 @@ test("blind politeness cue band is enforced identically under high and low const
     explicit_standard: condition.endsWith("_HC"),
     actionable_remedy: condition.endsWith("_HC"),
     personal_attack_without_diagnosis: false,
+    imperative_directives: condition.startsWith("LP") ? 1 : 0,
     ...cues,
   });
   // The band has to bite the same way in HC and LC, otherwise the low-constructiveness cells can
@@ -455,6 +456,7 @@ test("failed HC structure regenerates and internal fields never reach the browse
       personal_attack_without_diagnosis: false,
       warmth_cues: 1,
       face_threat_cues: 0,
+      imperative_directives: 0,
     }),
   ];
   let calls = 0;
@@ -491,6 +493,7 @@ test("three consecutive blind semantic failures return a safe retryable error", 
         personal_attack_without_diagnosis: false,
         warmth_cues: 1,
         face_threat_cues: 0,
+        imperative_directives: 0,
       });
     }
     return responseJson(good);

@@ -2829,7 +2829,8 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
           "warmth_cues counts the distinct interpersonal warmth moves in the reply: thanks, appreciation, praise, apology, sympathy, reassurance, or a softening hedge on the rejection. Count each distinct move once, so a reply that thanks the participant and then also apologises counts 2. Do not count neutral acknowledgement that merely restates what the participant said.",
-          "face_threat_cues counts the distinct sharp or dismissive moves aimed at the proposal, such as calling it sloppy, nowhere near ready, too rough, weak, or a waste of time, plus blunt imperative directives about the next step such as 'Come back with...' or 'Don't bring it back until...'. Count each distinct move once. A conditionally phrased suggestion ('if you can come back with...') is not a face threat. Do not count a plain statement that the proposal cannot be approved.",
+          "face_threat_cues counts the distinct sharp or dismissive moves aimed at the proposal, such as calling it sloppy, nowhere near ready, too rough, weak, or a waste of time. Count each distinct move once. Do not count a plain statement that the proposal cannot be approved, and do not count imperatives here.",
+          "imperative_directives counts the blunt imperative instructions about what to do next, such as 'Come back with role counts.' or 'Don't bring it back until it includes the numbers.' Count each distinct directive once. A conditionally phrased request ('I would reconsider if you came back with...') is not an imperative.",
           "Count cues across the whole reply, including both messages when there are two.",
           "Do not infer missing content from the conversation. Score only what the manager actually communicates.",
         ].join("\n"),
@@ -2854,6 +2855,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
             personal_attack_without_diagnosis: { type: "boolean" },
             warmth_cues: { type: "integer" },
             face_threat_cues: { type: "integer" },
+            imperative_directives: { type: "integer" },
           },
           required: [
             "specific_problem",
@@ -2862,6 +2864,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
             "personal_attack_without_diagnosis",
             "warmth_cues",
             "face_threat_cues",
+            "imperative_directives",
           ],
         },
       },
@@ -2898,7 +2901,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
   const valid = scores &&
     ["specific_problem", "explicit_standard", "actionable_remedy", "personal_attack_without_diagnosis"]
       .every((field) => typeof scores[field] === "boolean") &&
-    ["warmth_cues", "face_threat_cues"]
+    ["warmth_cues", "face_threat_cues", "imperative_directives"]
       .every((field) => Number.isInteger(scores[field]) && scores[field] >= 0);
   if (!valid) {
     return {
@@ -2929,12 +2932,15 @@ function managerConstructivenessAssessmentProblem(scores, prompt) {
     : components.every((value) => !value);
   const { min: cueMin, max: cueMax } = MANAGER_POLITENESS_CUE_BAND;
   const inBand = (value) => value >= cueMin && value <= cueMax;
+  // Sharp cues and imperatives are separate channels. Low politeness is specified as one of each,
+  // so folding them into a single count put a compliant reply at the top of the 1-2 band with no
+  // headroom and made the two impossible to check independently.
   const politenessValid = highPoliteness
-    ? inBand(scores.warmth_cues) && scores.face_threat_cues === 0
-    : inBand(scores.face_threat_cues) && scores.warmth_cues === 0;
+    ? inBand(scores.warmth_cues) && scores.face_threat_cues === 0 && scores.imperative_directives === 0
+    : inBand(scores.face_threat_cues) && inBand(scores.imperative_directives) && scores.warmth_cues === 0;
   if (constructivenessValid && politenessValid && !scores.personal_attack_without_diagnosis) return "";
 
-  const observed = `Blind score: specific_problem=${scores.specific_problem}, explicit_standard=${scores.explicit_standard}, actionable_remedy=${scores.actionable_remedy}, personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}, warmth_cues=${scores.warmth_cues}, face_threat_cues=${scores.face_threat_cues}.`;
+  const observed = `Blind score: specific_problem=${scores.specific_problem}, explicit_standard=${scores.explicit_standard}, actionable_remedy=${scores.actionable_remedy}, personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}, warmth_cues=${scores.warmth_cues}, face_threat_cues=${scores.face_threat_cues}, imperative_directives=${scores.imperative_directives}.`;
   const corrections = ["Blind condition validation failed.", observed];
   if (!constructivenessValid) {
     corrections.push(highConstructiveness
@@ -2943,8 +2949,8 @@ function managerConstructivenessAssessmentProblem(scores, prompt) {
   }
   if (!politenessValid) {
     corrections.push(highPoliteness
-      ? `Use between ${cueMin} and ${cueMax} interpersonal warmth cues in total and no sharp or dismissive cue. Do not stack extra thanks, apology, praise, or reassurance to fill length.`
-      : `Use between ${cueMin} and ${cueMax} sharp proposal-directed cues in total and no warmth cue. Do not stack extra dismissive phrasing to fill length.`);
+      ? `Use between ${cueMin} and ${cueMax} interpersonal warmth cues in total, no sharp or dismissive cue, and no imperative directive. Do not stack extra thanks, apology, praise, or reassurance to fill length.`
+      : `Use between ${cueMin} and ${cueMax} sharp proposal-directed cues and between ${cueMin} and ${cueMax} blunt imperative directives, and no warmth cue. Do not stack extra dismissive phrasing to fill length.`);
     corrections.push("Spend any remaining length on neutral restatement of the unchanged decision instead of more interpersonal wording.");
   }
   corrections.push(highConstructiveness

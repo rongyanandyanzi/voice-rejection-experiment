@@ -201,12 +201,17 @@ const FACE_THREAT_CUE_PATTERNS = [
   /\b(?:half baked|half-baked)\b|半成品/gi,
   /\b(?:weak|rough concept|not a serious)\b|很弱|不成熟/gi,
   /\bwaste\b|浪费/gi,
-  // Clause-initial blunt imperatives are the low-politeness directive mood. Semicolons and colons
-  // count as clause boundaries because the generator often writes "I'm done here; don't bring it
-  // back until...", and bare imperative verbs ("Bring hourly staffing counts.") are as blunt as the
-  // "come back with" phrasing. The clause anchor plus the negative lookbehind for a subordinating
-  // conjunction keeps high-politeness conditionals ("if you can come back with...", "I'd reconsider
-  // once you bring...") from matching.
+];
+
+// Counted separately from the sharp cues above, not folded into them. Low politeness is specified
+// as one sharp cue plus one imperative, so a compliant reply scored 2 on a single combined count
+// and sat at the ceiling of the 1-2 band with no headroom, while the two channels could not be
+// checked independently. Semicolons and colons count as clause boundaries because the generator
+// writes "I'm done here; don't bring it back until...", and a bare imperative verb ("Bring hourly
+// staffing counts.") is as blunt as "come back with". The clause anchor plus the negative
+// lookahead for a subordinating conjunction keeps high-politeness conditionals ("if you can come
+// back with...", "I'd reconsider once you bring...") from matching.
+const IMPERATIVE_CUE_PATTERNS = [
   /(?:^|[.!?;:]["'”]?\s+)(?!(?:if|once|when|unless|after|provided|assuming)\b)(?:come back|go back|don'?t bring|do not bring|bring|drop|rework|redo|fix|stop|add|show|get)\b(?!\s+(?:it|this|that) back another time)/gi,
 ];
 
@@ -228,6 +233,10 @@ function warmthCueCount(text) {
 
 function faceThreatCueCount(text) {
   return countCues(text, FACE_THREAT_CUE_PATTERNS);
+}
+
+function imperativeCueCount(text) {
+  return countCues(text, IMPERATIVE_CUE_PATTERNS);
 }
 
 function hasForbiddenContent(text) {
@@ -280,6 +289,7 @@ async function callReply(proposal, condition, phase) {
     polite_classification_correct: condition.startsWith("HP_") ? hasPoliteCue(text) : !hasPoliteCue(text),
     warmth_cues: warmthCueCount(text),
     face_threat_cues: faceThreatCueCount(text),
+    imperative_cues: imperativeCueCount(text),
     forbidden_content: hasForbiddenContent(text),
   };
 }
@@ -306,6 +316,7 @@ async function mapLimit(items, limit, worker, onResult) {
           polite_classification_correct: false,
           warmth_cues: 0,
           face_threat_cues: 0,
+          imperative_cues: 0,
           forbidden_content: false,
         };
       }
@@ -447,13 +458,19 @@ async function main() {
   };
   const politenessCueDensity = Object.fromEntries(conditions.map((condition) => [
     condition,
-    { warmth_cues: cueMean(condition, "warmth_cues"), face_threat_cues: cueMean(condition, "face_threat_cues") },
+    {
+      warmth_cues: cueMean(condition, "warmth_cues"),
+      face_threat_cues: cueMean(condition, "face_threat_cues"),
+      imperative_cues: cueMean(condition, "imperative_cues"),
+    },
   ]));
   const cueBalanceGaps = {
     hp_warmth: cueBalance("HP", "warmth_cues"),
     hp_face_threat: cueBalance("HP", "face_threat_cues"),
     lp_warmth: cueBalance("LP", "warmth_cues"),
     lp_face_threat: cueBalance("LP", "face_threat_cues"),
+    hp_imperative: cueBalance("HP", "imperative_cues"),
+    lp_imperative: cueBalance("LP", "imperative_cues"),
   };
   const worstCueBalanceGap = Math.max(...Object.values(cueBalanceGaps));
   const failureRates = Object.fromEntries(conditions.map((condition) => {
