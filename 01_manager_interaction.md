@@ -150,13 +150,28 @@ For the same proposal:
 * HP HC and LP HC use the same kind of proposal problem, standard, and improvement path.
 * HP LC and LP LC remain equally broad and uninformative.
 
-### Interpersonal Cue Quota
+### Politeness as Face Work
 
-Both politeness levels use one interpersonal cue per message, placed in a single clause of that message. The first rejection is two messages, so it carries one cue in each rather than one for the pair: a single cue left the second message reading as pure business, so a high politeness participant saw one warm bubble and one flat one. The cue is never stacked or rephrased within a message.
+Politeness follows Brown and Levinson: it is redressive face work accompanying a face threatening act, not warmth. High politeness performs that work, low politeness omits it and goes bald on record.
 
-The quota exists because total length is matched across conditions. A low constructiveness reply has spare words that a high constructiveness reply spends on diagnosis. If those words go into extra warmth or extra dismissal, the politeness contrast becomes larger under low constructiveness than under high constructiveness, and the two factors stop being orthogonal.
+Positive politeness addresses the participant's wish to be approved of: acknowledging their contribution as a colleague whose thinking is known and valued, or validating the effort behind it.
 
-Low constructiveness therefore spends its remaining length on neutral restatement of the broad topic and of the unchanged decision, never on additional interpersonal wording.
+Negative politeness addresses their wish not to be imposed upon: apologising for the imposition, deferring to their knowledge, hedging the refusal, or depersonalising it.
+
+High politeness uses one redressive move per message and varies which kind it draws on. Receipt-of-message phrases such as `I hear you` or `noted` do not count: they acknowledge without performing any face work.
+
+Low politeness performs neither kind, states the refusal in the manager's own voice, and attaches one face threat to the proposal per message. The threat targets the proposal, never the participant's intelligence, competence, or worth.
+
+The quota is per message rather than per turn. The first rejection is two messages, and one move for the pair left the second reading as pure business.
+
+### Mood of Directives
+
+Imperative mood is not what makes a reply impolite. An imperative can be redressed (`please do take another look`) and low politeness needs no imperative at all. The variable is whether a directive carries redress.
+
+Under high politeness anything said about next steps is conditional and hedged. Under low politeness it is bald: a plain imperative or a flat statement, with no conditional framing, hedging, softeners, or asking.
+
+Counting imperatives was a category error that also created a false imbalance. High constructiveness always has a revision path to direct and low constructiveness does not, so counting directives made the two look different on politeness when they differed on content. Validation now checks that high politeness redresses every directive and low politeness redresses none, with no count required of either.
+
 
 ### High Politeness
 

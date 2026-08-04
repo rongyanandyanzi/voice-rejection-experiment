@@ -1887,32 +1887,43 @@ function managerConditionRules() {
     "Reach the length with additional complete sentences, not by bolting redundant time or manner phrases onto the end of one. Do not write tails such as 'in its current form right now', 'today at all', or 'at this point in this discussion'.",
     "Do not spend it on additional interpersonal wording: keep exactly the same number of politeness or dismissiveness cues that the assigned politeness style allows, no more.",
   ].join("\n");
-  // Both politeness styles are capped at one interpersonal cue so that cue density stays constant
-  // across the two constructiveness levels and the two factors remain orthogonal.
+  // Both styles carry the same per-message quota so that density stays constant across the two
+  // constructiveness levels and the two factors remain orthogonal.
   const politenessCueQuota = [
-    "Interpersonal cue quota: use one such cue in each message you send, in one clause of that message. When the turn is two messages, that is one cue in each, not one for the pair and not two in the same message.",
-    "Do not stack, repeat, or rephrase the cue within a message, and do not add cues beyond that to fill length.",
+    "Quota: one such move in each message you send, in one clause of that message. When the turn is two messages, that is one in each, not one for the pair and not two in the same message.",
+    "Do not stack, repeat, or rephrase it within a message, and do not add more to fill length.",
   ];
+  // Politeness here is face work in Brown & Levinson's sense, not warmth. Positive politeness
+  // addresses the participant's wish to be approved of; negative politeness addresses their wish
+  // not to be imposed upon. Written as "warmth" the manipulation collapsed onto thanks and
+  // appreciation and left the whole negative-politeness side unused, which also made every reply
+  // sound the same.
   const highPoliteness = [
-    "Politeness style: high.",
-    "Use one brief respectful acknowledgement, appreciation, apology, hedge, or softened rejection.",
-    // "I hear you" and "worth noting" are filing-away moves: they occupy the acknowledgement slot
-    // and read as politely dismissing the person, which is the opposite of the manipulation. They
-    // appeared almost entirely in closings, where the model reaches for a way to wrap up.
-    "The acknowledgement must name what the participant actually contributed and say something positive about it: 'thanks for thinking through a small pilot', 'this was useful to discuss', 'I appreciate you talking this through'. It has to be an appreciation, not a confirmation of receipt.",
-    "Never open by reporting that you received the message. Any variant of hearing, noting, or understanding the point is banned: 'I hear you', 'I hear your point', 'I've heard your point', 'noted', 'worth noting', 'understood', 'fair enough', 'point taken'. These sound like politely closing someone down, which is the opposite of high politeness.",
+    "Politeness style: high. You are doing redressive face work while refusing.",
+    "Use one redressive move per message, drawn from either kind of politeness, and vary which kind you use across the turn rather than repeating one formula.",
     ...politenessCueQuota,
+    "Positive politeness addresses the participant's wish to be approved of: acknowledge their contribution as a colleague whose thinking you know and value ('you have clearly thought about how the peak shifts actually run'), or validate the effort behind it ('I appreciate you working this through').",
+    "Negative politeness addresses their wish not to be imposed upon: apologise for the imposition ('sorry to hold this up'), defer ('you know the gate better than I do from the floor'), hedge the refusal ('I am not sure this version gets us there yet'), or depersonalise it ('this version cannot be signed off at this stage' rather than 'I refuse it').",
+    "The redressive move must engage with what the participant actually contributed. Never open by reporting that you received the message: 'I hear you', 'I hear your point', 'noted', 'worth noting', 'understood', 'fair enough', 'point taken' are all banned. Those acknowledge receipt without any face work and read as politely closing someone down.",
     "Make clear that the decision concerns the current proposal rather than the participant personally.",
   ].join("\n");
+  // The mirror image: no redressive action at all, and the refusal is delivered bald on record with
+  // a face threat attached. The threat stays on the proposal, never the person, so the two
+  // conditions differ in face work rather than in abuse.
   const lowPoliteness = [
-    "Politeness style: low.",
-    "Be direct, cold, curt, impatient, and dismissive. Do not thank, praise, apologize, hedge, validate effort, or add warmth.",
-    "Use one sharp cue targeting the proposal, such as 'this version is sloppy' or 'this is nowhere near ready'.",
+    "Politeness style: low. You refuse baldly, with no redressive face work of any kind.",
+    "Do no positive politeness: no thanks, no praise, no acknowledgement of their thinking or effort, no treating them as a colleague whose view you value.",
+    "Do no negative politeness: no apology, no deference, no hedging of the refusal, and state it in your own voice ('I am not approving this') rather than depersonalising it.",
+    "Attach one face threat to the proposal per message, such as 'this version is sloppy' or 'this is nowhere near ready'.",
     ...politenessCueQuota,
-    // "Exactly one", not "allowed": when the imperative was optional, high-constructiveness replies
-    // used it far more often (they have a remedy to command), which unbalanced face-cue density
-    // across the constructiveness levels within low politeness.
-    "Imperative mood is part of this style: alongside the sharp cue, phrase one next-step or wrap-up line as a blunt imperative directive. In a two-message turn put it in one of the two messages, not both.",
+    // The politeness variable is whether directives carry redress, not whether they are imperative.
+    // An imperative can be polite ("please do take another look"), and low politeness needs no
+    // imperative at all. Treating the imperative as a quota item was both a category error and the
+    // source of an apparent imbalance: high constructiveness has a revision path to direct and low
+    // constructiveness does not, so counting imperatives made the cells look different on
+    // politeness when they differed on content.
+    "Anything you say about what happens next goes bald on record: a plain imperative or a flat statement of fact, with no conditional framing, no hedging, no softeners, and no asking. 'Come back with role counts.' or 'That stays where it is.' rather than 'I would reconsider if you could...' or 'perhaps you might...'.",
+    "Do not pile up directives. Whatever you say about next steps, say it once.",
     "Do not say or imply that the participant is stupid, incompetent, incapable, personally deficient, or did not think at all. Keep the face threat proposal-focused.",
   ].join("\n");
 
@@ -2833,9 +2844,9 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
           "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
-          "warmth_cues counts the distinct interpersonal warmth moves in the reply: thanks, appreciation, praise, apology, sympathy, reassurance, or a softening hedge on the rejection. Count each distinct move once, so a reply that thanks the participant and then also apologises counts 2. Do not count neutral acknowledgement that merely restates what the participant said, and do not count receipt-of-message phrases such as 'I hear you', 'noted', 'worth noting', 'understood', or 'fair enough', which acknowledge without warmth.",
+          "warmth_cues counts the distinct redressive politeness moves in the reply, of either kind. Positive politeness addresses the wish to be approved of: thanks, appreciation, praise, acknowledging the person's thinking or effort as a valued colleague. Negative politeness addresses the wish not to be imposed upon: apologising for the imposition, deferring to their knowledge, hedging the refusal, or depersonalising it ('this cannot be signed off' rather than 'I refuse'). Count each distinct move once, so a reply that appreciates the effort and then also hedges counts 2. Do not count neutral acknowledgement that merely restates what the participant said, and do not count receipt-of-message phrases such as 'I hear you', 'noted', 'worth noting', 'understood', or 'fair enough', which acknowledge without doing any face work.",
           "face_threat_cues counts the distinct sharp or dismissive moves aimed at the proposal, such as calling it sloppy, nowhere near ready, too rough, weak, or a waste of time. Count each distinct move once. Do not count a plain statement that the proposal cannot be approved, and do not count imperatives here.",
-          "imperative_directives counts the blunt imperative instructions about what to do next, such as 'Come back with role counts.' or 'Don't bring it back until it includes the numbers.' Count each distinct directive once. A conditionally phrased request ('I would reconsider if you came back with...') is not an imperative.",
+          "imperative_directives counts how many times the reply says what happens next without any redress: a bare imperative or a flat statement, with no conditional framing, hedging, softener, or asking. 'Come back with role counts.' and 'That stays where it is.' both count. A redressed version of the same content ('I would reconsider if you came back with role counts', 'perhaps you could look at...') counts 0. If the reply says nothing about what happens next, the answer is 0.",
           "Count cues across the whole reply, including both messages when there are two.",
           "Do not infer missing content from the conversation. Score only what the manager actually communicates.",
         ].join("\n"),
@@ -2946,9 +2957,14 @@ function managerConstructivenessAssessmentProblem(scores, prompt) {
   // Sharp cues and imperatives are separate channels. Low politeness is specified as one of each,
   // so folding them into a single count put a compliant reply at the top of the 1-2 band with no
   // headroom and made the two impossible to check independently.
+  // High politeness must redress every directive, so an unredressed one is a violation. Low
+  // politeness must not redress any, but is not required to produce a directive at all: a turn with
+  // nothing to say about next steps carries the style through the absence of face work and the
+  // face threat alone. Requiring a count here is what made high constructiveness, which always has
+  // a revision path, look different from low constructiveness on a politeness measure.
   const politenessValid = highPoliteness
     ? inBand(scores.warmth_cues) && scores.face_threat_cues === 0 && scores.imperative_directives === 0
-    : inBand(scores.face_threat_cues) && inBand(scores.imperative_directives) && scores.warmth_cues === 0;
+    : inBand(scores.face_threat_cues) && scores.warmth_cues === 0;
   if (constructivenessValid && politenessValid && !scores.personal_attack_without_diagnosis) return "";
 
   const observed = `Blind score: specific_problem=${scores.specific_problem}, explicit_standard=${scores.explicit_standard}, actionable_remedy=${scores.actionable_remedy}, personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}, warmth_cues=${scores.warmth_cues}, face_threat_cues=${scores.face_threat_cues}, imperative_directives=${scores.imperative_directives}.`;
@@ -2961,7 +2977,7 @@ function managerConstructivenessAssessmentProblem(scores, prompt) {
   if (!politenessValid) {
     corrections.push(highPoliteness
       ? `Use between ${cueMin} and ${cueMax} interpersonal warmth cues in total, no sharp or dismissive cue, and no imperative directive. Do not stack extra thanks, apology, praise, or reassurance to fill length.`
-      : `Use between ${cueMin} and ${cueMax} sharp proposal-directed cues and between ${cueMin} and ${cueMax} blunt imperative directives, and no warmth cue. Do not stack extra dismissive phrasing to fill length.`);
+      : `Use between ${cueMin} and ${cueMax} face threats aimed at the proposal and no redressive politeness move. Anything you say about next steps must be bald, with no conditional framing or hedging. Do not stack extra dismissive phrasing to fill length.`);
     corrections.push("Spend any remaining length on neutral restatement of the unchanged decision instead of more interpersonal wording.");
   }
   corrections.push(highConstructiveness

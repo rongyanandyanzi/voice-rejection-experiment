@@ -145,7 +145,7 @@ test("HC requires all three fields while LC requires all three fields empty", ()
 // highPrompt is LP_HC, so its politeness cues must be one face threat and no warmth; lowPrompt is
 // HP_LC, so the reverse.
 // The default payload is rejection_initial, which sends two messages, so the band is 2-4.
-const lowPolitenessCues = { warmth_cues: 0, face_threat_cues: 2, imperative_directives: 2 };
+const lowPolitenessCues = { warmth_cues: 0, face_threat_cues: 2, imperative_directives: 1 };
 const highPolitenessCues = { warmth_cues: 2, face_threat_cues: 0, imperative_directives: 0 };
 
 test("blind semantic scores enforce HC presence, LC absence, and no personal-only attack", () => {
@@ -187,7 +187,7 @@ test("blind politeness cue band is enforced identically under high and low const
     explicit_standard: condition.endsWith("_HC"),
     actionable_remedy: condition.endsWith("_HC"),
     personal_attack_without_diagnosis: false,
-    imperative_directives: condition.startsWith("LP") ? 2 : 0,
+    imperative_directives: condition.startsWith("LP") ? 1 : 0,
     ...cues,
   });
   // The band has to bite the same way in HC and LC, otherwise the low-constructiveness cells can
@@ -204,9 +204,9 @@ test("blind politeness cue band is enforced identically under high and low const
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
     assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 2 }), prompt), "");
     assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 4 }), prompt), "");
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 5 }), prompt), /between 2 and 4 sharp proposal-directed cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 sharp proposal-directed cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 1 }), prompt), /no warmth cue/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 5 }), prompt), /between 2 and 4 face threats/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 face threats/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 1 }), prompt), /no redressive politeness move/i);
   }
 });
 
@@ -227,12 +227,16 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   assert.match(rules.HP_LC, /vague substantive content equivalent to LP_LC/i);
   assert.match(rules.LP_LC, /vague substantive content equivalent to HP_LC/i);
   assert.match(rules.LP_HC, /Keep the face threat proposal-focused/i);
+  assert.match(rules.HP_HC, /Positive politeness addresses/i);
+  assert.match(rules.HP_HC, /Negative politeness addresses/i);
+  assert.match(rules.LP_HC, /Do no positive politeness/i);
+  assert.match(rules.LP_HC, /Do no negative politeness/i);
   assert.match(rules.LP_HC, /Do not say or imply that the participant is stupid, incompetent/i);
   // The cue quota has to be present in all four cells, and the low-constructiveness cells must be
   // told to spend their spare length on neutral wording rather than on more interpersonal cues.
   for (const condition of conditions) {
-    assert.match(rules[condition], /Interpersonal cue quota: use one such cue in each message/i);
-    assert.match(rules[condition], /Do not stack, repeat, or rephrase the cue within a message/i);
+    assert.match(rules[condition], /Quota: one such move in each message/i);
+    assert.match(rules[condition], /Do not stack, repeat, or rephrase it within a message/i);
   }
   for (const condition of ["HP_LC", "LP_LC"]) {
     assert.match(rules[condition], /Spend the remaining length on neutral restatement/i);
@@ -240,15 +244,17 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   }
 });
 
-test("directive mood is split by politeness: LP may use imperatives, HP must stay conditional", () => {
+test("directives are redressed under high politeness and bald under low politeness", () => {
   const rules = managerConditionRules();
   // The revision-path mood in the condition rules.
   assert.match(rules.HP_HC, /ask for them conditionally.*Never a command/is);
   assert.match(rules.LP_HC, /ask for them as one blunt imperative/i);
-  assert.match(rules.LP_HC, /Imperative mood is part of this style/i);
-  assert.match(rules.LP_LC, /Imperative mood is part of this style/i);
-  assert.doesNotMatch(rules.HP_HC, /Imperative mood is part of this style/i);
-  assert.doesNotMatch(rules.HP_LC, /Imperative mood is part of this style/i);
+  // Low politeness is defined by the absence of redress, not by using an imperative.
+  assert.match(rules.LP_HC, /goes bald on record/i);
+  assert.doesNotMatch(rules.LP_HC, /Imperative mood is part of this style/i);
+  assert.match(rules.LP_LC, /goes bald on record/i);
+  assert.doesNotMatch(rules.HP_HC, /goes bald on record/i);
+  assert.doesNotMatch(rules.HP_LC, /goes bald on record/i);
   // The task-level command rule flips with politeness in every rejection phase.
   for (const phase of ["rejection_initial", "rejection_followup", "rejection"]) {
     const hp = buildInitialManagerPrompt(managerPayload({ phase, condition: "HP_HC" }));
