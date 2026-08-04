@@ -185,14 +185,14 @@ function effectiveWordCount(text) {
 
 // Cue counts, not just presence. Holding total length constant means a low-constructiveness reply
 // has spare words that a high-constructiveness reply spends on diagnosis; if those words go into
-// extra warmth or extra dismissal then the politeness contrast is larger under low constructiveness
+// extra redressive moves or extra dismissal then the politeness contrast is larger under low constructiveness
 // than under high constructiveness, and the two factors stop being orthogonal.
-const WARMTH_CUE_PATTERNS = [
+const POLITENESS_CUE_PATTERNS = [
   /\b(?:thanks|thank you)\b|谢谢|感谢/gi,
   /\bappreciate\b|理解你|体谅/gi,
   /\b(?:i am sorry|i'm sorry|i’m sorry|apolog)\w*|抱歉|不好意思/gi,
   // "I hear you", "noted" and "worth noting" are deliberately absent: they acknowledge receipt
-  // without warmth and were being generated in the acknowledgement slot instead of a warm move.
+  // without doing any face work and were filling the acknowledgement slot instead of a redressive move.
   /\b(?:i can see|that makes sense|good thinking|sensible|helps)\b|辛苦/gi,
   /\b(?:genuinely|happy to revisit|glad|respect|not a reflection on you)\b/gi,
 ];
@@ -213,7 +213,7 @@ const FACE_THREAT_CUE_PATTERNS = [
 // staffing counts.") is as blunt as "come back with". The clause anchor plus the negative
 // lookahead for a subordinating conjunction keeps high-politeness conditionals ("if you can come
 // back with...", "I'd reconsider once you bring...") from matching.
-const IMPERATIVE_CUE_PATTERNS = [
+const BALD_DIRECTIVE_PATTERNS = [
   /(?:^|[.!?;:]["'”]?\s+)(?!(?:if|once|when|unless|after|provided|assuming)\b)(?:come back|go back|don'?t bring|do not bring|bring|drop|rework|redo|fix|stop|add|show|get)\b(?!\s+(?:it|this|that) back another time)/gi,
 ];
 
@@ -221,7 +221,7 @@ const IMPERATIVE_CUE_PATTERNS = [
 // "happy to revisit" and "I can see", so warm closings were scored as impolite and the politeness
 // accuracy gate failed on correct output.
 function hasPoliteCue(text) {
-  return warmthCueCount(text) > 0;
+  return politenessCueCount(text) > 0;
 }
 
 function countCues(text, patterns) {
@@ -229,16 +229,16 @@ function countCues(text, patterns) {
   return patterns.reduce((sum, pattern) => sum + (raw.match(pattern) || []).length, 0);
 }
 
-function warmthCueCount(text) {
-  return countCues(text, WARMTH_CUE_PATTERNS);
+function politenessCueCount(text) {
+  return countCues(text, POLITENESS_CUE_PATTERNS);
 }
 
 function faceThreatCueCount(text) {
   return countCues(text, FACE_THREAT_CUE_PATTERNS);
 }
 
-function imperativeCueCount(text) {
-  return countCues(text, IMPERATIVE_CUE_PATTERNS);
+function baldDirectiveCount(text) {
+  return countCues(text, BALD_DIRECTIVE_PATTERNS);
 }
 
 function hasForbiddenContent(text) {
@@ -289,9 +289,9 @@ async function callReply(proposal, condition, phase) {
     text,
     effective_words: messages.reduce((sum, message) => sum + effectiveWordCount(message.text), 0),
     polite_classification_correct: condition.startsWith("HP_") ? hasPoliteCue(text) : !hasPoliteCue(text),
-    warmth_cues: warmthCueCount(text),
+    politeness_cues: politenessCueCount(text),
     face_threat_cues: faceThreatCueCount(text),
-    imperative_cues: imperativeCueCount(text),
+    bald_directives: baldDirectiveCount(text),
     forbidden_content: hasForbiddenContent(text),
   };
 }
@@ -316,9 +316,9 @@ async function mapLimit(items, limit, worker, onResult) {
           text: "",
           effective_words: 0,
           polite_classification_correct: false,
-          warmth_cues: 0,
+          politeness_cues: 0,
           face_threat_cues: 0,
-          imperative_cues: 0,
+          bald_directives: 0,
           forbidden_content: false,
         };
       }
@@ -461,18 +461,18 @@ async function main() {
   const politenessCueDensity = Object.fromEntries(conditions.map((condition) => [
     condition,
     {
-      warmth_cues: cueMean(condition, "warmth_cues"),
+      politeness_cues: cueMean(condition, "politeness_cues"),
       face_threat_cues: cueMean(condition, "face_threat_cues"),
-      imperative_cues: cueMean(condition, "imperative_cues"),
+      bald_directives: cueMean(condition, "bald_directives"),
     },
   ]));
   const cueBalanceGaps = {
-    hp_warmth: cueBalance("HP", "warmth_cues"),
+    hp_politeness: cueBalance("HP", "politeness_cues"),
     hp_face_threat: cueBalance("HP", "face_threat_cues"),
-    lp_warmth: cueBalance("LP", "warmth_cues"),
+    lp_politeness: cueBalance("LP", "politeness_cues"),
     lp_face_threat: cueBalance("LP", "face_threat_cues"),
-    hp_imperative: cueBalance("HP", "imperative_cues"),
-    lp_imperative: cueBalance("LP", "imperative_cues"),
+    hp_bald: cueBalance("HP", "bald_directives"),
+    lp_bald: cueBalance("LP", "bald_directives"),
   };
   const worstCueBalanceGap = Math.max(...Object.values(cueBalanceGaps));
   const failureRates = Object.fromEntries(conditions.map((condition) => {

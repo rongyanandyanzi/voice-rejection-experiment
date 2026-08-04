@@ -1787,7 +1787,7 @@ function buildInitialManagerPrompt(payload) {
         ? "Low constructiveness must remain deliberately unhelpful: no proposal-specific diagnostic detail, causal consequence, evidence type, performance or operational standard, concrete missing element, revision material, or actionable path."
         : "",
       conditionActive && condition.includes("LP")
-        ? "Low politeness must be direct, cold, curt, and dismissive, with no thanks, praise, apology, hedging, or warmth. Target the proposal, not the participant's intelligence, competence, identity, or personal worth."
+        ? "Low politeness performs no redressive face work of either kind: no thanks, praise, or acknowledgement of the person's thinking, and no apology, deference, or hedging of the refusal. Target the proposal, not the participant's intelligence, competence, identity, or personal worth."
         : "",
       "Do not reveal that you are AI-generated.",
       "Do not mention politeness, constructiveness, conditions, or experimental design.",
@@ -1877,7 +1877,7 @@ function managerConditionRules() {
       ? "Use only mild broad judgments such as the overall idea needs more thought, does not quite fit the bigger picture yet, or is not something to take further at this stage. Keep the vagueness gentle: do not call the idea unworkable, sloppy, rough, weak, or not ready."
       : "Use only blunt broad judgments such as the overall idea is not workable, is nowhere near ready, or does not fit the bigger picture. The required imperative line stays content-free here, such as 'Drop this version for now.' or 'Don't bring this back until it's actually worth discussing.' It must not name any problem, standard, material, or remedy.",
     // Length is matched across conditions, so a low-constructiveness reply has spare words that a
-    // high-constructiveness reply spends on diagnosis. Filling them with warmth or with extra
+    // high-constructiveness reply spends on diagnosis. Filling them with extra redressive moves or
     // dismissal makes the politeness contrast larger here than in the high-constructiveness cells,
     // which confounds the politeness factor with the constructiveness factor.
     "Spend the remaining length on neutral restatement of the broad topic and of the unchanged decision.",
@@ -2844,9 +2844,9 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
           "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
-          "warmth_cues counts the distinct redressive politeness moves in the reply, of either kind. Positive politeness addresses the wish to be approved of: thanks, appreciation, praise, acknowledging the person's thinking or effort as a valued colleague. Negative politeness addresses the wish not to be imposed upon: apologising for the imposition, deferring to their knowledge, hedging the refusal, or depersonalising it ('this cannot be signed off' rather than 'I refuse'). Count each distinct move once, so a reply that appreciates the effort and then also hedges counts 2. Do not count neutral acknowledgement that merely restates what the participant said, and do not count receipt-of-message phrases such as 'I hear you', 'noted', 'worth noting', 'understood', or 'fair enough', which acknowledge without doing any face work.",
+          "politeness_cues counts the distinct redressive politeness moves in the reply, of either kind. Positive politeness addresses the wish to be approved of: thanks, appreciation, praise, acknowledging the person's thinking or effort as a valued colleague. Negative politeness addresses the wish not to be imposed upon: apologising for the imposition, deferring to their knowledge, hedging the refusal, or depersonalising it ('this cannot be signed off' rather than 'I refuse'). Count each distinct move once, so a reply that appreciates the effort and then also hedges counts 2. Do not count neutral acknowledgement that merely restates what the participant said, and do not count receipt-of-message phrases such as 'I hear you', 'noted', 'worth noting', 'understood', or 'fair enough', which acknowledge without doing any face work.",
           "face_threat_cues counts the distinct sharp or dismissive moves aimed at the proposal, such as calling it sloppy, nowhere near ready, too rough, weak, or a waste of time. Count each distinct move once. Do not count a plain statement that the proposal cannot be approved, and do not count imperatives here.",
-          "imperative_directives counts how many times the reply says what happens next without any redress: a bare imperative or a flat statement, with no conditional framing, hedging, softener, or asking. 'Come back with role counts.' and 'That stays where it is.' both count. A redressed version of the same content ('I would reconsider if you came back with role counts', 'perhaps you could look at...') counts 0. If the reply says nothing about what happens next, the answer is 0.",
+          "bald_directives counts how many times the reply says what happens next without any redress: a bare imperative or a flat statement, with no conditional framing, hedging, softener, or asking. 'Come back with role counts.' and 'That stays where it is.' both count. A redressed version of the same content ('I would reconsider if you came back with role counts', 'perhaps you could look at...') counts 0. If the reply says nothing about what happens next, the answer is 0.",
           "Count cues across the whole reply, including both messages when there are two.",
           "Do not infer missing content from the conversation. Score only what the manager actually communicates.",
         ].join("\n"),
@@ -2869,18 +2869,18 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
             explicit_standard: { type: "boolean" },
             actionable_remedy: { type: "boolean" },
             personal_attack_without_diagnosis: { type: "boolean" },
-            warmth_cues: { type: "integer" },
+            politeness_cues: { type: "integer" },
             face_threat_cues: { type: "integer" },
-            imperative_directives: { type: "integer" },
+            bald_directives: { type: "integer" },
           },
           required: [
             "specific_problem",
             "explicit_standard",
             "actionable_remedy",
             "personal_attack_without_diagnosis",
-            "warmth_cues",
+            "politeness_cues",
             "face_threat_cues",
-            "imperative_directives",
+            "bald_directives",
           ],
         },
       },
@@ -2917,7 +2917,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
   const valid = scores &&
     ["specific_problem", "explicit_standard", "actionable_remedy", "personal_attack_without_diagnosis"]
       .every((field) => typeof scores[field] === "boolean") &&
-    ["warmth_cues", "face_threat_cues", "imperative_directives"]
+    ["politeness_cues", "face_threat_cues", "bald_directives"]
       .every((field) => Number.isInteger(scores[field]) && scores[field] >= 0);
   if (!valid) {
     return {
@@ -2931,7 +2931,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
 }
 
 // Both politeness levels are held to the same one-to-two cue band. Without an upper bound the
-// low-constructiveness cells spend their spare words on extra warmth (high politeness) or extra
+// low-constructiveness cells spend their spare words on extra redressive moves (high politeness) or
 // dismissal (low politeness), which makes the politeness contrast larger under low constructiveness
 // than under high constructiveness and confounds the two factors.
 // The prompt asks for exactly one cue while the band tolerates two on purpose: the target keeps
@@ -2963,11 +2963,11 @@ function managerConstructivenessAssessmentProblem(scores, prompt) {
   // face threat alone. Requiring a count here is what made high constructiveness, which always has
   // a revision path, look different from low constructiveness on a politeness measure.
   const politenessValid = highPoliteness
-    ? inBand(scores.warmth_cues) && scores.face_threat_cues === 0 && scores.imperative_directives === 0
-    : inBand(scores.face_threat_cues) && scores.warmth_cues === 0;
+    ? inBand(scores.politeness_cues) && scores.face_threat_cues === 0 && scores.bald_directives === 0
+    : inBand(scores.face_threat_cues) && scores.politeness_cues === 0;
   if (constructivenessValid && politenessValid && !scores.personal_attack_without_diagnosis) return "";
 
-  const observed = `Blind score: specific_problem=${scores.specific_problem}, explicit_standard=${scores.explicit_standard}, actionable_remedy=${scores.actionable_remedy}, personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}, warmth_cues=${scores.warmth_cues}, face_threat_cues=${scores.face_threat_cues}, imperative_directives=${scores.imperative_directives}.`;
+  const observed = `Blind score: specific_problem=${scores.specific_problem}, explicit_standard=${scores.explicit_standard}, actionable_remedy=${scores.actionable_remedy}, personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}, politeness_cues=${scores.politeness_cues}, face_threat_cues=${scores.face_threat_cues}, bald_directives=${scores.bald_directives}.`;
   const corrections = ["Blind condition validation failed.", observed];
   if (!constructivenessValid) {
     corrections.push(highConstructiveness
@@ -2976,7 +2976,7 @@ function managerConstructivenessAssessmentProblem(scores, prompt) {
   }
   if (!politenessValid) {
     corrections.push(highPoliteness
-      ? `Use between ${cueMin} and ${cueMax} interpersonal warmth cues in total, no sharp or dismissive cue, and no imperative directive. Do not stack extra thanks, apology, praise, or reassurance to fill length.`
+      ? `Use between ${cueMin} and ${cueMax} redressive politeness moves in total, no face threat, and no unredressed statement about next steps. Do not stack extra thanks, apology, praise, or deference to fill length.`
       : `Use between ${cueMin} and ${cueMax} face threats aimed at the proposal and no redressive politeness move. Anything you say about next steps must be bald, with no conditional framing or hedging. Do not stack extra dismissive phrasing to fill length.`);
     corrections.push("Spend any remaining length on neutral restatement of the unchanged decision instead of more interpersonal wording.");
   }

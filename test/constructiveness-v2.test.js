@@ -145,8 +145,8 @@ test("HC requires all three fields while LC requires all three fields empty", ()
 // highPrompt is LP_HC, so its politeness cues must be one face threat and no warmth; lowPrompt is
 // HP_LC, so the reverse.
 // The default payload is rejection_initial, which sends two messages, so the band is 2-4.
-const lowPolitenessCues = { warmth_cues: 0, face_threat_cues: 2, imperative_directives: 1 };
-const highPolitenessCues = { warmth_cues: 2, face_threat_cues: 0, imperative_directives: 0 };
+const lowPolitenessCues = { politeness_cues: 0, face_threat_cues: 2, bald_directives: 1 };
+const highPolitenessCues = { politeness_cues: 2, face_threat_cues: 0, bald_directives: 0 };
 
 test("blind semantic scores enforce HC presence, LC absence, and no personal-only attack", () => {
   const highPrompt = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
@@ -187,26 +187,26 @@ test("blind politeness cue band is enforced identically under high and low const
     explicit_standard: condition.endsWith("_HC"),
     actionable_remedy: condition.endsWith("_HC"),
     personal_attack_without_diagnosis: false,
-    imperative_directives: condition.startsWith("LP") ? 1 : 0,
+    bald_directives: condition.startsWith("LP") ? 1 : 0,
     ...cues,
   });
   // The band has to bite the same way in HC and LC, otherwise the low-constructiveness cells can
   // buy a larger politeness contrast with the words they save on diagnosis.
   for (const condition of ["HP_HC", "HP_LC"]) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 0 }), prompt), "");
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 4, face_threat_cues: 0 }), prompt), "");
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 5, face_threat_cues: 0 }), prompt), /between 2 and 4 interpersonal warmth cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 interpersonal warmth cues/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 1 }), prompt), /no sharp or dismissive cue/i);
+    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 2, face_threat_cues: 0 }), prompt), "");
+    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 4, face_threat_cues: 0 }), prompt), "");
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 5, face_threat_cues: 0 }), prompt), /between 2 and 4 redressive politeness moves/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 redressive politeness moves/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 2, face_threat_cues: 1 }), prompt), /no face threat/i);
   }
   for (const condition of ["LP_HC", "LP_LC"]) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 2 }), prompt), "");
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 4 }), prompt), "");
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 5 }), prompt), /between 2 and 4 face threats/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 face threats/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { warmth_cues: 2, face_threat_cues: 1 }), prompt), /no redressive politeness move/i);
+    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 2 }), prompt), "");
+    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 4 }), prompt), "");
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 5 }), prompt), /between 2 and 4 face threats/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 face threats/i);
+    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 2, face_threat_cues: 1 }), prompt), /no redressive politeness move/i);
   }
 });
 
@@ -461,9 +461,9 @@ test("failed HC structure regenerates and internal fields never reach the browse
       explicit_standard: true,
       actionable_remedy: true,
       personal_attack_without_diagnosis: false,
-      warmth_cues: 2,
+      politeness_cues: 2,
       face_threat_cues: 0,
-      imperative_directives: 0,
+      bald_directives: 0,
     }),
   ];
   let calls = 0;
@@ -498,9 +498,9 @@ test("three consecutive blind semantic failures return a safe retryable error", 
         explicit_standard: false,
         actionable_remedy: false,
         personal_attack_without_diagnosis: false,
-        warmth_cues: 1,
+        politeness_cues: 1,
         face_threat_cues: 0,
-        imperative_directives: 0,
+        bald_directives: 0,
       });
     }
     return responseJson(good);
