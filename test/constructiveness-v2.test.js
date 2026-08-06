@@ -238,8 +238,13 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
     assert.match(rules[condition], /Quota: one such move in each message/i);
     assert.match(rules[condition], /Do not stack, repeat, or rephrase it within a message/i);
   }
+  // High politeness fills with general non-diagnostic talk; low politeness restates the decision.
+  // Repeating the refusal is what pushed the warm cell into face-threat territory.
+  assert.match(rules.HP_LC, /Spend the remaining length on that general talk, not on saying no again/i);
+  assert.match(rules.HP_LC, /State the refusal once and then stop refusing/i);
+  assert.match(rules.LP_LC, /Spend the remaining length on neutral restatement/i);
+  assert.doesNotMatch(rules.LP_LC, /State the refusal once and then stop refusing/i);
   for (const condition of ["HP_LC", "LP_LC"]) {
-    assert.match(rules[condition], /Spend the remaining length on neutral restatement/i);
     assert.match(rules[condition], /keep exactly the same number of politeness or dismissiveness cues/i);
   }
 });

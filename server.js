@@ -1874,13 +1874,24 @@ function managerConditionRules() {
     "Do not identify a proposal-specific problem, consequence, evidence type, operational risk, clear standard, concrete missing element, revision material, or actionable remedy.",
     "Do not explain what would make the proposal acceptable. Do not become more informative if the participant pushes back or asks for clarification.",
     highPoliteness
+      ? "State the refusal once and then stop refusing. Fill the rest with general talk that carries no diagnosis: where your attention is at the moment, that this is a bigger call than one conversation, that other things are competing for the same resources, that the timing is not right. Say it in general terms with no reason that is specific to their proposal."
+      : "",
+    highPoliteness
+      ? "Repeating the refusal in new words is what makes a warm reply turn cold, because each restatement has to find a fresh way to say no and the fresh ways get harsher. One refusal, then general talk."
+      : "",
+    highPoliteness
+      ? "Anything you say about what happens next stays redressed: 'I would rather leave this where it is for the moment' rather than 'the decision stays'. A flat statement of the outcome reads as a bald directive even when the words are mild."
+      : "",
+    highPoliteness
       ? "Use only mild broad judgments such as the overall idea needs more thought, does not quite fit the bigger picture yet, or is not something to take further at this stage. Keep the vagueness gentle: do not call the idea unworkable, sloppy, rough, weak, or not ready."
       : "Use only blunt broad judgments such as the overall idea is not workable, is nowhere near ready, or does not fit the bigger picture. The required imperative line stays content-free here, such as 'Drop this version for now.' or 'Don't bring this back until it's actually worth discussing.' It must not name any problem, standard, material, or remedy.",
     // Length is matched across conditions, so a low-constructiveness reply has spare words that a
     // high-constructiveness reply spends on diagnosis. Filling them with extra redressive moves or
     // dismissal makes the politeness contrast larger here than in the high-constructiveness cells,
     // which confounds the politeness factor with the constructiveness factor.
-    "Spend the remaining length on neutral restatement of the broad topic and of the unchanged decision.",
+    highPoliteness
+      ? "Spend the remaining length on that general talk, not on saying no again."
+      : "Spend the remaining length on neutral restatement of the broad topic and of the unchanged decision.",
     // "...in its current form right now", "...today at all", "...at this point" are filler tails
     // bolted onto a finished sentence to reach the word count. Restating costs the same words and
     // reads as speech.
