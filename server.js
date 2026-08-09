@@ -1902,10 +1902,6 @@ function managerConditionRules() {
     highPoliteness
       ? "Spend the remaining length on that general talk, not on saying no again."
       : "Spend the remaining length on neutral restatement of the broad topic and of the unchanged decision.",
-    // "...in its current form right now", "...today at all", "...at this point" are filler tails
-    // bolted onto a finished sentence to reach the word count. Restating costs the same words and
-    // reads as speech.
-    "Reach the length with additional complete sentences, not by bolting redundant time or manner phrases onto the end of one. Do not write tails such as 'in its current form right now', 'today at all', or 'at this point in this discussion'.",
     "Do not spend it on additional interpersonal wording: keep exactly the same number of politeness or dismissiveness cues that the assigned politeness style allows, no more.",
   ].filter(Boolean).join("\n");
   // Both styles carry the same per-message quota so that density stays constant across the two
