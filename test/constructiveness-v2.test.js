@@ -60,7 +60,7 @@ function responseJson(value, status = 200) {
   });
 }
 
-function exactWords(prefix, target = 37) {
+function exactWords(prefix, target = 29) {
   const words = String(prefix).trim().split(/\s+/).filter(Boolean);
   while (words.length < target) words.push("today");
   return words.slice(0, target).join(" ");
@@ -113,8 +113,8 @@ test("initial rejection uses two matched structured messages", () => {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
     assert.equal(prompt.minMessages, 2);
     assert.equal(prompt.maxMessages, 2);
-    assert.deepEqual(prompt.wordRange, { min: 34, max: 40 });
-    assert.deepEqual(prompt.totalWordRange, { min: 72, max: 78 });
+    assert.deepEqual(prompt.wordRange, { min: 26, max: 34 });
+    assert.deepEqual(prompt.totalWordRange, { min: 54, max: 62 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.match(prompt.system, /proposal_problem, relevant_standard, and revision_path/);
     assert.match(prompt.system, /Reject the proposal for now/i);
@@ -260,14 +260,16 @@ test("directives are redressed under high politeness and bald under low politene
   assert.match(rules.LP_LC, /goes bald on record/i);
   assert.doesNotMatch(rules.HP_HC, /goes bald on record/i);
   assert.doesNotMatch(rules.HP_LC, /goes bald on record/i);
-  // The task-level command rule flips with politeness in every rejection phase.
+  // The command rule flips with politeness in every rejection phase. High politeness gets the ban
+  // once, from the shared rule block; low politeness gets the positive imperative requirement
+  // instead and is exempted from the ban.
   for (const phase of ["rejection_initial", "rejection_followup", "rejection"]) {
     const hp = buildInitialManagerPrompt(managerPayload({ phase, condition: "HP_HC" }));
     const lp = buildInitialManagerPrompt(managerPayload({ phase, condition: "LP_HC" }));
-    assert.match(hp.system, /Avoid formal command wording/i);
+    assert.match(hp.system, /Avoid command-style wording/i);
     assert.doesNotMatch(hp.system, /Phrase exactly one next-step line as a blunt imperative directive/i);
     assert.match(lp.system, /Phrase exactly one next-step line as a blunt imperative directive/i);
-    assert.doesNotMatch(lp.system, /Avoid formal command wording/i);
+    assert.doesNotMatch(lp.system, /Avoid command-style wording/i);
   }
   // The blanket system-level imperative ban stays for HP and for condition-blind phases.
   const hpInitial = buildInitialManagerPrompt(managerPayload({ condition: "HP_LC" }));
@@ -277,8 +279,8 @@ test("directives are redressed under high politeness and bald under low politene
     discussionIntent: "ask_followup",
     condition: "LP_LC",
   }));
-  assert.match(hpInitial.system, /Avoid imperative checklist wording/i);
-  assert.doesNotMatch(lpInitial.system, /Avoid imperative checklist wording/i);
+  assert.match(hpInitial.system, /Do not start feedback sentences with command verbs/i);
+  assert.doesNotMatch(lpInitial.system, /Do not start feedback sentences with command verbs/i);
   assert.match(neutral.system, /Do not use any politeness or constructiveness manipulation/i);
 });
 
@@ -306,8 +308,8 @@ test("English first rejection length normalization preserves content and reaches
   assert.equal(managerWordCountProblem(normalized, prompt), "");
   assert.match(normalized[0].text, /cannot approve/i);
   assert.match(normalized[1].text, /role training/i);
-  assert.ok(normalized.every((message) => wordCount(message.text) >= 34 && wordCount(message.text) <= 40));
-  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 72);
+  assert.ok(normalized.every((message) => wordCount(message.text) >= 26 && wordCount(message.text) <= 34));
+  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 54);
 });
 
 test("Chinese first rejection removes only optional wording to enter the matched total", () => {

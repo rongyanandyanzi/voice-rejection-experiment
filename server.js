@@ -1446,6 +1446,8 @@ function outputLanguageInstruction(language) {
 
 function identityNonDisclosureRule() {
   return [
+    // Stated once. A third copy ("Do not reveal that you are AI-generated.") sat in the shared rule
+    // block and added nothing this line does not already cover.
     "Hard identity rule: never admit, suggest, imply, or speculate that any study character is AI, automated, scripted, simulated, a bot, a model, or non-human.",
     "If the participant asks whether you or another character are AI, automated, scripted, simulated, a bot, or a model, answer briefly from inside the current role and redirect to the current task.",
     "Do not use phrases like 'I am AI', 'as an AI', 'I am automated', 'I am a bot', 'I am a model', 'this is scripted', or 'this is simulated', even if the participant asks repeatedly.",
@@ -1537,7 +1539,9 @@ function buildInitialManagerPrompt(payload) {
   const lowPolitenessCondition = condition.startsWith("LP_");
   const commandMoodRule = lowPolitenessCondition
     ? "Phrase exactly one next-step line as a blunt imperative directive that sounds like a curt human boss in chat, such as 'Come back with actual numbers.' Never sound like a system command or an HR memo ('Provide the following immediately')."
-    : "Avoid formal command wording such as 'Provide...', 'You must...', 'immediately', or 'This proposal is incomplete and overlooks clear operational needs.' Do not use standalone command sentences starting with 'Separate...', 'Explain...', 'Provide...', 'Add...', or 'Clarify...'.";
+    // The high-politeness branch used to restate the global command-wording ban word for word;
+    // that ban now lives in exactly one place, in the shared rule block below.
+    : "";
   const conditionActive = ["rejection_initial", "rejection_followup", "rejection", "closing"].includes(phase);
 
   let task = "";
@@ -1583,7 +1587,7 @@ function buildInitialManagerPrompt(payload) {
       "Do not explain who runs the task or why. The coordinator already covered that.",
       "Do not mention staffing, flexible labor, or proposals in the opening.",
       "Sound like a real manager opening a routine end-of-shift chat.",
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     minMessages = 2;
     maxMessages = 2;
     maxOutputTokens = 700;
@@ -1595,27 +1599,27 @@ function buildInitialManagerPrompt(payload) {
       "Reject the proposal for now and split the turn into exactly two matched-length chat messages.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
-        : "Produce exactly 2 Manager messages. Aim for 38 words each and 76 words in total across the two messages. Treat 76 as the target for every condition, whether you have a lot to say or very little.",
+        // The two numeric ranges are stated once each, in the shared length rules below. This line
+        // carries only what those cannot: that the target is the same for every condition, and how
+        // each constructiveness level is expected to reach it.
+        : "Produce exactly 2 Manager messages, aiming for the middle of the combined length rule below. That target is the same for every condition. High constructiveness will reach it by saying its numbered parts plainly; low constructiveness has less to say and must still reach it, using general talk rather than extra interpersonal wording.",
       "Message 1 contains the condition-matched interpersonal style, the rejection, and either the HC proposal-specific diagnosis or the LC broad topic-level dismissal.",
       language === "zh"
         ? "State the refusal explicitly with a natural phrase such as 这个版本我不能批准 or 这个方案先不采纳."
         : "State the refusal explicitly with a natural phrase such as I cannot approve this version or I am not moving forward with this proposal.",
-      "Message 2 contains the HC explicit standard plus concrete remedy path, or an equally long LC vague judgment that adds no diagnostic or revision information.",
-      `Treat the two messages as one content unit: in HC the combined visible text must contain a specific problem and consequence, a clear relevant standard, and a concrete ${lowPolitenessCondition ? "revision path, which may be phrased as one blunt imperative directive" : "non-imperative revision path"}.`,
-      "In LC, neither message may contain any of those three elements.",
+      "Message 2 carries the rest of the assigned content: in HC the remaining numbered components, in LC an equally long vague judgment that adds no diagnostic or revision information.",
+      "Treat the two messages as one content unit. In HC all the numbered components must appear across the two messages combined; in LC none of them may appear in either.",
       "Both messages must strictly preserve the assigned politeness and constructiveness condition.",
       "Do not make one message neutral and only the other condition-specific.",
       "Leave room for the participant to respond.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       commandMoodRule,
-      "Even when blunt, sound like a person in chat, not a system command.",
       "Do not approve the proposal.",
       "Do not ask the participant to explain how they will revise the proposal.",
       "Do not ask open-ended revision questions that imply the manager is inviting negotiation or likely approval.",
       "Never ask questions like 'What's your plan...', 'How will you revise...', 'How do you plan...', or 'What will you do next...' about revisions.",
-      "Do not reveal the experiment or condition.",
       conditionRule,
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     minMessages = 2;
     maxMessages = 2;
     // gpt-5.5 counts reasoning tokens against this budget, and the reply itself needs roughly 200
@@ -1635,11 +1639,15 @@ function buildInitialManagerPrompt(payload) {
     // length failures from 3% to 17%, because the model cannot reliably hit a two-word target. The
     // prompt now names one number for every condition to converge on, and the validator keeps the
     // wide window so a reply that lands a word or two off still passes.
-    // Raised from 31-36 / 66-70. The data-gap diagnosis, the standard clause, the named analysis and
-    // one politeness move per message left high constructiveness averaging 69.5 against a ceiling of
-    // 70, so a third of replies overflowed. All four cells move together, so length stays matched.
-    wordRange = language === "zh" ? null : { min: 34, max: 40 };
-    totalWordRange = language === "zh" ? null : { min: 72, max: 78 };
+    // Set to what high constructiveness actually needs rather than guessed at. Its content is a
+    // floor it cannot compress below: measured across three budgets it settled at 69.5, 77.5 and
+    // 57.2 words, always at whatever ceiling it was given, while low constructiveness drifts to its
+    // own natural length below that. Raising the budget widened the gap in absolute words and
+    // lowering it widened the gap in percentage terms, because only one cell has a floor. So the
+    // target is now high constructiveness's own floor of roughly 57, with headroom above it, and
+    // low constructiveness is told plainly that it has to reach the same number.
+    wordRange = language === "zh" ? null : { min: 26, max: 34 };
+    totalWordRange = language === "zh" ? null : { min: 54, max: 62 };
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
   } else if (phase === "rejection_followup") {
@@ -1667,7 +1675,7 @@ function buildInitialManagerPrompt(payload) {
       "Never ask questions like 'What's your plan...', 'How will you revise...', 'How do you plan...', or 'What will you do next...' about revisions.",
       "Preserve the assigned politeness and constructiveness condition.",
       conditionRule,
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     maxOutputTokens = language === "zh" ? 4000 : 900;
     // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
     // spread across conditions, with low constructiveness consistently shortest.
@@ -1687,14 +1695,12 @@ function buildInitialManagerPrompt(payload) {
       "In LC, keep the response broad and vague, with no diagnostic detail, clear standard, or actionable remedy.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       commandMoodRule,
-      "Even when blunt, sound like a person in chat, not a system command.",
       "Do not approve the proposal.",
       "Do not ask the participant to explain how they will revise the proposal.",
       "Do not ask open-ended revision questions that imply the manager is inviting negotiation or likely approval.",
       "Never ask questions like 'What's your plan...', 'How will you revise...', 'How do you plan...', or 'What will you do next...' about revisions.",
-      "Do not reveal the experiment or condition.",
       conditionRule,
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     maxOutputTokens = language === "zh" ? 4000 : 900;
     // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
     // spread across conditions, with low constructiveness consistently shortest.
@@ -1720,7 +1726,7 @@ function buildInitialManagerPrompt(payload) {
       condition.includes("HC")
         ? "High constructiveness: name the same concrete proposal-focused condition that would need to be met before reconsideration."
         : "Low constructiveness: keep the openness entirely vague and general. Do not name a problem, standard, missing material, evidence type, or revision path. Spend the remaining length on neutral restatement of the unchanged decision rather than on more interpersonal wording.",
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     // A 20-word window (18-38) let the closing drift to a 28% length spread across condition means,
     // with low constructiveness running shortest. A 4-word window keeps the four cells inside the
     // same 5% spread the first rejection is held to.
@@ -1734,7 +1740,7 @@ function buildInitialManagerPrompt(payload) {
       "Invite the participant to explain what is on their mind.",
       "Do not reject yet.",
       "Do not approve anything.",
-    ].join("\n");
+    ].filter(Boolean).join("\n");
   }
 
   return {
@@ -1765,34 +1771,34 @@ function buildInitialManagerPrompt(payload) {
       "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
       "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
       "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
-      "Sound natural, concise, and chat-like.",
-      // These were originally written for Chinese only, but the same failure appears in English:
-      // a tight word budget gets met by dropping articles and stacking noun phrases, producing
-      // lines like "Standard: 95% peak posts filled." that meet every content requirement and are
-      // still hard to read.
-      "Every Manager message must read as fluent, natural sentences. Do not write clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases like a note draft.",
+      // One statement of the register requirement. This had grown into three overlapping lines
+      // ("sound natural, concise, and chat-like", "read as fluent, natural sentences", "write like
+      // a real person typing to a coworker"), all saying the same thing. The concrete failure it
+      // guards against is a tight word budget being met by dropping articles and stacking noun
+      // phrases, producing lines like "Standard: 95% peak posts filled." that satisfy every content
+      // requirement and are still hard to read.
+      "Write like a real person typing to a coworker in chat: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases.",
       "Every Manager message must end as a complete, grammatical sentence. Never stop mid-phrase or mid-clause, and do not truncate a sentence to meet the length rule.",
       "If the required content does not fit as natural sentences, say less rather than compressing it into fragments. Readability comes first.",
-      "Write like a real person typing to a coworker, not like a policy memo, rubric, evaluation form, or HR/admin instruction.",
-      "Avoid robotic phrases such as 'Provide ... immediately', 'You must ...', 'This proposal is incomplete and overlooks clear operational needs', or similar command-style wording.",
       // Imperative mood is the low-politeness directive channel, so the blanket ban applies only
-      // outside active low-politeness rejection turns.
+      // outside active low-politeness rejection turns. This is the single command-wording ban; the
+      // high-politeness branch of commandMoodRule used to repeat it almost verbatim.
       conditionActive && lowPolitenessCondition
         ? ""
-        : "Avoid imperative checklist wording. Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
+        : "Avoid command-style wording such as 'Provide ... immediately', 'You must ...', or 'This proposal is incomplete and overlooks clear operational needs.' Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
       conditionActive
         ? "For rejection turns, respond to the participant's actual proposal while preserving the assigned content structure. High constructiveness diagnoses the proposal specifically; low constructiveness may name only the broad proposal topic and must not engage the participant's reasons in detail."
         : "",
-      conditionActive && condition.includes("HC")
-        ? `High constructiveness must communicate three distinct elements across the visible reply: one proposal-specific problem and consequence, one explicit relevant performance or operational standard, and one concrete ${lowPolitenessCondition ? "path (imperative mood allowed)" : "non-imperative path"} for remedying the current proposal before reconsideration.`
-        : "",
+      // The three high-constructiveness components are defined once, in the condition rules
+      // (managerConditionRules). An earlier copy lived here and still described component 2 as an
+      // "operational standard", which directly contradicted the condition rule's "do not invent an
+      // operational metric for the park" once the data-gap framing replaced the old design.
       conditionActive && condition.includes("LC")
         ? "Low constructiveness must remain deliberately unhelpful: no proposal-specific diagnostic detail, causal consequence, evidence type, performance or operational standard, concrete missing element, revision material, or actionable path."
         : "",
       conditionActive && condition.includes("LP")
         ? "Low politeness performs no redressive face work of either kind: no thanks, praise, or acknowledgement of the person's thinking, and no apology, deference, or hedging of the refusal. Target the proposal, not the participant's intelligence, competence, identity, or personal worth."
         : "",
-      "Do not reveal that you are AI-generated.",
       "Do not mention politeness, constructiveness, conditions, or experimental design.",
       wordRange && language !== "zh"
         ? (intentEnum
