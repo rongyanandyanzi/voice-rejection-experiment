@@ -1595,7 +1595,7 @@ function buildInitialManagerPrompt(payload) {
       "Reject the proposal for now and split the turn into exactly two matched-length chat messages.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
-        : "Produce exactly 2 Manager messages. Aim for 34 or 35 words each and 69 words in total across the two messages. Treat 69 as the target for every condition, whether you have a lot to say or very little.",
+        : "Produce exactly 2 Manager messages. Aim for 38 words each and 76 words in total across the two messages. Treat 76 as the target for every condition, whether you have a lot to say or very little.",
       "Message 1 contains the condition-matched interpersonal style, the rejection, and either the HC proposal-specific diagnosis or the LC broad topic-level dismissal.",
       language === "zh"
         ? "State the refusal explicitly with a natural phrase such as 这个版本我不能批准 or 这个方案先不采纳."
@@ -1635,8 +1635,11 @@ function buildInitialManagerPrompt(payload) {
     // length failures from 3% to 17%, because the model cannot reliably hit a two-word target. The
     // prompt now names one number for every condition to converge on, and the validator keeps the
     // wide window so a reply that lands a word or two off still passes.
-    wordRange = language === "zh" ? null : { min: 31, max: 36 };
-    totalWordRange = language === "zh" ? null : { min: 66, max: 70 };
+    // Raised from 31-36 / 66-70. The data-gap diagnosis, the standard clause, the named analysis and
+    // one politeness move per message left high constructiveness averaging 69.5 against a ceiling of
+    // 70, so a third of replies overflowed. All four cells move together, so length stays matched.
+    wordRange = language === "zh" ? null : { min: 34, max: 40 };
+    totalWordRange = language === "zh" ? null : { min: 72, max: 78 };
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
   } else if (phase === "rejection_followup") {
@@ -1846,23 +1849,30 @@ function managerConditionRules() {
   // thinking shares the output token budget, and the pile-up drove failures from 3% to 14%.
   const highConstructivenessRules = (highPoliteness) => [
     "Constructiveness content: high.",
-    "Across the visible reply, include all three components. They must be about the same thing: the standard is the one the diagnosed problem would breach, and the revision path is what would meet that standard.",
-    // Sommers's first component is about what is wrong, not what is absent. Asking for an
-    // "unresolved aspect" produced "it does not say how many X" in 37% of replies, a template that
-    // fits any staffing proposal without reading the one in front of it.
-    "1. Proposal problem. Start from the specific thing the participant said they would do, in their terms, then explain what goes wrong when it is carried out and why that bites at exactly the moment the proposal is meant to help. Diagnose the idea, not the write-up: 'pairing each temp with an experienced member ties up the very staff you need on their own posts once queues build' is the target; 'you did not say how many' is not. The consequence must follow from the mechanism you just described rather than being attached with 'which could'.",
-    "2. Relevant standard. State one explicit performance or operational criterion the proposal must meet, with the same kind of precision whether your tone is warm or blunt.",
-    // Naming the evidence is what the participant can act on: "bring more data" gives them nothing
-    // to fetch. Attached to the revision path rather than replacing the diagnosis, so the problem
-    // still fits whatever was actually proposed.
+    // Before this conversation the participant has been given two attendance figures, roughly 500
+    // visitors on an off-season day and 5,000 at peak, a qualitative description of the labour
+    // seesaw, and the statement that labour costs are hard to manage. No hourly breakdown, no
+    // role-level staffing counts, no cost figures, nothing on which tasks a temporary worker could
+    // absorb. (The visitor mix and the nearby universities come later, before the second
+    // conversation, and must not be referred to here.) So whatever they propose, they have no basis
+    // for its scale or targeting. That is a real objection to the idea rather than a complaint
+    // about the write-up, and it takes the same shape for every proposal, which keeps it inside the
+    // word budget.
+    "The objection is always the same in kind: the proposal names an action but has no basis for it. Ask what the numbers would have to be and where they would come from.",
+    "1. What is unfounded. Name the specific quantity or targeting the proposal leaves unsupported, in the participant's own terms. For temporary staff that is how many, for which roles, on which days; for a price change it is which dates and how much; for a campaign it is which audience and what response it would need. Say why that gap matters for the decision.",
+    // The standard is the same for every proposal and is about the proposal rather than the park:
+    // a change of this size has to be backed by analysis before it can be acted on. Inventing an
+    // operational metric for each proposal produced near-boilerplate ("cover peak demand without
+    // idle paid hours") that cost ten words every time and pushed the reply past its budget.
+    "2. Standard. State it in one clause and always the same in substance: a change of this size has to be backed by analysis before you can act on it. Do not invent an operational metric for the park.",
     highPoliteness
-      ? "3. Revision path. Name the one or two specific figures, records, or first-hand accounts you would need to judge the proposal, and ask for them conditionally: 'I would reconsider if you came back with role counts and last season's peak hour arrivals.' Never a command."
-      : "3. Revision path. Name the one or two specific figures, records, or first-hand accounts you would need to judge the proposal, and ask for them as one blunt imperative: 'Come back with role counts and supervision ratios.'",
-    // These three cover what were previously seven overlapping prohibitions.
-    "The evidence must be named concretely, never requested as 'more data', 'evidence', 'research', or 'detail', and never framed as proving the standard is already met. Ask for what you need to judge, not for the conclusion.",
-    "The revision path must ask for something the diagnosis did not already name, and must stay consistent with what you asked for earlier in this conversation. Never write the equivalent of 'it lacks X, so bring X', and do not introduce a new kind of requirement at the end.",
+      ? "3. The analysis needed. Name the specific analysis that would settle it and ask for it conditionally: an hour by hour visitor flow analysis, a role by role workload breakdown showing which tasks a temporary worker could take, a cost comparison against the current overtime spend. 'I would reconsider once you have worked through the peak hour flow and which roles it actually covers.' Never a command."
+      : "3. The analysis needed. Name the specific analysis that would settle it and ask for it bald: an hour by hour visitor flow analysis, a role by role workload breakdown showing which tasks a temporary worker could take, a cost comparison against the current overtime spend. 'Work out the peak hour flow and which roles it actually covers, then we talk.'",
+    "Name one or two analyses, not four, and say it the way a person would in chat rather than as a request form.",
+    "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. The participant has to know what to go and work out.",
+    "Do not invent facts about the park that the participant has not been given. All they have at this point is roughly 500 visitors on an off-season day, 5,000 at peak, and that labour costs are hard to manage. You are asking for analysis that does not exist yet, not citing figures you already hold.",
     "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
-  ].join("\n");
+  ].filter(Boolean).join("\n");
   // The broad-judgment vocabulary is split by politeness: judgments like "not workable" read as
   // sharp, dismissive moves, so putting them in a warm reply makes high politeness plus low
   // constructiveness internally contradictory (this cell showed an 80% blind-validation failure
@@ -1897,7 +1907,7 @@ function managerConditionRules() {
     // reads as speech.
     "Reach the length with additional complete sentences, not by bolting redundant time or manner phrases onto the end of one. Do not write tails such as 'in its current form right now', 'today at all', or 'at this point in this discussion'.",
     "Do not spend it on additional interpersonal wording: keep exactly the same number of politeness or dismissiveness cues that the assigned politeness style allows, no more.",
-  ].join("\n");
+  ].filter(Boolean).join("\n");
   // Both styles carry the same per-message quota so that density stays constant across the two
   // constructiveness levels and the two factors remain orthogonal.
   const politenessCueQuota = [
@@ -2851,7 +2861,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
         content: [
           "Blindly score the information value and the interpersonal tone of a manager's rejection reply.",
           "You are not told which experimental condition was intended. Judge only the visible reply in its conversation context.",
-          "specific_problem is true only if the reply engages with the specific thing the participant proposed doing and explains what goes wrong when it is carried out, with the consequence following from that mechanism. Merely naming the proposal topic or calling it impractical is false. Saying the proposal omits a detail, such as 'it does not say how many' or 'it does not specify where', and then attaching a loose consequence with 'which could' is also false unless the reply explains why that omission produces the consequence.",
+          "specific_problem is true only if the reply identifies, in terms specific to what this participant proposed, what the proposal leaves unsupported and why that matters for the decision: which quantity, which roles, which days or which audience it fails to establish, and what that gap means for acting on it. Naming the proposal topic, calling it impractical, or a bare statement that it needs more thought is false. A generic complaint that could be pasted onto any proposal, with no reference to what this one actually asks for, is also false.",
           "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
           "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",

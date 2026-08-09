@@ -60,7 +60,7 @@ function responseJson(value, status = 200) {
   });
 }
 
-function exactWords(prefix, target = 34) {
+function exactWords(prefix, target = 37) {
   const words = String(prefix).trim().split(/\s+/).filter(Boolean);
   while (words.length < target) words.push("today");
   return words.slice(0, target).join(" ");
@@ -113,8 +113,8 @@ test("initial rejection uses two matched structured messages", () => {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
     assert.equal(prompt.minMessages, 2);
     assert.equal(prompt.maxMessages, 2);
-    assert.deepEqual(prompt.wordRange, { min: 31, max: 36 });
-    assert.deepEqual(prompt.totalWordRange, { min: 66, max: 70 });
+    assert.deepEqual(prompt.wordRange, { min: 34, max: 40 });
+    assert.deepEqual(prompt.totalWordRange, { min: 72, max: 78 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.match(prompt.system, /proposal_problem, relevant_standard, and revision_path/);
     assert.match(prompt.system, /Reject the proposal for now/i);
@@ -252,8 +252,8 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
 test("directives are redressed under high politeness and bald under low politeness", () => {
   const rules = managerConditionRules();
   // The revision-path mood in the condition rules.
-  assert.match(rules.HP_HC, /ask for them conditionally.*Never a command/is);
-  assert.match(rules.LP_HC, /ask for them as one blunt imperative/i);
+  assert.match(rules.HP_HC, /ask for it conditionally.*Never a command/is);
+  assert.match(rules.LP_HC, /ask for it bald/i);
   // Low politeness is defined by the absence of redress, not by using an imperative.
   assert.match(rules.LP_HC, /goes bald on record/i);
   assert.doesNotMatch(rules.LP_HC, /Imperative mood is part of this style/i);
@@ -306,8 +306,8 @@ test("English first rejection length normalization preserves content and reaches
   assert.equal(managerWordCountProblem(normalized, prompt), "");
   assert.match(normalized[0].text, /cannot approve/i);
   assert.match(normalized[1].text, /role training/i);
-  assert.ok(normalized.every((message) => wordCount(message.text) >= 31 && wordCount(message.text) <= 36));
-  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 66);
+  assert.ok(normalized.every((message) => wordCount(message.text) >= 34 && wordCount(message.text) <= 40));
+  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 72);
 });
 
 test("Chinese first rejection removes only optional wording to enter the matched total", () => {
