@@ -205,18 +205,6 @@ const FACE_THREAT_CUE_PATTERNS = [
   /\bwaste\b|浪费/gi,
 ];
 
-// Counted separately from the sharp cues above, not folded into them. Low politeness is specified
-// as one sharp cue plus one imperative, so a compliant reply scored 2 on a single combined count
-// and sat at the ceiling of the 1-2 band with no headroom, while the two channels could not be
-// checked independently. Semicolons and colons count as clause boundaries because the generator
-// writes "I'm done here; don't bring it back until...", and a bare imperative verb ("Bring hourly
-// staffing counts.") is as blunt as "come back with". The clause anchor plus the negative
-// lookahead for a subordinating conjunction keeps high-politeness conditionals ("if you can come
-// back with...", "I'd reconsider once you bring...") from matching.
-const BALD_DIRECTIVE_PATTERNS = [
-  /(?:^|[.!?;:]["'”]?\s+)(?!(?:if|once|when|unless|after|provided|assuming)\b)(?:come back|go back|don'?t bring|do not bring|bring|drop|rework|redo|fix|stop|add|show|get)\b(?!\s+(?:it|this|that) back another time)/gi,
-];
-
 // Reuses the cue patterns below rather than its own narrower list. The old regex missed
 // "happy to revisit" and "I can see", so warm closings were scored as impolite and the politeness
 // accuracy gate failed on correct output.
@@ -235,10 +223,6 @@ function politenessCueCount(text) {
 
 function faceThreatCueCount(text) {
   return countCues(text, FACE_THREAT_CUE_PATTERNS);
-}
-
-function baldDirectiveCount(text) {
-  return countCues(text, BALD_DIRECTIVE_PATTERNS);
 }
 
 function hasForbiddenContent(text) {
@@ -291,7 +275,6 @@ async function callReply(proposal, condition, phase) {
     polite_classification_correct: condition.startsWith("HP_") ? hasPoliteCue(text) : !hasPoliteCue(text),
     politeness_cues: politenessCueCount(text),
     face_threat_cues: faceThreatCueCount(text),
-    bald_directives: baldDirectiveCount(text),
     forbidden_content: hasForbiddenContent(text),
   };
 }
@@ -318,7 +301,6 @@ async function mapLimit(items, limit, worker, onResult) {
           polite_classification_correct: false,
           politeness_cues: 0,
           face_threat_cues: 0,
-          bald_directives: 0,
           forbidden_content: false,
         };
       }
@@ -463,7 +445,6 @@ async function main() {
     {
       politeness_cues: cueMean(condition, "politeness_cues"),
       face_threat_cues: cueMean(condition, "face_threat_cues"),
-      bald_directives: cueMean(condition, "bald_directives"),
     },
   ]));
   const cueBalanceGaps = {
@@ -471,8 +452,6 @@ async function main() {
     hp_face_threat: cueBalance("HP", "face_threat_cues"),
     lp_politeness: cueBalance("LP", "politeness_cues"),
     lp_face_threat: cueBalance("LP", "face_threat_cues"),
-    hp_bald: cueBalance("HP", "bald_directives"),
-    lp_bald: cueBalance("LP", "bald_directives"),
   };
   const worstCueBalanceGap = Math.max(...Object.values(cueBalanceGaps));
   const failureRates = Object.fromEntries(conditions.map((condition) => {

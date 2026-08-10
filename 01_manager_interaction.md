@@ -91,7 +91,7 @@ The rejection always stands for now. The participant can continue explaining or 
 
 ## Structured First Rejection
 
-The first rejection contains exactly two Manager messages. Each English message is 30 to 36 words, and the two messages contain 66 to 70 words in total. The average length difference across conditions must remain below 5 percent. Each Chinese message is about 56 to 77 Chinese characters, with about 133 to 138 characters across both messages. Chinese messages must be complete, naturally punctuated sentences.
+The first rejection contains exactly two Manager messages. Every English condition targets 58 to 60 words across the pair. The hard acceptance band is 54 to 62 words in total, while each individual message may contain 24 to 38 words so a harmless one-message imbalance does not fail an otherwise matched turn. The average length difference across conditions must remain below 5 percent. Each Chinese message is about 56 to 77 Chinese characters, with about 133 to 138 characters across both messages. Chinese messages must be complete, naturally punctuated sentences.
 
 Message 1 contains:
 
@@ -111,7 +111,7 @@ The hidden HC structure contains:
 * `relevant_standard`: one clear performance, service, safety, financial, feasibility, or operational criterion.
 * `revision_path`: one concrete and actionable condition that could remedy the current problem before reconsideration.
 
-The mood of the path follows the politeness condition. In HP the path is phrased conditionally (`if you can come back with...`), never as a command. In LP the path may be one blunt imperative directive (`Come back with role counts and supervision ratios.`). The informational content of the path stays identical; only the directive mood differs, which is an interpersonal politeness channel.
+The path follows the politeness condition. In HP it is redressed, for example by conditional wording such as `I would reconsider once...`. In LP it is expressed directly without redress, either as an imperative or a flat statement. LP does not manufacture a command merely to mark low politeness. The informational content of the HC path stays equivalent across HP and LP.
 
 The hidden LC structure keeps all three fields empty. The visible reply may name the broad proposal topic, but must not communicate any specific problem, consequence, evidence type, standard, missing material, risk, or remedy.
 
@@ -119,11 +119,11 @@ The LC broad judgment vocabulary is split by politeness. HP LC uses mild vague j
 
 Data or evidence is not a required template. A lack of evidence may be selected as the problem only when it genuinely fits the participant's proposal.
 
-For English and Chinese first rejections, the server may remove or add semantically empty modifiers or a neutral sentence saying the judgment concerns the current version to meet the matched total length. The blind scorer evaluates the final adjusted text, so length handling cannot bypass the constructiveness check or add constructive content to LC.
+For English and Chinese first rejections, the server may remove or add semantically empty modifiers or a neutral sentence saying the judgment concerns the current version to meet the matched total length. If an English pair remains outside the 54 to 62 word hard band, the server makes one length-only rewrite targeting 58 to 60 words. That rewrite is instructed to preserve the rejection, substantive components, future-step redress, and interpersonal cue direction and count. The rewritten pair then goes through the complete metadata, safety, semantic, cue-evidence, and length validation sequence again. If it still misses the band, the request fails rather than widening the experimental limit.
 
 ## Subsequent Rejection Turns
 
-If the participant continues engaging, the manager replies in one 34 to 36 word English message or one roughly 52 to 60 character Chinese message per turn. Every later rejection explicitly repeats that the current version cannot be approved.
+If the participant continues engaging, the manager replies in one 32 to 36 word English message or one roughly 52 to 60 character Chinese message per turn. Every later rejection explicitly repeats that the current version cannot be approved.
 
 The window is deliberately narrow. A wider window let follow up turns drift to a 14 percent length spread across conditions, with low constructiveness consistently shortest.
 
@@ -131,7 +131,7 @@ In HC, every turn communicates:
 
 1. One still unresolved problem in the participant's proposal and its consequence.
 2. A clear relevant standard.
-3. A concrete improvement condition, phrased conditionally in HP and optionally as the single blunt imperative in LP.
+3. A concrete improvement condition, redressed in HP and expressed directly without redress in LP. LP may use an imperative or a flat statement, but no imperative is required.
 
 In LC, every turn:
 
@@ -164,13 +164,13 @@ Low politeness performs neither kind, states the refusal in the manager's own vo
 
 The quota is per message rather than per turn. The first rejection is two messages, and one move for the pair left the second reading as pure business.
 
-### Mood of Directives
+### Redress of Refusals and Future Steps
 
-Imperative mood is not what makes a reply impolite. An imperative can be redressed (`please do take another look`) and low politeness needs no imperative at all. The variable is whether a directive carries redress.
+An explicit refusal is not automatically impolite. `I cannot approve this version` counts as a polite refusal when appreciation, apology, hedging, deference, depersonalisation, or another redressive move is clearly attached to the refusal as a whole. The same explicit wording without face work counts as an unredressed refusal.
 
-Under high politeness anything said about next steps is conditional and hedged. Under low politeness it is bald: a plain imperative or a flat statement, with no conditional framing, hedging, softeners, or asking.
+The scorer therefore judges the current refusal separately from any future next step. Under high politeness the current refusal and any future next step are redressed. Under low politeness the current refusal is unredressed, and any future next step that appears is also direct and unredressed.
 
-Counting imperatives was a category error that also created a false imbalance. High constructiveness always has a revision path to direct and low constructiveness does not, so counting directives made the two look different on politeness when they differed on content. Validation now checks that high politeness redresses every directive and low politeness redresses none, with no count required of either.
+Low politeness does not require a command. High constructiveness naturally includes a future remedy path, whereas low constructiveness may contain no future step at all. If LC mentions future handling, it remains vague and non-actionable; HP redresses it and LP states it directly.
 
 
 ### High Politeness
@@ -198,9 +198,9 @@ It does not use:
 * Apology.
 * Warmth, deference, or hedging.
 
-The face threat targets the proposal and uses exactly one sharp cue. Wording such as `this version is sloppy` or `this is nowhere near ready` is allowed once per turn.
+The face threat targets the proposal and uses exactly one sharp cue per message. Wording such as `this version is sloppy` or `this is nowhere near ready` is allowed, but attacks on the participant are prohibited.
 
-Low politeness also owns the imperative directive mood: every LP rejection turn phrases exactly one next-step or wrap-up line as a blunt imperative in addition to the sharp cue, such as `Come back with actual numbers.` or `Don't bring it back until it includes the staffing numbers.` High politeness phrases the same content conditionally and never uses imperatives. In LP LC the imperative stays content-free, such as `Drop this version for now.`, so imperative frequency stays equal across the two constructiveness levels.
+Low politeness does not need to add a next-step line. In LP HC, the required concrete remedy is stated directly without redress and may be an imperative or a flat statement. In LP LC, no command is added merely to sound blunt; if future handling is mentioned naturally, it stays direct, vague, and non-actionable.
 
 The manager must not replace constructive feedback with an attack on the participant's intelligence, competence, identity, or personal worth. Phrases that say or imply the participant is stupid, incapable, or did not think at all are prohibited.
 
@@ -217,7 +217,7 @@ The closing leaves the decision unchanged while keeping the possibility of futur
 * HP closes warmly and respectfully.
 * LP closes coldly and grudgingly, without thanks, apology, praise, or a personal attack.
 
-The interpersonal cue quota applies here too: exactly one politeness or dismissiveness cue per closing.
+The generation target applies here too: exactly one politeness or dismissiveness cue per closing. Runtime validation uses the same one-to-two-cue tolerance and one-time trim procedure described below.
 
 The manager then leaves the chat. The participant cannot re enter or revisit this stage.
 
@@ -230,20 +230,42 @@ The scorer judges only the visible reply and conversation context:
 * `specific_problem`
 * `explicit_standard`
 * `actionable_remedy`
+* `current_rejection_maintained`
+* `current_rejection_evidence`
+* `current_rejection_redressed`
+* `has_future_next_step`
+* `future_next_step_redressed`
+* `explicit_future_openness`
+* `concrete_reopening_condition`
 * `personal_attack_without_diagnosis`
-* `warmth_cues`: how many distinct warmth moves the reply makes.
-* `face_threat_cues`: how many distinct sharp moves it aims at the proposal, including blunt imperative directives. Conditionally phrased suggestions do not count.
+* Per-message `politeness_cues`, returned as exact evidence excerpts
+* Per-message `face_threat_cues`, returned as exact evidence excerpts
+* Per-message `future_next_step`, returned as an exact evidence excerpt or an empty string
+* Per-message `future_next_step_is_redressed`
 
 Acceptance rules:
 
-* HC requires the first three scores to be true and the personal attack score to be false.
-* LC requires the first three scores to be false and the personal attack score to be false.
-* HP requires one to two warmth cues per message and zero face threat cues and zero imperatives.
-* LP requires one to two face threat cues per message, one to two imperative directives, and zero warmth cues.
+* Every condition requires a clear current rejection and prohibits personal attacks.
+* HC requires the specific problem, explicit standard, and actionable remedy scores to be true.
+* LC requires those three scores to be false.
+* HP requires the current refusal to be redressed, one or two politeness cues per message, and zero face threat cues. Any future next step must also be redressed.
+* LP requires the current refusal to be unredressed, one or two face threat cues per message, and zero politeness cues. A future next step is required in HC and in the closing, but not in an ordinary LC rejection; whenever it exists it must be direct and unredressed.
+* Every closing keeps the current rejection and explicit future openness. HC names a concrete reopening condition; LC keeps the reopening path vague and non-actionable.
 
-The same per-message band applies at both constructiveness levels, so cue density cannot vary with constructiveness. Sharp cues and imperatives are counted separately, since low politeness is specified as one of each and a combined count left a compliant reply at the ceiling with no headroom.
+The generation prompt still targets exactly one intended interpersonal cue in every message. Validation is deliberately more tolerant because cue boundaries in natural language are unstable:
 
-If validation fails, the rejection is regenerated up to two times. If all three attempts fail, the server returns a retryable error. A condition incorrect reply is never shown to the participant.
+* One intended cue passes immediately.
+* Two intended cues with no opposite-condition cue trigger one evidence-based request to simplify the message.
+* If the retry still has two intended cues, it passes and the deviation is recorded in the AI request log.
+* Zero intended cues, three or more intended cues, any opposite-condition cue, or a personal attack remains a hard failure on every attempt.
+
+All cue requirements are applied message by message rather than to the combined turn. The same per-message standard applies at both constructiveness levels, so cue density cannot systematically vary with constructiveness. Refusal redress and future-step redress are judged as speech acts rather than inferred from imperative counts.
+
+The blind scorer returns exact source excerpts rather than counts alone. The server checks that current-rejection evidence, every politeness or face-threat cue, and every future-next-step excerpt actually appears in the corresponding visible Manager message. Invalid or fabricated evidence cannot be used to pass the condition gate.
+
+If hard validation fails, the rejection is regenerated up to two times. If all three attempts fail, the server returns a retryable error. A condition incorrect reply is never shown to the participant.
+
+Final validation failures are retained for diagnosis in the internal AI request log. The `validation_failure` field stores the failed validation kind, exact correction cause, final candidate Manager messages, hidden constructiveness fields, and any available blind scores as JSON. These diagnostics are removed from the API response before it reaches the participant. When `AI_VALIDATION_DEBUG=true`, the same failed candidate and cause are also printed to the server log.
 
 Existing safety checks remain active:
 

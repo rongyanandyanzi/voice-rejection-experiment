@@ -15,6 +15,7 @@ const {
   participantColumns,
   interactionColumns,
   surveyResponseColumns,
+  aiRequestColumns,
   normalizeRow,
   normalizeVersionedRow,
   buildInitialManagerPrompt,
@@ -22,6 +23,7 @@ const {
   managerConditionRules,
   managerConstructivenessMetadataProblem,
   managerConstructivenessAssessmentProblem,
+  managerConstructivenessCueWarning,
   managerMessageCountProblem,
   managerSafetyProblem,
   managerLengthProblem,
@@ -71,11 +73,11 @@ function validHighReply() {
     messages: [
       {
         speaker: "Manager",
-        text: exactWords("I cannot approve this flexible staffing proposal now because untrained temporary workers could make entrance checks inconsistent and delay guests during peak shifts"),
+        text: exactWords("I appreciate you thinking this through, but I cannot approve this flexible staffing proposal now because untrained temporary workers could make entrance checks inconsistent and delay guests during peak shifts"),
       },
       {
         speaker: "Manager",
-        text: exactWords("Any staffing change must maintain accurate and timely entry service, and I could reconsider a version with role specific training and supervised peak shift coverage"),
+        text: exactWords("Any staffing change must maintain accurate and timely entry service, and I would be open to reconsidering a version with role specific training and supervised peak shift coverage"),
       },
     ],
     constructiveness: {
@@ -83,6 +85,37 @@ function validHighReply() {
       relevant_standard: "Staffing changes must maintain accurate and timely entry service.",
       revision_path: "A version with role specific training and supervised peak shift coverage.",
     },
+  };
+}
+
+function validHighEvaluatorScores(overrides = {}) {
+  return {
+    specific_problem: true,
+    explicit_standard: true,
+    actionable_remedy: true,
+    current_rejection_maintained: true,
+    current_rejection_evidence: "I cannot approve this flexible staffing proposal now",
+    current_rejection_redressed: true,
+    has_future_next_step: true,
+    future_next_step_redressed: true,
+    explicit_future_openness: false,
+    concrete_reopening_condition: false,
+    personal_attack_without_diagnosis: false,
+    message_scores: [
+      {
+        politeness_cues: ["I appreciate you thinking this through"],
+        face_threat_cues: [],
+        future_next_step: "",
+        future_next_step_is_redressed: false,
+      },
+      {
+        politeness_cues: ["I would be open to reconsidering"],
+        face_threat_cues: [],
+        future_next_step: "I would be open to reconsidering a version with role specific training and supervised peak shift coverage",
+        future_next_step_is_redressed: true,
+      },
+    ],
+    ...overrides,
   };
 }
 
@@ -113,9 +146,11 @@ test("initial rejection uses two matched structured messages", () => {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
     assert.equal(prompt.minMessages, 2);
     assert.equal(prompt.maxMessages, 2);
-    assert.deepEqual(prompt.wordRange, { min: 26, max: 34 });
+    assert.deepEqual(prompt.wordRange, { min: 24, max: 38 });
     assert.deepEqual(prompt.totalWordRange, { min: 54, max: 62 });
+    assert.deepEqual(prompt.totalWordTargetRange, { min: 58, max: 60 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
+    assert.equal(prompt.constructivenessAssessmentMode, "rejection");
     assert.match(prompt.system, /proposal_problem, relevant_standard, and revision_path/);
     assert.match(prompt.system, /Reject the proposal for now/i);
   }
@@ -140,40 +175,66 @@ test("HC requires all three fields while LC requires all three fields empty", ()
   assert.match(managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }))), /high-constructiveness/i);
   assert.equal(managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "HP_LC" }))), "");
   assert.match(managerConstructivenessMetadataProblem(complete, buildInitialManagerPrompt(managerPayload({ condition: "LP_LC" }))), /low-constructiveness/i);
+  const hpCorrection = managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" })));
+  const lpCorrection = managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" })));
+  assert.match(hpCorrection, /condition for reconsideration rather than a command/i);
+  assert.match(lpCorrection, /expressed directly with no hedge, softener, deference, or other redress/i);
+  assert.match(lpCorrection, /imperative or a flat statement/i);
+  assert.doesNotMatch(lpCorrection, /rather than a command/i);
 });
 
-// highPrompt is LP_HC, so its politeness cues must be one face threat and no warmth; lowPrompt is
-// HP_LC, so the reverse.
-// The default payload is rejection_initial, which sends two messages, so the band is 2-4.
-const lowPolitenessCues = { politeness_cues: 0, face_threat_cues: 2, bald_directives: 1 };
-const highPolitenessCues = { politeness_cues: 2, face_threat_cues: 0, bald_directives: 0 };
+function blindScores(condition, overrides = {}) {
+  const highPoliteness = condition.startsWith("HP");
+  const highConstructiveness = condition.endsWith("_HC");
+  const { messageCount = 2, ...scoreOverrides } = overrides;
+  const messageScores = Array.from({ length: messageCount }, (_, index) => highPoliteness
+    ? {
+        politeness_cues: [`politeness cue ${index + 1}`],
+        face_threat_cues: [],
+        future_next_step: highConstructiveness && index === messageCount - 1 ? "polite future step" : "",
+        future_next_step_is_redressed: highConstructiveness && index === messageCount - 1,
+      }
+    : {
+        politeness_cues: [],
+        face_threat_cues: [`face threat cue ${index + 1}`],
+        future_next_step: highConstructiveness && index === messageCount - 1 ? "direct future step" : "",
+        future_next_step_is_redressed: false,
+      });
+  return {
+    specific_problem: highConstructiveness,
+    explicit_standard: highConstructiveness,
+    actionable_remedy: highConstructiveness,
+    current_rejection_maintained: true,
+    current_rejection_evidence: "current rejection",
+    current_rejection_redressed: highPoliteness,
+    has_future_next_step: highConstructiveness,
+    future_next_step_redressed: highConstructiveness ? highPoliteness : false,
+    explicit_future_openness: false,
+    concrete_reopening_condition: false,
+    personal_attack_without_diagnosis: false,
+    message_scores: messageScores,
+    ...scoreOverrides,
+  };
+}
 
 test("blind semantic scores enforce HC presence, LC absence, and no personal-only attack", () => {
   const highPrompt = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
   const lowPrompt = buildInitialManagerPrompt(managerPayload({ condition: "HP_LC" }));
-  const allPresent = {
-    specific_problem: true,
-    explicit_standard: true,
-    actionable_remedy: true,
-    personal_attack_without_diagnosis: false,
-    ...lowPolitenessCues,
-  };
-  const allAbsent = {
+  const allPresent = blindScores("LP_HC");
+  const allAbsent = blindScores("HP_LC");
+  assert.equal(managerConstructivenessAssessmentProblem(allPresent, highPrompt), "");
+  assert.match(managerConstructivenessAssessmentProblem({
+    ...blindScores("LP_HC"),
     specific_problem: false,
     explicit_standard: false,
     actionable_remedy: false,
-    personal_attack_without_diagnosis: false,
-    ...highPolitenessCues,
-  };
-  assert.equal(managerConstructivenessAssessmentProblem(allPresent, highPrompt), "");
-  assert.match(managerConstructivenessAssessmentProblem({
-    ...allAbsent,
-    ...lowPolitenessCues,
   }, highPrompt), /validation failed/i);
   assert.equal(managerConstructivenessAssessmentProblem(allAbsent, lowPrompt), "");
   assert.match(managerConstructivenessAssessmentProblem({
-    ...allPresent,
-    ...highPolitenessCues,
+    ...blindScores("HP_LC"),
+    specific_problem: true,
+    explicit_standard: true,
+    actionable_remedy: true,
   }, lowPrompt), /validation failed/i);
   assert.match(managerConstructivenessAssessmentProblem({
     ...allPresent,
@@ -181,32 +242,178 @@ test("blind semantic scores enforce HC presence, LC absence, and no personal-onl
   }, highPrompt), /Remove any personal intelligence or competence attack/i);
 });
 
-test("blind politeness cue band is enforced identically under high and low constructiveness", () => {
-  const scores = (condition, cues) => ({
-    specific_problem: condition.endsWith("_HC"),
-    explicit_standard: condition.endsWith("_HC"),
-    actionable_remedy: condition.endsWith("_HC"),
-    personal_attack_without_diagnosis: false,
-    bald_directives: condition.startsWith("LP") ? 1 : 0,
-    ...cues,
-  });
-  // The band has to bite the same way in HC and LC, otherwise the low-constructiveness cells can
-  // buy a larger politeness contrast with the words they save on diagnosis.
+test("blind scoring targets one cue, trims two once, then accepts two with evidence", () => {
   for (const condition of ["HP_HC", "HP_LC"]) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 2, face_threat_cues: 0 }), prompt), "");
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 4, face_threat_cues: 0 }), prompt), "");
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 5, face_threat_cues: 0 }), prompt), /between 2 and 4 redressive politeness moves/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 redressive politeness moves/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 2, face_threat_cues: 1 }), prompt), /no face threat/i);
+    assert.equal(managerConstructivenessAssessmentProblem(blindScores(condition), prompt), "");
+    const twoCues = blindScores(condition, {
+      message_scores: [
+        {
+          politeness_cues: ["I appreciate your work", "this does not quite fit"],
+          face_threat_cues: [],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        {
+          politeness_cues: ["I would be open"],
+          face_threat_cues: [],
+          future_next_step: condition.endsWith("_HC") ? "I would be open to reconsidering it" : "",
+          future_next_step_is_redressed: condition.endsWith("_HC"),
+        },
+      ],
+    });
+    const trimCorrection = managerConstructivenessAssessmentProblem(twoCues, prompt);
+    assert.match(trimCorrection, /Message 1 contains two politeness cues/i);
+    assert.match(trimCorrection, /I appreciate your work/);
+    assert.match(trimCorrection, /this does not quite fit/);
+    assert.equal(managerConstructivenessAssessmentProblem(twoCues, prompt, { allowTwoCues: true }), "");
+    assert.equal(managerConstructivenessCueWarning(twoCues, prompt).length, 1);
+    const noCue = blindScores(condition, {
+      message_scores: [
+        {
+          politeness_cues: [],
+          face_threat_cues: [],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        blindScores(condition).message_scores[1],
+      ],
+    });
+    assert.match(
+      managerConstructivenessAssessmentProblem(noCue, prompt, { allowTwoCues: true }),
+      /Message 1 has no politeness cue/i,
+    );
+    assert.match(managerConstructivenessAssessmentProblem(blindScores(condition, {
+      message_scores: [
+        {
+          politeness_cues: ["cue one", "cue two", "cue three"],
+          face_threat_cues: [],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        {
+          politeness_cues: ["cue four"],
+          face_threat_cues: [],
+          future_next_step: condition.endsWith("_HC") ? "polite future step" : "",
+          future_next_step_is_redressed: condition.endsWith("_HC"),
+        },
+      ],
+    }), prompt, { allowTwoCues: true }), /contains 3 politeness cues/i);
+    assert.match(managerConstructivenessAssessmentProblem(blindScores(condition, {
+      message_scores: [
+        {
+          politeness_cues: ["polite"],
+          face_threat_cues: ["sloppy"],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        {
+          politeness_cues: ["polite"],
+          face_threat_cues: [],
+          future_next_step: condition.endsWith("_HC") ? "polite future step" : "",
+          future_next_step_is_redressed: condition.endsWith("_HC"),
+        },
+      ],
+    }), prompt, { allowTwoCues: true }), /prohibited proposal-focused face-threat cue evidence/i);
   }
   for (const condition of ["LP_HC", "LP_LC"]) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 2 }), prompt), "");
-    assert.equal(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 4 }), prompt), "");
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 5 }), prompt), /between 2 and 4 face threats/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 0, face_threat_cues: 0 }), prompt), /between 2 and 4 face threats/i);
-    assert.match(managerConstructivenessAssessmentProblem(scores(condition, { politeness_cues: 2, face_threat_cues: 1 }), prompt), /no redressive politeness move/i);
+    assert.equal(managerConstructivenessAssessmentProblem(blindScores(condition), prompt), "");
+    const twoCues = blindScores(condition, {
+      message_scores: [
+        {
+          politeness_cues: [],
+          face_threat_cues: ["this version is sloppy", "nowhere near ready"],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        {
+          politeness_cues: [],
+          face_threat_cues: ["this is weak"],
+          future_next_step: condition.endsWith("_HC") ? "bring it back" : "",
+          future_next_step_is_redressed: false,
+        },
+      ],
+    });
+    const trimCorrection = managerConstructivenessAssessmentProblem(twoCues, prompt);
+    assert.match(trimCorrection, /Message 1 contains two proposal-focused face-threat cues/i);
+    assert.match(trimCorrection, /this version is sloppy/);
+    assert.match(trimCorrection, /nowhere near ready/);
+    assert.equal(managerConstructivenessAssessmentProblem(twoCues, prompt, { allowTwoCues: true }), "");
+    assert.equal(managerConstructivenessCueWarning(twoCues, prompt).length, 1);
+    const noCue = blindScores(condition, {
+      message_scores: [
+        {
+          politeness_cues: [],
+          face_threat_cues: [],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        blindScores(condition).message_scores[1],
+      ],
+    });
+    assert.match(
+      managerConstructivenessAssessmentProblem(noCue, prompt, { allowTwoCues: true }),
+      /Message 1 has no proposal-focused face-threat cue/i,
+    );
+    assert.match(managerConstructivenessAssessmentProblem(blindScores(condition, {
+      message_scores: [
+        {
+          politeness_cues: ["thank you"],
+          face_threat_cues: ["sloppy"],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        {
+          politeness_cues: [],
+          face_threat_cues: ["weak"],
+          future_next_step: condition.endsWith("_HC") ? "bring it back" : "",
+          future_next_step_is_redressed: false,
+        },
+      ],
+    }), prompt, { allowTwoCues: true }), /prohibited politeness cue evidence/i);
+  }
+});
+
+test("blind scoring judges refusal redress and future-step redress separately", () => {
+  for (const condition of conditions) {
+    const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
+    const highPoliteness = condition.startsWith("HP");
+    const highConstructiveness = condition.endsWith("_HC");
+    const valid = blindScores(condition);
+    assert.equal(managerConstructivenessAssessmentProblem(valid, prompt), "");
+
+    assert.match(managerConstructivenessAssessmentProblem({
+      ...valid,
+      current_rejection_maintained: false,
+    }, prompt), /current proposal is not being approved/i);
+    assert.match(managerConstructivenessAssessmentProblem({
+      ...valid,
+      current_rejection_redressed: !highPoliteness,
+    }, prompt), highPoliteness ? /refusal polite as a whole/i : /remove every redressive move/i);
+
+    if (highConstructiveness) {
+      assert.match(managerConstructivenessAssessmentProblem({
+        ...valid,
+        has_future_next_step: false,
+        future_next_step_redressed: false,
+      }, prompt), /concrete future remedy path/i);
+      assert.match(managerConstructivenessAssessmentProblem({
+        ...valid,
+        future_next_step_redressed: !highPoliteness,
+      }, prompt), highPoliteness ? /Redress the future next step/i : /Remove every hedge/i);
+    } else {
+      assert.equal(managerConstructivenessAssessmentProblem({
+        ...valid,
+        has_future_next_step: true,
+        future_next_step_redressed: highPoliteness,
+      }, prompt), "");
+      assert.match(managerConstructivenessAssessmentProblem({
+        ...valid,
+        has_future_next_step: true,
+        future_next_step_redressed: !highPoliteness,
+      }, prompt), highPoliteness ? /Redress the future next step/i : /Remove every hedge/i);
+    }
   }
 });
 
@@ -216,7 +423,48 @@ test("rejection follow-up and closing keep the four conditions in a narrow lengt
     assert.deepEqual(followup.wordRange, { min: 32, max: 36 });
     const closing = buildInitialManagerPrompt(managerPayload({ phase: "closing", condition }));
     assert.deepEqual(closing.wordRange, { min: 27, max: 31 });
+    assert.equal(closing.constructivenessMetadataMode, "");
+    assert.equal(closing.constructivenessAssessmentMode, "closing");
     assert.match(closing.system, /Interpersonal cue quota: use one politeness or dismissiveness cue/i);
+  }
+});
+
+test("closing blind validation preserves rejection and openness while separating HC from LC", () => {
+  for (const condition of conditions) {
+    const prompt = buildInitialManagerPrompt(managerPayload({ phase: "closing", condition }));
+    const scores = blindScores(condition, {
+      messageCount: 1,
+      specific_problem: false,
+      explicit_standard: false,
+      actionable_remedy: false,
+      current_rejection_maintained: true,
+      current_rejection_redressed: condition.startsWith("HP"),
+      has_future_next_step: true,
+      future_next_step_redressed: condition.startsWith("HP"),
+      explicit_future_openness: true,
+      concrete_reopening_condition: condition.endsWith("_HC"),
+    });
+    assert.equal(managerConstructivenessAssessmentProblem(scores, prompt), "");
+    assert.match(managerConstructivenessAssessmentProblem({
+      ...scores,
+      current_rejection_maintained: false,
+    }, prompt), /current proposal is not being approved/i);
+    assert.match(managerConstructivenessAssessmentProblem({
+      ...scores,
+      explicit_future_openness: false,
+    }, prompt), /invite the participant to revisit/i);
+    assert.match(managerConstructivenessAssessmentProblem({
+      ...scores,
+      concrete_reopening_condition: !condition.endsWith("_HC"),
+    }, prompt), condition.endsWith("_HC") ? /concrete proposal-specific condition/i : /vague and general/i);
+    assert.match(managerConstructivenessAssessmentProblem({
+      ...scores,
+      current_rejection_redressed: !condition.startsWith("HP"),
+    }, prompt), condition.startsWith("HP") ? /refusal polite as a whole/i : /remove every redressive move/i);
+    assert.match(managerConstructivenessAssessmentProblem({
+      ...scores,
+      future_next_step_redressed: !condition.startsWith("HP"),
+    }, prompt), condition.startsWith("HP") ? /Redress the future next step/i : /Remove every hedge/i);
   }
 });
 
@@ -265,26 +513,25 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   assert.doesNotMatch(rules.HP_LC, /is not mature enough/i);
 });
 
-test("directives are redressed under high politeness and bald under low politeness", () => {
+test("refusals and optional future steps are redressed only under high politeness", () => {
   const rules = managerConditionRules();
-  // The revision-path mood in the condition rules.
-  assert.match(rules.HP_HC, /ask for it conditionally.*Never a command/is);
-  assert.match(rules.LP_HC, /ask for it bald/i);
-  // Low politeness is defined by the absence of redress, not by using an imperative.
-  assert.match(rules.LP_HC, /goes bald on record/i);
-  assert.doesNotMatch(rules.LP_HC, /Imperative mood is part of this style/i);
-  assert.match(rules.LP_LC, /goes bald on record/i);
-  assert.doesNotMatch(rules.HP_HC, /goes bald on record/i);
-  assert.doesNotMatch(rules.HP_LC, /goes bald on record/i);
-  // The command rule flips with politeness in every rejection phase. High politeness gets the ban
-  // once, from the shared rule block; low politeness gets the positive imperative requirement
-  // instead and is exempted from the ban.
+  assert.match(rules.HP_HC, /current rejection must be explicit and redressed as a whole/i);
+  assert.match(rules.HP_HC, /future next step.*must also be redressed/is);
+  assert.match(rules.LP_HC, /current rejection must be explicit and unredressed/i);
+  assert.match(rules.LP_HC, /Do not invent a command merely to perform low politeness/i);
+  assert.match(rules.LP_HC, /imperative.*flat statement.*imperative is not required/is);
+  assert.match(rules.LP_LC, /If one is included naturally, keep it direct and content-free/i);
+  assert.doesNotMatch(rules.LP_LC, /required imperative/i);
+  assert.doesNotMatch(rules.LP_LC, /exactly one bald next-step/i);
+
+  // High politeness avoids bare commands. Low politeness does not manufacture a command, but any
+  // naturally occurring future step stays direct and unredressed.
   for (const phase of ["rejection_initial", "rejection_followup", "rejection"]) {
     const hp = buildInitialManagerPrompt(managerPayload({ phase, condition: "HP_HC" }));
     const lp = buildInitialManagerPrompt(managerPayload({ phase, condition: "LP_HC" }));
     assert.match(hp.system, /Avoid command-style wording/i);
-    assert.doesNotMatch(hp.system, /Phrase exactly one next-step line as a blunt imperative directive/i);
-    assert.match(lp.system, /Phrase exactly one next-step line as a blunt imperative directive/i);
+    assert.match(lp.system, /Do not invent a next-step line merely to sound blunt/i);
+    assert.match(lp.system, /If the assigned content naturally includes a future next step, state it directly/i);
     assert.doesNotMatch(lp.system, /Avoid command-style wording/i);
   }
   // The blanket system-level imperative ban stays for HP and for condition-blind phases.
@@ -305,6 +552,10 @@ test("message count and length validators enforce the two-message rejection", ()
   const valid = validHighReply().messages;
   assert.equal(managerMessageCountProblem(valid, prompt, ""), "");
   assert.equal(managerWordCountProblem(valid, prompt), "");
+  assert.equal(managerWordCountProblem([
+    { speaker: "Manager", text: exactWords("One", 35) },
+    { speaker: "Manager", text: exactWords("Two", 27) },
+  ], prompt), "");
   assert.match(managerMessageCountProblem(valid.slice(0, 1), prompt, ""), /exactly 2/);
   assert.match(managerWordCountProblem([
     { speaker: "Manager", text: "This is too short." },
@@ -324,7 +575,7 @@ test("English first rejection length normalization preserves content and reaches
   assert.equal(managerWordCountProblem(normalized, prompt), "");
   assert.match(normalized[0].text, /cannot approve/i);
   assert.match(normalized[1].text, /role training/i);
-  assert.ok(normalized.every((message) => wordCount(message.text) >= 26 && wordCount(message.text) <= 34));
+  assert.ok(normalized.every((message) => wordCount(message.text) >= 24 && wordCount(message.text) <= 38));
   assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 54);
 });
 
@@ -479,15 +730,7 @@ test("failed HC structure regenerates and internal fields never reach the browse
   const queue = [
     responseJson(bad),
     responseJson(good),
-    responseJson({
-      specific_problem: true,
-      explicit_standard: true,
-      actionable_remedy: true,
-      personal_attack_without_diagnosis: false,
-      politeness_cues: 2,
-      face_threat_cues: 0,
-      bald_directives: 0,
-    }),
+    responseJson(validHighEvaluatorScores()),
   ];
   let calls = 0;
   global.fetch = async () => {
@@ -500,6 +743,172 @@ test("failed HC structure regenerates and internal fields never reach the browse
     assert.equal(calls, 3);
     assert.equal(result.messages.length, 2);
     assert.equal("constructiveness" in result, false);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("two intended cues trigger one evidence-based trim retry, then pass with a recorded deviation", async () => {
+  const originalFetch = global.fetch;
+  const twoCueReply = validHighReply();
+  twoCueReply.messages[0].text = exactWords(
+    "I appreciate you thinking this through, and I am sorry, but I cannot approve this flexible staffing proposal because untrained temporary workers could make entrance checks inconsistent",
+  );
+  const twoCueScores = validHighEvaluatorScores({
+    current_rejection_evidence: "I cannot approve this flexible staffing proposal",
+    message_scores: [
+      {
+        politeness_cues: ["I appreciate you thinking this through", "I am sorry"],
+        face_threat_cues: [],
+        future_next_step: "",
+        future_next_step_is_redressed: false,
+      },
+      validHighEvaluatorScores().message_scores[1],
+    ],
+  });
+  const queue = [
+    responseJson(twoCueReply),
+    responseJson(twoCueScores),
+    responseJson(twoCueReply),
+    responseJson(twoCueScores),
+  ];
+  const requestBodies = [];
+  global.fetch = async (_url, options) => {
+    requestBodies.push(JSON.parse(options.body));
+    return queue.shift();
+  };
+  try {
+    const result = await generateAiReply(managerPayload());
+    assert.equal(result.ok, true);
+    assert.equal(requestBodies.length, 4);
+    assert.equal(result.validation_warnings.length, 1);
+    assert.match(result.validation_warnings[0], /Accepted cue-count deviation in Message 1/i);
+    const retryPrompt = JSON.stringify(requestBodies[2].input);
+    assert.match(retryPrompt, /Message 1 contains two politeness cues/i);
+    assert.match(retryPrompt, /I appreciate you thinking this through/);
+    assert.match(retryPrompt, /I am sorry/);
+    assert.ok(aiRequestColumns.includes("validation_warnings"));
+    assert.ok(aiRequestColumns.includes("validation_failure"));
+    const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+    assert.match(serverSource, /delete publicResult\.validation_warnings/);
+    assert.match(serverSource, /delete publicResult\.validation_failure/);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("an overlong initial rejection gets one length-only rewrite and full blind revalidation", async () => {
+  const originalFetch = global.fetch;
+  const overlongReply = validHighReply();
+  overlongReply.messages = overlongReply.messages.map((message) => ({
+    ...message,
+    text: exactWords(message.text, 35),
+  }));
+  const compressedReply = validHighReply();
+  const queue = [
+    responseJson(overlongReply),
+    responseJson(validHighEvaluatorScores()),
+    responseJson(compressedReply),
+    responseJson(validHighEvaluatorScores()),
+  ];
+  const requestBodies = [];
+  global.fetch = async (_url, options) => {
+    requestBodies.push(JSON.parse(options.body));
+    return queue.shift();
+  };
+  try {
+    const result = await generateAiReply(managerPayload());
+    assert.equal(result.ok, true);
+    assert.equal(requestBodies.length, 4);
+    assert.equal(result.messages.reduce((sum, message) => sum + wordCount(message.text), 0), 58);
+    const rewritePrompt = JSON.stringify(requestBodies[2].input);
+    assert.match(rewritePrompt, /Length-only rewrite required/i);
+    assert.match(rewritePrompt, /58-60 words across the two messages/i);
+    assert.match(rewritePrompt, /Previous Manager message 1/i);
+    assert.deepEqual(
+      requestBodies.map((body) => body.text.format.name),
+      [
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+      ],
+    );
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("blind cue evidence must occur in its corresponding Manager message", async () => {
+  const originalFetch = global.fetch;
+  const queue = [
+    responseJson(validHighReply()),
+    responseJson(validHighEvaluatorScores({
+      message_scores: [
+        {
+          politeness_cues: ["Thank you for the detailed work"],
+          face_threat_cues: [],
+          future_next_step: "",
+          future_next_step_is_redressed: false,
+        },
+        validHighEvaluatorScores().message_scores[1],
+      ],
+    })),
+  ];
+  global.fetch = async () => queue.shift();
+  try {
+    const result = await generateAiReply(managerPayload());
+    assert.equal(result.ok, false);
+    assert.equal(result.status, 502);
+    assert.match(result.error, /invalid constructiveness assessment/i);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("manager closing runs the same blind semantic and per-message cue validation", async () => {
+  const originalFetch = global.fetch;
+  const closingReply = {
+    messages: [{
+      speaker: "Manager",
+      text: exactWords("I appreciate your input, but this version is not moving forward now. I would genuinely revisit it once the hourly visitor flow and role coverage analysis is ready."),
+    }],
+  };
+  const queue = [
+    responseJson(closingReply),
+    responseJson({
+      specific_problem: false,
+      explicit_standard: false,
+      actionable_remedy: true,
+      current_rejection_maintained: true,
+      current_rejection_evidence: "this version is not moving forward now",
+      current_rejection_redressed: true,
+      has_future_next_step: true,
+      future_next_step_redressed: true,
+      explicit_future_openness: true,
+      concrete_reopening_condition: true,
+      personal_attack_without_diagnosis: false,
+      message_scores: [
+        {
+          politeness_cues: ["I appreciate your input"],
+          face_threat_cues: [],
+          future_next_step: "I would genuinely revisit it once the hourly visitor flow and role coverage analysis is ready",
+          future_next_step_is_redressed: true,
+        },
+      ],
+    }),
+  ];
+  const schemaNames = [];
+  global.fetch = async (_url, options) => {
+    const body = JSON.parse(options.body);
+    schemaNames.push(body.text.format.name);
+    return queue.shift();
+  };
+  try {
+    const result = await generateAiReply(managerPayload({ phase: "closing", condition: "HP_HC" }));
+    assert.equal(result.ok, true);
+    assert.deepEqual(schemaNames, ["experiment_chat_reply", "manager_constructiveness_blind_score"]);
+    assert.equal(result.messages.length, 1);
   } finally {
     global.fetch = originalFetch;
   }
@@ -520,10 +929,15 @@ test("three consecutive blind semantic failures return a safe retryable error", 
         specific_problem: false,
         explicit_standard: false,
         actionable_remedy: false,
+        current_rejection_maintained: true,
+        current_rejection_evidence: "I cannot approve this flexible staffing proposal now",
+        current_rejection_redressed: true,
+        has_future_next_step: true,
+        future_next_step_redressed: true,
+        explicit_future_openness: false,
+        concrete_reopening_condition: false,
         personal_attack_without_diagnosis: false,
-        politeness_cues: 1,
-        face_threat_cues: 0,
-        bald_directives: 0,
+        message_scores: validHighEvaluatorScores().message_scores,
       });
     }
     return responseJson(good);
@@ -534,6 +948,10 @@ test("three consecutive blind semantic failures return a safe retryable error", 
     assert.equal(result.status, 502);
     assert.equal(result.retryable, true);
     assert.match(result.error, /semantically valid constructiveness condition/i);
+    assert.equal(result.validation_failure.kind, "constructiveness-semantic");
+    assert.equal(result.validation_failure.messages.length, 2);
+    assert.equal(result.validation_failure.constructiveness.proposal_problem.length > 0, true);
+    assert.equal(result.validation_failure.blind_scores.specific_problem, false);
     assert.equal(calls, 6);
   } finally {
     global.fetch = originalFetch;

@@ -35,6 +35,7 @@ Do not deploy on a platform/filesystem where server files disappear on restart u
 - `OPENAI_REASONING_EFFORT`: optional reasoning level for GPT-5-class models. Defaults to `low`. Use `medium` or `high` only if you want stronger but slower and more expensive replies.
 - `OPENAI_TIMEOUT_MS`: optional OpenAI request timeout. Defaults to `45000`.
 - `AI_PIPELINE_TIMEOUT_MS`: optional total time limit for one complete AI reply pipeline, including classification, generation, validation, and regeneration. Defaults to `135000`.
+- `AI_VALIDATION_DEBUG`: when `true`, writes failed Manager candidate messages, hidden constructiveness metadata, and the exact validation cause to the server log. Final failures are also retained in the internal `ai_requests.csv` `validation_failure` field. Never expose this diagnostic field to the browser.
 
 The OpenAI API key must be set on the server or in Render environment variables. Do not put the API key in `app.js`, `index.html`, GitHub, Prolific, or any browser-visible file.
 
@@ -54,6 +55,7 @@ The Render service should use:
 - Optional environment variable `OPENAI_MODEL=gpt-5`
 - Optional environment variable `OPENAI_REASONING_EFFORT=low`
 - Optional environment variable `OPENAI_TIMEOUT_MS=45000`
+- Environment variable `AI_VALIDATION_DEBUG=true`
 
 After deployment, use the public service URL as the experiment URL:
 

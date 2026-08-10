@@ -18,6 +18,8 @@ services:
         value: gpt-5.5
       - key: OPENAI_REASONING_EFFORT
         value: low
+      - key: AI_VALIDATION_DEBUG
+        value: "true"
     disk:
       name: experiment-data
       mountPath: /var/data
