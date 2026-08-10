@@ -325,8 +325,8 @@
   ];
 
   // The task description now lives on the page before the room, where it can be read at the
-  // participant's own pace, so the coordinator only has to confirm it and move on. Seven scripted
-  // turns of setup became two. Wording is deliberately looser than the rest of the script: real
+  // participant's own pace, so the coordinator moves straight to the upcoming conversation format
+  // and role assignment. Seven scripted turns of setup became two. Wording is deliberately looser than the rest of the script: real
   // participants in this study capitalised the first letter only 75% of the time, ended a message
   // with punctuation only 33% of the time, and dropped apostrophes in contractions in 41% of
   // messages. The coordinator carries no manipulation, so it can absorb that register safely.
@@ -334,9 +334,9 @@
     {
       speaker: "Coordinator",
       text: [
-        "You have both seen the task description on the previous page.",
-        "You will both have read the task description just now.",
-        "The task description was on the previous page, so you have both seen it.",
+        "Next, the two of you will have a one on one conversation, and I’ll assign your roles before it begins.",
+        "You’ll move into a one on one conversation next, and I’ll assign each of you a role first.",
+        "Next, you’ll be having a one on one conversation. I’ll assign the two roles before you start.",
       ],
       delay: 1600,
     },
