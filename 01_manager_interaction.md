@@ -91,7 +91,7 @@ The rejection always stands for now. The participant can continue explaining or 
 
 ## Structured First Rejection
 
-The first rejection contains exactly two Manager messages. Every English condition targets 58 to 60 words across the pair. The hard acceptance band is 54 to 62 words in total, while each individual message may contain 24 to 38 words so a harmless one-message imbalance does not fail an otherwise matched turn. The average length difference across conditions must remain below 5 percent. Each Chinese message is about 56 to 77 Chinese characters, with about 133 to 138 characters across both messages. Chinese messages must be complete, naturally punctuated sentences.
+The first rejection contains exactly two Manager messages. Every English condition targets 58 to 60 words across the pair. The hard acceptance band is 54 to 70 words in total, while each individual message may contain 24 to 38 words so a harmless one-message imbalance does not fail an otherwise matched turn. The average length difference across conditions must remain below 5 percent. Each Chinese message is about 56 to 77 Chinese characters, with about 133 to 138 characters across both messages. Chinese messages must be complete, naturally punctuated sentences.
 
 Message 1 contains:
 
@@ -117,9 +117,11 @@ The hidden LC structure keeps all three fields empty. The visible reply may name
 
 The LC broad judgment vocabulary is split by politeness. HP LC uses mild vague judgments such as `needs more thought` or `does not quite fit the bigger picture yet`, never harsh adjectives. LP LC uses blunt vague judgments such as `not workable` or `nowhere near ready`. Both carry zero diagnostic information; the wording difference is exactly the politeness factor. Sharing one vocabulary made warm plus vague internally contradictory and produced heavy blind validation failures in that cell.
 
-Data or evidence is not a required template. A lack of evidence may be selected as the problem only when it genuinely fits the participant's proposal.
+HC feedback is generated from the decision logic of the participant's actual proposal, not from a fixed missing-data checklist. The manager identifies one important issue that remains unresolved after reading the entire conversation, explains why it matters, selects a directly relevant standard, and asks for one or two concrete pieces of work that would resolve that exact issue. The four elements must form one logical chain.
 
-For English and Chinese first rejections, the server may remove or add semantically empty modifiers or a neutral sentence saying the judgment concerns the current version to meet the matched total length. If an English pair remains outside the 54 to 62 word hard band, the server makes one length-only rewrite targeting 58 to 60 words. That rewrite is instructed to preserve the rejection, substantive components, future-step redress, and interpersonal cue direction and count. The rewritten pair then goes through the complete metadata, safety, semantic, cue-evidence, and length validation sequence again. If it still misses the band, the request fails rather than widening the experimental limit.
+The unresolved issue may concern an assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap. Data and numerical analysis are not required templates. The improvement path may instead be a concrete comparison, test, operating change, safeguard, or implementation design when that better fits the proposal. The manager must not claim that information is missing if the participant has already supplied it, and must not reuse a stock visitor-flow, role-workload, or cost-analysis request across unrelated proposals.
+
+For English and Chinese first rejections, the server may remove or add semantically empty modifiers or a neutral sentence saying the judgment concerns the current version to meet the matched total length. If an English pair remains outside the 54 to 70 word hard band, the server makes one length-only rewrite targeting 58 to 60 words. That rewrite is instructed to preserve the rejection, substantive components, future-step redress, and interpersonal cue direction and count. The rewritten pair then goes through the complete metadata, safety, semantic, cue-evidence, and length validation sequence again. If it still misses the band, the request fails rather than widening the experimental limit.
 
 ## Subsequent Rejection Turns
 
@@ -283,6 +285,8 @@ The interaction should resemble a live workplace chat.
 
 * Add a short natural delay before manager replies where technically possible.
 * Do not show a typing indicator on every turn.
+* After generation and blind validation of the two-message first rejection, show Message 1 immediately. Then show the Manager typing indicator and calculate a 4.5 to 10 second interval from Message 2's word count before displaying Message 2.
+* Do not add a second full thinking delay before Message 2 because both rejection messages have already been generated together.
 * Keep the participant input available while the manager is typing.
 * If the participant sends another message during a pending reply, queue it or recalculate the pending response using the latest context.
 * Do not use a fixed response script.

@@ -792,7 +792,6 @@ async function generateAiReply(payload, options = {}) {
       lastConstructiveness = result.constructiveness || null;
       lastBlindScores = null;
       lastMessages = sanitizeAiMessages(result.messages, prompt, lastIntent);
-      lastMessages = ensureExplicitManagerRejection(lastMessages, prompt);
       lastMessages = normalizeInitialManagerLength(lastMessages, prompt);
       lastMessages = normalizeSubsequentManagerLength(lastMessages, prompt);
       const messageCountProblem = managerMessageCountProblem(lastMessages, prompt, lastIntent);
@@ -1795,7 +1794,7 @@ function buildInitialManagerPrompt(payload) {
     // target is now high constructiveness's own floor of roughly 57, with headroom above it, and
     // low constructiveness is told plainly that it has to reach the same number.
     wordRange = language === "zh" ? null : { min: 24, max: 38 };
-    totalWordRange = language === "zh" ? null : { min: 54, max: 62 };
+    totalWordRange = language === "zh" ? null : { min: 54, max: 70 };
     totalWordTargetRange = language === "zh" ? null : { min: 58, max: 60 };
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
@@ -1968,7 +1967,7 @@ function buildInitialManagerPrompt(payload) {
         : "",
       ["rejection_initial", "rejection_followup", "rejection"].includes(phase)
         ? (condition.includes("HC")
-          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. The revision_path must include the specific evidence named in the reply. Do not mention this hidden object in the chat."
+          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. The revision_path must name the concrete proposal-specific work or condition communicated in the reply. It does not have to be evidence or data. Do not mention this hidden object in the chat."
           : "Also return the hidden constructiveness object with proposal_problem, relevant_standard, and revision_path set to empty strings. The visible LC reply must not communicate any of those elements. Do not mention this hidden object in the chat.")
         : "",
       task,
@@ -2012,27 +2011,20 @@ function managerConditionRules() {
   // thinking shares the output token budget, and the pile-up drove failures from 3% to 14%.
   const highConstructivenessRules = (highPoliteness) => [
     "Constructiveness content: high.",
-    // Before this conversation the participant has been given two attendance figures, roughly 500
-    // visitors on an off-season day and 5,000 at peak, a qualitative description of the labour
-    // seesaw, and the statement that labour costs are hard to manage. No hourly breakdown, no
-    // role-level staffing counts, no cost figures, nothing on which tasks a temporary worker could
-    // absorb. (The visitor mix and the nearby universities come later, before the second
-    // conversation, and must not be referred to here.) So whatever they propose, they have no basis
-    // for its scale or targeting. That is a real objection to the idea rather than a complaint
-    // about the write-up, and it takes the same shape for every proposal, which keeps it inside the
-    // word budget.
-    "The objection is always the same in kind: the proposal names an action but has no basis for it. Ask what the numbers would have to be and where they would come from.",
-    "1. What is unfounded. Name the specific quantity or targeting the proposal leaves unsupported, in the participant's own terms. For temporary staff that is how many, for which roles, on which days; for a price change it is which dates and how much; for a campaign it is which audience and what response it would need. Say why that gap matters for the decision.",
-    // The standard is the same for every proposal and is about the proposal rather than the park:
-    // a change of this size has to be backed by analysis before it can be acted on. Inventing an
-    // operational metric for each proposal produced near-boilerplate ("cover peak demand without
-    // idle paid hours") that cost ten words every time and pushed the reply past its budget.
-    "2. Standard. State it in one clause and always the same in substance: a change of this size has to be backed by analysis before you can act on it. Do not invent an operational metric for the park.",
+    // The participant can propose any kind of change. A fixed missing-data checklist makes the
+    // manager sound responsive while actually ignoring the proposal's decision logic. The model
+    // therefore diagnoses the proposal before selecting any feedback component.
+    "First infer the central decision uncertainty in this participant's actual proposal from the full conversation. Start from the decision the proposal asks the manager to make, not from a preset staffing, visitor-flow, workload, cost, or evidence checklist.",
+    "Do not claim that something is missing if the participant has already supplied it. Use their latest explanation to identify what still remains unresolved.",
+    "1. Proposal problem. Name one unresolved assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap that is genuinely specific to this proposal. Explain the practical consequence that makes this issue matter for the decision.",
+    "2. Relevant standard. State one clear criterion that logically matches that problem, such as service, safety, reliability, financial feasibility, or operational feasibility. Select the criterion from the proposal rather than defaulting to a generic rule that every change must be backed by analysis.",
     highPoliteness
-      ? "3. The analysis needed. Name the specific analysis that would settle it and express the future path with redress: an hour by hour visitor flow analysis, a role by role workload breakdown showing which tasks a temporary worker could take, a cost comparison against the current overtime spend. 'I would reconsider once you have worked through the peak hour flow and which roles it actually covers.' Never use an unredressed command."
-      : "3. The analysis needed. Name the specific analysis that would settle it and express the future path directly without redress: an hour by hour visitor flow analysis, a role by role workload breakdown showing which tasks a temporary worker could take, a cost comparison against the current overtime spend. It may be a blunt imperative ('Work out the peak hour flow and which roles it covers, then we talk') or a flat statement, but an imperative is not required.",
-    "Name one or two analyses, not four, and say it the way a person would in chat rather than as a request form.",
-    "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. The participant has to know what to go and work out.",
+      ? "3. Improvement path. Name one or two concrete pieces of analysis, information, design work, or safeguards that would directly resolve the identified problem, and express that future path with redress. Never use an unredressed command."
+      : "3. Improvement path. Name one or two concrete pieces of analysis, information, design work, or safeguards that would directly resolve the identified problem, and express that future path directly without redress. It may be a blunt imperative or a flat statement, but an imperative is not required.",
+    "The problem, consequence, standard, and improvement path must form one logical chain. The requested work must help answer the exact uncertainty you identified, not merely add detail to the proposal.",
+    "Use data or numerical analysis only when it is actually what this proposal needs. A concrete operating change, test, comparison, safeguard, or implementation design may be the right path instead.",
+    "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. State exactly what must be learned, compared, tested, designed, or protected before this particular proposal could be reconsidered.",
+    "Do not reuse a stock analysis or a sentence from an earlier turn or another proposal. Generate the diagnosis and path fresh from the participant's actual idea each time.",
     "Do not invent facts about the park that the participant has not been given. All they have at this point is roughly 500 visitors on an off-season day, 5,000 at peak, and that labour costs are hard to manage. You are asking for analysis that does not exist yet, not citing figures you already hold.",
     "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
   ].filter(Boolean).join("\n");
@@ -2979,24 +2971,6 @@ function compressOneEnglishManagerPhrase(message) {
   return false;
 }
 
-function hasExplicitManagerRejection(text) {
-  const rejectionEnglish = /\b(?:cannot|can['’]t|won['’]t|will not|do not|don['’]t|does not|doesn['’]t|is not|isn['’]t|not|no)\b[\s\S]{0,80}\b(?:approve|approved|accept|accepted|move|moving|proceed|proceeding|forward|support|supported|sign|signing|take|taking|ready|workable|pass|greenlight|authorize|back)\b|\b(?:reject|rejecting|rejected|decline|declining|declined|shelve|shelving|shelved|table|tabling)\b|\boff the table\b|\bthe answer is no\b/i;
-  const rejectionChinese = /(?:不|不会|不能|无法|暂不|不予|不打算|不可能).{0,12}(?:批准|同意|接受|推进|采纳|支持|通过|过审|过|往下|继续|落实|采用|考虑|放行)|(?:拒绝|否决|不行|暂时不能|现在不能|先放下|先搁置)/;
-  return rejectionEnglish.test(String(text || "")) || rejectionChinese.test(String(text || ""));
-}
-
-function ensureExplicitManagerRejection(messages, prompt) {
-  if (!prompt || prompt.kind !== "manager1") return messages;
-  if (!["rejection_followup", "rejection"].includes(prompt.phase)) return messages;
-  const normalized = (Array.isArray(messages) ? messages : []).map((message) => ({ ...message }));
-  const managerMessage = normalized.find((message) => message.speaker === "Manager");
-  if (!managerMessage || hasExplicitManagerRejection(managerMessage.text)) return normalized;
-  managerMessage.text = prompt.language === "zh"
-    ? `这个版本仍不能批准。${managerMessage.text}`
-    : `I still cannot approve this version. ${managerMessage.text}`;
-  return normalized;
-}
-
 function managerSafetyProblem(messages, prompt) {
   if (!prompt || prompt.kind !== "manager1") return "";
   if (!["rejection_initial", "rejection_followup", "rejection"].includes(prompt.phase)) return "";
@@ -3013,9 +2987,6 @@ function managerSafetyProblem(messages, prompt) {
   }
   if (personalName.test(text)) {
     return "Name correction required. Do not display Alex, Lisa, or John. Address the participant without a personal name and return only valid JSON.";
-  }
-  if (!hasExplicitManagerRejection(text)) {
-    return "Rejection correction required. State clearly and naturally that the manager is not approving or moving forward with the proposal for now. Do not soften this into uncertainty or approval. Return only valid JSON.";
   }
   if (prompt.language === "zh" && cjkCount < 12) {
     return "Language correction required. Regenerate the complete reply in natural Simplified Chinese while preserving the rejection and assigned condition. Return only valid JSON.";
@@ -3041,7 +3012,7 @@ function managerConstructivenessMetadataProblem(metadata, prompt) {
         highPoliteness
           ? "The problem must be specific to the participant's actual proposal, the standard must be explicit, and the concrete remedy must be phrased as a condition for reconsideration rather than a command."
           : "The problem must be specific to the participant's actual proposal, the standard must be explicit, and the concrete remedy must be expressed directly with no hedge, softener, deference, or other redress. It may be an imperative or a flat statement; do not add a command merely to mark low politeness.",
-        "The revision path must name the specific evidence that is missing, such as particular figures, records, or first-hand accounts, not 'more data' or 'more detail' in the abstract.",
+        "The revision path must name the concrete proposal-specific analysis, comparison, test, design change, information need, safeguard, or other condition that would resolve the diagnosed problem. Do not default to requesting figures, records, or data unless that is what this proposal actually needs.",
         "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
       ].join(" ")
     : [
@@ -3124,9 +3095,9 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
         content: [
           "Blindly score the information value and the interpersonal tone of a manager's rejection reply.",
           "You are not told which experimental condition was intended. Judge only the visible reply in its conversation context.",
-          "specific_problem is true only if the reply identifies, in terms specific to what this participant proposed, what the proposal leaves unsupported and why that matters for the decision: which quantity, which roles, which days or which audience it fails to establish, and what that gap means for acting on it. Naming the proposal topic, calling it impractical, or a bare statement that it needs more thought is false. A generic complaint that could be pasted onto any proposal, with no reference to what this one actually asks for, is also false.",
+          "specific_problem is true only if the reply identifies, in terms specific to what this participant proposed, one genuinely unresolved assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap and explains why it matters for the decision. The issue need not be numerical. Naming the proposal topic, calling it impractical, or merely saying it needs more thought or analysis is false. A generic complaint that could be pasted onto any proposal, or a claimed gap the participant already resolved in the conversation, is also false.",
           "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
-          "actionable_remedy is true only if the reply communicates a concrete change, information, safeguard, or condition that would address the problem before reconsideration. 'Think it through more' or 'bring a stronger version' is false.",
+          "actionable_remedy is true only if the reply communicates a concrete analysis, comparison, test, design change, information need, safeguard, or condition that directly addresses the diagnosed problem before reconsideration. A stock request unrelated to the diagnosed problem is false. 'Think it through more' or 'bring a stronger version' is false.",
           "current_rejection_maintained is true only if the reply makes clear that the current proposal is not being approved or moved forward now. Future openness does not cancel the current rejection.",
           "current_rejection_redressed is true only if the refusal as a whole is clearly accompanied and mitigated by redressive face work, such as appreciation of the participant's contribution, apology, deference, hedging, or depersonalisation. Judge the complete refusal act in context, not isolated words. An explicit phrase such as 'I cannot approve this version' can be redressed when a politeness move is clearly attached to it. A courtesy phrase elsewhere that is not connected to the refusal is not enough.",
           "has_future_next_step is true only if the reply says what the participant or manager may, should, or will do with the proposal later, including revising it, bringing it back, leaving it aside, discussing it again, or reconsidering it. A statement that the proposal is not approved now is the current rejection, not by itself a future next step.",
@@ -3735,7 +3706,6 @@ module.exports = {
   managerLengthProblem,
   managerWordCountProblem,
   managerChineseCharacterCountProblem,
-  ensureExplicitManagerRejection,
   normalizeInitialManagerLength,
   normalizeSubsequentManagerLength,
   chineseCharacterCount,

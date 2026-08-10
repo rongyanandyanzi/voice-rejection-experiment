@@ -29,7 +29,6 @@ const {
   managerLengthProblem,
   managerWordCountProblem,
   managerChineseCharacterCountProblem,
-  ensureExplicitManagerRejection,
   normalizeInitialManagerLength,
   normalizeSubsequentManagerLength,
   chineseCharacterCount,
@@ -147,7 +146,7 @@ test("initial rejection uses two matched structured messages", () => {
     assert.equal(prompt.minMessages, 2);
     assert.equal(prompt.maxMessages, 2);
     assert.deepEqual(prompt.wordRange, { min: 24, max: 38 });
-    assert.deepEqual(prompt.totalWordRange, { min: 54, max: 62 });
+    assert.deepEqual(prompt.totalWordRange, { min: 54, max: 70 });
     assert.deepEqual(prompt.totalWordTargetRange, { min: 58, max: 60 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.equal(prompt.constructivenessAssessmentMode, "rejection");
@@ -180,6 +179,7 @@ test("HC requires all three fields while LC requires all three fields empty", ()
   assert.match(hpCorrection, /condition for reconsideration rather than a command/i);
   assert.match(lpCorrection, /expressed directly with no hedge, softener, deference, or other redress/i);
   assert.match(lpCorrection, /imperative or a flat statement/i);
+  assert.match(lpCorrection, /Do not default to requesting figures, records, or data/i);
   assert.doesNotMatch(lpCorrection, /rather than a command/i);
 });
 
@@ -480,6 +480,21 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   assert.match(rules.LP_HC, /Do no positive politeness/i);
   assert.match(rules.LP_HC, /Do no negative politeness/i);
   assert.match(rules.LP_HC, /Do not say or imply that the participant is stupid, incompetent/i);
+  // HC must diagnose the participant's actual decision rather than repeatedly asking every
+  // proposal for the same visitor-flow, staffing, or cost analysis.
+  for (const condition of ["HP_HC", "LP_HC"]) {
+    assert.match(rules[condition], /infer the central decision uncertainty in this participant's actual proposal/i);
+    assert.match(rules[condition], /Do not claim that something is missing if the participant has already supplied it/i);
+    assert.match(rules[condition], /problem, consequence, standard, and improvement path must form one logical chain/i);
+    assert.match(rules[condition], /Use data or numerical analysis only when it is actually what this proposal needs/i);
+    assert.match(rules[condition], /Do not reuse a stock analysis/i);
+    assert.doesNotMatch(rules[condition], /hour by hour visitor flow/i);
+    assert.doesNotMatch(rules[condition], /role by role workload/i);
+    assert.doesNotMatch(rules[condition], /always the same in substance/i);
+  }
+  const hcPrompt = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
+  assert.match(hcPrompt.system, /It does not have to be evidence or data/i);
+  assert.doesNotMatch(hcPrompt.system, /revision_path must include the specific evidence/i);
   // The cue quota has to be present in all four cells, and the low-constructiveness cells must be
   // told to spend their spare length on neutral wording rather than on more interpersonal cues.
   for (const condition of conditions) {
@@ -625,27 +640,27 @@ test("later rejection length normalization repairs minor English overages", () =
   assert.match(compressed[0].text, /cannot approve/i);
 });
 
-test("later rejection receives an explicit condition-neutral refusal when missing", () => {
-  const prompt = buildInitialManagerPrompt(managerPayload({
-    phase: "rejection_followup",
-    condition: "LP_HC",
-    language: "zh",
-  }));
-  const messages = [{
-    speaker: "Manager",
-    text: "岗位边界还是不清楚，老员工会被带教拖住；旺季必须保证验票稳定，补上岗位和搭班比例后才有再看的价值。",
-  }];
-  const ensured = ensureExplicitManagerRejection(messages, prompt);
-  assert.match(ensured[0].text, /^这个版本仍不能批准。/);
-  assert.equal(managerSafetyProblem(ensured, prompt), "");
+test("explicit rejection is assessed semantically rather than by safety keywords", () => {
+  const prompt = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
+  assert.equal(managerSafetyProblem([
+    { speaker: "Manager", text: "I am not approving this version." },
+  ], prompt), "");
+  assert.equal(managerSafetyProblem([
+    { speaker: "Manager", text: "This may be worth considering later." },
+  ], prompt), "");
+  assert.equal(managerConstructivenessAssessmentProblem(blindScores("LP_HC"), prompt), "");
+  assert.match(managerConstructivenessAssessmentProblem({
+    ...blindScores("LP_HC"),
+    current_rejection_maintained: false,
+    current_rejection_evidence: "",
+  }, prompt), /current proposal is not being approved/i);
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.doesNotMatch(serverSource, /hasExplicitManagerRejection|ensureExplicitManagerRejection/);
 });
 
-test("rejection, identity disclosure, forbidden names, and output language are validated", () => {
+test("identity disclosure, forbidden names, and output language are validated", () => {
   const prompt = buildInitialManagerPrompt(managerPayload());
   assert.equal(managerSafetyProblem(validHighReply().messages, prompt), "");
-  assert.match(managerSafetyProblem([
-    { speaker: "Manager", text: "This may be worth considering later." },
-  ], prompt), /Rejection correction required/);
   assert.match(managerSafetyProblem([
     { speaker: "Manager", text: "I am an AI and cannot approve this proposal." },
   ], prompt), /Safety correction required/);
@@ -701,9 +716,26 @@ test("the actual browser manager opening contains the required three-message str
   assert.doesNotMatch(opening, /market research company/);
 });
 
+test("local rejection shortcut sends the tester's first proposal straight to rejection", () => {
+  const source = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const start = source.indexOf("async function renderManagerRejectionTest()");
+  const end = source.indexOf("function renderRestoredChatRoom", start);
+  const shortcut = source.slice(start, end);
+  assert.notEqual(start, -1);
+  assert.notEqual(end, -1);
+  assert.match(shortcut, /state\.managerFollowupsAsked = 3/);
+  assert.match(shortcut, /what do you think the theme park should do next/i);
+  assert.match(shortcut, /immediate: true/);
+  assert.match(source, /skipTo === "rejection"/);
+  assert.match(source, /renderManagerRejectionTest\(\)/);
+});
+
 test("validated manager requests use a longer non-retrying client timeout and server cancellation", async () => {
   const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
   const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(appSource, /request\.phase === "closing"/);
+  assert.match(appSource, /if \(managerClosing\) return 25000/);
+  assert.match(appSource, /\["discussion", "rejection_initial", "rejection_followup", "rejection"\]\.includes\(request\.phase\)/);
   assert.match(appSource, /validatedManagerPhase \? 150000 : apiRequestTimeoutMs/);
   assert.match(appSource, /request_id: requestId/);
   assert.match(appSource, /error && error\.name === "AbortError"/);
@@ -718,6 +750,35 @@ test("validated manager requests use a longer non-retrying client timeout and se
   assert.equal(result.status, 504);
   assert.equal(result.retryable, true);
   assert.match(result.cause, /test cancellation/);
+});
+
+test("first manager interaction displays only an AI-generated condition-matched closing", () => {
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const managerStart = appSource.indexOf("async function handleManagerInput(text)");
+  const managerEnd = appSource.indexOf("function renderSecondMaterialsIntro", managerStart);
+  const managerFlow = appSource.slice(managerStart, managerEnd);
+  assert.notEqual(managerStart, -1);
+  assert.notEqual(managerEnd, -1);
+  assert.equal((managerFlow.match(/await sendManagerClosing\(\{/g) || []).length, 2);
+  assert.match(appSource, /async function sendManagerClosing\(request\)/);
+  assert.match(appSource, /return sendAiMessages\(request\)/);
+  assert.doesNotMatch(appSource, /managerClosingFallbackText/);
+  assert.doesNotMatch(appSource, /englishClosings|chineseClosings/);
+  assert.match(managerFlow, /if \(!sent\) \{[\s\S]*setComposerEnabled\(true\);[\s\S]*scheduleManagerExitPrompt\(\);/);
+  assert.match(appSource, /if \(opts\.closing\) \{[\s\S]*randomBetween\(4500, 6500\)/);
+});
+
+test("first rejection appears immediately, then types the second message for a length-based interval", () => {
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(appSource, /className === "manager" && opts\.immediate/);
+  assert.match(appSource, /\["rejection_initial", "rejection_followup", "rejection", "closing"\]\.includes\(request\.phase\)/);
+  assert.match(appSource, /result\.intent === "reject_now"/);
+  assert.match(appSource, /for \(const \[messageIndex, message\] of result\.messages\.entries\(\)\)/);
+  assert.match(appSource, /immediate: immediateConditionTurn && !\(initialRejectionPair && messageIndex > 0\)/);
+  assert.match(appSource, /interMessage: initialRejectionPair && messageIndex > 0/);
+  assert.match(appSource, /if \(opts\.interMessage\)/);
+  assert.match(appSource, /const wordsPerMinute = randomBetween\(180, 220\)/);
+  assert.match(appSource, /Math\.min\(10000, Math\.max\(4500/);
 });
 
 test("failed HC structure regenerates and internal fields never reach the browser response", async () => {
@@ -802,7 +863,7 @@ test("an overlong initial rejection gets one length-only rewrite and full blind 
   const overlongReply = validHighReply();
   overlongReply.messages = overlongReply.messages.map((message) => ({
     ...message,
-    text: exactWords(message.text, 35),
+    text: exactWords(message.text, 36),
   }));
   const compressedReply = validHighReply();
   const queue = [

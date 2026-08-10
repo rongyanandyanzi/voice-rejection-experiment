@@ -908,6 +908,31 @@
     composerEl.addEventListener("submit", handleSubmit);
   }
 
+  // Local QA shortcut: skip the study setup and the manager's neutral follow-up rounds. The
+  // tester still types the proposal freely, and that first message is sent straight to the
+  // condition-bearing rejection generator so the feedback remains grounded in the actual idea.
+  async function renderManagerRejectionTest() {
+    markForwardStage("manager1");
+    state.part = "manager1";
+    state.managerChatLocked = false;
+    state.managerAskedFollowup = false;
+    state.managerFollowupsAsked = 3;
+    state.managerDiscussionTurns = 0;
+    state.managerRejected = false;
+    state.managerRejectionRound = 0;
+    state.managerExitPromptShown = false;
+    clearManagerExitPromptTimer();
+    state.lastAiIntent = "";
+    saveParticipant();
+    createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
+    state.managerTurnActive = true;
+    await sendDelayed("Manager", "manager", inZh(
+      "Based on the information you received, what do you think the theme park should do next?",
+      "根据你收到的信息，你认为主题乐园下一步应该怎么做？"
+    ), null, { immediate: true });
+    finishManagerTurn();
+  }
+
   function renderRestoredChatRoom(stage) {
     const chatMeta = restoredChatMeta(stage);
     state.part = stage;
@@ -1581,7 +1606,7 @@
       }
       const windDown = windDownIntent === "wind_down" || state.managerRejectionRound >= 12;
       if (windDown) {
-        const sent = await sendAiMessages({
+        const sent = await sendManagerClosing({
           stage: "manager1",
           phase: "closing",
           condition,
@@ -1625,7 +1650,7 @@
     if (decisionText) {
       recordInteraction("initial_manager_interaction", "alex", decisionText, "end_chat");
     }
-    const sent = await sendAiMessages({
+    const sent = await sendManagerClosing({
       stage: "manager1",
       phase: "closing",
       condition,
@@ -1634,6 +1659,7 @@
     if (!sent) {
       state.managerTurnActive = false;
       setComposerEnabled(true);
+      scheduleManagerExitPrompt();
       return;
     }
     setStatus(inZh("Manager offline", "经理离线"));
@@ -2308,7 +2334,10 @@
 
   async function sendDelayed(speaker, className, text, ms, opts = {}) {
     state.busy = true;
-    if (className === "manager") {
+    if (className === "manager" && opts.immediate) {
+      // Condition-bearing manager turns already wait for generation and blind
+      // validation. Display them immediately once the validated reply arrives.
+    } else if (className === "manager") {
       const plan = managerTimingPlan(text, opts);
       if (plan.showTyping) {
         await delay(plan.thinkingDelay);
@@ -2336,9 +2365,18 @@
     clearApiConnectionIssue();
 
     state.lastAiIntent = result.intent || "";
+    const immediateConditionTurn =
+      request.stage === "manager1" &&
+      (
+        ["rejection_initial", "rejection_followup", "rejection", "closing"].includes(request.phase) ||
+        result.intent === "reject_now"
+      );
+    const initialRejectionPair =
+      request.stage === "manager1" &&
+      (request.phase === "rejection_initial" || result.intent === "reject_now");
 
     let previousCoworkerText = "";
-    for (const message of result.messages) {
+    for (const [messageIndex, message] of result.messages.entries()) {
       const displaySpeaker = normalizeAiSpeaker(message.speaker);
       const displayText = cleanAiDisplayText(message.text);
       const className = speakerClassName(displaySpeaker);
@@ -2350,10 +2388,16 @@
       }
       await sendDelayed(displaySpeaker, className, displayText, delayMs, {
         closing: request.phase === "closing",
+        immediate: immediateConditionTurn && !(initialRejectionPair && messageIndex > 0),
+        interMessage: initialRejectionPair && messageIndex > 0,
       });
       if (isCoworkerClass(className)) previousCoworkerText = displayText;
     }
     return result.messages.length > 0;
+  }
+
+  async function sendManagerClosing(request) {
+    return sendAiMessages(request);
   }
 
   function normalizeAiSpeaker(speaker) {
@@ -2459,6 +2503,12 @@
   }
 
   function aiRequestTimeoutFor(request) {
+    const managerClosing =
+      request &&
+      request.stage === "manager1" &&
+      request.phase === "closing";
+    if (managerClosing) return 25000;
+
     const validatedManagerPhase =
       request &&
       request.stage === "manager1" &&
@@ -2563,6 +2613,36 @@
   }
 
   function managerTimingPlan(text, opts = {}) {
+    if (opts.interMessage) {
+      // The first rejection message appears as soon as generation and blind validation finish.
+      // For the second message, show typing almost immediately and derive the interval from that
+      // message's length. Keep the cap short enough that the participant is not made to wait for
+      // another full response cycle after the content has already been generated.
+      const wordCount = chatTextUnitCount(text);
+      const wordsPerMinute = randomBetween(180, 220);
+      const typingDelay = Math.min(10000, Math.max(4500, Math.round((wordCount / wordsPerMinute) * 60000)));
+      return {
+        showTyping: true,
+        totalDelay: typingDelay + 600,
+        thinkingDelay: randomBetween(250, 450),
+        typingDelay,
+        tailPause: randomBetween(180, 350),
+      };
+    }
+
+    if (opts.closing) {
+      const totalDelay = randomBetween(4500, 6500);
+      const thinkingDelay = randomBetween(1000, 1500);
+      const tailPause = randomBetween(300, 600);
+      return {
+        showTyping: true,
+        totalDelay,
+        thinkingDelay,
+        typingDelay: Math.max(2200, totalDelay - thinkingDelay - tailPause),
+        tailPause,
+      };
+    }
+
     const wordCount = chatTextUnitCount(text);
     const showTyping = true;
     const wordsPerMinute = randomBetween(75, 85);
@@ -2570,12 +2650,10 @@
     const totalDelay = Math.round((wordCount / wordsPerMinute) * 60000 + readingDelay);
     state.lastManagerShowedTyping = true;
 
-    const thinkingDelay = opts.closing
-      ? 2000
-      : randomBetween(
-          Math.min(2500, Math.floor(totalDelay * 0.15)),
-          Math.max(2500, Math.floor(totalDelay * 0.28))
-        );
+    const thinkingDelay = randomBetween(
+      Math.min(2500, Math.floor(totalDelay * 0.15)),
+      Math.max(2500, Math.floor(totalDelay * 0.28))
+    );
     const tailPause = randomBetween(600, Math.max(1000, Math.floor(totalDelay * 0.08)));
     return {
       showTyping,
@@ -3324,6 +3402,12 @@
     renderBriefing();
   } else if (skipTo === "manager" || skipTo === "manager_chat" || skipTo === "manager1") {
     renderManagerChat();
+  } else if (
+    skipTo === "rejection" ||
+    skipTo === "manager_rejection" ||
+    skipTo === "manager1_rejection"
+  ) {
+    renderManagerRejectionTest();
   } else if (skipTo === "transition") {
     renderSecondMaterialsIntro();
   } else if (
