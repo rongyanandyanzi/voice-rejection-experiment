@@ -240,13 +240,29 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   }
   // High politeness fills with general non-diagnostic talk; low politeness restates the decision.
   // Repeating the refusal is what pushed the warm cell into face-threat territory.
-  assert.match(rules.HP_LC, /Spend the remaining length on that general talk, not on saying no again/i);
+  assert.match(rules.HP_LC, /Spend the remaining length on that and on the other general talk, not on saying no again/i);
   assert.match(rules.HP_LC, /State the refusal once and then stop refusing/i);
-  assert.match(rules.LP_LC, /Spend the remaining length on neutral restatement/i);
+  assert.match(rules.LP_LC, /Spend the remaining length on that and on neutral restatement/i);
   assert.doesNotMatch(rules.LP_LC, /State the refusal once and then stop refusing/i);
   for (const condition of ["HP_LC", "LP_LC"]) {
     assert.match(rules[condition], /keep exactly the same number of politeness or dismissiveness cues/i);
+    // Strategic fit is the designated filler topic, given to both politeness levels so it cannot
+    // become a politeness difference. It only stays low-constructiveness while the mismatch is
+    // asserted and never explained: naming the goal would be a standard, explaining the conflict
+    // would be a diagnosis.
+    assert.match(rules[condition], /Your main filler topic is fit with where the park is going/i);
+    assert.match(rules[condition], /Every example phrase in these rules is an illustration of the register, never a line to copy/i);
+    assert.match(rules[condition], /the information content stays zero/i);
+    assert.match(rules[condition], /Never say which goal, direction, or priority, and never explain how the proposal conflicts with it/i);
+    assert.match(rules[condition], /never say which thing/i);
   }
+  // A maturity judgment carries face threat, so it is available blunt to low politeness and only
+  // hedged to high politeness.
+  assert.match(rules.LP_LC, /is not mature enough/i);
+  assert.match(rules.HP_LC, /is not quite there yet/i);
+  assert.match(rules.HP_LC, /have not been fully thought through/i);
+  assert.match(rules.HP_LC, /phrase any judgment about how developed it is in hedged form/i);
+  assert.doesNotMatch(rules.HP_LC, /is not mature enough/i);
 });
 
 test("directives are redressed under high politeness and bald under low politeness", () => {

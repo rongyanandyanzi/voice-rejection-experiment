@@ -1899,15 +1899,30 @@ function managerConditionRules() {
       ? "Anything you say about what happens next stays redressed: 'I would rather leave this where it is for the moment' rather than 'the decision stays'. A flat statement of the outcome reads as a bald directive even when the words are mild."
       : "",
     highPoliteness
-      ? "Use only mild broad judgments such as the overall idea needs more thought, does not quite fit the bigger picture yet, or is not something to take further at this stage. Keep the vagueness gentle: do not call the idea unworkable, sloppy, rough, weak, or not ready."
-      : "Use only blunt broad judgments such as the overall idea is not workable, is nowhere near ready, or does not fit the bigger picture. The required imperative line stays content-free here, such as 'Drop this version for now.' or 'Don't bring this back until it's actually worth discussing.' It must not name any problem, standard, material, or remedy.",
+      // A maturity judgment is good low-constructiveness filler, but it carries face threat, so
+      // high politeness may only use it hedged. Unhedged it makes this cell internally
+      // contradictory, which is what drove its blind-validation failures earlier.
+      ? "Use only mild broad judgments such as the overall idea needs more thought, there are a few things in it that have not been fully thought through, it is not quite in line with where we are headed, it does not quite fit the bigger picture yet, it is not quite there yet, or it is not something to take further at this stage. Keep the vagueness gentle: do not call the idea unworkable, sloppy, rough, or weak, and phrase any judgment about how developed it is in hedged form ('not quite there yet', 'a few things not fully thought through', 'could do with more time') rather than a flat 'this isn't ready'."
+      : "Use only blunt broad judgments such as the overall idea is not workable, is not mature enough, is nowhere near ready, does not line up with where the park is going, or does not fit the bigger picture. The required imperative line stays content-free here, such as 'Drop this version for now.' or 'Don't bring this back until it's actually worth discussing.' It must not name any problem, standard, material, or remedy.",
     // Length is matched across conditions, so a low-constructiveness reply has spare words that a
     // high-constructiveness reply spends on diagnosis. Filling them with extra redressive moves or
     // dismissal makes the politeness contrast larger here than in the high-constructiveness cells,
-    // which confounds the politeness factor with the constructiveness factor.
+    // which confounds the politeness factor with the constructiveness factor. Left without a
+    // designated topic, low constructiveness simply stopped early: it settled around 56 words
+    // against high constructiveness's 61, which is a 10% gap between the two levels. Strategic fit
+    // is the filler because it is the one thing a manager can talk about at length while conveying
+    // nothing usable — it names no problem, no standard, and no revision.
+    "Your main filler topic is fit with where the park is going: its goals, its overall direction, its priorities for the season, the strategy behind how it is run. Say the proposal does not sit well with that.",
+    // The examples throughout these rules are illustrations of a register, not a script. Reused
+    // verbatim they would make the manipulation a handful of detectable canned sentences.
+    "Every example phrase in these rules is an illustration of the register, never a line to copy. Write it fresh each time in your own words, shaped by what the participant actually said and by how the conversation has gone so far. Never reuse a formula you have already used in this conversation.",
+    "That variation is in wording only. However you phrase it, the information content stays zero: varying the sentence must never turn into saying anything specific about their proposal.",
+    // Without this guard the topic becomes constructive feedback. Naming the goal is a standard and
+    // explaining the mismatch is a diagnosis, which is exactly the high-constructiveness content.
+    "Never say which goal, direction, or priority, and never explain how the proposal conflicts with it. The same holds for any claim that something has not been thought through: never say which thing. Every such judgment stays asserted and unexplained. If the participant asks which one, stay just as vague.",
     highPoliteness
-      ? "Spend the remaining length on that general talk, not on saying no again."
-      : "Spend the remaining length on neutral restatement of the broad topic and of the unchanged decision.",
+      ? "Spend the remaining length on that and on the other general talk, not on saying no again."
+      : "Spend the remaining length on that and on neutral restatement of the broad topic and of the unchanged decision.",
     "Do not spend it on additional interpersonal wording: keep exactly the same number of politeness or dismissiveness cues that the assigned politeness style allows, no more.",
   ].filter(Boolean).join("\n");
   // Both styles carry the same per-message quota so that density stays constant across the two
