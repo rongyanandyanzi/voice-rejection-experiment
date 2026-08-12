@@ -111,13 +111,15 @@ The hidden HC structure contains:
 * `relevant_standard`: one clear performance, service, safety, financial, feasibility, or operational criterion.
 * `revision_path`: one concrete and actionable condition that could remedy the current problem before reconsideration.
 
-The path follows the politeness condition. In HP it is redressed, for example by conditional wording such as `I would reconsider once...`. In LP it is expressed directly without redress, either as an imperative or a flat statement. LP does not manufacture a command merely to mark low politeness. The informational content of the HC path stays equivalent across HP and LP.
+The path follows the politeness condition. In HP it is redressed, for example by conditional wording such as `I would reconsider once...`. In LP it is expressed directly without redress, but as a natural subject-led sentence such as `You need to explain...`, `You need to analyze...`, or `I need to see... before I reconsider it.` LP does not use clipped bare commands such as `Build...`, `Map...`, `Run...`, or `Bring it back...`. The informational content of the HC path stays equivalent across HP and LP.
 
 The hidden LC structure keeps all three fields empty. The visible reply may name the broad proposal topic, but must not communicate any specific problem, consequence, evidence type, standard, missing material, risk, or remedy.
 
 The LC broad judgment vocabulary is split by politeness. HP LC uses mild vague judgments such as `needs more thought` or `does not quite fit the bigger picture yet`, never harsh adjectives. LP LC uses blunt vague judgments such as `not workable` or `nowhere near ready`. Both carry zero diagnostic information; the wording difference is exactly the politeness factor. Sharing one vocabulary made warm plus vague internally contradictory and produced heavy blind validation failures in that cell.
 
-HC feedback is generated from the decision logic of the participant's actual proposal, not from a fixed missing-data checklist. The manager identifies one important issue that remains unresolved after reading the entire conversation, explains why it matters, selects a directly relevant standard, and asks for one or two concrete pieces of work that would resolve that exact issue. The four elements must form one logical chain.
+HC feedback is generated from the decision logic of the participant's actual proposal, not from a fixed missing-data checklist. The manager identifies one important issue that remains unresolved after reading the entire conversation, explains why it matters, communicates a directly relevant decision requirement in natural language, and asks for one or two concrete pieces of work that would resolve that exact issue. The four elements must form one logical chain.
+
+The visible manager message must integrate that decision requirement into ordinary reasoning, such as `We need to make sure peak hour service stays reliable.` It must not expose the rubric through labels such as `The standard is...`, `Our standard is...`, `The criterion is...`, `The requirement is...`, or reversed wording such as `Financial feasibility is the standard.` The hidden field remains named `relevant_standard` for data compatibility.
 
 The unresolved issue may concern an assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap. Data and numerical analysis are not required templates. The improvement path may instead be a concrete comparison, test, operating change, safeguard, or implementation design when that better fits the proposal. The manager must not claim that information is missing if the participant has already supplied it, and must not reuse a stock visitor-flow, role-workload, or cost-analysis request across unrelated proposals.
 
@@ -132,8 +134,8 @@ The window is deliberately narrow. A wider window let follow up turns drift to a
 In HC, every turn communicates:
 
 1. One still unresolved problem in the participant's proposal and its consequence.
-2. A clear relevant standard.
-3. A concrete improvement condition, redressed in HP and expressed directly without redress in LP. LP may use an imperative or a flat statement, but no imperative is required.
+2. A clear relevant decision requirement expressed naturally rather than labelled as a standard.
+3. A concrete improvement condition, redressed in HP and expressed directly without redress in LP. LP uses a complete subject-led statement rather than a bare imperative.
 
 In LC, every turn:
 
@@ -202,7 +204,7 @@ It does not use:
 
 The face threat targets the proposal and uses exactly one sharp cue per message. Wording such as `this version is sloppy` or `this is nowhere near ready` is allowed, but attacks on the participant are prohibited.
 
-Low politeness does not need to add a next-step line. In LP HC, the required concrete remedy is stated directly without redress and may be an imperative or a flat statement. In LP LC, no command is added merely to sound blunt; if future handling is mentioned naturally, it stays direct, vague, and non-actionable.
+Low politeness does not need to add a next-step line. In LP HC, the required concrete remedy is stated directly without redress as a complete subject-led sentence, normally `You need to...` or `I need to see...`, rather than a clipped command. In LP LC, no command is added merely to sound blunt; if future handling is mentioned naturally, it stays direct, vague, and non-actionable.
 
 The manager must not replace constructive feedback with an attack on the participant's intelligence, competence, identity, or personal worth. Phrases that say or imply the participant is stupid, incapable, or did not think at all are prohibited.
 
@@ -287,6 +289,8 @@ The interaction should resemble a live workplace chat.
 * Do not show a typing indicator on every turn.
 * After generation and blind validation of the two-message first rejection, show Message 1 immediately. Then show the Manager typing indicator and calculate a 4.5 to 10 second interval from Message 2's word count before displaying Message 2.
 * Do not add a second full thinking delay before Message 2 because both rejection messages have already been generated together.
+* During actual AI generation and blind validation for manager discussion, rejection, follow-up rejection, and closing turns, show the Manager typing indicator. Remove it as soon as the request completes, including on failure.
+* Closing uses the same 150 second validated-manager request window as rejection turns. There is no separate 25 second browser cutoff. Once a closing passes validation, display it immediately after removing the processing-time typing indicator, without adding a simulated delay.
 * Keep the participant input available while the manager is typing.
 * If the participant sends another message during a pending reply, queue it or recalculate the pending response using the latest context.
 * Do not use a fixed response script.

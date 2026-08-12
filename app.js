@@ -2356,7 +2356,18 @@
   }
 
   async function sendAiMessages(request) {
-    const result = await requestAiMessages(request);
+    const showPendingManagerTyping =
+      request.stage === "manager1" &&
+      ["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"].includes(request.phase);
+    const pendingManagerTyping = showPendingManagerTyping
+      ? showTypingIndicator("Manager", "manager")
+      : null;
+    let result;
+    try {
+      result = await requestAiMessages(request);
+    } finally {
+      if (pendingManagerTyping) pendingManagerTyping.remove();
+    }
     if (!result.ok) {
       console.warn(result.error || "The AI chat service is not available. Please check the server configuration.");
       setApiConnectionIssue();
@@ -2503,16 +2514,10 @@
   }
 
   function aiRequestTimeoutFor(request) {
-    const managerClosing =
-      request &&
-      request.stage === "manager1" &&
-      request.phase === "closing";
-    if (managerClosing) return 25000;
-
     const validatedManagerPhase =
       request &&
       request.stage === "manager1" &&
-      ["discussion", "rejection_initial", "rejection_followup", "rejection"].includes(request.phase);
+      ["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"].includes(request.phase);
     return validatedManagerPhase ? 150000 : apiRequestTimeoutMs;
   }
 

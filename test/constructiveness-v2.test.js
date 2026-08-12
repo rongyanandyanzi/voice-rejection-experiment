@@ -177,8 +177,10 @@ test("HC requires all three fields while LC requires all three fields empty", ()
   const hpCorrection = managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" })));
   const lpCorrection = managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" })));
   assert.match(hpCorrection, /condition for reconsideration rather than a command/i);
+  assert.match(hpCorrection, /naturally phrased without a label such as 'The standard is'/i);
   assert.match(lpCorrection, /expressed directly with no hedge, softener, deference, or other redress/i);
-  assert.match(lpCorrection, /imperative or a flat statement/i);
+  assert.match(lpCorrection, /complete subject-led statement/i);
+  assert.match(lpCorrection, /Do not use a bare command/i);
   assert.match(lpCorrection, /Do not default to requesting figures, records, or data/i);
   assert.doesNotMatch(lpCorrection, /rather than a command/i);
 });
@@ -488,6 +490,8 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
     assert.match(rules[condition], /problem, consequence, standard, and improvement path must form one logical chain/i);
     assert.match(rules[condition], /Use data or numerical analysis only when it is actually what this proposal needs/i);
     assert.match(rules[condition], /Do not reuse a stock analysis/i);
+    assert.match(rules[condition], /We need to make sure peak hour service stays reliable/i);
+    assert.match(rules[condition], /Never announce or label it with wording such as 'The standard is'/i);
     assert.doesNotMatch(rules[condition], /hour by hour visitor flow/i);
     assert.doesNotMatch(rules[condition], /role by role workload/i);
     assert.doesNotMatch(rules[condition], /always the same in substance/i);
@@ -534,20 +538,21 @@ test("refusals and optional future steps are redressed only under high politenes
   assert.match(rules.HP_HC, /future next step.*must also be redressed/is);
   assert.match(rules.LP_HC, /current rejection must be explicit and unredressed/i);
   assert.match(rules.LP_HC, /Do not invent a command merely to perform low politeness/i);
-  assert.match(rules.LP_HC, /imperative.*flat statement.*imperative is not required/is);
+  assert.match(rules.LP_HC, /natural subject-led statement/i);
+  assert.match(rules.LP_HC, /Never use a clipped bare command/i);
   assert.match(rules.LP_LC, /If one is included naturally, keep it direct and content-free/i);
   assert.doesNotMatch(rules.LP_LC, /required imperative/i);
   assert.doesNotMatch(rules.LP_LC, /exactly one bald next-step/i);
 
-  // High politeness avoids bare commands. Low politeness does not manufacture a command, but any
-  // naturally occurring future step stays direct and unredressed.
+  // High politeness avoids bare commands. LP HC stays direct and unredressed while using a
+  // complete subject-led sentence instead of a clipped task-list command.
   for (const phase of ["rejection_initial", "rejection_followup", "rejection"]) {
     const hp = buildInitialManagerPrompt(managerPayload({ phase, condition: "HP_HC" }));
     const lp = buildInitialManagerPrompt(managerPayload({ phase, condition: "LP_HC" }));
     assert.match(hp.system, /Avoid command-style wording/i);
-    assert.match(lp.system, /Do not invent a next-step line merely to sound blunt/i);
-    assert.match(lp.system, /If the assigned content naturally includes a future next step, state it directly/i);
-    assert.doesNotMatch(lp.system, /Avoid command-style wording/i);
+    assert.match(lp.system, /State the concrete future remedy directly/i);
+    assert.match(lp.system, /natural subject-led sentence/i);
+    assert.match(lp.system, /Never start a feedback or remedy sentence with a bare command verb/i);
   }
   // The blanket system-level imperative ban stays for HP and for condition-blind phases.
   const hpInitial = buildInitialManagerPrompt(managerPayload({ condition: "HP_LC" }));
@@ -662,6 +667,21 @@ test("identity disclosure, forbidden names, and output language are validated", 
   const prompt = buildInitialManagerPrompt(managerPayload());
   assert.equal(managerSafetyProblem(validHighReply().messages, prompt), "");
   assert.match(managerSafetyProblem([
+    { speaker: "Manager", text: "I cannot approve this version. The standard is reliable peak hour service." },
+  ], prompt), /Natural wording correction required/);
+  assert.match(managerSafetyProblem([
+    { speaker: "Manager", text: "I cannot approve this version. Financial feasibility is the standard." },
+  ], prompt), /Natural wording correction required/);
+  assert.equal(managerSafetyProblem([
+    { speaker: "Manager", text: "I cannot approve this version. We need to make sure peak hour service stays reliable." },
+  ], prompt), "");
+  assert.match(managerSafetyProblem([
+    { speaker: "Manager", text: "I cannot approve this version. Build a roster showing who supervises the interns and what their training covers." },
+  ], prompt), /Natural wording correction required/);
+  assert.equal(managerSafetyProblem([
+    { speaker: "Manager", text: "I cannot approve this version. You need to explain who supervises the interns and what their training covers." },
+  ], prompt), "");
+  assert.match(managerSafetyProblem([
     { speaker: "Manager", text: "I am an AI and cannot approve this proposal." },
   ], prompt), /Safety correction required/);
   assert.match(managerSafetyProblem([
@@ -733,9 +753,8 @@ test("local rejection shortcut sends the tester's first proposal straight to rej
 test("validated manager requests use a longer non-retrying client timeout and server cancellation", async () => {
   const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
   const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
-  assert.match(appSource, /request\.phase === "closing"/);
-  assert.match(appSource, /if \(managerClosing\) return 25000/);
-  assert.match(appSource, /\["discussion", "rejection_initial", "rejection_followup", "rejection"\]\.includes\(request\.phase\)/);
+  assert.doesNotMatch(appSource, /if \(managerClosing\) return 25000/);
+  assert.match(appSource, /\["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"\]\.includes\(request\.phase\)/);
   assert.match(appSource, /validatedManagerPhase \? 150000 : apiRequestTimeoutMs/);
   assert.match(appSource, /request_id: requestId/);
   assert.match(appSource, /error && error\.name === "AbortError"/);
@@ -770,6 +789,10 @@ test("first manager interaction displays only an AI-generated condition-matched 
 
 test("first rejection appears immediately, then types the second message for a length-based interval", () => {
   const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(appSource, /const showPendingManagerTyping =/);
+  assert.match(appSource, /\["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"\]\.includes\(request\.phase\)/);
+  assert.match(appSource, /showTypingIndicator\("Manager", "manager"\)/);
+  assert.match(appSource, /finally \{[\s\S]*pendingManagerTyping\.remove\(\)/);
   assert.match(appSource, /className === "manager" && opts\.immediate/);
   assert.match(appSource, /\["rejection_initial", "rejection_followup", "rejection", "closing"\]\.includes\(request\.phase\)/);
   assert.match(appSource, /result\.intent === "reject_now"/);

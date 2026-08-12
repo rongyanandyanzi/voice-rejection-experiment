@@ -1684,7 +1684,9 @@ function buildInitialManagerPrompt(payload) {
   // occurring next-step wording direct and unredressed.
   const lowPolitenessCondition = condition.startsWith("LP_");
   const nextStepStyleRule = lowPolitenessCondition
-    ? "Do not invent a next-step line merely to sound blunt. If the assigned content naturally includes a future next step, state it directly with no hedge, softener, deference, or question. In HC that next step communicates the concrete remedy; in LC it must remain vague and non-actionable."
+    ? (condition.endsWith("_HC")
+      ? "State the concrete future remedy directly with no hedge, softener, deference, or question, but use a natural subject-led sentence such as 'You need to explain...', 'You need to analyze...', or 'I need to see... before I reconsider it.' Do not use a bare command beginning with verbs such as Build, Map, Set, Run, Work out, Bring, Provide, Explain, or Analyze. Directness comes from the unsoftened wording, not from turning the feedback into an order."
+      : "Do not invent a next-step line merely to sound blunt. If future handling is mentioned naturally, state it directly with no hedge, softener, deference, or question, and keep it vague and non-actionable.")
     // The high-politeness branch used to restate the global command-wording ban word for word;
     // that ban now lives in exactly one place, in the shared rule block below.
     : "";
@@ -1810,11 +1812,11 @@ function buildInitialManagerPrompt(payload) {
       language === "zh"
         ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
         : "Produce exactly 1 Manager chat message. Aim for 35 words, and treat 35 as the target whether you have a lot to say or very little.",
-      `In HC, the reply must again identify one unresolved proposal-specific problem and consequence, state a relevant standard, and name a concrete ${lowPolitenessCondition ? "remedy path expressed directly without redress" : "remedy path expressed with redress"}.`,
+      `In HC, the reply must again identify one unresolved proposal-specific problem and consequence, state a relevant decision requirement in natural wording, and name a concrete ${lowPolitenessCondition ? "remedy path expressed directly without redress" : "remedy path expressed with redress"}.`,
       "In LC, acknowledge only that the participant is still discussing the broad idea, repeat the vague rejection, and add no diagnostic detail, standard, evidence requirement, or remedy.",
       nextStepStyleRule,
       lowPolitenessCondition
-        ? "State the HC remedy directly without redress. It may be a blunt imperative or a flat statement, but do not add a command merely to mark low politeness."
+        ? "State the HC remedy directly without redress as a natural subject-led sentence, normally 'You need to...' or 'I need to see...'. Do not turn it into a bare command or task-list instruction."
         : "Phrase any HC remedy as a condition for reconsideration, not a command or to-do list.",
       "Do not approve the proposal.",
       "Do not end the chat yet.",
@@ -1839,7 +1841,7 @@ function buildInitialManagerPrompt(payload) {
       language === "zh"
         ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
         : "Produce exactly 1 Manager chat message. Aim for 35 words, and treat 35 as the target whether you have a lot to say or very little.",
-      `In HC, include a proposal-specific problem and consequence, an explicit relevant standard, and a concrete ${lowPolitenessCondition ? "remedy path expressed directly without redress" : "remedy path expressed with redress"}.`,
+      `In HC, include a proposal-specific problem and consequence, an explicit relevant decision requirement phrased naturally, and a concrete ${lowPolitenessCondition ? "remedy path expressed directly without redress" : "remedy path expressed with redress"}.`,
       "In LC, keep the response broad and vague, with no diagnostic detail, clear standard, or actionable remedy.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       nextStepStyleRule,
@@ -1869,7 +1871,7 @@ function buildInitialManagerPrompt(payload) {
       "Express the closing and the openness in the assigned condition's tone and level of specificity:",
       condition.includes("HP")
         ? "High politeness: warm, friendly, and encouraging; clearly welcome picking it up again (e.g. 'I'd genuinely be happy to revisit this another time if you want')."
-        : "Low politeness: cold, curt, impatient, and dismissive in tone, with no apology, thanks, appreciation, praise, deference, or hedging. A sharp cue must target the proposal, such as 'this version is sloppy' or 'this is nowhere near ready', never the participant's intelligence or competence. Leave the path open only grudgingly and express that future possibility directly without redress. It may be an imperative or a flat statement, but an imperative is not required. In HC name the concrete reopening condition; in LC keep it vague and non-actionable.",
+        : "Low politeness: cold, curt, impatient, and dismissive in tone, with no apology, thanks, appreciation, praise, deference, or hedging. A sharp cue must target the proposal, such as 'this version is sloppy' or 'this is nowhere near ready', never the participant's intelligence or competence. Leave the path open only grudgingly and express that future possibility directly without redress. In HC use a natural subject-led statement such as 'You need to explain...' or 'I need to see... before I reconsider it', never a bare command such as 'Build...', 'Map...', 'Run...', or 'Bring it back...'. In LC keep the path vague and non-actionable.",
       "Interpersonal cue quota: use one politeness or dismissiveness cue in this message, in one clause only. Do not stack, repeat, or rephrase it, and do not add a second cue to fill length.",
       condition.includes("HC")
         ? "High constructiveness: name the same concrete proposal-focused condition that would need to be met before reconsideration."
@@ -1928,11 +1930,12 @@ function buildInitialManagerPrompt(payload) {
       "Write like a real person typing to a coworker in chat: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases.",
       "Every Manager message must end as a complete, grammatical sentence. Never stop mid-phrase or mid-clause, and do not truncate a sentence to meet the length rule.",
       "If the required content does not fit as natural sentences, say less rather than compressing it into fragments. Readability comes first.",
-      // Low-politeness turns may express a naturally occurring next step as an unredressed
-      // imperative, so the blanket command-wording ban applies only outside those active turns.
-      // An imperative remains optional and is never used as a quota item.
-      conditionActive && lowPolitenessCondition
-        ? ""
+      // LP remains unredressed, but its HC remedy is a natural direct statement rather than a
+      // clipped task-list command. LC has no concrete remedy to phrase.
+      conditionActive && condition === "LP_HC"
+        ? "Keep the direct future path conversational and subject-led. Use 'You need to explain or analyze...' or 'I need to see... before I reconsider it.' Never start a feedback or remedy sentence with a bare command verb such as Build, Map, Set, Run, Work out, Bring, Provide, Prepare, Show, Explain, Analyze, Compare, Define, Test, Add, Clarify, Identify, Specify, or Document."
+        : conditionActive && lowPolitenessCondition
+          ? ""
         : "Avoid command-style wording such as 'Provide ... immediately', 'You must ...', or 'This proposal is incomplete and overlooks clear operational needs.' Do not start feedback sentences with command verbs like Separate, Explain, Provide, Add, or Clarify.",
       conditionActive
         ? "For rejection turns, respond to the participant's actual proposal while preserving the assigned content structure. High constructiveness diagnoses the proposal specifically; low constructiveness may name only the broad proposal topic and must not engage the participant's reasons in detail."
@@ -2017,10 +2020,10 @@ function managerConditionRules() {
     "First infer the central decision uncertainty in this participant's actual proposal from the full conversation. Start from the decision the proposal asks the manager to make, not from a preset staffing, visitor-flow, workload, cost, or evidence checklist.",
     "Do not claim that something is missing if the participant has already supplied it. Use their latest explanation to identify what still remains unresolved.",
     "1. Proposal problem. Name one unresolved assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap that is genuinely specific to this proposal. Explain the practical consequence that makes this issue matter for the decision.",
-    "2. Relevant standard. State one clear criterion that logically matches that problem, such as service, safety, reliability, financial feasibility, or operational feasibility. Select the criterion from the proposal rather than defaulting to a generic rule that every change must be backed by analysis.",
+    "2. Decision requirement. Communicate one clear criterion that logically matches that problem, such as service, safety, reliability, financial feasibility, or operational feasibility. Express it as part of the manager's natural reasoning, for example 'We need to make sure peak hour service stays reliable' or 'We have to know the change can pay for itself.' Never announce or label it with wording such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed construction such as 'Financial feasibility is the standard.' The examples describe sentence form only and are not scripts to copy.",
     highPoliteness
       ? "3. Improvement path. Name one or two concrete pieces of analysis, information, design work, or safeguards that would directly resolve the identified problem, and express that future path with redress. Never use an unredressed command."
-      : "3. Improvement path. Name one or two concrete pieces of analysis, information, design work, or safeguards that would directly resolve the identified problem, and express that future path directly without redress. It may be a blunt imperative or a flat statement, but an imperative is not required.",
+      : "3. Improvement path. Name one or two concrete pieces of analysis, information, design work, or safeguards that would directly resolve the identified problem. Express that path directly without redress but as a natural subject-led statement, normally 'You need to explain...', 'You need to analyze...', or 'I need to see... before I reconsider it.' Never use a clipped bare command such as 'Build...', 'Map...', 'Set...', 'Run...', 'Work out...', or 'Bring it back...'.",
     "The problem, consequence, standard, and improvement path must form one logical chain. The requested work must help answer the exact uncertainty you identified, not merely add detail to the proposal.",
     "Use data or numerical analysis only when it is actually what this proposal needs. A concrete operating change, test, comparison, safeguard, or implementation design may be the right path instead.",
     "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. State exactly what must be learned, compared, tested, designed, or protected before this particular proposal could be reconsidered.",
@@ -2106,7 +2109,7 @@ function managerConditionRules() {
     "Do no negative politeness: no apology, no deference, no hedging of the refusal, and state it in your own voice ('I am not approving this') rather than depersonalising it.",
     "Attach one face threat to the proposal per message, such as 'this version is sloppy' or 'this is nowhere near ready'.",
     ...politenessCueQuota,
-    "Do not invent a command merely to perform low politeness. If the assigned content naturally includes a future next step, express it directly without redress: a plain imperative or flat statement with no conditional framing, hedging, softener, deference, or question.",
+    "Do not invent a command merely to perform low politeness. If the assigned content naturally includes a future next step, express it directly without redress using a complete subject-led statement with no hedging, softener, deference, or question.",
     "Do not pile up directives or flat next-step statements.",
     "Do not say or imply that the participant is stupid, incompetent, incapable, personally deficient, or did not think at all. Keep the face threat proposal-focused.",
   ].join("\n");
@@ -2973,13 +2976,15 @@ function compressOneEnglishManagerPhrase(message) {
 
 function managerSafetyProblem(messages, prompt) {
   if (!prompt || prompt.kind !== "manager1") return "";
-  if (!["rejection_initial", "rejection_followup", "rejection"].includes(prompt.phase)) return "";
+  if (!["rejection_initial", "rejection_followup", "rejection", "closing"].includes(prompt.phase)) return "";
   const text = (Array.isArray(messages) ? messages : [])
     .filter((message) => message && message.speaker === "Manager")
     .map((message) => String(message.text || "").trim())
     .join(" ");
   const disclosure = /\b(?:AI|artificial intelligence|language model|chatbot|bot|experimental condition|politeness condition|constructiveness condition)\b|人工智能|语言模型|聊天机器人|实验条件|礼貌性条件|建设性条件/i;
   const personalName = /\b(?:Alex|Lisa|John)\b/i;
+  const labelledStandard = /\b(?:the|our)\s+(?:relevant\s+|operational\s+|service\s+|safety\s+|financial\s+)?(?:standard|criterion|requirement)\b|\b(?:is|are)\s+(?:the|our)\s+(?:relevant\s+|operational\s+|service\s+|safety\s+|financial\s+)?(?:standard|criterion|requirement)\b/i;
+  const bareRemedyCommand = /(?:^|[.!?;:]\s+)(?:build|map|set|run|work out|bring|provide|prepare|show|explain|analy[sz]e|calculate|compare|define|test|add|clarify|identify|specify|document|lay out)\b/i;
   const cjkCount = (text.match(/[\u3400-\u9fff]/g) || []).length;
 
   if (disclosure.test(text)) {
@@ -2987,6 +2992,12 @@ function managerSafetyProblem(messages, prompt) {
   }
   if (personalName.test(text)) {
     return "Name correction required. Do not display Alex, Lisa, or John. Address the participant without a personal name and return only valid JSON.";
+  }
+  if (["HP_HC", "LP_HC"].includes(prompt.condition) && labelledStandard.test(text)) {
+    return "Natural wording correction required. Keep the same clear decision criterion, but integrate it into the manager's reasoning as a natural sentence such as 'We need to make sure peak hour service stays reliable.' Do not label it with phrases such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed phrase ending in 'is the standard'. Preserve the proposal-specific problem, remedy, rejection, politeness condition, message count, and length. Return only valid JSON.";
+  }
+  if (["HP_HC", "LP_HC"].includes(prompt.condition) && prompt.language === "en" && bareRemedyCommand.test(text)) {
+    return "Natural wording correction required. Keep the same concrete remedy, but rewrite every bare command as a complete subject-led explanation. In LP_HC use direct wording such as 'You need to explain...', 'You need to analyze...', or 'I need to see... before I reconsider it' with no hedge or softener. In HP_HC keep the corresponding future path redressed. Do not begin a sentence with Build, Map, Set, Run, Work out, Bring, Provide, Prepare, Show, Explain, Analyze, Compare, Define, Test, Add, Clarify, Identify, Specify, Document, or Lay out. Preserve the proposal-specific problem, decision requirement, rejection, politeness condition, message count, and length. Return only valid JSON.";
   }
   if (prompt.language === "zh" && cjkCount < 12) {
     return "Language correction required. Regenerate the complete reply in natural Simplified Chinese while preserving the rejection and assigned condition. Return only valid JSON.";
@@ -3010,8 +3021,8 @@ function managerConstructivenessMetadataProblem(metadata, prompt) {
         "Constructiveness structure correction required.",
         "This is a high-constructiveness rejection. Return non-empty hidden strings for proposal_problem, relevant_standard, and revision_path, and communicate all three meanings in the visible Manager reply.",
         highPoliteness
-          ? "The problem must be specific to the participant's actual proposal, the standard must be explicit, and the concrete remedy must be phrased as a condition for reconsideration rather than a command."
-          : "The problem must be specific to the participant's actual proposal, the standard must be explicit, and the concrete remedy must be expressed directly with no hedge, softener, deference, or other redress. It may be an imperative or a flat statement; do not add a command merely to mark low politeness.",
+          ? "The problem must be specific to the participant's actual proposal, the decision requirement must be clear and naturally phrased without a label such as 'The standard is', and the concrete remedy must be phrased as a condition for reconsideration rather than a command."
+          : "The problem must be specific to the participant's actual proposal, the decision requirement must be clear and naturally phrased without a label such as 'The standard is', and the concrete remedy must be expressed directly with no hedge, softener, deference, or other redress as a complete subject-led statement such as 'You need to explain...' or 'I need to see...'. Do not use a bare command.",
         "The revision path must name the concrete proposal-specific analysis, comparison, test, design change, information need, safeguard, or other condition that would resolve the diagnosed problem. Do not default to requesting figures, records, or data unless that is what this proposal actually needs.",
         "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
       ].join(" ")
@@ -3096,7 +3107,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "Blindly score the information value and the interpersonal tone of a manager's rejection reply.",
           "You are not told which experimental condition was intended. Judge only the visible reply in its conversation context.",
           "specific_problem is true only if the reply identifies, in terms specific to what this participant proposed, one genuinely unresolved assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap and explains why it matters for the decision. The issue need not be numerical. Naming the proposal topic, calling it impractical, or merely saying it needs more thought or analysis is false. A generic complaint that could be pasted onto any proposal, or a claimed gap the participant already resolved in the conversation, is also false.",
-          "explicit_standard is true only if the reply states a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A vague reference to the bigger picture is false.",
+          "explicit_standard is true only if the reply communicates a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A natural requirement such as 'We need to make sure peak hour service stays reliable' or 'We have to know the change can pay for itself' is explicit and should be true; the reply does not need to label it as a standard or criterion. A vague reference to the bigger picture is false.",
           "actionable_remedy is true only if the reply communicates a concrete analysis, comparison, test, design change, information need, safeguard, or condition that directly addresses the diagnosed problem before reconsideration. A stock request unrelated to the diagnosed problem is false. 'Think it through more' or 'bring a stronger version' is false.",
           "current_rejection_maintained is true only if the reply makes clear that the current proposal is not being approved or moved forward now. Future openness does not cancel the current rejection.",
           "current_rejection_redressed is true only if the refusal as a whole is clearly accompanied and mitigated by redressive face work, such as appreciation of the participant's contribution, apology, deference, hedging, or depersonalisation. Judge the complete refusal act in context, not isolated words. An explicit phrase such as 'I cannot approve this version' can be redressed when a politeness move is clearly attached to it. A courtesy phrase elsewhere that is not connected to the refusal is not enough.",
@@ -3338,7 +3349,7 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
         : "Keep the future invitation vague and general. Remove every specific problem, consequence, standard, evidence type, missing element, concrete change, and actionable remedy.");
     } else {
       corrections.push(highConstructiveness
-        ? `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific problem and consequence, one explicit relevant standard, and one concrete remedy path ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}.`
+        ? `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific problem and consequence, one clear decision requirement expressed as natural manager reasoning rather than labelled 'the standard', and one concrete remedy path ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}.`
         : "Regenerate the visible reply as deliberately vague and unhelpful. Remove all specific problems and consequences, standards, evidence or information requirements, concrete missing elements, and actionable remedies.");
     }
   }
