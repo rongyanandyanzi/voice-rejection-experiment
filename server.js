@@ -1812,7 +1812,7 @@ function buildInitialManagerPrompt(payload) {
       language === "zh"
         ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
         : "Produce exactly 1 Manager chat message. Aim for 35 words, and treat 35 as the target whether you have a lot to say or very little.",
-      `In HC, the reply must again identify one unresolved proposal-specific problem and consequence, state a relevant decision requirement in natural wording, and name a concrete ${lowPolitenessCondition ? "remedy path expressed directly without redress" : "remedy path expressed with redress"}.`,
+      `In HC, the reply must again identify one unresolved proposal-specific evidence gap and its consequence, explain what relationship, comparison, effect, tradeoff, constraint, or trial result the analysis must assess, and name a concrete data-analysis ${lowPolitenessCondition ? "path expressed directly without redress" : "path expressed with redress"}.`,
       "In LC, acknowledge only that the participant is still discussing the broad idea, repeat the vague rejection, and add no diagnostic detail, standard, evidence requirement, or remedy.",
       nextStepStyleRule,
       lowPolitenessCondition
@@ -1841,7 +1841,7 @@ function buildInitialManagerPrompt(payload) {
       language === "zh"
         ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
         : "Produce exactly 1 Manager chat message. Aim for 35 words, and treat 35 as the target whether you have a lot to say or very little.",
-      `In HC, include a proposal-specific problem and consequence, an explicit relevant decision requirement phrased naturally, and a concrete ${lowPolitenessCondition ? "remedy path expressed directly without redress" : "remedy path expressed with redress"}.`,
+      `In HC, include a proposal-specific evidence gap and consequence, explain what relationship, comparison, effect, tradeoff, constraint, or trial result the analysis must assess, and give a concrete data-analysis ${lowPolitenessCondition ? "path expressed directly without redress" : "path expressed with redress"}.`,
       "In LC, keep the response broad and vague, with no diagnostic detail, clear standard, or actionable remedy.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       nextStepStyleRule,
@@ -1874,7 +1874,7 @@ function buildInitialManagerPrompt(payload) {
         : "Low politeness: cold, curt, impatient, and dismissive in tone, with no apology, thanks, appreciation, praise, deference, or hedging. A sharp cue must target the proposal, such as 'this version is sloppy' or 'this is nowhere near ready', never the participant's intelligence or competence. Leave the path open only grudgingly and express that future possibility directly without redress. In HC use a natural subject-led statement such as 'You need to explain...' or 'I need to see... before I reconsider it', never a bare command such as 'Build...', 'Map...', 'Run...', or 'Bring it back...'. In LC keep the path vague and non-actionable.",
       "Interpersonal cue quota: use one politeness or dismissiveness cue in this message, in one clause only. Do not stack, repeat, or rephrase it, and do not add a second cue to fill length.",
       condition.includes("HC")
-        ? "High constructiveness: name the same concrete proposal-focused condition that would need to be met before reconsideration."
+        ? "High constructiveness: name the same concrete proposal-specific data or analysis condition that would need to be met before reconsideration."
         : "Low constructiveness: keep the openness entirely vague and general. Do not name a problem, standard, missing material, evidence type, or revision path. Spend the remaining length on neutral restatement of the unchanged decision rather than on more interpersonal wording.",
     ].filter(Boolean).join("\n");
     // A 20-word window (18-38) let the closing drift to a 28% length spread across condition means,
@@ -1970,7 +1970,7 @@ function buildInitialManagerPrompt(payload) {
         : "",
       ["rejection_initial", "rejection_followup", "rejection"].includes(phase)
         ? (condition.includes("HC")
-          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. The revision_path must name the concrete proposal-specific work or condition communicated in the reply. It does not have to be evidence or data. Do not mention this hidden object in the chat."
+          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. proposal_problem records the proposal-specific evidence gap and consequence. For data compatibility the field remains named relevant_standard, but its value records the concrete proposal-specific relationship, comparison, effect, tradeoff, or uncertainty the analysis must assess, not a labelled or generic standard. revision_path records the specific data and analysis needed to resolve that gap. Do not mention this hidden object in the chat."
           : "Also return the hidden constructiveness object with proposal_problem, relevant_standard, and revision_path set to empty strings. The visible LC reply must not communicate any of those elements. Do not mention this hidden object in the chat.")
         : "",
       task,
@@ -2019,14 +2019,16 @@ function managerConditionRules() {
     // therefore diagnoses the proposal before selecting any feedback component.
     "First infer the central decision uncertainty in this participant's actual proposal from the full conversation. Start from the decision the proposal asks the manager to make, not from a preset staffing, visitor-flow, workload, cost, or evidence checklist.",
     "Do not claim that something is missing if the participant has already supplied it. Use their latest explanation to identify what still remains unresolved.",
-    "1. Proposal problem. Name one unresolved assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap that is genuinely specific to this proposal. Explain the practical consequence that makes this issue matter for the decision.",
-    "2. Decision requirement. Communicate one clear criterion that logically matches that problem, such as service, safety, reliability, financial feasibility, or operational feasibility. Express it as part of the manager's natural reasoning, for example 'We need to make sure peak hour service stays reliable' or 'We have to know the change can pay for itself.' Never announce or label it with wording such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed construction such as 'Financial feasibility is the standard.' The examples describe sentence form only and are not scripts to copy.",
+    "Every HC rejection must communicate that the current proposal is not yet supported by enough proposal-specific evidence for this decision. Do not rely on the generic phrase 'needs more data'; identify the exact unanswered question and the exact analysis that would answer it.",
+    "1. Proposal-specific evidence gap. Name one unresolved assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim in this proposal for which the conversation has not supplied decision-relevant data. Explain the practical consequence of deciding without that evidence.",
+    "2. Decision analysis. Explain one concrete effect, tradeoff, constraint, or uncertainty the manager has to consider for this proposal, and state what relationship, comparison, pattern, or trial result the analysis needs to establish. For an AI coordination proposal, the analysis might compare recommendation quality, supervisor approval delays, overrides, or service outcomes under AI-assisted and current coordination. For a pricing proposal, it might compare quieter-day booking gains with peak-day revenue losses. These illustrate how to reason from the proposal and must never become stock scripts.",
+    "Do not satisfy the decision consideration by merely naming an abstract value or desired outcome such as 'service must stay reliable', 'safety matters', 'the change must be financially feasible', or 'we need operational feasibility'. Explain what about this proposal could affect that outcome and therefore has to be considered. The consideration may be integrated into the problem or consequence sentence; it does not need its own labelled sentence.",
+    "Never announce or label the consideration with wording such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed construction such as 'Financial feasibility is the standard.'",
     highPoliteness
-      ? "3. Improvement path. Name one or two concrete pieces of analysis, information, design work, or safeguards that would directly resolve the identified problem, and express that future path with redress. Never use an unredressed command."
-      : "3. Improvement path. Name one or two concrete pieces of analysis, information, design work, or safeguards that would directly resolve the identified problem. Express that path directly without redress but as a natural subject-led statement, normally 'You need to explain...', 'You need to analyze...', or 'I need to see... before I reconsider it.' Never use a clipped bare command such as 'Build...', 'Map...', 'Set...', 'Run...', 'Work out...', or 'Bring it back...'.",
-    "The problem, consequence, standard, and improvement path must form one logical chain. The requested work must help answer the exact uncertainty you identified, not merely add detail to the proposal.",
-    "Use data or numerical analysis only when it is actually what this proposal needs. A concrete operating change, test, comparison, safeguard, or implementation design may be the right path instead.",
-    "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. State exactly what must be learned, compared, tested, designed, or protected before this particular proposal could be reconsidered.",
+      ? "3. Evidence-based improvement path. Name one or two concrete proposal-specific measures, observations, records, comparisons, or trial results the participant should analyze to resolve that exact uncertainty, and express the future path with redress. Never use an unredressed command."
+      : "3. Evidence-based improvement path. Name one or two concrete proposal-specific measures, observations, records, comparisons, or trial results the participant needs to analyze to resolve that exact uncertainty. Express that path directly without redress but as a natural subject-led statement, normally 'You need to analyze...', 'You need to compare...', or 'I need to see... before I reconsider it.' Never use a clipped bare command such as 'Build...', 'Map...', 'Set...', 'Run...', 'Work out...', or 'Bring it back...'.",
+    "The evidence gap, consequence, decision analysis, and improvement path must form one logical chain. The requested data and analysis must test the exact assumption or tradeoff identified in the participant's proposal, not merely add detail or produce a generic report.",
+    "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. Name what should be measured or observed, what should be compared or analyzed, and how that result bears on this particular decision.",
     "Do not reuse a stock analysis or a sentence from an earlier turn or another proposal. Generate the diagnosis and path fresh from the participant's actual idea each time.",
     "Do not invent facts about the park that the participant has not been given. All they have at this point is roughly 500 visitors on an off-season day, 5,000 at peak, and that labour costs are hard to manage. You are asking for analysis that does not exist yet, not citing figures you already hold.",
     "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
@@ -2119,7 +2121,7 @@ function managerConditionRules() {
       "Condition: high politeness plus high constructiveness.",
       highPoliteness,
       highConstructivenessRules(true),
-      "Keep the substantive problem, standard, and revision path equivalent to LP_HC; only the interpersonal wording should differ.",
+      "Keep the substantive problem, decision consideration, and revision path equivalent to LP_HC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
     ].join("\n"),
     HP_LC: [
@@ -2133,7 +2135,7 @@ function managerConditionRules() {
       "Condition: low politeness plus high constructiveness.",
       lowPoliteness,
       highConstructivenessRules(false),
-      "Keep the substantive problem, standard, and revision path equivalent to HP_HC; only the interpersonal wording should differ.",
+      "Keep the substantive problem, decision consideration, and revision path equivalent to HP_HC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
     ].join("\n"),
     LP_LC: [
@@ -2983,7 +2985,7 @@ function managerSafetyProblem(messages, prompt) {
     .join(" ");
   const disclosure = /\b(?:AI|artificial intelligence|language model|chatbot|bot|experimental condition|politeness condition|constructiveness condition)\b|人工智能|语言模型|聊天机器人|实验条件|礼貌性条件|建设性条件/i;
   const personalName = /\b(?:Alex|Lisa|John)\b/i;
-  const labelledStandard = /\b(?:the|our)\s+(?:relevant\s+|operational\s+|service\s+|safety\s+|financial\s+)?(?:standard|criterion|requirement)\b|\b(?:is|are)\s+(?:the|our)\s+(?:relevant\s+|operational\s+|service\s+|safety\s+|financial\s+)?(?:standard|criterion|requirement)\b/i;
+  const labelledStandard = /(?:^|[.!?;:]\s+)(?:the|our)\s+(?:(?:relevant|operational|service|safety|financial)\s+)?(?:standard|criterion|requirement)\s+(?:is|are)\b|\b(?:is|are)\s+(?:the|our)\s+(?:(?:relevant|operational|service|safety|financial)\s+)?(?:standard|criterion|requirement)(?=\s*(?:[.!?;:]|$))/i;
   const bareRemedyCommand = /(?:^|[.!?;:]\s+)(?:build|map|set|run|work out|bring|provide|prepare|show|explain|analy[sz]e|calculate|compare|define|test|add|clarify|identify|specify|document|lay out)\b/i;
   const cjkCount = (text.match(/[\u3400-\u9fff]/g) || []).length;
 
@@ -2994,7 +2996,7 @@ function managerSafetyProblem(messages, prompt) {
     return "Name correction required. Do not display Alex, Lisa, or John. Address the participant without a personal name and return only valid JSON.";
   }
   if (["HP_HC", "LP_HC"].includes(prompt.condition) && labelledStandard.test(text)) {
-    return "Natural wording correction required. Keep the same clear decision criterion, but integrate it into the manager's reasoning as a natural sentence such as 'We need to make sure peak hour service stays reliable.' Do not label it with phrases such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed phrase ending in 'is the standard'. Preserve the proposal-specific problem, remedy, rejection, politeness condition, message count, and length. Return only valid JSON.";
+    return "Natural wording correction required. Keep the same concrete proposal-specific decision consideration, but explain what effect, tradeoff, constraint, or uncertainty the manager has to consider and integrate it into the reasoning. Do not merely rename an abstract standard, and do not label it with phrases such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed phrase ending in 'is the standard'. Preserve the proposal-specific problem, remedy, rejection, politeness condition, message count, and length. Return only valid JSON.";
   }
   if (["HP_HC", "LP_HC"].includes(prompt.condition) && prompt.language === "en" && bareRemedyCommand.test(text)) {
     return "Natural wording correction required. Keep the same concrete remedy, but rewrite every bare command as a complete subject-led explanation. In LP_HC use direct wording such as 'You need to explain...', 'You need to analyze...', or 'I need to see... before I reconsider it' with no hedge or softener. In HP_HC keep the corresponding future path redressed. Do not begin a sentence with Build, Map, Set, Run, Work out, Bring, Provide, Prepare, Show, Explain, Analyze, Compare, Define, Test, Add, Clarify, Identify, Specify, Document, or Lay out. Preserve the proposal-specific problem, decision requirement, rejection, politeness condition, message count, and length. Return only valid JSON.";
@@ -3021,9 +3023,9 @@ function managerConstructivenessMetadataProblem(metadata, prompt) {
         "Constructiveness structure correction required.",
         "This is a high-constructiveness rejection. Return non-empty hidden strings for proposal_problem, relevant_standard, and revision_path, and communicate all three meanings in the visible Manager reply.",
         highPoliteness
-          ? "The problem must be specific to the participant's actual proposal, the decision requirement must be clear and naturally phrased without a label such as 'The standard is', and the concrete remedy must be phrased as a condition for reconsideration rather than a command."
-          : "The problem must be specific to the participant's actual proposal, the decision requirement must be clear and naturally phrased without a label such as 'The standard is', and the concrete remedy must be expressed directly with no hedge, softener, deference, or other redress as a complete subject-led statement such as 'You need to explain...' or 'I need to see...'. Do not use a bare command.",
-        "The revision path must name the concrete proposal-specific analysis, comparison, test, design change, information need, safeguard, or other condition that would resolve the diagnosed problem. Do not default to requesting figures, records, or data unless that is what this proposal actually needs.",
+          ? "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and phrase the evidence-based remedy as a condition for reconsideration rather than a command."
+          : "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and state the evidence-based remedy directly with no hedge, softener, deference, or other redress as a complete subject-led sentence such as 'You need to analyze...' or 'I need to see...'. Do not use a bare command.",
+        "The revision path must name the concrete measures, observations, records, comparisons, or trial results that should be analyzed for this participant's actual proposal. A generic request for more data or more analysis is not sufficient.",
         "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
       ].join(" ")
     : [
@@ -3106,15 +3108,15 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
         content: [
           "Blindly score the information value and the interpersonal tone of a manager's rejection reply.",
           "You are not told which experimental condition was intended. Judge only the visible reply in its conversation context.",
-          "specific_problem is true only if the reply identifies, in terms specific to what this participant proposed, one genuinely unresolved assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap and explains why it matters for the decision. The issue need not be numerical. Naming the proposal topic, calling it impractical, or merely saying it needs more thought or analysis is false. A generic complaint that could be pasted onto any proposal, or a claimed gap the participant already resolved in the conversation, is also false.",
-          "explicit_standard is true only if the reply communicates a clear performance, service, safety, financial, feasibility, or operational criterion used to judge acceptability. A natural requirement such as 'We need to make sure peak hour service stays reliable' or 'We have to know the change can pay for itself' is explicit and should be true; the reply does not need to label it as a standard or criterion. A vague reference to the bigger picture is false.",
-          "actionable_remedy is true only if the reply communicates a concrete analysis, comparison, test, design change, information need, safeguard, or condition that directly addresses the diagnosed problem before reconsideration. A stock request unrelated to the diagnosed problem is false. 'Think it through more' or 'bring a stronger version' is false.",
+          "specific_problem is true only if the reply identifies one decision-relevant evidence gap tied to a specific assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim in this participant's actual proposal and explains the consequence of deciding without that evidence. The manager need not use the words data or evidence, but the missing empirical support must be clear. Naming the proposal topic, calling it impractical, or merely saying it needs more data, thought, detail, or analysis is false. A generic complaint that could be pasted onto another proposal, or a claimed gap the participant already resolved in the conversation, is also false.",
+          "explicit_standard is a legacy field name. Score it from meaning, not from the presence of words such as standard, criterion, requirement, service, safety, reliability, feasibility, data, or analysis. Set it true only if the reply explains the concrete proposal-specific relationship, comparison, pattern, effect, tradeoff, constraint, or trial result the analysis must assess and how that result bears on the decision. Generic claims such as 'service must stay reliable', 'safety matters', 'the change must be financially feasible', 'we need operational feasibility', or 'the proposal needs data support' are false. A vague reference to the bigger picture is also false.",
+          "actionable_remedy is true only if the reply names one or two concrete proposal-specific measures, observations, records, comparisons, or trial results and says what should be analyzed or compared to address the diagnosed evidence gap before reconsideration. A generic request for more data, more evidence, more research, more detail, or more analysis is false. A stock data request unrelated to the diagnosed problem is false. 'Think it through more' or 'bring a stronger version' is false.",
           "current_rejection_maintained is true only if the reply makes clear that the current proposal is not being approved or moved forward now. Future openness does not cancel the current rejection.",
           "current_rejection_redressed is true only if the refusal as a whole is clearly accompanied and mitigated by redressive face work, such as appreciation of the participant's contribution, apology, deference, hedging, or depersonalisation. Judge the complete refusal act in context, not isolated words. An explicit phrase such as 'I cannot approve this version' can be redressed when a politeness move is clearly attached to it. A courtesy phrase elsewhere that is not connected to the refusal is not enough.",
           "has_future_next_step is true only if the reply says what the participant or manager may, should, or will do with the proposal later, including revising it, bringing it back, leaving it aside, discussing it again, or reconsidering it. A statement that the proposal is not approved now is the current rejection, not by itself a future next step.",
           "future_next_step_redressed is true only when an existing future next step is softened or framed with appreciation, apology, deference, hedging, conditional wording, or another clear redressive move. A bare imperative or flat unsoftened future instruction is false. If has_future_next_step is false, set future_next_step_redressed to false.",
           "explicit_future_openness is true only if the reply clearly and genuinely leaves the door open to discuss, hear, or reconsider the proposal again in the future. A vague goodbye with no future invitation is false.",
-          "concrete_reopening_condition is true only if the future invitation names a proposal-specific change, analysis, evidence type, safeguard, or condition that would need to be present before reconsideration. 'Bring a stronger version' or 'when the time is right' is false.",
+          "concrete_reopening_condition is true only if the future invitation names the proposal-specific data, comparison, analysis, or trial result that would need to be available before reconsideration. A generic request for more data, 'bring a stronger version', or 'when the time is right' is false.",
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
           "current_rejection_evidence must be one exact verbatim excerpt from the Manager reply that communicates the current rejection. Return an empty string when current_rejection_maintained is false. Never paraphrase evidence.",
           "Return one message_scores item for each numbered Manager message, in the same order. Score each message separately and never move a cue from one message to another.",
@@ -3345,11 +3347,11 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
   if (!constructivenessValid) {
     if (isClosing) {
       corrections.push(highConstructiveness
-        ? "Make the future invitation name the same concrete proposal-specific condition that would need to be met before reconsideration."
+        ? "Make the future invitation name the same concrete proposal-specific data or analysis condition that would need to be met before reconsideration."
         : "Keep the future invitation vague and general. Remove every specific problem, consequence, standard, evidence type, missing element, concrete change, and actionable remedy.");
     } else {
       corrections.push(highConstructiveness
-        ? `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific problem and consequence, one clear decision requirement expressed as natural manager reasoning rather than labelled 'the standard', and one concrete remedy path ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}.`
+        ? `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific evidence gap and the consequence of deciding without it, the concrete relationship, comparison, effect, tradeoff, constraint, or trial result the analysis must assess, and one specific data-analysis path ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}. Do not merely say the proposal needs more data or label a generic standard.`
         : "Regenerate the visible reply as deliberately vague and unhelpful. Remove all specific problems and consequences, standards, evidence or information requirements, concrete missing elements, and actionable remedies.");
     }
   }

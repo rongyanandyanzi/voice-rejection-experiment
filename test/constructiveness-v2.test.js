@@ -72,17 +72,17 @@ function validHighReply() {
     messages: [
       {
         speaker: "Manager",
-        text: exactWords("I appreciate you thinking this through, but I cannot approve this flexible staffing proposal now because untrained temporary workers could make entrance checks inconsistent and delay guests during peak shifts"),
+        text: exactWords("I appreciate you thinking this through, but I cannot approve this flexible staffing proposal now because we have no evidence that temporary workers can handle entry checks without increasing errors or queue times"),
       },
       {
         speaker: "Manager",
-        text: exactWords("Any staffing change must maintain accurate and timely entry service, and I would be open to reconsidering a version with role specific training and supervised peak shift coverage"),
+        text: exactWords("I would be open to reconsidering it after a trial comparing entry errors and queue times on matched peak shifts with trained temporary staff and current permanent coverage"),
       },
     ],
     constructiveness: {
-      proposal_problem: "Untrained temporary workers could make entrance checks inconsistent and delay guests.",
-      relevant_standard: "Staffing changes must maintain accurate and timely entry service.",
-      revision_path: "A version with role specific training and supervised peak shift coverage.",
+      proposal_problem: "There is no evidence that temporary workers can handle entry checks without increasing errors or queue times.",
+      relevant_standard: "Compare entry errors and queue times under temporary and permanent coverage.",
+      revision_path: "Analyze a matched peak-shift trial with trained temporary staff and current permanent coverage.",
     },
   };
 }
@@ -110,7 +110,7 @@ function validHighEvaluatorScores(overrides = {}) {
       {
         politeness_cues: ["I would be open to reconsidering"],
         face_threat_cues: [],
-        future_next_step: "I would be open to reconsidering a version with role specific training and supervised peak shift coverage",
+        future_next_step: "I would be open to reconsidering it after a trial comparing entry errors and queue times on matched peak shifts with trained temporary staff and current permanent coverage",
         future_next_step_is_redressed: true,
       },
     ],
@@ -177,11 +177,13 @@ test("HC requires all three fields while LC requires all three fields empty", ()
   const hpCorrection = managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" })));
   const lpCorrection = managerConstructivenessMetadataProblem(empty, buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" })));
   assert.match(hpCorrection, /condition for reconsideration rather than a command/i);
-  assert.match(hpCorrection, /naturally phrased without a label such as 'The standard is'/i);
-  assert.match(lpCorrection, /expressed directly with no hedge, softener, deference, or other redress/i);
-  assert.match(lpCorrection, /complete subject-led statement/i);
+  assert.match(hpCorrection, /proposal-specific evidence gap/i);
+  assert.match(hpCorrection, /effect, tradeoff, constraint, or uncertainty that the analysis must assess/i);
+  assert.match(lpCorrection, /directly with no hedge, softener, deference, or other redress/i);
+  assert.match(lpCorrection, /complete subject-led sentence/i);
   assert.match(lpCorrection, /Do not use a bare command/i);
-  assert.match(lpCorrection, /Do not default to requesting figures, records, or data/i);
+  assert.match(lpCorrection, /concrete measures, observations, records, comparisons, or trial results/i);
+  assert.match(lpCorrection, /generic request for more data or more analysis is not sufficient/i);
   assert.doesNotMatch(lpCorrection, /rather than a command/i);
 });
 
@@ -458,7 +460,7 @@ test("closing blind validation preserves rejection and openness while separating
     assert.match(managerConstructivenessAssessmentProblem({
       ...scores,
       concrete_reopening_condition: !condition.endsWith("_HC"),
-    }, prompt), condition.endsWith("_HC") ? /concrete proposal-specific condition/i : /vague and general/i);
+    }, prompt), condition.endsWith("_HC") ? /concrete proposal-specific data or analysis condition/i : /vague and general/i);
     assert.match(managerConstructivenessAssessmentProblem({
       ...scores,
       current_rejection_redressed: !condition.startsWith("HP"),
@@ -472,8 +474,8 @@ test("closing blind validation preserves rejection and openness while separating
 
 test("politeness rules preserve content equivalence and keep LP criticism proposal-focused", () => {
   const rules = managerConditionRules();
-  assert.match(rules.HP_HC, /substantive problem, standard, and revision path equivalent to LP_HC/i);
-  assert.match(rules.LP_HC, /substantive problem, standard, and revision path equivalent to HP_HC/i);
+  assert.match(rules.HP_HC, /substantive problem, decision consideration, and revision path equivalent to LP_HC/i);
+  assert.match(rules.LP_HC, /substantive problem, decision consideration, and revision path equivalent to HP_HC/i);
   assert.match(rules.HP_LC, /vague substantive content equivalent to LP_LC/i);
   assert.match(rules.LP_LC, /vague substantive content equivalent to HP_LC/i);
   assert.match(rules.LP_HC, /Keep the face threat proposal-focused/i);
@@ -482,23 +484,33 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   assert.match(rules.LP_HC, /Do no positive politeness/i);
   assert.match(rules.LP_HC, /Do no negative politeness/i);
   assert.match(rules.LP_HC, /Do not say or imply that the participant is stupid, incompetent/i);
-  // HC must diagnose the participant's actual decision rather than repeatedly asking every
-  // proposal for the same visitor-flow, staffing, or cost analysis.
+  // HC must identify a proposal-specific evidence gap and analysis rather than repeatedly asking
+  // every proposal for the same visitor-flow, staffing, or cost data.
   for (const condition of ["HP_HC", "LP_HC"]) {
     assert.match(rules[condition], /infer the central decision uncertainty in this participant's actual proposal/i);
     assert.match(rules[condition], /Do not claim that something is missing if the participant has already supplied it/i);
-    assert.match(rules[condition], /problem, consequence, standard, and improvement path must form one logical chain/i);
-    assert.match(rules[condition], /Use data or numerical analysis only when it is actually what this proposal needs/i);
+    assert.match(rules[condition], /Every HC rejection must communicate that the current proposal is not yet supported by enough proposal-specific evidence/i);
+    assert.match(rules[condition], /exact unanswered question and the exact analysis that would answer it/i);
+    assert.match(rules[condition], /evidence gap, consequence, decision analysis, and improvement path must form one logical chain/i);
+    assert.match(rules[condition], /requested data and analysis must test the exact assumption or tradeoff/i);
+    assert.match(rules[condition], /Name what should be measured or observed, what should be compared or analyzed/i);
     assert.match(rules[condition], /Do not reuse a stock analysis/i);
-    assert.match(rules[condition], /We need to make sure peak hour service stays reliable/i);
-    assert.match(rules[condition], /Never announce or label it with wording such as 'The standard is'/i);
+    assert.match(rules[condition], /relationship, comparison, pattern, or trial result the analysis needs to establish/i);
+    assert.match(rules[condition], /merely naming an abstract value or desired outcome/i);
+    assert.match(rules[condition], /Never announce or label the consideration with wording such as 'The standard is'/i);
     assert.doesNotMatch(rules[condition], /hour by hour visitor flow/i);
     assert.doesNotMatch(rules[condition], /role by role workload/i);
     assert.doesNotMatch(rules[condition], /always the same in substance/i);
   }
   const hcPrompt = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
-  assert.match(hcPrompt.system, /It does not have to be evidence or data/i);
+  assert.match(hcPrompt.system, /proposal_problem records the proposal-specific evidence gap and consequence/i);
+  assert.match(hcPrompt.system, /relevant_standard, but its value records the concrete proposal-specific relationship, comparison, effect, tradeoff, or uncertainty the analysis must assess/i);
+  assert.match(hcPrompt.system, /revision_path records the specific data and analysis needed to resolve that gap/i);
+  assert.doesNotMatch(hcPrompt.system, /It does not have to be evidence or data/i);
   assert.doesNotMatch(hcPrompt.system, /revision_path must include the specific evidence/i);
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(serverSource, /explicit_standard is a legacy field name\. Score it from meaning/i);
+  assert.match(serverSource, /Generic claims such as 'service must stay reliable'.*are false/is);
   // The cue quota has to be present in all four cells, and the low-constructiveness cells must be
   // told to spend their spare length on neutral wording rather than on more interpersonal cues.
   for (const condition of conditions) {
@@ -672,6 +684,18 @@ test("identity disclosure, forbidden names, and output language are validated", 
   assert.match(managerSafetyProblem([
     { speaker: "Manager", text: "I cannot approve this version. Financial feasibility is the standard." },
   ], prompt), /Natural wording correction required/);
+  assert.match(managerSafetyProblem([
+    { speaker: "Manager", text: "I cannot approve this version. Our operational standard is reliable peak hour service." },
+  ], prompt), /Natural wording correction required/);
+  for (const naturalStandardUse of [
+    "We cannot drop below the standard shift pattern at peak.",
+    "That is under the requirement we agreed for ticketing.",
+    "We keep the standard opening routine.",
+  ]) {
+    assert.equal(managerSafetyProblem([
+      { speaker: "Manager", text: `I cannot approve this version. ${naturalStandardUse}` },
+    ], prompt), "");
+  }
   assert.equal(managerSafetyProblem([
     { speaker: "Manager", text: "I cannot approve this version. We need to make sure peak hour service stays reliable." },
   ], prompt), "");

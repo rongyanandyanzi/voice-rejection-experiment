@@ -97,19 +97,19 @@ Message 1 contains:
 
 * The assigned politeness style.
 * A clear rejection for now.
-* In HC, a proposal specific diagnosis.
+* In HC, a proposal specific evidence gap and the consequence of deciding without the missing support.
 * In LC, only a broad topic level dismissal.
 
 Message 2 contains:
 
-* In HC, an explicit standard and a concrete path for improving the proposal before reconsideration.
+* In HC, the concrete relationship, comparison, effect, tradeoff, constraint, or trial result that the analysis must assess, plus a concrete data-analysis path before reconsideration.
 * In LC, an equally long vague judgment that adds no diagnostic or revision information.
 
 The hidden HC structure contains:
 
-* `proposal_problem`: one specific unresolved aspect of the actual proposal and its consequence.
-* `relevant_standard`: one clear performance, service, safety, financial, feasibility, or operational criterion.
-* `revision_path`: one concrete and actionable condition that could remedy the current problem before reconsideration.
+* `proposal_problem`: one decision-relevant evidence gap tied to a specific unresolved assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim in the actual proposal, plus its consequence.
+* `relevant_standard`: retained as a field name for data compatibility; its value records the proposal-specific relationship, comparison, effect, tradeoff, constraint, or trial result that the analysis must assess.
+* `revision_path`: the concrete proposal-specific measures, observations, records, comparisons, or trial results that should be analyzed before reconsideration.
 
 The path follows the politeness condition. In HP it is redressed, for example by conditional wording such as `I would reconsider once...`. In LP it is expressed directly without redress, but as a natural subject-led sentence such as `You need to explain...`, `You need to analyze...`, or `I need to see... before I reconsider it.` LP does not use clipped bare commands such as `Build...`, `Map...`, `Run...`, or `Bring it back...`. The informational content of the HC path stays equivalent across HP and LP.
 
@@ -117,11 +117,13 @@ The hidden LC structure keeps all three fields empty. The visible reply may name
 
 The LC broad judgment vocabulary is split by politeness. HP LC uses mild vague judgments such as `needs more thought` or `does not quite fit the bigger picture yet`, never harsh adjectives. LP LC uses blunt vague judgments such as `not workable` or `nowhere near ready`. Both carry zero diagnostic information; the wording difference is exactly the politeness factor. Sharing one vocabulary made warm plus vague internally contradictory and produced heavy blind validation failures in that cell.
 
-HC feedback is generated from the decision logic of the participant's actual proposal, not from a fixed missing-data checklist. The manager identifies one important issue that remains unresolved after reading the entire conversation, explains why it matters, communicates a directly relevant decision requirement in natural language, and asks for one or two concrete pieces of work that would resolve that exact issue. The four elements must form one logical chain.
+HC feedback is generated from the decision logic of the participant's actual proposal, not from a fixed missing-data checklist. Every HC rejection communicates that the current proposal lacks enough proposal-specific evidence for the requested decision. The manager identifies the exact unanswered empirical question after reading the entire conversation, explains the consequence of deciding without that evidence, states what relationship, comparison, pattern, effect, tradeoff, constraint, or trial result the analysis needs to establish, and names one or two concrete data inputs or analyses that would answer it. These elements must form one logical chain.
 
-The visible manager message must integrate that decision requirement into ordinary reasoning, such as `We need to make sure peak hour service stays reliable.` It must not expose the rubric through labels such as `The standard is...`, `Our standard is...`, `The criterion is...`, `The requirement is...`, or reversed wording such as `Financial feasibility is the standard.` The hidden field remains named `relevant_standard` for data compatibility.
+The decision consideration is judged from meaning. Merely naming an abstract desired outcome such as `Service must stay reliable`, `Safety matters`, or `The change must be financially feasible` is not enough. The manager must explain what about this proposal could affect that outcome, for example whether supervising interns would pull permanent staff away from exceptions, or whether quieter-day booking gains would offset peak-day revenue losses. This reasoning may be integrated into the diagnosis rather than placed in a separate sentence.
 
-The unresolved issue may concern an assumption, mechanism, feasibility issue, safeguard, scale or targeting issue, or evidence gap. Data and numerical analysis are not required templates. The improvement path may instead be a concrete comparison, test, operating change, safeguard, or implementation design when that better fits the proposal. The manager must not claim that information is missing if the participant has already supplied it, and must not reuse a stock visitor-flow, role-workload, or cost-analysis request across unrelated proposals.
+The visible manager message must not expose the rubric through labels such as `The standard is...`, `Our standard is...`, `The criterion is...`, `The requirement is...`, or reversed wording such as `Financial feasibility is the standard.` The hidden field remains named `relevant_standard` only for data compatibility.
+
+The unresolved issue may concern an assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim, but it must be expressed as a decision-relevant evidence gap. The manager never says only `needs more data` or `needs more analysis`. It specifies what should be measured or observed, what should be compared or analyzed, and how the result bears on this particular decision. The manager must not claim that information is missing if the participant has already supplied it, and must not reuse a stock visitor-flow, role-workload, or cost-analysis request across unrelated proposals.
 
 For English and Chinese first rejections, the server may remove or add semantically empty modifiers or a neutral sentence saying the judgment concerns the current version to meet the matched total length. If an English pair remains outside the 54 to 70 word hard band, the server makes one length-only rewrite targeting 58 to 60 words. That rewrite is instructed to preserve the rejection, substantive components, future-step redress, and interpersonal cue direction and count. The rewritten pair then goes through the complete metadata, safety, semantic, cue-evidence, and length validation sequence again. If it still misses the band, the request fails rather than widening the experimental limit.
 
@@ -133,9 +135,9 @@ The window is deliberately narrow. A wider window let follow up turns drift to a
 
 In HC, every turn communicates:
 
-1. One still unresolved problem in the participant's proposal and its consequence.
-2. A clear relevant decision requirement expressed naturally rather than labelled as a standard.
-3. A concrete improvement condition, redressed in HP and expressed directly without redress in LP. LP uses a complete subject-led statement rather than a bare imperative.
+1. One still unresolved proposal-specific evidence gap and the consequence of deciding without it.
+2. The relationship, comparison, effect, tradeoff, constraint, or trial result the analysis must assess, integrated naturally rather than labelled as a standard.
+3. A concrete proposal-specific data-analysis condition, redressed in HP and expressed directly without redress in LP. LP uses a complete subject-led statement rather than a bare imperative.
 
 In LC, every turn:
 
@@ -151,7 +153,7 @@ Politeness changes interpersonal wording only. It must not add or remove substan
 
 For the same proposal:
 
-* HP HC and LP HC use the same kind of proposal problem, standard, and improvement path.
+* HP HC and LP HC use the same kind of proposal problem, decision consideration, and improvement path.
 * HP LC and LP LC remain equally broad and uninformative.
 
 ### Politeness as Face Work
@@ -216,7 +218,7 @@ Example style:
 
 The closing leaves the decision unchanged while keeping the possibility of future reconsideration open. Each English closing is 27 to 31 words, so the four conditions stay inside the same 5 percent length spread the first rejection is held to. An earlier wider window produced a 28 percent spread, with low constructiveness running shortest.
 
-* HC names the concrete proposal focused condition that would need to be met before reconsideration.
+* HC names the concrete proposal-specific data or analysis condition that would need to be met before reconsideration.
 * LC says only that the broad idea can be discussed again later.
 * HP closes warmly and respectfully.
 * LP closes coldly and grudgingly, without thanks, apology, praise, or a personal attack.
@@ -250,7 +252,7 @@ The scorer judges only the visible reply and conversation context:
 Acceptance rules:
 
 * Every condition requires a clear current rejection and prohibits personal attacks.
-* HC requires the specific problem, explicit standard, and actionable remedy scores to be true.
+* HC requires the specific problem, semantically evaluated decision consideration (`explicit_standard`, retained as a legacy field name), and actionable remedy scores to be true.
 * LC requires those three scores to be false.
 * HP requires the current refusal to be redressed, one or two politeness cues per message, and zero face threat cues. Any future next step must also be redressed.
 * LP requires the current refusal to be unredressed, one or two face threat cues per message, and zero politeness cues. A future next step is required in HC and in the closing, but not in an ordinary LC rejection; whenever it exists it must be direct and unredressed.
