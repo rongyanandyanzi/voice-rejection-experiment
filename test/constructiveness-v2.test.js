@@ -405,7 +405,7 @@ test("blind scoring judges refusal redress and future-step redress separately", 
       assert.match(managerConstructivenessAssessmentProblem({
         ...valid,
         future_next_step_redressed: !highPoliteness,
-      }, prompt), highPoliteness ? /Redress the future next step/i : /Remove every hedge/i);
+      }, prompt), highPoliteness ? /Redress the future next step/i : /Remove every actual hedge/i);
     } else {
       assert.equal(managerConstructivenessAssessmentProblem({
         ...valid,
@@ -416,7 +416,7 @@ test("blind scoring judges refusal redress and future-step redress separately", 
         ...valid,
         has_future_next_step: true,
         future_next_step_redressed: !highPoliteness,
-      }, prompt), highPoliteness ? /Redress the future next step/i : /Remove every hedge/i);
+      }, prompt), highPoliteness ? /Redress the future next step/i : /Remove every actual hedge/i);
     }
   }
 });
@@ -468,7 +468,7 @@ test("closing blind validation preserves rejection and openness while separating
     assert.match(managerConstructivenessAssessmentProblem({
       ...scores,
       future_next_step_redressed: !condition.startsWith("HP"),
-    }, prompt), condition.startsWith("HP") ? /Redress the future next step/i : /Remove every hedge/i);
+    }, prompt), condition.startsWith("HP") ? /Redress the future next step/i : /Remove every actual hedge/i);
   }
 });
 
@@ -550,7 +550,9 @@ test("refusals and optional future steps are redressed only under high politenes
   assert.match(rules.HP_HC, /future next step.*must also be redressed/is);
   assert.match(rules.LP_HC, /current rejection must be explicit and unredressed/i);
   assert.match(rules.LP_HC, /Do not invent a command merely to perform low politeness/i);
-  assert.match(rules.LP_HC, /natural subject-led statement/i);
+  assert.match(rules.LP_HC, /natural subject-led sentence/i);
+  assert.match(rules.LP_HC, /vary the wording and do not force one template/i);
+  assert.match(rules.LP_HC, /if, after, before, or once; those words are not politeness by themselves/i);
   assert.match(rules.LP_HC, /Never use a clipped bare command/i);
   assert.match(rules.LP_LC, /If one is included naturally, keep it direct and content-free/i);
   assert.doesNotMatch(rules.LP_LC, /required imperative/i);
@@ -564,8 +566,18 @@ test("refusals and optional future steps are redressed only under high politenes
     assert.match(hp.system, /Avoid command-style wording/i);
     assert.match(lp.system, /State the concrete future remedy directly/i);
     assert.match(lp.system, /natural subject-led sentence/i);
+    assert.match(lp.system, /do not force one template/i);
+    assert.match(lp.system, /if, after, before, or once/i);
+    assert.match(lp.system, /do not by themselves make the step polite/i);
     assert.match(lp.system, /Never start a feedback or remedy sentence with a bare command verb/i);
   }
+  const lpClosing = buildInitialManagerPrompt(managerPayload({ phase: "closing", condition: "LP_HC" }));
+  assert.match(lpClosing.system, /Vary the wording rather than forcing one template/i);
+  assert.match(lpClosing.system, /substantive prerequisite introduced by if, after, before, or once is allowed and is not polite by itself/i);
+
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(serverSource, /Judge the pragmatic function of the whole expression, not the presence of a grammatical conditional/i);
+  assert.match(serverSource, /grammatical conditionality alone is not politeness/i);
   // The blanket system-level imperative ban stays for HP and for condition-blind phases.
   const hpInitial = buildInitialManagerPrompt(managerPayload({ condition: "HP_LC" }));
   const lpInitial = buildInitialManagerPrompt(managerPayload({ condition: "LP_LC" }));

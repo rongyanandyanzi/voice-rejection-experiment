@@ -111,7 +111,7 @@ The hidden HC structure contains:
 * `relevant_standard`: retained as a field name for data compatibility; its value records the proposal-specific relationship, comparison, effect, tradeoff, constraint, or trial result that the analysis must assess.
 * `revision_path`: the concrete proposal-specific measures, observations, records, comparisons, or trial results that should be analyzed before reconsideration.
 
-The path follows the politeness condition. In HP it is redressed, for example by conditional wording such as `I would reconsider once...`. In LP it is expressed directly without redress, but as a natural subject-led sentence such as `You need to explain...`, `You need to analyze...`, or `I need to see... before I reconsider it.` LP does not use clipped bare commands such as `Build...`, `Map...`, `Run...`, or `Bring it back...`. The informational content of the HC path stays equivalent across HP and LP.
+The path follows the politeness condition. In HP it is redressed with actual face work such as appreciation, hedging, deference, tentative optional wording, or a friendly invitation. In LP it is expressed directly without redress as a natural subject-led statement. Possible forms include `You need to analyze...`, `I need to see...`, or a flat reconsideration threshold using `if`, `after`, `before`, or `once`, but no one sentence template is required. Those connecting words do not count as politeness by themselves. LP avoids `could`, `would`, `may`, `might`, `perhaps`, `please`, optional requests, and invitations, and does not use clipped bare commands such as `Build...`, `Map...`, `Run...`, or `Bring it back...`. The informational content of the HC path stays equivalent across HP and LP.
 
 The hidden LC structure keeps all three fields empty. The visible reply may name the broad proposal topic, but must not communicate any specific problem, consequence, evidence type, standard, missing material, risk, or remedy.
 
@@ -206,7 +206,7 @@ It does not use:
 
 The face threat targets the proposal and uses exactly one sharp cue per message. Wording such as `this version is sloppy` or `this is nowhere near ready` is allowed, but attacks on the participant are prohibited.
 
-Low politeness does not need to add a next-step line. In LP HC, the required concrete remedy is stated directly without redress as a complete subject-led sentence, normally `You need to...` or `I need to see...`, rather than a clipped command. In LP LC, no command is added merely to sound blunt; if future handling is mentioned naturally, it stays direct, vague, and non-actionable.
+Low politeness does not need to add a next-step line. In LP HC, the required concrete remedy is stated directly without redress as a complete subject-led sentence rather than a clipped command. Its wording varies naturally with the proposal instead of following a fixed template. In LP LC, no command is added merely to sound blunt; if future handling is mentioned naturally, it stays direct, vague, and non-actionable.
 
 The manager must not replace constructive feedback with an attack on the participant's intelligence, competence, identity, or personal worth. Phrases that say or imply the participant is stupid, incapable, or did not think at all are prohibited.
 
@@ -257,6 +257,8 @@ Acceptance rules:
 * HP requires the current refusal to be redressed, one or two politeness cues per message, and zero face threat cues. Any future next step must also be redressed.
 * LP requires the current refusal to be unredressed, one or two face threat cues per message, and zero politeness cues. A future next step is required in HC and in the closing, but not in an ordinary LC rejection; whenever it exists it must be direct and unredressed.
 * Every closing keeps the current rejection and explicit future openness. HC names a concrete reopening condition; LC keeps the reopening path vague and non-actionable.
+
+Future-step redress is judged from pragmatic meaning, not grammar alone. A flat substantive prerequisite introduced by `if`, `after`, `before`, or `once` is not automatically polite. It becomes redressed only when the wording also mitigates the imposition through features such as `could`, `would`, `perhaps`, deference, optionality, appreciation, apology, or a friendly invitation.
 
 The generation prompt still targets exactly one intended interpersonal cue in every message. Validation is deliberately more tolerant because cue boundaries in natural language are unstable:
 
