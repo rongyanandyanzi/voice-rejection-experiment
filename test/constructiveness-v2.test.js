@@ -1034,6 +1034,65 @@ test("manager closing runs the same blind semantic and per-message cue validatio
   }
 });
 
+test("an overlong closing gets one length adaptation and full blind revalidation", async () => {
+  const originalFetch = global.fetch;
+  const overlongText = "I appreciate your input, but I cannot approve this version now. I would revisit it once matched trial data shows whether temporary staff reduce entry queues without increasing errors during peak shifts.";
+  const adaptedText = "I appreciate your input, but I cannot approve this version now. I would revisit it when trial data shows whether temporary staff reduce peak queues without increasing entry errors.";
+  const blindScores = (text) => ({
+    specific_problem: false,
+    explicit_standard: false,
+    actionable_remedy: true,
+    current_rejection_maintained: true,
+    current_rejection_evidence: "I cannot approve this version now",
+    current_rejection_redressed: true,
+    has_future_next_step: true,
+    future_next_step_redressed: true,
+    explicit_future_openness: true,
+    concrete_reopening_condition: true,
+    personal_attack_without_diagnosis: false,
+    message_scores: [{
+      politeness_cues: ["I appreciate your input"],
+      face_threat_cues: [],
+      future_next_step: text.slice(text.indexOf("I would")).replace(/[.!?]+$/, ""),
+      future_next_step_is_redressed: true,
+    }],
+  });
+  const queue = [
+    responseJson({ messages: [{ speaker: "Manager", text: overlongText }] }),
+    responseJson(blindScores(overlongText)),
+    responseJson({ messages: [{ speaker: "Manager", text: adaptedText }] }),
+    responseJson(blindScores(adaptedText)),
+  ];
+  const requestBodies = [];
+  global.fetch = async (_url, options) => {
+    requestBodies.push(JSON.parse(options.body));
+    return queue.shift();
+  };
+  try {
+    const result = await generateAiReply(managerPayload({ phase: "closing", condition: "HP_HC" }));
+    assert.equal(result.ok, true);
+    assert.equal(result.messages[0].text, adaptedText);
+    assert.equal(wordCount(result.messages[0].text), 29);
+    assert.equal(requestBodies.length, 4);
+    const adaptationPrompt = JSON.stringify(requestBodies[2].input);
+    assert.match(adaptationPrompt, /Closing length adaptation required/i);
+    assert.match(adaptationPrompt, /27-31 words/i);
+    assert.match(adaptationPrompt, /Previous Manager closing/i);
+    assert.match(adaptationPrompt, new RegExp(overlongText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.deepEqual(
+      requestBodies.map((body) => body.text.format.name),
+      [
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+      ],
+    );
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
 test("three consecutive blind semantic failures return a safe retryable error", async () => {
   const originalFetch = global.fetch;
   const good = validHighReply();

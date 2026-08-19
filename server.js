@@ -771,7 +771,7 @@ async function generateAiReply(payload, options = {}) {
     let lengthOnlyRewriteAttempted = false;
     let validationWarnings = [];
     // Hard validation keeps the usual two-regeneration ceiling. Additional passes are reachable
-    // only for the one permitted cue trim and the one permitted initial-rejection length rewrite.
+    // only for the one permitted cue trim and the one permitted rejection or closing length rewrite.
     for (let attempt = 0; attempt < 5; attempt += 1) {
       if (signal && signal.aborted) return aiPipelineAbortResult(signal);
       const result = await requestOpenAiMessages(prompt, correction, signal);
@@ -1059,14 +1059,21 @@ async function generateAiReply(payload, options = {}) {
           validation_warnings: validationWarnings,
         };
       }
-      const canUseLengthOnlyRewrite = prompt.phase === "rejection_initial" &&
+      const canUseInitialLengthOnlyRewrite = prompt.phase === "rejection_initial" &&
         prompt.language === "en" &&
         prompt.totalWordTargetRange &&
         !lengthOnlyRewriteAttempted &&
         attempt < 4;
-      if (canUseLengthOnlyRewrite) {
+      const canUseClosingLengthOnlyRewrite = prompt.phase === "closing" &&
+        prompt.language === "en" &&
+        prompt.wordRange &&
+        !lengthOnlyRewriteAttempted &&
+        attempt < 4;
+      if (canUseInitialLengthOnlyRewrite || canUseClosingLengthOnlyRewrite) {
         lengthOnlyRewriteAttempted = true;
-        correction = managerLengthOnlyRewriteCorrection(lastMessages, prompt, lengthProblem);
+        correction = canUseClosingLengthOnlyRewrite
+          ? managerClosingLengthOnlyRewriteCorrection(lastMessages, prompt, lengthProblem)
+          : managerLengthOnlyRewriteCorrection(lastMessages, prompt, lengthProblem);
         continue;
       }
       if (!(prompt.phase === "rejection_initial" && prompt.language === "en") && attempt < 2) {
@@ -2598,6 +2605,26 @@ function managerLengthOnlyRewriteCorrection(messages, prompt, lengthProblem) {
     "Preserve the same two-message division and return fresh hidden constructiveness fields that match the rewritten visible text.",
     ...managerMessages.map((text, index) => `Previous Manager message ${index + 1}: ${JSON.stringify(text)}`),
     "Return only valid JSON.",
+  ].filter(Boolean).join(" ");
+}
+
+function managerClosingLengthOnlyRewriteCorrection(messages, prompt, lengthProblem) {
+  const managerMessage = (Array.isArray(messages) ? messages : [])
+    .find((message) => message && message.speaker === "Manager");
+  const previousClosing = String(managerMessage && managerMessage.text || "").trim();
+  const target = prompt && prompt.wordRange;
+  return [
+    "Closing length adaptation required.",
+    lengthProblem,
+    "Adapt the previous visible Manager closing by reorganizing and tightening its wording. Do not mechanically truncate it and do not replace it with unrelated stock text.",
+    target
+      ? `Return exactly one Manager message of ${target.min}-${target.max} words and aim for ${Math.round((target.min + target.max) / 2)} words.`
+      : "",
+    "Preserve the unchanged current rejection and explicit future openness.",
+    "In HC, preserve the same concrete proposal-specific data or analysis condition for reconsideration. In LC, preserve the same lack of diagnostic detail or actionable guidance.",
+    "Preserve the assigned interpersonal direction and cue count. In HP, keep the rejection and future path redressed. In LP, keep both unredressed and retain a proposal-focused sharp cue without adding any politeness cue.",
+    `Previous Manager closing: ${JSON.stringify(previousClosing)}`,
+    "Return only valid JSON. The adapted closing will be checked again for safety, condition meaning, cue evidence, and length before it is shown.",
   ].filter(Boolean).join(" ");
 }
 

@@ -225,6 +225,8 @@ The closing leaves the decision unchanged while keeping the possibility of futur
 
 The generation target applies here too: exactly one politeness or dismissiveness cue per closing. Runtime validation uses the same one-to-two-cue tolerance and one-time trim procedure described below.
 
+If an English closing is otherwise valid but falls outside the 27 to 31 word range, the server gives it one dedicated length adaptation. The model reorganizes and tightens the existing closing rather than mechanically truncating it or substituting stock text. It must preserve the rejection, future openness, HC or LC information level, HP or LP redress, and interpersonal cue direction and count. The adapted closing then goes through the complete safety, condition-semantic, cue-evidence, and length validation sequence again before it can be shown. If it still fails, no backup closing is displayed.
+
 The manager then leaves the chat. The participant cannot re enter or revisit this stage.
 
 ## Independent Semantic Validation
