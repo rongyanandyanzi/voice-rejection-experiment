@@ -2007,7 +2007,7 @@
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     setComposerEnabled(true);
-    addSystemNote(inZh("You can now start your second conversation with the manager.", "现在你可以开始和经理的第二次对话。"));
+    addSystemNote(inZh("You can share your ideas with the manager, or you can choose not to bring them up.", "你可以向经理谈谈你的想法，也可以选择不提。"));
     state.managerTurnActive = true;
     await sendAiMessages({ stage: "manager2", phase: "opening", alexMessage: "" });
     finishManagerTurn();
