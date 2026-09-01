@@ -24,6 +24,7 @@ const {
   managerConstructivenessMetadataProblem,
   managerConstructivenessAssessmentProblem,
   managerConstructivenessCueWarning,
+  normalizeManagerConstructivenessScores,
   managerMessageCountProblem,
   managerSafetyProblem,
   managerLengthProblem,
@@ -419,6 +420,64 @@ test("blind scoring judges refusal redress and future-step redress separately", 
       }, prompt), highPoliteness ? /Redress the future next step/i : /Remove every actual hedge/i);
     }
   }
+});
+
+test("bare temporal scope markers are not politeness or redress", () => {
+  for (const temporalCue of ["for now", "Today.", "currently"]) {
+    const normalized = normalizeManagerConstructivenessScores({
+      current_rejection_redressed: true,
+      future_next_step_redressed: true,
+      message_scores: [{
+        politeness_cues: [temporalCue],
+        face_threat_cues: ["still sloppy"],
+        future_next_step: "I will reconsider it after the review",
+        future_next_step_is_redressed: true,
+      }],
+    });
+    assert.deepEqual(normalized.message_scores[0].politeness_cues, []);
+    assert.equal(normalized.current_rejection_redressed, false);
+    assert.equal(normalized.message_scores[0].future_next_step_is_redressed, false);
+    assert.equal(normalized.future_next_step_redressed, false);
+  }
+
+  const actualRedress = normalizeManagerConstructivenessScores({
+    current_rejection_redressed: true,
+    future_next_step_redressed: true,
+    message_scores: [{
+      politeness_cues: ["for now", "if you want"],
+      face_threat_cues: [],
+      future_next_step: "We can revisit it later if you want",
+      future_next_step_is_redressed: true,
+    }],
+  });
+  assert.deepEqual(actualRedress.message_scores[0].politeness_cues, ["if you want"]);
+  assert.equal(actualRedress.current_rejection_redressed, true);
+  assert.equal(actualRedress.future_next_step_redressed, true);
+
+  const cueInAnotherMessage = normalizeManagerConstructivenessScores({
+    current_rejection_evidence: "The decision remains unchanged for now",
+    current_rejection_redressed: true,
+    future_next_step_redressed: true,
+    message_scores: [
+      {
+        politeness_cues: ["for now"],
+        face_threat_cues: [],
+        future_next_step: "",
+        future_next_step_is_redressed: false,
+      },
+      {
+        politeness_cues: ["I appreciate the work"],
+        face_threat_cues: [],
+        future_next_step: "I would be open to discussing it later",
+        future_next_step_is_redressed: true,
+      },
+    ],
+  }, [
+    "The decision remains unchanged for now.",
+    "I appreciate the work. I would be open to discussing it later.",
+  ]);
+  assert.equal(cueInAnotherMessage.current_rejection_redressed, false);
+  assert.deepEqual(cueInAnotherMessage.message_scores[1].politeness_cues, ["I appreciate the work"]);
 });
 
 test("rejection follow-up and closing keep the four conditions in a narrow length window", () => {
@@ -1029,6 +1088,125 @@ test("manager closing runs the same blind semantic and per-message cue validatio
     assert.equal(result.ok, true);
     assert.deepEqual(schemaNames, ["experiment_chat_reply", "manager_constructiveness_blind_score"]);
     assert.equal(result.messages.length, 1);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("a bare temporal cue misreported by the blind scorer does not reject an LP closing", async () => {
+  const originalFetch = global.fetch;
+  const closingText = "That revision does not change the decision for now. This version is still sloppy, but the topic will be revisited later if the overall case changes enough.";
+  const queue = [
+    responseJson({ messages: [{ speaker: "Manager", text: closingText }] }),
+    responseJson({
+      specific_problem: false,
+      explicit_standard: false,
+      actionable_remedy: false,
+      current_rejection_maintained: true,
+      current_rejection_evidence: "does not change the decision for now",
+      current_rejection_redressed: false,
+      has_future_next_step: true,
+      future_next_step_redressed: false,
+      explicit_future_openness: true,
+      concrete_reopening_condition: false,
+      personal_attack_without_diagnosis: false,
+      message_scores: [{
+        politeness_cues: ["for now"],
+        face_threat_cues: ["This version is still sloppy"],
+        future_next_step: "the topic will be revisited later if the overall case changes enough",
+        future_next_step_is_redressed: false,
+      }],
+    }),
+  ];
+  const requestBodies = [];
+  global.fetch = async (_url, options) => {
+    requestBodies.push(JSON.parse(options.body));
+    return queue.shift();
+  };
+  try {
+    const result = await generateAiReply(managerPayload({ phase: "closing", condition: "LP_LC" }));
+    assert.equal(result.ok, true);
+    assert.equal(result.messages[0].text, closingText);
+    assert.equal(requestBodies.length, 2);
+    const evaluatorPrompt = JSON.stringify(requestBodies[1].input);
+    assert.match(evaluatorPrompt, /'for now', 'today', and 'currently' only locate the current decision in time/i);
+    assert.match(evaluatorPrompt, /Never list 'for now', 'today', or 'currently' alone as a politeness cue/i);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("a closing gets one final evidence-targeted semantic rewrite and full revalidation", async () => {
+  const originalFetch = global.fetch;
+  const badText = "That threshold helps, but the decision remains unchanged. This version is still thin. Reconsideration starts after closure records compare complaints, refunds, and repeat purchases with standard handling.";
+  const correctedText = "The decision remains unchanged. This version is still thin. Reconsideration starts after closure records compare complaints, refunds, and repeat purchases for pass recipients against the standard refund process.";
+  const badScores = {
+    specific_problem: false,
+    explicit_standard: false,
+    actionable_remedy: true,
+    current_rejection_maintained: true,
+    current_rejection_evidence: "the decision remains unchanged",
+    current_rejection_redressed: true,
+    has_future_next_step: true,
+    future_next_step_redressed: false,
+    explicit_future_openness: true,
+    concrete_reopening_condition: true,
+    personal_attack_without_diagnosis: false,
+    message_scores: [{
+      politeness_cues: ["That threshold helps"],
+      face_threat_cues: ["This version is still thin"],
+      future_next_step: "Reconsideration starts after closure records compare complaints, refunds, and repeat purchases with standard handling",
+      future_next_step_is_redressed: false,
+    }],
+  };
+  const correctedScores = {
+    ...badScores,
+    current_rejection_evidence: "The decision remains unchanged",
+    current_rejection_redressed: false,
+    message_scores: [{
+      politeness_cues: [],
+      face_threat_cues: ["This version is still thin"],
+      future_next_step: "Reconsideration starts after closure records compare complaints, refunds, and repeat purchases for pass recipients against the standard refund process",
+      future_next_step_is_redressed: false,
+    }],
+  };
+  const queue = [
+    responseJson({ messages: [{ speaker: "Manager", text: badText }] }),
+    responseJson(badScores),
+    responseJson({ messages: [{ speaker: "Manager", text: badText }] }),
+    responseJson(badScores),
+    responseJson({ messages: [{ speaker: "Manager", text: badText }] }),
+    responseJson(badScores),
+    responseJson({ messages: [{ speaker: "Manager", text: correctedText }] }),
+    responseJson(correctedScores),
+  ];
+  const requestBodies = [];
+  global.fetch = async (_url, options) => {
+    requestBodies.push(JSON.parse(options.body));
+    return queue.shift();
+  };
+  try {
+    const result = await generateAiReply(managerPayload({ phase: "closing", condition: "LP_HC" }));
+    assert.equal(result.ok, true);
+    assert.equal(result.messages[0].text, correctedText);
+    assert.equal(requestBodies.length, 8);
+    const finalRewritePrompt = JSON.stringify(requestBodies[6].input);
+    assert.match(finalRewritePrompt, /Final evidence-based closing rewrite required/i);
+    assert.match(finalRewritePrompt, /That threshold helps/);
+    assert.match(finalRewritePrompt, /Previous Manager closing/i);
+    assert.deepEqual(
+      requestBodies.map((body) => body.text.format.name),
+      [
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+        "experiment_chat_reply",
+        "manager_constructiveness_blind_score",
+      ],
+    );
   } finally {
     global.fetch = originalFetch;
   }

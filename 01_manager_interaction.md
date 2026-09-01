@@ -262,6 +262,8 @@ Acceptance rules:
 
 Future-step redress is judged from pragmatic meaning, not grammar alone. A flat substantive prerequisite introduced by `if`, `after`, `before`, or `once` is not automatically polite. It becomes redressed only when the wording also mitigates the imposition through features such as `could`, `would`, `perhaps`, deference, optionality, appreciation, apology, or a friendly invitation.
 
+The temporal scope markers `for now`, `today`, and `currently` only state when the current decision applies. They are not politeness or redress on their own. The scorer counts redress only when the surrounding wording also contains actual face work such as thanks, apology, appreciation, recognition, hesitation, optionality, deference, or an invitation. If the scorer nevertheless returns one of those three bare temporal markers as a politeness cue, the server removes that false cue before applying the condition gate. It does not remove a longer excerpt that contains genuine face work.
+
 The generation prompt still targets exactly one intended interpersonal cue in every message. Validation is deliberately more tolerant because cue boundaries in natural language are unstable:
 
 * One intended cue passes immediately.
@@ -272,6 +274,8 @@ The generation prompt still targets exactly one intended interpersonal cue in ev
 All cue requirements are applied message by message rather than to the combined turn. The same per-message standard applies at both constructiveness levels, so cue density cannot systematically vary with constructiveness. Refusal redress and future-step redress are judged as speech acts rather than inferred from imperative counts.
 
 The blind scorer returns exact source excerpts rather than counts alone. The server checks that current-rejection evidence, every politeness or face-threat cue, and every future-next-step excerpt actually appears in the corresponding visible Manager message. Invalid or fabricated evidence cannot be used to pass the condition gate.
+
+If a closing still fails blind semantic validation after the ordinary correction attempts, it receives one final evidence-targeted rewrite. The correction identifies the exact failed scores and cue excerpts, preserves the assigned condition and proposal-specific content level, and rewrites the existing closing rather than inserting a backup text. The revised closing must pass the full blind semantic, cue-evidence, safety, and length checks before it is displayed.
 
 If hard validation fails, the rejection is regenerated up to two times. If all three attempts fail, the server returns a retryable error. A condition incorrect reply is never shown to the participant.
 

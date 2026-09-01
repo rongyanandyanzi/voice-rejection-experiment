@@ -769,9 +769,10 @@ async function generateAiReply(payload, options = {}) {
     let lastBlindScores = null;
     let cueTrimCorrectionAttempted = false;
     let lengthOnlyRewriteAttempted = false;
+    let closingBlindRewriteAttempted = false;
     let validationWarnings = [];
     // Hard validation keeps the usual two-regeneration ceiling. Additional passes are reachable
-    // only for the one permitted cue trim and the one permitted rejection or closing length rewrite.
+    // only for the permitted cue trim, closing semantic rewrite, and rejection or closing length rewrite.
     for (let attempt = 0; attempt < 5; attempt += 1) {
       if (signal && signal.aborted) return aiPipelineAbortResult(signal);
       const result = await requestOpenAiMessages(prompt, correction, signal);
@@ -914,6 +915,19 @@ async function generateAiReply(payload, options = {}) {
               cueTrimCorrectionAttempted = true;
             }
             correction = constructivenessProblem;
+            continue;
+          }
+          if (
+            prompt.constructivenessAssessmentMode === "closing" &&
+            !closingBlindRewriteAttempted &&
+            attempt < 4
+          ) {
+            closingBlindRewriteAttempted = true;
+            correction = managerClosingBlindRewriteCorrection(
+              lastMessages,
+              prompt,
+              constructivenessProblem,
+            );
             continue;
           }
           const failure = {
@@ -2628,6 +2642,26 @@ function managerClosingLengthOnlyRewriteCorrection(messages, prompt, lengthProbl
   ].filter(Boolean).join(" ");
 }
 
+function managerClosingBlindRewriteCorrection(messages, prompt, constructivenessProblem) {
+  const managerMessage = (Array.isArray(messages) ? messages : [])
+    .find((message) => message && message.speaker === "Manager");
+  const previousClosing = String(managerMessage && managerMessage.text || "").trim();
+  const target = prompt && prompt.wordRange;
+  return [
+    "Final evidence-based closing rewrite required.",
+    constructivenessProblem,
+    "Rewrite the previous closing once and correct only the failures identified by the blind evidence. Do not substitute unrelated stock wording.",
+    target
+      ? `Return exactly one Manager message of ${target.min}-${target.max} words.`
+      : "Return exactly one Manager message.",
+    "Keep the current rejection explicit and keep a genuine future invitation to revisit the proposal.",
+    "In HC, retain one concrete proposal-specific data or analysis condition for reconsideration. In LC, keep the reopening path vague and non-actionable.",
+    "In HP, use redress for the refusal and future path with no sharp proposal evaluation. In LP, remove every actual politeness move, keep both acts direct, and retain one proposal-focused sharp evaluation.",
+    `Previous Manager closing: ${JSON.stringify(previousClosing)}`,
+    "Return only valid JSON. The rewritten closing must pass the complete blind semantic, cue-evidence, safety, and length checks again before it is shown.",
+  ].filter(Boolean).join(" ");
+}
+
 function chineseCharacterCount(text) {
   return (String(text || "").match(/[\u3400-\u9fff]/g) || []).length;
 }
@@ -3140,6 +3174,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "actionable_remedy is true only if the reply names one or two concrete proposal-specific measures, observations, records, comparisons, or trial results and says what should be analyzed or compared to address the diagnosed evidence gap before reconsideration. A generic request for more data, more evidence, more research, more detail, or more analysis is false. A stock data request unrelated to the diagnosed problem is false. 'Think it through more' or 'bring a stronger version' is false.",
           "current_rejection_maintained is true only if the reply makes clear that the current proposal is not being approved or moved forward now. Future openness does not cancel the current rejection.",
           "current_rejection_redressed is true only if the refusal as a whole is clearly accompanied and mitigated by redressive face work, such as appreciation of the participant's contribution, apology, deference, hedging, or depersonalisation. Judge the complete refusal act in context, not isolated words. An explicit phrase such as 'I cannot approve this version' can be redressed when a politeness move is clearly attached to it. A courtesy phrase elsewhere that is not connected to the refusal is not enough.",
+          "The temporal scope markers 'for now', 'today', and 'currently' only locate the current decision in time. They are not politeness or redress by themselves. Treat the surrounding expression as redressed only when it also contains actual face work such as thanks, apology, appreciation, recognition, hesitation, optionality, deference, or an invitation.",
           "has_future_next_step is true only if the reply says what the participant or manager may, should, or will do with the proposal later, including revising it, bringing it back, leaving it aside, discussing it again, or reconsidering it. A statement that the proposal is not approved now is the current rejection, not by itself a future next step.",
           "future_next_step_redressed is true only when an existing future step is softened by actual redressive face work such as appreciation, apology, deference, hedging, tentative wording, optionality, an invitation, or a mitigated request. Judge the pragmatic function of the whole expression, not the presence of a grammatical conditional. The words if, after, before, or once do not by themselves make a step redressed when they state a flat substantive prerequisite. For example, 'I will reconsider it if the comparison covers queue times and overrides' and 'You need that comparison before I reconsider it' are unredressed unless another softener is present. 'If you could perhaps compare them, I would be happy to reconsider' is redressed because could, perhaps, would, and the friendly invitation mitigate the step. A bare imperative or other flat unsoftened future instruction is false. If has_future_next_step is false, set future_next_step_redressed to false.",
           "explicit_future_openness is true only if the reply clearly and genuinely leaves the door open to discuss, hear, or reconsider the proposal again in the future. A vague goodbye with no future invitation is false.",
@@ -3147,7 +3182,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "personal_attack_without_diagnosis is true when the reply attacks the participant's intelligence, competence, identity, or personal worth instead of diagnosing the proposal. Criticizing the proposal as sloppy is not by itself a personal attack.",
           "current_rejection_evidence must be one exact verbatim excerpt from the Manager reply that communicates the current rejection. Return an empty string when current_rejection_maintained is false. Never paraphrase evidence.",
           "Return one message_scores item for each numbered Manager message, in the same order. Score each message separately and never move a cue from one message to another.",
-          "Within each message_scores item, politeness_cues is an array containing one exact verbatim excerpt for each distinct redressive politeness move. Positive politeness includes thanks, appreciation, praise, or valuing the person's thinking or effort. Negative politeness includes apologising, deferring, hedging the refusal, or depersonalising it. Do not count neutral receipt phrases such as 'I hear you', 'noted', 'understood', or 'fair enough'. Return an empty array when none is present. Never paraphrase evidence or list the same cue twice.",
+          "Within each message_scores item, politeness_cues is an array containing one exact verbatim excerpt for each distinct redressive politeness move. Positive politeness includes thanks, appreciation, praise, or valuing the person's thinking or effort. Negative politeness includes apologising, deferring, hedging the refusal, or depersonalising it. Do not count neutral receipt phrases such as 'I hear you', 'noted', 'understood', or 'fair enough'. Never list 'for now', 'today', or 'currently' alone as a politeness cue. When actual face work appears near a temporal marker, quote the actual face-work expression rather than the temporal marker. Return an empty array when none is present. Never paraphrase evidence or list the same cue twice.",
           "Within each message_scores item, face_threat_cues is an array containing one exact verbatim excerpt for each distinct sharp or dismissive move aimed at the proposal, such as calling it sloppy, nowhere near ready, too rough, weak, or a waste of time. A plain refusal and an imperative do not count as face threats. Return an empty array when none is present. Never paraphrase evidence or list the same cue twice.",
           "Within each message_scores item, future_next_step is one exact verbatim excerpt describing how the proposal may, should, or will be handled later, or an empty string if that message contains no future next step. future_next_step_is_redressed scores that exact future step and must be false when future_next_step is empty.",
           "Set has_future_next_step to true if and only if at least one message_scores item has a non-empty future_next_step. When a future next step exists, set future_next_step_redressed to true only if every reported future next step is redressed.",
@@ -3283,7 +3318,70 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
       error: "OpenAI returned an invalid constructiveness assessment.",
     };
   }
-  return { ok: true, scores };
+  return { ok: true, scores: normalizeManagerConstructivenessScores(scores, managerMessages) };
+}
+
+function isNeutralTemporalScopeCue(cue) {
+  const normalized = String(cue || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^[^a-z]+|[^a-z]+$/g, "");
+  return ["for now", "today", "currently"].includes(normalized);
+}
+
+function normalizeManagerConstructivenessScores(scores, managerMessages = []) {
+  if (!scores || typeof scores !== "object" || !Array.isArray(scores.message_scores)) {
+    return scores;
+  }
+  let removedTemporalPolitenessCue = false;
+  const removedTemporalCueByMessage = [];
+  const messageScores = scores.message_scores.map((messageScore, index) => {
+    const originalPolitenessCues = Array.isArray(messageScore && messageScore.politeness_cues)
+      ? messageScore.politeness_cues
+      : [];
+    const politenessCues = originalPolitenessCues.filter((cue) => !isNeutralTemporalScopeCue(cue));
+    const removedFromMessage = politenessCues.length !== originalPolitenessCues.length;
+    removedTemporalCueByMessage[index] = removedFromMessage;
+    removedTemporalPolitenessCue = removedTemporalPolitenessCue || removedFromMessage;
+    const hasFutureStep = Boolean(String(messageScore && messageScore.future_next_step || "").trim());
+    return {
+      ...messageScore,
+      politeness_cues: politenessCues,
+      future_next_step_is_redressed:
+        removedFromMessage && politenessCues.length === 0 && hasFutureStep
+          ? false
+          : messageScore.future_next_step_is_redressed,
+    };
+  });
+  const remainingPolitenessCueCount = messageScores.reduce(
+    (count, messageScore) => count + messageScore.politeness_cues.length,
+    0,
+  );
+  const futureSteps = messageScores.filter((messageScore) =>
+    Boolean(String(messageScore.future_next_step || "").trim())
+  );
+  const currentRejectionEvidence = String(scores.current_rejection_evidence || "").trim().toLowerCase();
+  const rejectionMessageIndex = currentRejectionEvidence && Array.isArray(managerMessages)
+    ? managerMessages.findIndex((message) =>
+        String(message || "").toLowerCase().includes(currentRejectionEvidence)
+      )
+    : -1;
+  const currentRejectionOnlyHadTemporalCue = rejectionMessageIndex >= 0
+    ? removedTemporalCueByMessage[rejectionMessageIndex] === true &&
+      messageScores[rejectionMessageIndex].politeness_cues.length === 0
+    : removedTemporalPolitenessCue && remainingPolitenessCueCount === 0;
+  return {
+    ...scores,
+    current_rejection_redressed:
+      currentRejectionOnlyHadTemporalCue
+        ? false
+        : scores.current_rejection_redressed,
+    future_next_step_redressed:
+      futureSteps.length > 0 && futureSteps.every((messageScore) =>
+        messageScore.future_next_step_is_redressed === true
+      ),
+    message_scores: messageScores,
+  };
 }
 
 function cueEvidenceList(cues) {
@@ -3741,6 +3839,7 @@ module.exports = {
   managerConstructivenessMetadataProblem,
   managerConstructivenessAssessmentProblem,
   managerConstructivenessCueWarning,
+  normalizeManagerConstructivenessScores,
   managerMessageCountProblem,
   managerSafetyProblem,
   managerLengthProblem,
