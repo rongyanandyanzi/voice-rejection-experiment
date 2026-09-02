@@ -3,7 +3,9 @@
 # repository, and choose this file; Render then deploys this branch and redeploys on every push.
 services:
   - type: web
-    name: voice-rejection-ai-detection-test
+    # The service name becomes the public subdomain participants see in Prolific, so it names the
+    # fictional park and nothing about the method.
+    name: aetheria-gardens-chat
     env: node
     plan: starter
     branch: codex/reduce-ai-detection
