@@ -320,31 +320,39 @@ After the participant clicks Submit and all items are answered:
 2. Record survey completion status.
 3. Move the participant to the AI-check page.
 
-## AI-Check Page After Survey
+## AI-Check Pages After Survey
 
-After the Post-Interaction Questions page is submitted, show one additional page before the completion page.
+After the Post-Interaction Questions page is submitted, show three pages before the completion page. Each page holds one question, each is locked once submitted, and there is no way back. The first two questions never mention AI; the third is the pilot's direct item, kept verbatim.
 
-Display the following text:
+Page 1, an open question with a required text box. Writing `No` is a valid answer.
+
+```text
+Did anything about the interaction feel unusual or unexpected? Please describe briefly.
+```
+
+Page 2, an open question with a required text box. It says `in the chat` rather than naming the manager, so it does not point the participant at any one character.
+
+```text
+Who or what do you think you were interacting with in the chat?
+```
+
+Page 3 is the pilot's page, unchanged. Display the following text:
 
 ```text
 In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.
 ```
 
-Then ask the following required question:
+Then ask the following required question, with required radio-button options Yes, No, and Not sure:
 
 ```text
 Do you think the manager you interacted with may have been AI?
 ```
 
-Use required radio-button response options:
+The preamble on page 3 primes the participant that AI may be involved, and the wording of page 3 asks about the manager while the preamble says participants. Neither is changed, because page 3 exists only to stay comparable with the data already collected. Both quirks are noted in the methods. The order and the page separation are what keep page 3 from contaminating pages 1 and 2, so neither may be changed.
 
-- Yes
-- No
-- Not sure
+Page 1 and page 2 answers are coded after collection, on a coded sheet with a human audit, into an ordered suspicion level: 3 if page 1 spontaneously mentions AI, a bot, a robot, automation, a script, a chatbot, or not a real person; 2 if page 1 does not but page 2 answers AI; 1 if neither does but page 3 is Yes; 0 otherwise. Page 2 is also coded into human, AI, unsure, or other.
 
-Do not allow the participant to continue without answering.
-
-After the participant submits all three questions, move the participant to the completion page.
+After page 3 is submitted, move the participant to the completion page.
 
 ## Data Recording Requirements
 
@@ -665,11 +673,13 @@ If experiment_data.xlsx is generated, add a third sheet called survey_responses.
 
 Also update participants.csv with survey completion status.
 
-After the survey, show the AI-check page and update participants.csv with:
+After the survey, show the three AI-check pages and update participants.csv with:
 - completed_ai_check
-- ai_check_start_time
-- ai_check_submit_time
-- manager_ai_suspicion
+- ai_check_stage
+- ai_check_unusual_start_time, ai_check_unusual_submit_time, ai_check_unusual_text
+- ai_check_who_start_time, ai_check_who_submit_time, ai_check_who_text
+- ai_check_start_time and ai_check_submit_time, which keep their pilot meaning of when the direct item was shown and submitted
+- manager_ai_suspicion, unchanged in name and values
 - lisa_ai_suspicion
 - john_ai_suspicion
 

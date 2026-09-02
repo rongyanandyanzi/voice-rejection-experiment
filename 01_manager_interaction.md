@@ -67,7 +67,7 @@ The first substantive proposal must receive at least one follow up before reject
 
 All messages before rejection use the same neutral generator.
 
-The manager asks exactly one open ended clarification question based only on what the participant already said.
+The manager asks exactly one open ended clarification question based only on what the participant already said. These clarification turns use ordinary chat register: a short line may end without a full stop, and now and then, not every time, the question may open with a plain acknowledgement such as `ok`, `right`, or `got it`. These are receipt tokens, not thanks or praise, and the wording is the same in every condition. The rejection pair, the later rejection rounds, and the closing keep their fully punctuated register, because any casualness there would read as carelessness and leak into the politeness manipulation.
 
 The question must not:
 
@@ -91,18 +91,17 @@ The rejection always stands for now. The participant can continue explaining or 
 
 ## Structured First Rejection
 
-The first rejection contains exactly two Manager messages. Every English condition targets 58 to 60 words across the pair. The hard acceptance band is 54 to 70 words in total, while each individual message may contain 24 to 38 words so a harmless one-message imbalance does not fail an otherwise matched turn. The average length difference across conditions must remain below 5 percent. Each Chinese message is about 56 to 77 Chinese characters, with about 133 to 138 characters across both messages. Chinese messages must be complete, naturally punctuated sentences.
+The first rejection contains exactly two Manager messages. Every English condition targets 58 to 62 words across the pair, with a hard acceptance band of 54 to 68 words. Message 1 is a short decision and immediate reaction of 14 to 22 words. Message 2 is a longer explanation of 36 to 46 words. This asymmetric rhythm applies to all four conditions, so total exposure remains comparable without making the manager send two polished paragraphs of the same size. The average total length difference across conditions must remain below 5 percent. Each Chinese message is about 56 to 77 Chinese characters, with about 133 to 138 characters across both messages. Chinese messages must be complete, naturally punctuated sentences.
 
 Message 1 contains:
 
 * The assigned politeness style.
 * A clear rejection for now.
-* In HC, a proposal specific evidence gap and the consequence of deciding without the missing support.
-* In LC, only a broad topic level dismissal.
+* A brief reaction to the proposal. In HC it starts the proposal specific diagnosis; in LC it stays broad and non diagnostic.
 
 Message 2 contains:
 
-* In HC, the concrete relationship, comparison, effect, tradeoff, constraint, or trial result that the analysis must assess, plus a concrete data-analysis path before reconsideration.
+* In HC, the rest of one coherent diagnosis, including the concrete relationship, comparison, effect, tradeoff, constraint, or trial result that the analysis must assess, plus a concrete data analysis path before reconsideration.
 * In LC, an equally long vague judgment that adds no diagnostic or revision information.
 
 The hidden HC structure contains:
@@ -115,9 +114,9 @@ The path follows the politeness condition. In HP it is redressed with actual fac
 
 The hidden LC structure keeps all three fields empty. The visible reply may name the broad proposal topic, but must not communicate any specific problem, consequence, evidence type, standard, missing material, risk, or remedy.
 
-The LC broad judgment vocabulary is split by politeness. HP LC uses mild vague judgments such as `needs more thought` or `does not quite fit the bigger picture yet`, never harsh adjectives. LP LC uses blunt vague judgments such as `not workable` or `nowhere near ready`. Both carry zero diagnostic information; the wording difference is exactly the politeness factor. Sharing one vocabulary made warm plus vague internally contradictory and produced heavy blind validation failures in that cell.
+The LC broad judgment register is split by politeness. HP LC uses a mild, hedged judgment, while LP LC uses a blunt proposal focused judgment. Both carry zero diagnostic information; the wording difference is exactly the politeness factor. The generator rotates among vague domains such as timing, overall fit, competing attention, and broader direction, and avoids whichever domain the manager already used. No exact sentence or adjective is prescribed.
 
-HC feedback is generated from the decision logic of the participant's actual proposal, not from a fixed missing-data checklist. Every HC rejection communicates that the current proposal lacks enough proposal-specific evidence for the requested decision. The manager identifies the exact unanswered empirical question after reading the entire conversation, explains the consequence of deciding without that evidence, states what relationship, comparison, pattern, effect, tradeoff, constraint, or trial result the analysis needs to establish, and names one or two concrete data inputs or analyses that would answer it. These elements must form one logical chain.
+HC feedback is generated from the decision logic of the participant's actual proposal, not from a fixed missing data checklist. Every HC rejection communicates that the current proposal lacks enough proposal specific evidence for the requested decision. The manager identifies one central unanswered empirical question after reading the entire conversation, explains the consequence of deciding without that evidence, states what relationship, comparison, pattern, effect, tradeoff, constraint, or trial result the analysis needs to establish, and names no more than two linked measures, observations, comparisons, or trial results that would answer it. These elements must form one logical chain rather than a comma heavy checklist.
 
 The decision consideration is judged from meaning. Merely naming an abstract desired outcome such as `Service must stay reliable`, `Safety matters`, or `The change must be financially feasible` is not enough. The manager must explain what about this proposal could affect that outcome, for example whether supervising interns would pull permanent staff away from exceptions, or whether quieter-day booking gains would offset peak-day revenue losses. This reasoning may be integrated into the diagnosis rather than placed in a separate sentence.
 
@@ -125,11 +124,11 @@ The visible manager message must not expose the rubric through labels such as `T
 
 The unresolved issue may concern an assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim, but it must be expressed as a decision-relevant evidence gap. The manager never says only `needs more data` or `needs more analysis`. It specifies what should be measured or observed, what should be compared or analyzed, and how the result bears on this particular decision. The manager must not claim that information is missing if the participant has already supplied it, and must not reuse a stock visitor-flow, role-workload, or cost-analysis request across unrelated proposals.
 
-For English and Chinese first rejections, the server may remove or add semantically empty modifiers or a neutral sentence saying the judgment concerns the current version to meet the matched total length. If an English pair remains outside the 54 to 70 word hard band, the server makes one length-only rewrite targeting 58 to 60 words. That rewrite is instructed to preserve the rejection, substantive components, future-step redress, and interpersonal cue direction and count. The rewritten pair then goes through the complete metadata, safety, semantic, cue-evidence, and length validation sequence again. If it still misses the band, the request fails rather than widening the experimental limit.
+For an overlong English first rejection, the server may remove semantically empty modifiers or compress an equivalent phrase. It does not pad a short reply with repeated temporal filler such as `currently` or `right now`. If the English pair remains outside the indexed message ranges or the 54 to 68 word hard band, the server makes up to two length only rewrites. When a message is over its cap the rewrite names that message and the exact number of words it must lose; when the pair is short it asks for neutral wording to reach 58 to 62. The rewrite must preserve the rejection, substantive components, future step redress, and interpersonal cue direction and count. Each rewritten pair goes through the complete metadata, safety, semantic, cue evidence, and length validation sequence again. If after both passes a message is still at most three words over its own cap while the pair is inside the 54 to 68 total band, the reply is accepted and the miss is recorded as a validation warning, because the matched total is the experimental control and a connection error at the manipulation moment costs more than three words. A larger miss, or a total outside its band, still fails. Chinese normalization retains its separate character matching rules.
 
 ## Subsequent Rejection Turns
 
-If the participant continues engaging, the manager replies in one 32 to 36 word English message or one roughly 52 to 60 character Chinese message per turn. Every later rejection explicitly repeats that the current version cannot be approved.
+If the participant continues engaging, the manager replies in one 32 to 36 word English message or one roughly 52 to 60 character Chinese message per turn. Every later rejection explicitly maintains that the current version cannot be approved, but uses fresh phrasing rather than repeating the same sentence.
 
 The window is deliberately narrow. A wider window let follow up turns drift to a 14 percent length spread across conditions, with low constructiveness consistently shortest.
 
@@ -204,7 +203,7 @@ It does not use:
 * Apology.
 * Warmth, deference, or hedging.
 
-The face threat targets the proposal and uses exactly one sharp cue per message. Wording such as `this version is sloppy` or `this is nowhere near ready` is allowed, but attacks on the participant are prohibited.
+The face threat targets the proposal and uses exactly one sharp cue per message. The generator creates that judgment from the current exchange rather than selecting a stock readiness phrase. Attacks on the participant are prohibited.
 
 Low politeness does not need to add a next-step line. In LP HC, the required concrete remedy is stated directly without redress as a complete subject-led sentence rather than a clipped command. Its wording varies naturally with the proposal instead of following a fixed template. In LP LC, no command is added merely to sound blunt; if future handling is mentioned naturally, it stays direct, vague, and non-actionable.
 
@@ -296,11 +295,15 @@ Existing safety checks remain active:
 The interaction should resemble a live workplace chat.
 
 * Add a short natural delay before manager replies where technically possible.
-* Do not show a typing indicator on every turn.
-* After generation and blind validation of the two-message first rejection, show Message 1 immediately. Then show the Manager typing indicator and calculate a 4.5 to 10 second interval from Message 2's word count before displaying Message 2.
-* Do not add a second full thinking delay before Message 2 because both rejection messages have already been generated together.
-* During actual AI generation and blind validation for manager discussion, rejection, follow-up rejection, and closing turns, show the Manager typing indicator. Remove it as soon as the request completes, including on failure.
-* Closing uses the same 150 second validated-manager request window as rejection turns. There is no separate 25 second browser cutoff. Once a closing passes validation, display it immediately after removing the processing-time typing indicator, without adding a simulated delay.
+* Do not present the manager as continuously typing while generation and validation are still running.
+* Generation and blind validation run in silence. No typing indicator is held across that wait, because a manager shown typing for twenty seconds and then sending two short lines is less believable than one who has simply not started writing.
+* A closing is never acknowledged, however long it takes to generate. The manager is signing off rather than weighing anything, so saying they need a moment would be about nothing.
+* If the wait passes twenty seconds, the manager sends a short acknowledgement such as `Give me a second with this.` or `Let me think this through.` Measured on this pipeline, neutral follow up turns finish in 5 to 12 seconds and never reach that threshold, while the turn that produces the first rejection takes about 40 seconds and always does. The threshold is used instead of the phase because the first rejection arrives on a discussion request whenever the model decides reject_now inside that turn.
+* The acknowledgement is a real recorded Manager message. Eight lines are generated per session rather than shipped as one script every participant sees, and the previous line is never repeated. The register is asking for time or wanting to think it over, never third person status voice. The lines carry no face work in either direction, so they cannot leak into the politeness manipulation that follows.
+* Once a validated Manager message is ready, show the typing indicator for a duration derived from its length at 140 to 180 words per minute, bounded to 2.5 to 11 seconds, before displaying it. The same speed applies to the first rejection message, the second, follow ups, and closings, so a longer message always types visibly longer. The old profile timed these at 300 to 420 words per minute under a 5.2 second cap, which is a reading speed rather than a typing speed and let a 44 word message land after a few seconds of typing.
+* After Message 1 of the first rejection appears, show the Manager typing indicator for Message 2 using that same speed profile before displaying the longer explanation.
+* Do not add another full server style waiting cycle before Message 2 because both rejection messages have already been generated together.
+* Closing uses the same 150 second validated manager request window as rejection turns. There is no separate 25 second browser cutoff.
 * Keep the participant input available while the manager is typing.
 * If the participant sends another message during a pending reply, queue it or recalculate the pending response using the latest context.
 * Do not use a fixed response script.

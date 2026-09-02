@@ -63,6 +63,8 @@
 
   const state = {
     part: "prechat",
+    lastManagerAckLine: "",
+    managerAckLines: [],
     prechatAwaitingIntro: false,
     prechatIntroReceived: false,
     prechatReminderShown: false,
@@ -123,6 +125,13 @@
     completed_ai_check: storedSession.completed_ai_check || "false",
     ai_check_start_time: storedSession.ai_check_start_time || "",
     ai_check_submit_time: storedSession.ai_check_submit_time || "",
+    ai_check_stage: storedSession.ai_check_stage || "",
+    ai_check_unusual_start_time: storedSession.ai_check_unusual_start_time || "",
+    ai_check_unusual_submit_time: storedSession.ai_check_unusual_submit_time || "",
+    ai_check_unusual_text: storedSession.ai_check_unusual_text || "",
+    ai_check_who_start_time: storedSession.ai_check_who_start_time || "",
+    ai_check_who_submit_time: storedSession.ai_check_who_submit_time || "",
+    ai_check_who_text: storedSession.ai_check_who_text || "",
     manager_ai_suspicion: storedSession.manager_ai_suspicion || "",
     lisa_ai_suspicion: storedSession.lisa_ai_suspicion || "",
     john_ai_suspicion: storedSession.john_ai_suspicion || "",
@@ -870,20 +879,25 @@
     state.managerTurnActive = true;
     // The role assignment was already announced in the task room and acknowledged there, so
     // re-introducing it here reads as a script restart rather than the same person continuing.
-    // The evaluation and compensation content is the power manipulation and stays verbatim.
+    // The evaluation and pay content is the power manipulation: its substance stays fixed, but it
+    // is phrased the way a manager types in chat rather than as an announcement. "Compensation"
+    // was dropped because in a workplace it reads as salary, which left participants unsure whether
+    // the stake was the character's wages or their own payment for the task; "what you get paid for
+    // this task" holds inside and outside the fiction. These three lines precede the manipulation,
+    // so they carry no face work in either direction. No dashes: cleanAiDisplayText strips them.
     await sendDelayed("Manager", "manager", inZh(
-      "Hi again. Now that I'm the Park Manager here, I will evaluate your performance as an Operations Team Member.",
-      "你好，我们又见面了。既然这次由我担任公园经理，我会评估你作为运营团队成员的表现。"
+      "Hi again. I'm the park manager now, so I'll be the one rating how you do as an Operations Team Member.",
+      "你好，又见面了。现在由我来做公园经理，所以你作为运营团队成员表现如何，由我来评。"
     ), null, { opening: true });
     await sendDelayed("Manager", "manager", inZh(
-      "This evaluation may affect your compensation for completing the task.",
-      "这项评估可能会影响你完成本次任务后获得的报酬。"
+      "That rating can affect what you get paid for this task.",
+      "这个评分会影响你做这个任务拿到的报酬。"
     ), null, { opening: true });
     // The market research framing was already given by the coordinator in the task room, and a
     // manager who is supposedly just another participant would not explain the sponsor's goals.
     await sendDelayed("Manager", "manager", inZh(
-      "Based on the information you received, what do you think the theme park should do next?",
-      "根据你收到的信息，你认为主题乐园下一步应该怎么做？"
+      "So, from what you've read so far, what do you think the park should do?",
+      "那么，根据你目前看到的这些，你觉得乐园应该怎么做？"
     ), null, { opening: true });
     finishManagerTurn();
   }
@@ -927,8 +941,8 @@
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
     state.managerTurnActive = true;
     await sendDelayed("Manager", "manager", inZh(
-      "Based on the information you received, what do you think the theme park should do next?",
-      "根据你收到的信息，你认为主题乐园下一步应该怎么做？"
+      "So, from what you've read so far, what do you think the park should do?",
+      "那么，根据你目前看到的这些，你觉得乐园应该怎么做？"
     ), null, { immediate: true });
     finishManagerTurn();
   }
@@ -2225,10 +2239,85 @@
     renderAiCheckPage();
   }
 
+  // The suspicion probe is a funnel. Two open questions that never mention AI come first, each on
+  // its own page and locked once submitted; only then the direct item. The direct page is kept
+  // exactly as it was in the pilot, preamble included, so its answers stay comparable with the data
+  // already collected. That preamble tells the participant AI may be involved before asking, which
+  // is a prime, and is the whole reason it must never be on screen before the two open answers are in.
+  const AI_CHECK_STAGES = ["unusual", "who", "direct"];
+
   function renderAiCheckPage() {
     markForwardStage("ai_check");
     state.part = "ai_check";
+    const stage = AI_CHECK_STAGES.includes(participant.ai_check_stage) ? participant.ai_check_stage : "unusual";
+    if (stage === "direct") return renderAiCheckDirectPage();
+    return renderAiCheckOpenPage(stage);
+  }
+
+  function renderAiCheckOpenPage(kind) {
+    const isFirst = kind === "unusual";
+    const question = isFirst
+      ? inZh(
+        "Did anything about the interaction feel unusual or unexpected? Please describe briefly.",
+        "在刚才的互动中，有没有什么让你觉得不寻常或出乎意料的地方？请简单描述。",
+      )
+      : inZh(
+        "Who or what do you think you were interacting with in the chat?",
+        "你认为你在聊天中是在和谁（或什么）互动？",
+      );
+    participant.ai_check_stage = kind;
+    participant[`ai_check_${kind}_start_time`] = timestamp();
+    participant[`ai_check_${kind}_submit_time`] = "";
+    if (isFirst) {
+      participant.completed_ai_check = "false";
+      participant.completion_status = "partial";
+    }
+    saveParticipant();
+    recordInteraction("ai_check", "system", `AI check page displayed: ${kind}.`, "");
+
+    screen.innerHTML = `
+      <article class="page ai-check-page">
+        <h1>${escapeHtml(inZh("A few final questions", "最后几个问题"))}</h1>
+        <form id="ai-check-form" novalidate>
+          <fieldset>
+            <legend>${escapeHtml(question)}</legend>
+            <textarea id="ai-check-text" name="answer" rows="4" required></textarea>
+          </fieldset>
+          <p class="validation-message" id="ai-check-validation" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button" type="submit">${escapeHtml(inZh("Continue", "继续"))}</button>
+          </div>
+        </form>
+      </article>
+    `;
+    document.getElementById("ai-check-form").addEventListener("submit", (event) => handleAiCheckOpenSubmit(event, kind));
+  }
+
+  function handleAiCheckOpenSubmit(event, kind) {
+    event.preventDefault();
+    const validation = document.getElementById("ai-check-validation");
+    const answer = String(event.currentTarget.elements.answer.value || "").trim();
+    if (!answer) {
+      const message = inZh("Please write a short answer before continuing.", "请先写一个简短的回答。");
+      validation.textContent = message;
+      recordInteraction("ai_check", "system", message, "");
+      return;
+    }
+    participant[`ai_check_${kind}_text`] = answer;
+    participant[`ai_check_${kind}_submit_time`] = timestamp();
+    // Advance and persist before rendering, so a refresh lands on the next page rather than
+    // re-asking a question whose answer is already recorded.
+    participant.ai_check_stage = kind === "unusual" ? "who" : "direct";
+    saveParticipant();
+    recordInteraction("ai_check", "alex", `${kind}=${answer}`, "");
+    renderAiCheckPage();
+  }
+
+  // The pilot's page, unchanged: same preamble, same wording, same options. ai_check_start_time
+  // keeps its original meaning of "when this direct item was shown".
+  function renderAiCheckDirectPage() {
     state.aiCheckStartTime = timestamp();
+    participant.ai_check_stage = "direct";
     participant.completed_ai_check = "false";
     participant.ai_check_start_time = state.aiCheckStartTime;
     participant.ai_check_submit_time = "";
@@ -2298,6 +2387,7 @@
     participant.ai_check_start_time = state.aiCheckStartTime || participant.ai_check_start_time || submitTime;
     participant.ai_check_submit_time = submitTime;
     participant.manager_ai_suspicion = managerResponse;
+    participant.ai_check_stage = "done";
     participant.lisa_ai_suspicion = lisaResponse;
     participant.john_ai_suspicion = johnResponse;
     participant.experiment_end_time = submitTime;
@@ -2356,17 +2446,26 @@
   }
 
   async function sendAiMessages(request) {
-    const showPendingManagerTyping =
+    const validatedManagerTurn =
       request.stage === "manager1" &&
       ["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"].includes(request.phase);
-    const pendingManagerTyping = showPendingManagerTyping
-      ? showTypingIndicator("Manager", "manager")
-      : null;
+    // Whether the manager needs a moment is decided by how long the reply actually takes, not by the
+    // phase. The first rejection usually arrives on a "discussion" request, because the model
+    // decides reject_now inside that turn, so keying the acknowledgement to the rejection phases
+    // missed the single longest wait in the study. Timing it instead also matches what a person
+    // does: you only say "give me a sec" when you actually need one.
+    // A closing is the manager signing off, not deliberating: there is nothing left to weigh, so
+    // saying they need a moment would be about nothing. Closings are never acknowledged, however
+    // long they take to generate.
+    const acknowledgeableTurn = validatedManagerTurn && request.phase !== "closing";
+    const replyPromise = requestAiMessages(request);
+    const presence = acknowledgeableTurn ? runManagerWaitPresence(replyPromise) : null;
     let result;
     try {
-      result = await requestAiMessages(request);
+      result = await replyPromise;
     } finally {
-      if (pendingManagerTyping) pendingManagerTyping.remove();
+      // Never let the reply overtake the presence sequence when generation returns quickly.
+      if (presence) await presence;
     }
     if (!result.ok) {
       console.warn(result.error || "The AI chat service is not available. Please check the server configuration.");
@@ -2376,12 +2475,6 @@
     clearApiConnectionIssue();
 
     state.lastAiIntent = result.intent || "";
-    const immediateConditionTurn =
-      request.stage === "manager1" &&
-      (
-        ["rejection_initial", "rejection_followup", "rejection", "closing"].includes(request.phase) ||
-        result.intent === "reject_now"
-      );
     const initialRejectionPair =
       request.stage === "manager1" &&
       (request.phase === "rejection_initial" || result.intent === "reject_now");
@@ -2399,7 +2492,7 @@
       }
       await sendDelayed(displaySpeaker, className, displayText, delayMs, {
         closing: request.phase === "closing",
-        immediate: immediateConditionTurn && !(initialRejectionPair && messageIndex > 0),
+        postValidation: validatedManagerTurn && messageIndex === 0,
         interMessage: initialRejectionPair && messageIndex > 0,
       });
       if (isCoworkerClass(className)) previousCoworkerText = displayText;
@@ -2603,6 +2696,94 @@
     return row;
   }
 
+  // A real chat client has no "reviewing your message" state, so an invented one reads as a machine
+  // affordance to a suspicious participant. A manager who has just been sent a proposal does the
+  // human equivalent instead: says they need a moment. The register is asking for time or wanting to
+  // think it over, never narrating that they are reading the message.
+  //
+  // The lines are generated once per session rather than hardcoded, so two participants do not see
+  // the same script. They carry no face work in either direction — no thanks or appreciation
+  // (positive politeness) and no apology or deference (negative politeness) — because they sit
+  // immediately before the politeness-manipulated rejection and would otherwise become part of it.
+  // This local set is the fallback when generation is unavailable.
+  const MANAGER_ACK_FALLBACK_EN = [
+    "Give me a sec.",
+    "Let me think about this for a moment.",
+    "Okay, give me a minute with this one.",
+    "Hang on, let me sit with this a moment.",
+    "Give me a moment to think it over.",
+    "One sec, I want to think about this properly.",
+  ];
+  const MANAGER_ACK_FALLBACK_ZH = [
+    "我想想。",
+    "稍等,让我想一下。",
+    "给我点时间想想。",
+    "等一下,我琢磨一下。",
+    "让我先考虑考虑。",
+    "稍等,我想清楚再说。",
+  ];
+
+  async function loadManagerAckLines() {
+    if (state.managerAckLines.length) return;
+    try {
+      const response = await fetch("/api/manager-ack-lines", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ language: isChinese ? "zh" : "en" }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (Array.isArray(data.lines) && data.lines.length >= 4) {
+        state.managerAckLines = data.lines;
+        return;
+      }
+    } catch (error) {
+      // Falls through to the local set below.
+    }
+    state.managerAckLines = inZhArray(MANAGER_ACK_FALLBACK_EN, MANAGER_ACK_FALLBACK_ZH);
+  }
+
+  function pickManagerAckLine() {
+    const lines = state.managerAckLines.length
+      ? state.managerAckLines
+      : inZhArray(MANAGER_ACK_FALLBACK_EN, MANAGER_ACK_FALLBACK_ZH);
+    const available = lines.filter((line) => line !== state.lastManagerAckLine);
+    const pool = available.length ? available : lines;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    state.lastManagerAckLine = line;
+    return line;
+  }
+
+  // Shown while generation and blind validation run. It is a real Manager message: the participant
+  // sees it in the transcript and it is recorded, which is what makes it read as a person rather
+  // than as a status widget.
+  // Only a wait long enough to need explaining gets one. Measured on this pipeline, neutral
+  // follow-up turns finish in 5-12 seconds while the turn that produces the rejection takes about
+  // 40, so this threshold separates them without the client having to know which turn it is on -
+  // which it cannot, because the first rejection arrives on a "discussion" request whenever the
+  // model decides reject_now inside that turn.
+  const MANAGER_ACK_THRESHOLD_MS = 20000;
+
+  // Drives what the participant sees while the reply is generated and blind-validated. The wait
+  // itself is silent: a typing indicator held for twenty seconds and then followed by a short
+  // message is the tell this whole sequence exists to remove, because nobody types that long to
+  // produce two lines. Silence reads as a manager who has not started writing yet.
+  async function runManagerWaitPresence(replyPromise) {
+    let settled = false;
+    const tracked = replyPromise.then(
+      () => { settled = true; },
+      () => { settled = true; },
+    );
+    // Warmed during the wait, and memoised, so the acknowledgement is not itself delayed by the
+    // request that generates its wording.
+    const linesReady = loadManagerAckLines();
+    await Promise.race([tracked, delay(MANAGER_ACK_THRESHOLD_MS)]);
+    if (settled) return;
+    const typingIndicator = showTypingIndicator("Manager", "manager");
+    await Promise.all([linesReady, delay(randomBetween(700, 1200))]);
+    typingIndicator.remove();
+    addMessage("Manager", "manager", pickManagerAckLine());
+  }
+
   function responseDelayForText(text) {
     const { min, max } = responseDelayRange(text);
     return randomBetween(min, max);
@@ -2617,15 +2798,27 @@
     return { min: 18000, max: 25000, wordCount };
   }
 
+  // One typing speed for every validated manager turn. Before this, the first rejection message and
+  // follow-ups were timed at 300-420 words per minute under a 5.2 second cap, which is a reading
+  // speed rather than a typing speed, and the cap flattened a 12-word and a 44-word message to
+  // nearly the same interval - so a long message would land after a few seconds of typing. A fast
+  // but plausible chat typist, with a cap high enough that length differences stay visible.
+  const MANAGER_TYPING_WPM = { min: 140, max: 180 };
+  const MANAGER_TYPING_DELAY_MS = { min: 2500, max: 11000 };
+
+  function managerTypingDelayFor(text) {
+    const wordCount = chatTextUnitCount(text);
+    const wordsPerMinute = randomBetween(MANAGER_TYPING_WPM.min, MANAGER_TYPING_WPM.max);
+    const natural = Math.round((wordCount / wordsPerMinute) * 60000);
+    return Math.min(MANAGER_TYPING_DELAY_MS.max, Math.max(MANAGER_TYPING_DELAY_MS.min, natural));
+  }
+
   function managerTimingPlan(text, opts = {}) {
     if (opts.interMessage) {
-      // The first rejection message appears as soon as generation and blind validation finish.
-      // For the second message, show typing almost immediately and derive the interval from that
-      // message's length. Keep the cap short enough that the participant is not made to wait for
-      // another full response cycle after the content has already been generated.
-      const wordCount = chatTextUnitCount(text);
-      const wordsPerMinute = randomBetween(180, 220);
-      const typingDelay = Math.min(10000, Math.max(4500, Math.round((wordCount / wordsPerMinute) * 60000)));
+      // After the short first rejection message appears, show a typing interval before the longer
+      // explanation. This makes the pair feel like two chat messages rather than one JSON response
+      // being rendered all at once.
+      const typingDelay = managerTypingDelayFor(text);
       return {
         showTyping: true,
         totalDelay: typingDelay + 600,
@@ -2635,16 +2828,14 @@
       };
     }
 
-    if (opts.closing) {
-      const totalDelay = randomBetween(4500, 6500);
-      const thinkingDelay = randomBetween(1000, 1500);
-      const tailPause = randomBetween(300, 600);
+    if (opts.postValidation) {
+      const typingDelay = managerTypingDelayFor(text);
       return {
         showTyping: true,
-        totalDelay,
-        thinkingDelay,
-        typingDelay: Math.max(2200, totalDelay - thinkingDelay - tailPause),
-        tailPause,
+        totalDelay: typingDelay + 700,
+        thinkingDelay: randomBetween(250, 450),
+        typingDelay,
+        tailPause: randomBetween(150, 300),
       };
     }
 

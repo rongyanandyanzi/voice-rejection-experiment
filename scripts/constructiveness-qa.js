@@ -183,47 +183,13 @@ function effectiveWordCount(text) {
 
 
 
-// Cue counts, not just presence. Holding total length constant means a low-constructiveness reply
-// has spare words that a high-constructiveness reply spends on diagnosis; if those words go into
-// extra redressive moves or extra dismissal then the politeness contrast is larger under low constructiveness
-// than under high constructiveness, and the two factors stop being orthogonal.
-const POLITENESS_CUE_PATTERNS = [
-  /\b(?:thanks|thank you)\b|谢谢|感谢/gi,
-  /\bappreciate\b|理解你|体谅/gi,
-  /\b(?:i am sorry|i'm sorry|i’m sorry|apolog)\w*|抱歉|不好意思/gi,
-  // "I hear you", "noted" and "worth noting" are deliberately absent: they acknowledge receipt
-  // without doing any face work and were filling the acknowledgement slot instead of a redressive move.
-  /\b(?:i can see|that makes sense|good thinking|sensible|helps)\b|辛苦/gi,
-  /\b(?:genuinely|happy to revisit|glad|respect|not a reflection on you)\b/gi,
-];
-const FACE_THREAT_CUE_PATTERNS = [
-  /\bsloppy\b|草率|敷衍/gi,
-  /\bnowhere near ready\b|远远不够|差得远/gi,
-  /\btoo (?:rough|thin)\b|太粗|太薄/gi,
-  /\b(?:half baked|half-baked)\b|半成品/gi,
-  /\b(?:weak|rough concept|not a serious)\b|很弱|不成熟/gi,
-  /\bwaste\b|浪费/gi,
-];
-
-// Reuses the cue patterns below rather than its own narrower list. The old regex missed
-// "happy to revisit" and "I can see", so warm closings were scored as impolite and the politeness
-// accuracy gate failed on correct output.
-function hasPoliteCue(text) {
-  return politenessCueCount(text) > 0;
-}
-
-function countCues(text, patterns) {
-  const raw = String(text || "");
-  return patterns.reduce((sum, pattern) => sum + (raw.match(pattern) || []).length, 0);
-}
-
-function politenessCueCount(text) {
-  return countCues(text, POLITENESS_CUE_PATTERNS);
-}
-
-function faceThreatCueCount(text) {
-  return countCues(text, FACE_THREAT_CUE_PATTERNS);
-}
+// Politeness and constructiveness cues used to be counted with keyword regexes here. They were
+// removed rather than extended: any fixed word list measures the study's vocabulary instead of its
+// constructs, so it under-counts exactly the replies that are worded most naturally and it biases
+// by condition (low constructiveness gravitates to "I'm sorry", which a list catches, while high
+// constructiveness carries its politeness in proposal-specific validation, which a list misses).
+// scoreConstructs reads the server's blind semantic scores instead. See its comment for how each
+// construct dimension maps onto a scored field.
 
 function hasForbiddenContent(text) {
   return /\b(Alex|Lisa|John)\b|礼貌性|建设性|实验条件|experimental condition|politeness|constructiveness|AI generated|language model/i.test(text);
@@ -260,6 +226,7 @@ async function callReply(proposal, condition, phase) {
   const data = await response.json().catch(() => ({}));
   const messages = Array.isArray(data.messages) ? data.messages : [];
   const text = messages.map((message) => message.text || "").join(" ");
+  const constructs = scoreConstructs(data.blind_scores, text, condition);
   return {
     proposal_id: proposal.id,
     language: proposal.language,
@@ -272,10 +239,87 @@ async function callReply(proposal, condition, phase) {
     messages,
     text,
     effective_words: messages.reduce((sum, message) => sum + effectiveWordCount(message.text), 0),
-    polite_classification_correct: condition.startsWith("HP_") ? hasPoliteCue(text) : !hasPoliteCue(text),
-    politeness_cues: politenessCueCount(text),
-    face_threat_cues: faceThreatCueCount(text),
+    ...constructs,
     forbidden_content: hasForbiddenContent(text),
+  };
+}
+
+// Politeness and constructiveness are scored from the meaning of the reply, against the construct
+// definitions this study uses, not from a keyword list. A keyword list cannot see "your split
+// between simple purchases and assisted guests is thoughtful" as validation of effort, or "if
+// you're willing" as deference, so every improvement to the naturalness of the generated wording
+// registered as a drop in measured politeness. The server already scores these semantically for its
+// own regeneration loop; the harness now reads those scores instead of re-deriving them badly.
+//
+// Politeness dimensions (Brown & Levinson, as operationalized for this study):
+//   relational acknowledgement / validation of effort  -> positive politeness cues
+//   apology / deference / hedge / impersonalization    -> negative politeness cues
+//   hedges before rejection                            -> current_rejection_redressed
+//   mood of directives (conditional vs imperative)     -> future_next_step_redressed
+//   closing warmth                                     -> explicit_future_openness
+//   salutation warmth                                  -> not applicable; this design forbids names
+//
+// Constructiveness dimensions (study operationalization plus Sommers 2012):
+//   specific problem diagnosis                         -> specific_problem
+//   explicit reference to standards                    -> explicit_standard
+//   actionable guidance / deliverables named           -> actionable_remedy
+//   criteria for reconsideration                       -> concrete_reopening_condition
+//   problematic behaviour, not personal weakness       -> personal_attack_without_diagnosis (inverted)
+function scoreConstructs(blindScores, text, condition) {
+  if (!blindScores || typeof blindScores !== "object") {
+    // Falling back to the keyword counter silently would produce numbers that look like the real
+    // measurement and are not, so the run is marked instead.
+    return {
+      construct_score_source: "unavailable",
+      polite_classification_correct: false,
+      politeness_cues: 0,
+      face_threat_cues: 0,
+      politeness_dimensions: 0,
+      constructiveness_dimensions: 0,
+      hc_components_present: false,
+    };
+  }
+  const messageScores = Array.isArray(blindScores.message_scores) ? blindScores.message_scores : [];
+  const politenessCues = messageScores.reduce(
+    (sum, item) => sum + (Array.isArray(item.politeness_cues) ? item.politeness_cues.length : 0),
+    0,
+  );
+  const faceThreatCues = messageScores.reduce(
+    (sum, item) => sum + (Array.isArray(item.face_threat_cues) ? item.face_threat_cues.length : 0),
+    0,
+  );
+  const politenessDimensions = [
+    politenessCues > 0,
+    blindScores.current_rejection_redressed === true,
+    blindScores.future_next_step_redressed === true,
+    blindScores.explicit_future_openness === true,
+  ].filter(Boolean).length;
+  const constructivenessDimensions = [
+    blindScores.specific_problem === true,
+    blindScores.explicit_standard === true,
+    blindScores.actionable_remedy === true,
+    blindScores.concrete_reopening_condition === true,
+  ].filter(Boolean).length;
+  // High politeness performs redressive face work on the refusal; low politeness goes bald on
+  // record. The refusal itself is the anchor, because a courtesy phrase parked elsewhere in the
+  // reply is not redress of the face-threatening act.
+  const redressed = politenessCues > 0 && blindScores.current_rejection_redressed === true;
+  const bald = politenessCues === 0 && blindScores.current_rejection_redressed !== true;
+  return {
+    construct_score_source: "blind_semantic",
+    polite_classification_correct: condition.startsWith("HP_") ? redressed : bald,
+    politeness_cues: politenessCues,
+    face_threat_cues: faceThreatCues,
+    politeness_dimensions: politenessDimensions,
+    constructiveness_dimensions: constructivenessDimensions,
+    // Sommers (2012)'s three components, as the study operationalizes them: a specific problem
+    // diagnosis, an explicit reference to a standard, and a clear strategy for remedying it.
+    // concrete_reopening_condition is reported alongside but is not required, because a reply can
+    // be fully constructive without naming a reopening threshold.
+    hc_components_present: blindScores.specific_problem === true
+      && blindScores.explicit_standard === true
+      && blindScores.actionable_remedy === true,
+    personal_attack: blindScores.personal_attack_without_diagnosis === true,
   };
 }
 
@@ -298,9 +342,13 @@ async function mapLimit(items, limit, worker, onResult) {
           messages: [],
           text: "",
           effective_words: 0,
+          construct_score_source: "unavailable",
           polite_classification_correct: false,
           politeness_cues: 0,
           face_threat_cues: 0,
+          politeness_dimensions: 0,
+          constructiveness_dimensions: 0,
+          hc_components_present: false,
           forbidden_content: false,
         };
       }
@@ -445,8 +493,15 @@ async function main() {
     {
       politeness_cues: cueMean(condition, "politeness_cues"),
       face_threat_cues: cueMean(condition, "face_threat_cues"),
+      politeness_dimensions: cueMean(condition, "politeness_dimensions"),
+      constructiveness_dimensions: cueMean(condition, "constructiveness_dimensions"),
     },
   ]));
+  // Every number above is meaningless if the server did not return its blind semantic scores, so
+  // coverage is reported and gated rather than left to be inferred from suspiciously round values.
+  const constructScoreCoverage = successful.length
+    ? successful.filter((record) => record.construct_score_source === "blind_semantic").length / successful.length
+    : 0;
   const cueBalanceGaps = {
     hp_politeness: cueBalance("HP", "politeness_cues"),
     hp_face_threat: cueBalance("HP", "face_threat_cues"),
@@ -468,8 +523,25 @@ async function main() {
     api_failure_rate: 1 - successful.length / records.length,
     condition_failure_rates: failureRates,
     condition_failure_rate_spread: Math.max(...failureValues) - Math.min(...failureValues),
-    hc_component_pass_rate: highGated.filter((record) => record.ok).length / highGated.length,
-    lc_unexpected_component_rate: lowGated.filter((record) => !record.ok).length / lowGated.length,
+    // These two measure the constructiveness manipulation, so they are scored from what the reply
+    // actually communicates. They previously counted record.ok, which is whether the generation
+    // request succeeded: a low-constructiveness reply that leaked a full diagnosis passed, and a
+    // clean reply lost to a timeout counted as a leak. Nothing about either number was about
+    // constructiveness. A high-constructiveness reply must carry the study's three components -
+    // specific problem diagnosis, an explicit standard, and actionable guidance - and a
+    // low-constructiveness reply must carry none of the four scored dimensions.
+    hc_component_pass_rate: highGated.filter((record) => record.ok).length
+      ? highGated.filter((record) => record.ok && record.hc_components_present).length
+        / highGated.filter((record) => record.ok).length
+      : 0,
+    lc_unexpected_component_rate: lowGated.filter((record) => record.ok).length
+      ? lowGated.filter((record) => record.ok && record.constructiveness_dimensions > 0).length
+        / lowGated.filter((record) => record.ok).length
+      : 0,
+    generation_failure_rate_by_constructiveness: {
+      HC: highGated.filter((record) => !record.ok).length / Math.max(1, highGated.length),
+      LC: lowGated.filter((record) => !record.ok).length / Math.max(1, lowGated.length),
+    },
     politeness_classification_accuracy: politenessRows.filter((record) => record.polite_classification_correct).length / Math.max(1, politenessRows.length),
     forbidden_content_rate: successful.filter((record) => record.forbidden_content).length / Math.max(1, successful.length),
     average_initial_effective_words: averageInitialLength,
@@ -480,6 +552,8 @@ async function main() {
     politeness_cue_density: politenessCueDensity,
     politeness_cue_balance_gaps: cueBalanceGaps,
     worst_politeness_cue_balance_gap: worstCueBalanceGap,
+    construct_score_coverage: constructScoreCoverage,
+    personal_attack_rate: successful.filter((record) => record.personal_attack).length / Math.max(1, successful.length),
   };
   summary.thresholds = {
     hc_components_at_least_95_percent: summary.hc_component_pass_rate >= 0.95,
@@ -491,6 +565,11 @@ async function main() {
     // while leaving room for the cue counter to disagree with itself on a handful of replies.
     politeness_cue_density_balanced_across_constructiveness: summary.worst_politeness_cue_balance_gap <= 0.35,
     no_forbidden_content: summary.forbidden_content_rate === 0,
+    // Sommers (2012): feedback addresses the problematic behaviour, not the person. This holds in
+    // every condition; low politeness threatens the proposal's face, never the participant's.
+    no_personal_attack: summary.personal_attack_rate === 0,
+    // Start the server with EXPOSE_QA_DIAGNOSTICS=1 so it returns the blind semantic scores.
+    construct_scores_available: summary.construct_score_coverage === 1,
   };
   summary.passed = Object.values(summary.thresholds).every(Boolean);
 

@@ -19,8 +19,15 @@ const {
   normalizeRow,
   normalizeVersionedRow,
   buildInitialManagerPrompt,
+  buildNeutralManagerPrompt,
+  NEUTRAL_MANAGER_WRAP_UP_RULE,
+  neutralManagerClosingProblem,
   generateAiReply,
   managerConditionRules,
+  MANAGER_ACK_FORBIDDEN,
+  NEUTRAL_CHAT_REGISTER_RULE,
+  managerLengthOnlyRewriteCorrection,
+  managerSmallLengthOvershoot,
   managerConstructivenessMetadataProblem,
   managerConstructivenessAssessmentProblem,
   managerConstructivenessCueWarning,
@@ -73,11 +80,11 @@ function validHighReply() {
     messages: [
       {
         speaker: "Manager",
-        text: exactWords("I appreciate you thinking this through, but I cannot approve this flexible staffing proposal now because we have no evidence that temporary workers can handle entry checks without increasing errors or queue times"),
+        text: "I appreciate the care behind this, but I cannot approve the flexible staffing proposal because the entry check risk is unresolved.",
       },
       {
         speaker: "Manager",
-        text: exactWords("I would be open to reconsidering it after a trial comparing entry errors and queue times on matched peak shifts with trained temporary staff and current permanent coverage"),
+        text: "I would consider a revised version after a matched peak shift trial compares entry errors and queue times for trained temporary workers against permanent staff under similar visitor demand, so we can see whether the added coverage helps.",
       },
     ],
     constructiveness: {
@@ -94,7 +101,7 @@ function validHighEvaluatorScores(overrides = {}) {
     explicit_standard: true,
     actionable_remedy: true,
     current_rejection_maintained: true,
-    current_rejection_evidence: "I cannot approve this flexible staffing proposal now",
+    current_rejection_evidence: "I cannot approve the flexible staffing proposal",
     current_rejection_redressed: true,
     has_future_next_step: true,
     future_next_step_redressed: true,
@@ -103,15 +110,15 @@ function validHighEvaluatorScores(overrides = {}) {
     personal_attack_without_diagnosis: false,
     message_scores: [
       {
-        politeness_cues: ["I appreciate you thinking this through"],
+        politeness_cues: ["I appreciate the care behind this"],
         face_threat_cues: [],
         future_next_step: "",
         future_next_step_is_redressed: false,
       },
       {
-        politeness_cues: ["I would be open to reconsidering"],
+        politeness_cues: ["I would consider a revised version"],
         face_threat_cues: [],
-        future_next_step: "I would be open to reconsidering it after a trial comparing entry errors and queue times on matched peak shifts with trained temporary staff and current permanent coverage",
+        future_next_step: "I would consider a revised version after a matched peak shift trial compares entry errors and queue times for trained temporary workers against permanent staff under similar visitor demand, so we can see whether the added coverage helps",
         future_next_step_is_redressed: true,
       },
     ],
@@ -141,14 +148,18 @@ test("legacy pre-rejection followup entry point is also neutral", () => {
   assert.doesNotMatch(hp.system, /High-politeness conditions should|High-constructiveness conditions may/i);
 });
 
-test("initial rejection uses two matched structured messages", () => {
+test("initial rejection uses a short decision followed by a longer structured explanation", () => {
   for (const condition of conditions) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
     assert.equal(prompt.minMessages, 2);
     assert.equal(prompt.maxMessages, 2);
-    assert.deepEqual(prompt.wordRange, { min: 24, max: 38 });
-    assert.deepEqual(prompt.totalWordRange, { min: 54, max: 70 });
-    assert.deepEqual(prompt.totalWordTargetRange, { min: 58, max: 60 });
+    assert.deepEqual(prompt.wordRange, { min: 14, max: 46 });
+    assert.deepEqual(prompt.messageWordRanges, [
+      { min: 14, max: 22 },
+      { min: 36, max: 46 },
+    ]);
+    assert.deepEqual(prompt.totalWordRange, { min: 54, max: 68 });
+    assert.deepEqual(prompt.totalWordTargetRange, { min: 58, max: 62 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.equal(prompt.constructivenessAssessmentMode, "rejection");
     assert.match(prompt.system, /proposal_problem, relevant_standard, and revision_path/);
@@ -584,23 +595,21 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   assert.doesNotMatch(rules.LP_LC, /State the refusal once and then stop refusing/i);
   for (const condition of ["HP_LC", "LP_LC"]) {
     assert.match(rules[condition], /keep exactly the same number of politeness or dismissiveness cues/i);
-    // Strategic fit is the designated filler topic, given to both politeness levels so it cannot
-    // become a politeness difference. It only stays low-constructiveness while the mismatch is
-    // asserted and never explained: naming the goal would be a standard, explaining the conflict
-    // would be a diagnosis.
-    assert.match(rules[condition], /Your main filler topic is fit with where the park is going/i);
+    // LC can rotate among several equally vague filler domains. This avoids making every manager
+    // sound as though they were given the same stock line while preserving zero usable content.
+    assert.match(rules[condition], /one or two vague filler domains chosen from general timing, overall fit, competing attention, or the broader direction of the park/i);
+    assert.match(rules[condition], /Rotate away from whichever domain the Manager already used/i);
     assert.match(rules[condition], /Every example phrase in these rules is an illustration of the register, never a line to copy/i);
     assert.match(rules[condition], /the information content stays zero/i);
     assert.match(rules[condition], /Never say which goal, direction, or priority, and never explain how the proposal conflicts with it/i);
     assert.match(rules[condition], /never say which thing/i);
   }
-  // A maturity judgment carries face threat, so it is available blunt to low politeness and only
-  // hedged to high politeness.
-  assert.match(rules.LP_LC, /is not mature enough/i);
-  assert.match(rules.HP_LC, /is not quite there yet/i);
-  assert.match(rules.HP_LC, /have not been fully thought through/i);
-  assert.match(rules.HP_LC, /phrase any judgment about how developed it is in hedged form/i);
-  assert.doesNotMatch(rules.HP_LC, /is not mature enough/i);
+  // Broad judgments remain hedged in HP and blunt in LP, but neither cell receives a sentence to
+  // copy verbatim.
+  assert.match(rules.LP_LC, /Use a blunt broad judgment about general readiness, maturity, or fit/i);
+  assert.match(rules.LP_LC, /Compose a fresh proposal-focused sharp evaluation/i);
+  assert.match(rules.HP_LC, /Use a mild, hedged broad judgment about general readiness, timing, or fit/i);
+  assert.match(rules.HP_LC, /Compose the judgment from the current conversation/i);
 });
 
 test("refusals and optional future steps are redressed only under high politeness", () => {
@@ -656,8 +665,8 @@ test("message count and length validators enforce the two-message rejection", ()
   assert.equal(managerMessageCountProblem(valid, prompt, ""), "");
   assert.equal(managerWordCountProblem(valid, prompt), "");
   assert.equal(managerWordCountProblem([
-    { speaker: "Manager", text: exactWords("One", 35) },
-    { speaker: "Manager", text: exactWords("Two", 27) },
+    { speaker: "Manager", text: exactWords("One", 20) },
+    { speaker: "Manager", text: exactWords("Two", 40) },
   ], prompt), "");
   assert.match(managerMessageCountProblem(valid.slice(0, 1), prompt, ""), /exactly 2/);
   assert.match(managerWordCountProblem([
@@ -668,17 +677,18 @@ test("message count and length validators enforce the two-message rejection", ()
   assert.equal(chineseCharacterCount("一二三四五，abc"), 5);
 });
 
-test("English first rejection length normalization preserves content and reaches the matched total", () => {
+test("English first rejection length normalization preserves the short-then-long rhythm", () => {
   const prompt = buildInitialManagerPrompt(managerPayload());
   const messages = [
-    { speaker: "Manager", text: exactWords("I cannot approve this proposal because the staffing idea leaves a service concern unresolved", 30) },
-    { speaker: "Manager", text: exactWords("The proposal must protect reliable entry service before I could reconsider a version with role training", 30) },
+    { speaker: "Manager", text: "At this point I really cannot approve this proposal currently because the flexible staffing idea still leaves a clearly unresolved risk to reliable entry service right now." },
+    { speaker: "Manager", text: "The plan needs to compare entry errors, queue times, and supervisor interventions during matched peak shifts before I could reconsider a version with role training that prepares temporary workers for the same visitor demand and duties." },
   ];
   const normalized = normalizeInitialManagerLength(messages, prompt);
   assert.equal(managerWordCountProblem(normalized, prompt), "");
   assert.match(normalized[0].text, /cannot approve/i);
   assert.match(normalized[1].text, /role training/i);
-  assert.ok(normalized.every((message) => wordCount(message.text) >= 24 && wordCount(message.text) <= 38));
+  assert.ok(wordCount(normalized[0].text) >= 14 && wordCount(normalized[0].text) <= 22);
+  assert.ok(wordCount(normalized[1].text) >= 36 && wordCount(normalized[1].text) <= 46);
   assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 54);
 });
 
@@ -742,6 +752,19 @@ test("explicit rejection is assessed semantically rather than by safety keywords
     current_rejection_maintained: false,
     current_rejection_evidence: "",
   }, prompt), /current proposal is not being approved/i);
+  for (const awkward of [
+    "Decision stays no for this proposal.",
+    "That reopens the discussion once the figures arrive.",
+    "A small busiest weekend pool could cover the gate.",
+  ]) {
+    assert.match(
+      managerSafetyProblem([{ speaker: "Manager", text: awkward }], prompt),
+      /Natural wording correction required/i,
+    );
+  }
+  assert.equal(managerSafetyProblem([
+    { speaker: "Manager", text: "The decision is still no for this proposal." },
+  ], prompt), "");
   const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
   assert.doesNotMatch(serverSource, /hasExplicitManagerRejection|ensureExplicitManagerRejection/);
 });
@@ -824,11 +847,22 @@ test("the actual browser manager opening contains the required three-message str
   // The market research framing moved to the coordinator in the task room, so the manager opens
   // with the evaluation stakes, split across two short messages, and then the question.
   assert.equal((opening.match(/await sendDelayed\("Manager"/g) || []).length, 3);
-  assert.match(opening, /Park Manager/);
-  assert.match(opening, /evaluate your performance/);
-  assert.match(opening, /affect your compensation/);
-  assert.match(opening, /what do you think the theme park should do next/);
+  // Chat register, same substance: the manager rates the participant and the rating bears on pay.
+  assert.match(opening, /I'm the park manager now, so I'll be the one rating how you do as an Operations Team Member\./);
+  assert.match(opening, /That rating can affect what you get paid for this task\./);
+  assert.match(opening, /So, from what you've read so far, what do you think the park should do\?/);
   assert.doesNotMatch(opening, /market research company/);
+  // These lines precede the manipulation, so they carry no face work in either direction, and no
+  // dashes, which cleanVisibleNames would strip from the displayed text.
+  const lines = [...opening.matchAll(/sendDelayed\("Manager", "manager", inZh\(\s*"([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(lines.length, 3);
+  for (const line of lines) {
+    assert.doesNotMatch(line, /thank|appreciate|sorry|please|great|good/i, line);
+    assert.doesNotMatch(line, /[-\u2010-\u2015\u2212]/, line);
+    // "Compensation" reads as salary inside the fiction and left the stake ambiguous. Checked on
+    // the visible lines only; the explanatory comment in app.js is allowed to name the old word.
+    assert.doesNotMatch(line, /compensation/i, line);
+  }
 });
 
 test("local rejection shortcut sends the tester's first proposal straight to rejection", () => {
@@ -839,7 +873,7 @@ test("local rejection shortcut sends the tester's first proposal straight to rej
   assert.notEqual(start, -1);
   assert.notEqual(end, -1);
   assert.match(shortcut, /state\.managerFollowupsAsked = 3/);
-  assert.match(shortcut, /what do you think the theme park should do next/i);
+  assert.match(shortcut, /what do you think the park should do\?/i);
   assert.match(shortcut, /immediate: true/);
   assert.match(source, /skipTo === "rejection"/);
   assert.match(source, /renderManagerRejectionTest\(\)/);
@@ -879,24 +913,66 @@ test("first manager interaction displays only an AI-generated condition-matched 
   assert.doesNotMatch(appSource, /managerClosingFallbackText/);
   assert.doesNotMatch(appSource, /englishClosings|chineseClosings/);
   assert.match(managerFlow, /if \(!sent\) \{[\s\S]*setComposerEnabled\(true\);[\s\S]*scheduleManagerExitPrompt\(\);/);
-  assert.match(appSource, /if \(opts\.closing\) \{[\s\S]*randomBetween\(4500, 6500\)/);
+  // Closings type at the same speed as every other validated manager turn; there is no separate
+  // faster closing profile any more.
+  assert.doesNotMatch(appSource, /opts\.closing[\s\S]{0,80}Math\.min\(3800/);
+  assert.doesNotMatch(appSource, /randomBetween\(4500, 6500\)/);
 });
 
-test("first rejection appears immediately, then types the second message for a length-based interval", () => {
+test("the manager acknowledges receipt while generating, then types naturally", () => {
   const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
-  assert.match(appSource, /const showPendingManagerTyping =/);
-  assert.match(appSource, /\["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"\]\.includes\(request\.phase\)/);
-  assert.match(appSource, /showTypingIndicator\("Manager", "manager"\)/);
-  assert.match(appSource, /finally \{[\s\S]*pendingManagerTyping\.remove\(\)/);
-  assert.match(appSource, /className === "manager" && opts\.immediate/);
-  assert.match(appSource, /\["rejection_initial", "rejection_followup", "rejection", "closing"\]\.includes\(request\.phase\)/);
-  assert.match(appSource, /result\.intent === "reject_now"/);
-  assert.match(appSource, /for \(const \[messageIndex, message\] of result\.messages\.entries\(\)\)/);
-  assert.match(appSource, /immediate: immediateConditionTurn && !\(initialRejectionPair && messageIndex > 0\)/);
+  // A real chat client has no "reviewing your message" state, so the wait is filled by the manager
+  // saying something a person would say instead of by an invented status widget.
+  assert.doesNotMatch(appSource, /showManagerHoldingIndicator|Manager is reviewing your message/);
+  assert.match(appSource, /async function runManagerWaitPresence\(replyPromise\)/);
+  assert.match(appSource, /const presence = acknowledgeableTurn \? runManagerWaitPresence\(replyPromise\) : null/);
+  // A closing is a sign-off, not deliberation, so it is never acknowledged however long it takes.
+  assert.match(
+    appSource,
+    /const acknowledgeableTurn = validatedManagerTurn && request\.phase !== "closing";/,
+    "closings must never be acknowledged",
+  );
+  assert.doesNotMatch(appSource, /participantSpokeSinceRejection/);
+  assert.match(appSource, /finally \{[\s\S]*await presence/);
+  // The acknowledgement is a real recorded Manager message, not a transient indicator.
+  assert.match(appSource, /addMessage\("Manager", "manager", pickManagerAckLine\(\)\)/);
+  // Generated per session rather than shipped as one script every participant sees.
+  assert.match(appSource, /fetch\("\/api\/manager-ack-lines"/);
+  // Nothing should key off the phase: the first rejection arrives on a "discussion" request whenever
+  // the model decides reject_now inside that turn, which is the longest wait in the study.
+  assert.doesNotMatch(appSource, /acknowledgedManagerTurn/);
+  // The wait is silent. Neutral follow-ups finish in 5-12 seconds and must pass with no
+  // acknowledgement at all; only a wait past twenty seconds, which in practice is the turn that
+  // produces the rejection, earns one.
+  assert.match(appSource, /const MANAGER_ACK_THRESHOLD_MS = 20000/);
+  assert.doesNotMatch(appSource, /MANAGER_NOTICE_DELAY/);
+  assert.match(appSource, /await Promise\.race\(\[tracked, delay\(MANAGER_ACK_THRESHOLD_MS\)\]\);\s*\n\s*if \(settled\) return;/);
+  // No typing indicator is held across the wait: twenty seconds of typing followed by two short
+  // lines is the tell this sequence exists to remove.
+  assert.match(
+    appSource,
+    /if \(settled\) return;\s*\n\s*const typingIndicator = showTypingIndicator\("Manager", "manager"\);/,
+    "the typing indicator may only appear after the threshold has already passed",
+  );
+  const ackBlock = appSource.slice(
+    appSource.indexOf("const MANAGER_ACK_FALLBACK_EN"),
+    appSource.indexOf("async function loadManagerAckLines"),
+  );
+  // Third-person status voice is what made the old indicator read as a machine, so the lines must
+  // be first person. The verb itself was never the problem.
+  assert.doesNotMatch(ackBlock, /\bManager is\b|\bprocessing\b/i);
+  // No face work in either direction, or it becomes part of the politeness manipulation it precedes.
+  assert.doesNotMatch(ackBlock, /thank|appreciate|sorry|apolog|please|great|good work/i);
+  assert.match(appSource, /lines\.filter\(\(line\) => line !== state\.lastManagerAckLine\)/);
+  assert.match(appSource, /postValidation: validatedManagerTurn && messageIndex === 0/);
   assert.match(appSource, /interMessage: initialRejectionPair && messageIndex > 0/);
-  assert.match(appSource, /if \(opts\.interMessage\)/);
-  assert.match(appSource, /const wordsPerMinute = randomBetween\(180, 220\)/);
-  assert.match(appSource, /Math\.min\(10000, Math\.max\(4500/);
+  // One typing speed for every validated manager turn. The old 300-420 wpm profile under a 5.2
+  // second cap was a reading speed, and it let a 44-word message land after a few seconds of typing.
+  assert.match(appSource, /const MANAGER_TYPING_WPM = \{ min: 140, max: 180 \}/);
+  assert.match(appSource, /const MANAGER_TYPING_DELAY_MS = \{ min: 2500, max: 11000 \}/);
+  assert.doesNotMatch(appSource, /randomBetween\(300, 420\)|randomBetween\(180, 220\)/);
+  assert.equal((appSource.match(/const typingDelay = managerTypingDelayFor\(text\)/g) || []).length, 2,
+    "both the first-message and inter-message paths must share the one speed");
 });
 
 test("failed HC structure regenerates and internal fields never reach the browser response", async () => {
@@ -930,14 +1006,12 @@ test("failed HC structure regenerates and internal fields never reach the browse
 test("two intended cues trigger one evidence-based trim retry, then pass with a recorded deviation", async () => {
   const originalFetch = global.fetch;
   const twoCueReply = validHighReply();
-  twoCueReply.messages[0].text = exactWords(
-    "I appreciate you thinking this through, and I am sorry, but I cannot approve this flexible staffing proposal because untrained temporary workers could make entrance checks inconsistent",
-  );
+  twoCueReply.messages[0].text = "I appreciate the care behind this, and I am sorry, but I cannot approve this proposal because the entry risk is unresolved.";
   const twoCueScores = validHighEvaluatorScores({
-    current_rejection_evidence: "I cannot approve this flexible staffing proposal",
+    current_rejection_evidence: "I cannot approve this proposal",
     message_scores: [
       {
-        politeness_cues: ["I appreciate you thinking this through", "I am sorry"],
+        politeness_cues: ["I appreciate the care behind this", "I am sorry"],
         face_threat_cues: [],
         future_next_step: "",
         future_next_step_is_redressed: false,
@@ -964,7 +1038,7 @@ test("two intended cues trigger one evidence-based trim retry, then pass with a 
     assert.match(result.validation_warnings[0], /Accepted cue-count deviation in Message 1/i);
     const retryPrompt = JSON.stringify(requestBodies[2].input);
     assert.match(retryPrompt, /Message 1 contains two politeness cues/i);
-    assert.match(retryPrompt, /I appreciate you thinking this through/);
+    assert.match(retryPrompt, /I appreciate the care behind this/);
     assert.match(retryPrompt, /I am sorry/);
     assert.ok(aiRequestColumns.includes("validation_warnings"));
     assert.ok(aiRequestColumns.includes("validation_failure"));
@@ -979,10 +1053,10 @@ test("two intended cues trigger one evidence-based trim retry, then pass with a 
 test("an overlong initial rejection gets one length-only rewrite and full blind revalidation", async () => {
   const originalFetch = global.fetch;
   const overlongReply = validHighReply();
-  overlongReply.messages = overlongReply.messages.map((message) => ({
-    ...message,
-    text: exactWords(message.text, 36),
-  }));
+  overlongReply.messages[0] = {
+    ...overlongReply.messages[0],
+    text: exactWords(overlongReply.messages[0].text, 36),
+  };
   const compressedReply = validHighReply();
   const queue = [
     responseJson(overlongReply),
@@ -999,10 +1073,10 @@ test("an overlong initial rejection gets one length-only rewrite and full blind 
     const result = await generateAiReply(managerPayload());
     assert.equal(result.ok, true);
     assert.equal(requestBodies.length, 4);
-    assert.equal(result.messages.reduce((sum, message) => sum + wordCount(message.text), 0), 58);
+    assert.equal(result.messages.reduce((sum, message) => sum + wordCount(message.text), 0), 59);
     const rewritePrompt = JSON.stringify(requestBodies[2].input);
     assert.match(rewritePrompt, /Length-only rewrite required/i);
-    assert.match(rewritePrompt, /58-60 words across the two messages/i);
+    assert.match(rewritePrompt, /58-62 words across the two messages/i);
     assert.match(rewritePrompt, /Previous Manager message 1/i);
     assert.deepEqual(
       requestBodies.map((body) => body.text.format.name),
@@ -1287,7 +1361,7 @@ test("three consecutive blind semantic failures return a safe retryable error", 
         explicit_standard: false,
         actionable_remedy: false,
         current_rejection_maintained: true,
-        current_rejection_evidence: "I cannot approve this flexible staffing proposal now",
+        current_rejection_evidence: "I cannot approve the flexible staffing proposal",
         current_rejection_redressed: true,
         has_future_next_step: true,
         future_next_step_redressed: true,
@@ -1317,4 +1391,174 @@ test("three consecutive blind semantic failures return a safe retryable error", 
 
 test.after(() => {
   fs.rmSync(testDataDir, { recursive: true, force: true });
+});
+
+test("generated manager acknowledgement lines cannot carry face work or an evaluation", () => {
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  // The line sits immediately before a politeness-manipulated rejection, so anything face-bearing in
+  // it would be applied identically to warm and cold conditions and blur the contrast.
+  assert.match(serverSource, /Never thank the person, never apologise, never praise the proposal/);
+  assert.match(serverSource, /Never write in the third person and never sound like a status label/);
+  assert.match(serverSource, /const MANAGER_ACK_FORBIDDEN =/);
+  for (const bad of [
+    "Thanks, give me a sec.",
+    "Sorry, one moment.",
+    "Great idea, let me think.",
+    "Give me a minute, Alex.",
+    "谢谢,我想想。",
+  ]) {
+    assert.ok(MANAGER_ACK_FORBIDDEN.test(bad), `should reject: ${bad}`);
+  }
+  for (const good of [
+    "Give me a sec.",
+    "Let me think about this for a moment.",
+    "Okay, give me a minute with this one.",
+    "让我想想。",
+  ]) {
+    assert.ok(!MANAGER_ACK_FORBIDDEN.test(good), `should keep: ${good}`);
+  }
+});
+
+test("an over-cap message is shortened with an exact cut, and a small overshoot is accepted last", () => {
+  const prompt = buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" }));
+  // 17 / 47: inside the 54-68 total band, one word over Message 2's cap of 46. This is the shape
+  // that previously drew the lengthening instruction and then failed after 65 seconds.
+  const pair = [
+    { speaker: "Manager", text: exactWords("I cannot approve this yet because the plan gives no basis for how many temps", 17) },
+    { speaker: "Manager", text: exactWords("The analysis has to show hourly visitor flow against role coverage before I reconsider", 47) },
+  ];
+  const problem = managerWordCountProblem(pair, prompt);
+  assert.match(problem, /Length correction required/);
+  const rewrite = managerLengthOnlyRewriteCorrection(pair, prompt, problem);
+  assert.match(rewrite, /Shorten\. Message 2 is 47 words and must lose at least 1; aim for 44\./);
+  assert.doesNotMatch(rewrite, /reach the target/);
+  // Within tolerance and inside the total band: accepted, with the miss described.
+  assert.match(managerSmallLengthOvershoot(pair, prompt), /message 2 47 words against a cap of 46/);
+  // Four over is not small.
+  const far = [pair[0], { speaker: "Manager", text: exactWords(pair[1].text, 50) }];
+  assert.equal(managerSmallLengthOvershoot(far, prompt), "");
+  // Nor is a pair outside the total band, however each message sits.
+  const heavy = [{ speaker: "Manager", text: exactWords(pair[0].text, 22) }, { speaker: "Manager", text: exactWords(pair[1].text, 48) }];
+  assert.equal(managerSmallLengthOvershoot(heavy, prompt), "");
+  // An under-length pair still gets the lengthening instruction.
+  const short = [pair[0], { speaker: "Manager", text: exactWords(pair[1].text, 36) }];
+  assert.match(managerLengthOnlyRewriteCorrection(short, prompt, managerWordCountProblem(short, prompt)), /reach the target/);
+  // The loop allows two shortening passes for the first rejection.
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(serverSource, /lengthOnlyRewriteAttempts < 2 &&\s*\n\s*attempt < 4/);
+  assert.match(serverSource, /validationWarnings\.push\(`length-overshoot-accepted: \$\{smallOvershoot\}`\)/);
+});
+
+test("the AI check is a three-page funnel with the primed direct item last and unchanged", () => {
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(appSource, /const AI_CHECK_STAGES = \["unusual", "who", "direct"\]/);
+  assert.match(appSource, /function renderAiCheckOpenPage\(kind\)/);
+  assert.match(appSource, /function renderAiCheckDirectPage\(\)/);
+  // The two open questions never mention AI, and the prime lives only on the direct page.
+  const openPage = appSource.slice(appSource.indexOf("function renderAiCheckOpenPage"), appSource.indexOf("function handleAiCheckOpenSubmit"));
+  assert.match(openPage, /Did anything about the interaction feel unusual or unexpected\? Please describe briefly\./);
+  assert.match(openPage, /Who or what do you think you were interacting with in the chat\?/);
+  // Only what the participant can see: the question strings and the page markup. The internal
+  // recordInteraction label says "AI check" and is never rendered.
+  const visible = openPage
+    .split("\n")
+    .filter((line) => !/recordInteraction\(/.test(line))
+    .join("\n")
+    // Element ids and classes such as ai-check-form and field names such as ai_check_stage are
+    // identifiers, not words the participant reads.
+    .replace(/ai[-_]check[\w-]*/gi, "");
+  assert.doesNotMatch(visible, /\bAI\b|artificial|robot|\bbot\b/i);
+  assert.doesNotMatch(openPage, /type="radio"/);
+  const preamble = "studies may sometimes include AI participants";
+  assert.equal(appSource.split(preamble).length - 1, 1, "the preamble must appear exactly once");
+  const directPage = appSource.slice(appSource.indexOf("function renderAiCheckDirectPage"), appSource.indexOf("function renderAiCheckQuestion"));
+  assert.match(directPage, new RegExp(preamble));
+  // The pilot wording and options, verbatim, so the direct item stays comparable.
+  assert.match(directPage, /Do you think the manager you interacted with may have been AI\?/);
+  for (const value of ["yes", "no", "not_sure"]) {
+    assert.match(appSource.slice(appSource.indexOf("function renderAiCheckQuestion")), new RegExp(`value="${value}"`));
+  }
+  // No way back from any of the three pages.
+  const funnel = appSource.slice(appSource.indexOf("const AI_CHECK_STAGES"), appSource.indexOf("function addMessage"));
+  assert.doesNotMatch(funnel, /Back<\/button>|ai-check-back|history\.back/i);
+  // A refresh resumes at the recorded stage, and each answer is persisted before the next page.
+  assert.match(appSource, /participant\.ai_check_stage = kind === "unusual" \? "who" : "direct";\s*\n\s*saveParticipant\(\);/);
+  assert.match(appSource, /ai_check_stage: storedSession\.ai_check_stage \|\| ""/);
+  // Recorded columns, with the pilot's direct-item columns untouched.
+  const columns = serverSource.slice(serverSource.indexOf("const participantColumns"), serverSource.indexOf("const interactionColumns"));
+  for (const column of [
+    "ai_check_stage",
+    "ai_check_unusual_start_time", "ai_check_unusual_submit_time", "ai_check_unusual_text",
+    "ai_check_who_start_time", "ai_check_who_submit_time", "ai_check_who_text",
+    "ai_check_start_time", "ai_check_submit_time", "manager_ai_suspicion",
+  ]) {
+    assert.match(columns, new RegExp(`"${column}"`), `missing column ${column}`);
+  }
+  assert.ok(columns.indexOf('"ai_check_submit_time"') < columns.indexOf('"ai_check_stage"'));
+});
+
+test("casual chat register applies to neutral manager turns and never to conditioned ones", () => {
+  assert.match(NEUTRAL_CHAT_REGISTER_RULE, /may end without a full stop/);
+  assert.match(NEUTRAL_CHAT_REGISTER_RULE, /ok, right, or got it/);
+  assert.match(NEUTRAL_CHAT_REGISTER_RULE, /skip it more often than you use it/);
+  // Neutral turns before the rejection, whichever intent.
+  for (const discussionIntent of ["awaiting_proposal", "ask_followup"]) {
+    const neutral = buildInitialManagerPrompt(managerPayload({ phase: "discussion_neutral", discussionIntent, condition: "LP_LC" }));
+    assert.ok(neutral.system.includes(NEUTRAL_CHAT_REGISTER_RULE), discussionIntent);
+  }
+  // The second conversation's question turns, but not its greeting or sign-off.
+  const secondQuestion = buildNeutralManagerPrompt(managerPayload({ stage: "manager2", phase: "question" }));
+  assert.ok(secondQuestion.system.includes(NEUTRAL_CHAT_REGISTER_RULE));
+  for (const phase of ["opening", "closing"]) {
+    const other = buildNeutralManagerPrompt(managerPayload({ stage: "manager2", phase }));
+    assert.ok(!other.system.includes(NEUTRAL_CHAT_REGISTER_RULE), phase);
+  }
+  // Never on a conditioned turn: the register there is part of what is held constant.
+  for (const phase of ["rejection_initial", "rejection_followup", "rejection", "closing"]) {
+    for (const condition of ["HP_HC", "HP_LC", "LP_HC", "LP_LC"]) {
+      const conditioned = buildInitialManagerPrompt(managerPayload({ phase, condition }));
+      assert.ok(!conditioned.system.includes(NEUTRAL_CHAT_REGISTER_RULE), `${phase} ${condition}`);
+      assert.doesNotMatch(conditioned.system, /may end without a full stop/);
+    }
+  }
+});
+
+test("the second manager conversation opens with presence only and ends like an online chat", () => {
+  const opening = buildNeutralManagerPrompt(managerPayload({ stage: "manager2", phase: "opening" })).system;
+  assert.match(opening, /close to: Hi again\./);
+  assert.doesNotMatch(opening, /I'm back/);
+  assert.match(opening, /do not invite a topic/);
+  assert.match(opening, /do not mention a desk, an office, a gate, or any physical place/);
+  assert.doesNotMatch(opening, /Hello, good to chat/);
+  const question = buildNeutralManagerPrompt(managerPayload({ stage: "manager2", phase: "question" })).system;
+  assert.match(question, /Do not attach a condition, concern, risk, or qualifier of your own to a question/);
+  assert.match(question, /For that wrap-up, follow the wrap-up rule given above\./);
+  assert.ok(question.includes(NEUTRAL_MANAGER_WRAP_UP_RULE.en));
+  const closing = buildNeutralManagerPrompt(managerPayload({ stage: "manager2", phase: "closing" })).system;
+  assert.ok(closing.includes(NEUTRAL_MANAGER_WRAP_UP_RULE.en));
+  assert.match(NEUTRAL_MANAGER_WRAP_UP_RULE.en, /never reuse their words, and write the close fresh each time/);
+  assert.match(NEUTRAL_MANAGER_WRAP_UP_RULE.en, /no bare noun-phrase fragments/);
+  // The experimenter's voice is gone from every second-conversation prompt.
+  for (const system of [opening, question, closing]) {
+    assert.doesNotMatch(system, /Thank the participant|taking part in this conversation|end this conversation now/);
+  }
+  // The end-of-chat choice lives in the interface, where it already was.
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(appSource, /Do you want to end this conversation\?/);
+});
+
+test("a second-conversation wrap-up that keeps the chat going or reads stage directions is regenerated", () => {
+  const closing = buildNeutralManagerPrompt(managerPayload({ stage: "manager2", phase: "closing" }));
+  const question = buildNeutralManagerPrompt(managerPayload({ stage: "manager2", phase: "question" }));
+  const msg = (text) => [{ speaker: "Manager", text }];
+  assert.equal(neutralManagerClosingProblem(msg("Ok, discount days midweek with a student card, I've got the picture. Let's stop here"), closing, ""), "");
+  assert.match(neutralManagerClosingProblem(msg("What would be the next step to test the discount days?"), closing, ""), /asked a question/);
+  assert.match(neutralManagerClosingProblem(msg("Thank you for taking part in this conversation."), closing, ""), /thanked the participant/);
+  assert.match(neutralManagerClosingProblem(msg("That is clear. You can end this conversation now."), closing, ""), /announced that the conversation can end/);
+  assert.match(neutralManagerClosingProblem(msg("Noted: Tuesday and Wednesday discount days."), closing, ""), /colon summary/);
+  // The same check applies when a question turn decides it has enough, and not when it asks more.
+  assert.match(neutralManagerClosingProblem(msg("What else would the events involve?"), question, "enough"), /asked a question/);
+  assert.equal(neutralManagerClosingProblem(msg("What else would the events involve?"), question, "ask_more"), "");
+  assert.equal(question.phase, "question");
 });

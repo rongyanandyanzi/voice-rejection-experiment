@@ -11,6 +11,10 @@ const openaiModel = process.env.OPENAI_MODEL || "gpt-5";
 const openaiEvaluatorModel = process.env.OPENAI_EVALUATOR_MODEL || openaiModel;
 const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT || "low";
 const openaiRequestTimeoutMs = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 45000));
+// Blind semantic scores are internal. They are returned to the caller only when this is explicitly
+// enabled, which the QA harness does and the pilot deployment never does.
+const exposeQaDiagnostics = process.env.EXPOSE_QA_DIAGNOSTICS === "1";
+
 const aiPipelineTimeoutMs = Math.max(
   openaiRequestTimeoutMs,
   Number(process.env.AI_PIPELINE_TIMEOUT_MS || 135000)
@@ -50,6 +54,13 @@ const participantColumns = [
   "completed_ai_check",
   "ai_check_start_time",
   "ai_check_submit_time",
+  "ai_check_stage",
+  "ai_check_unusual_start_time",
+  "ai_check_unusual_submit_time",
+  "ai_check_unusual_text",
+  "ai_check_who_start_time",
+  "ai_check_who_submit_time",
+  "ai_check_who_text",
   "manager_ai_suspicion",
   "lisa_ai_suspicion",
   "john_ai_suspicion",
@@ -146,6 +157,12 @@ const aiRequestColumns = [
   "http_status",
   "retryable",
   "error",
+  // The underlying reason, when there is one: the abort or network error a fetch threw, as opposed to
+  // the sentence shown to the participant. Two rounds of diagnosis were lost to its absence - a 503
+  // that failed in 6 ms and a 502 after 65 s both logged only "Unable to decide the next manager
+  // step", which says nothing about which of a timeout, a dropped connection, or an exhausted
+  // regeneration loop was responsible.
+  "cause",
   "validation_warnings",
   "validation_failure",
 ];
@@ -275,6 +292,7 @@ const server = http.createServer(async (req, res) => {
         http_status: result.ok ? 200 : result.status || 500,
         retryable: result.retryable,
         error: result.error,
+        cause: result.cause || "",
         validation_warnings: Array.isArray(result.validation_warnings)
           ? result.validation_warnings.join(" | ")
           : "",
@@ -290,6 +308,13 @@ const server = http.createServer(async (req, res) => {
       delete publicResult.validation_failure;
       sendJson(res, publicResult, result.ok ? 200 : result.status || 500);
     }
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/manager-ack-lines") {
+    const payload = await readJson(req);
+    const result = await generateManagerAckLines(payload.language === "zh" ? "zh" : "en");
+    sendJson(res, result);
     return;
   }
 
@@ -768,7 +793,7 @@ async function generateAiReply(payload, options = {}) {
     let lastConstructiveness = null;
     let lastBlindScores = null;
     let cueTrimCorrectionAttempted = false;
-    let lengthOnlyRewriteAttempted = false;
+    let lengthOnlyRewriteAttempts = 0;
     let closingBlindRewriteAttempted = false;
     let validationWarnings = [];
     // Hard validation keeps the usual two-regeneration ceiling. Additional passes are reachable
@@ -1062,6 +1087,33 @@ async function generateAiReply(payload, options = {}) {
           lastBlindScores,
         );
       }
+      const closingProblem = neutralManagerClosingProblem(lastMessages, prompt, lastIntent);
+      if (closingProblem) {
+        if (attempt < 2) {
+          correction = closingProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate a neutral manager wrap-up.",
+        };
+        logAiFailure("neutral-manager-closing-validation", {
+          ...failure,
+          cause: closingProblem,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return withAiValidationFailure(
+          failure,
+          "neutral-manager-closing",
+          closingProblem,
+          lastMessages,
+          lastConstructiveness,
+          lastBlindScores,
+        );
+      }
       const lengthProblem = shouldEnforceManagerLength(prompt, lastIntent)
         ? managerLengthProblem(lastMessages, prompt)
         : "";
@@ -1071,20 +1123,26 @@ async function generateAiReply(payload, options = {}) {
           messages: lastMessages,
           intent: lastIntent,
           validation_warnings: validationWarnings,
+          // Diagnostics for the QA harness only. Env-gated so a participant's browser can never
+          // receive the blind scores, which would expose the manipulation being applied to them.
+          blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
         };
       }
+      // Shortening a reply is cheap and keeps its content; regenerating from scratch is neither, and
+      // failing shows the participant a connection error at the manipulation moment. So the first
+      // rejection gets two shortening passes before anything else is tried.
       const canUseInitialLengthOnlyRewrite = prompt.phase === "rejection_initial" &&
         prompt.language === "en" &&
         prompt.totalWordTargetRange &&
-        !lengthOnlyRewriteAttempted &&
+        lengthOnlyRewriteAttempts < 2 &&
         attempt < 4;
       const canUseClosingLengthOnlyRewrite = prompt.phase === "closing" &&
         prompt.language === "en" &&
         prompt.wordRange &&
-        !lengthOnlyRewriteAttempted &&
+        lengthOnlyRewriteAttempts < 1 &&
         attempt < 4;
       if (canUseInitialLengthOnlyRewrite || canUseClosingLengthOnlyRewrite) {
-        lengthOnlyRewriteAttempted = true;
+        lengthOnlyRewriteAttempts += 1;
         correction = canUseClosingLengthOnlyRewrite
           ? managerClosingLengthOnlyRewriteCorrection(lastMessages, prompt, lengthProblem)
           : managerLengthOnlyRewriteCorrection(lastMessages, prompt, lengthProblem);
@@ -1093,6 +1151,22 @@ async function generateAiReply(payload, options = {}) {
       if (!(prompt.phase === "rejection_initial" && prompt.language === "en") && attempt < 2) {
         correction = lengthProblem;
         continue;
+      }
+      // After two shortening passes, a message still a few words over its own cap while the pair sits
+      // inside the total band is a rhythm miss, not a manipulation miss: the experimental control is
+      // the matched total, which the per-condition QA gate measures. Showing the participant a
+      // connection error over three words costs far more than accepting them, so the reply goes out
+      // and the miss is recorded as a validation warning in the request log.
+      const smallOvershoot = managerSmallLengthOvershoot(lastMessages, prompt);
+      if (smallOvershoot) {
+        validationWarnings.push(`length-overshoot-accepted: ${smallOvershoot}`);
+        return {
+          ok: true,
+          messages: lastMessages,
+          intent: lastIntent,
+          validation_warnings: validationWarnings,
+          blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
+        };
       }
       const failure = {
         ok: false,
@@ -1706,7 +1780,7 @@ function buildInitialManagerPrompt(payload) {
   const lowPolitenessCondition = condition.startsWith("LP_");
   const nextStepStyleRule = lowPolitenessCondition
     ? (condition.endsWith("_HC")
-      ? "State the concrete future remedy directly with no hedge, softener, deference, optionality, or question. Use a natural subject-led statement that makes the proposal-specific evidence requirement mandatory. Vary the sentence form to fit the conversation; do not force one template. Direct forms may use 'You need to...', 'I need to see...', or a flat reconsideration threshold introduced by if, after, before, or once. Those connecting words do not by themselves make the step polite. Do not use could, would, may, might, perhaps, please, or an invitation. Do not use a bare command beginning with verbs such as Build, Map, Set, Run, Work out, Bring, Provide, Explain, or Analyze. Directness comes from the unsoftened requirement, not from turning the feedback into a clipped order."
+      ? "State the concrete future remedy directly with no hedge, softener, deference, optionality, or question. Use a natural subject-led statement that makes the proposal-specific evidence requirement mandatory. Vary the sentence form to fit the conversation and do not choose from a small menu of recurring openers. A flat reconsideration threshold may be introduced by if, after, before, or once; those connecting words do not by themselves make the step polite. Do not use could, would, may, might, perhaps, please, or an invitation. Do not use a bare command beginning with verbs such as Build, Map, Set, Run, Work out, Bring, Provide, Explain, or Analyze. Directness comes from the unsoftened requirement, not from turning the feedback into a clipped order."
       : "Do not invent a next-step line merely to sound blunt. If future handling is mentioned naturally, state it directly with no hedge, softener, deference, or question, and keep it vague and non-actionable.")
     // The high-politeness branch used to restate the global command-wording ban word for word;
     // that ban now lives in exactly one place, in the shared rule block below.
@@ -1718,6 +1792,7 @@ function buildInitialManagerPrompt(payload) {
   let maxMessages = 1;
   let maxOutputTokens = 450;
   let wordRange = null;
+  let messageWordRanges = null;
   let totalWordRange = null;
   let totalWordTargetRange = null;
   let chineseCharRange = null;
@@ -1734,6 +1809,7 @@ function buildInitialManagerPrompt(payload) {
           "Send exactly one short, neutral workplace-chat message inviting them to share what they think the park should do.",
           "Do not reject, approve, evaluate, praise, criticize, diagnose, mention standards, or suggest an answer.",
           "Do not use any politeness or constructiveness manipulation. The wording must be usable unchanged in all four conditions.",
+          NEUTRAL_CHAT_REGISTER_RULE,
         ].join("\n")
       : [
           "The participant has voiced an improvement idea, but the manager needs one more clarification before deciding.",
@@ -1741,6 +1817,7 @@ function buildInitialManagerPrompt(payload) {
           "Do not reject, approve, evaluate, praise, criticize, diagnose a weakness, name a performance standard, or suggest how to improve the proposal.",
           "Do not introduce examples, answer choices, staffing details, risks, evidence requirements, or solutions that the participant did not raise.",
           "Do not use any politeness or constructiveness manipulation. The wording must be usable unchanged in all four conditions.",
+          NEUTRAL_CHAT_REGISTER_RULE,
         ].join("\n");
     maxOutputTokens = 600;
   } else if (phase === "opening") {
@@ -1766,18 +1843,15 @@ function buildInitialManagerPrompt(payload) {
     task = [
       "the participant has explained their proposal.",
       "This is the manager's first rejection turn.",
-      "Reject the proposal for now and split the turn into exactly two matched-length chat messages.",
+      "Reject the proposal for now and split the turn into exactly two chat messages with a natural short-then-long rhythm.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
-        // The two numeric ranges are stated once each, in the shared length rules below. This line
-        // carries only what those cannot: that the target is the same for every condition, and how
-        // each constructiveness level is expected to reach it.
-        : "Produce exactly 2 Manager messages with 58-60 words across the pair. That target is the same for every condition. High constructiveness will reach it by saying its numbered parts plainly; low constructiveness has less to say and must still reach it, using general talk rather than extra interpersonal wording.",
-      "Message 1 contains the condition-matched interpersonal style, the rejection, and either the HC proposal-specific diagnosis or the LC broad topic-level dismissal.",
+        : "Produce exactly 2 Manager messages with 58-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions.",
+      "Message 1 contains the condition-matched interpersonal style, the explicit rejection, and a brief proposal-focused reaction. It should sound like the first thing a manager would actually type, not a miniature report.",
       language === "zh"
-        ? "State the refusal explicitly with a natural phrase such as 这个版本我不能批准 or 这个方案先不采纳."
-        : "State the refusal explicitly with a natural phrase such as I cannot approve this version or I am not moving forward with this proposal.",
-      "Message 2 carries the rest of the assigned content: in HC the remaining numbered components, in LC an equally long vague judgment that adds no diagnostic or revision information.",
+        ? "用自然、明确但不固定的中文表达当前版本不会获批，不要照抄示例句式。"
+        : "State the current refusal explicitly in idiomatic first-person workplace English. Choose wording that fits this turn instead of copying a stock refusal sentence.",
+      "Message 2 carries the rest of the assigned content: in HC the remaining numbered components, in LC a longer vague judgment that adds no diagnostic or revision information.",
       "Treat the two messages as one content unit. In HC all the numbered components must appear across the two messages combined; in LC none of them may appear in either.",
       "Both messages must strictly preserve the assigned politeness and constructiveness condition.",
       "Do not make one message neutral and only the other condition-specific.",
@@ -1798,27 +1872,16 @@ function buildInitialManagerPrompt(payload) {
     // and the reply came back as "incomplete", which was 3 of 4 failures in the last batch. Raising
     // the ceiling costs nothing when it is not used.
     maxOutputTokens = language === "zh" ? 5000 : 1400;
-    // Mins raised from 30/66. High constructiveness has a problem, a consequence, a standard and
-    // named evidence to fit, so it writes to the top of the window every time; low constructiveness
-    // has nothing to say and stops at the floor. Left at 66 the two settled at 69-70 against a flat
-    // 66, a 5% spread by construction. The normalizer pads short replies up to the minimum, so
-    // raising the floor costs no extra retries.
-    // Narrow target, wide tolerance. High constructiveness has more to fit and writes to whatever
-    // ceiling it is given; low constructiveness has nothing to say and stops at the floor, so a wide
-    // window alone let the two settle 3-4 words apart. Narrowing the window to close that gap pushed
-    // length failures from 3% to 17%, because the model cannot reliably hit a two-word target. The
-    // prompt now names one number for every condition to converge on, and the validator keeps the
-    // wide window so a reply that lands a word or two off still passes.
-    // Set to what high constructiveness actually needs rather than guessed at. Its content is a
-    // floor it cannot compress below: measured across three budgets it settled at 69.5, 77.5 and
-    // 57.2 words, always at whatever ceiling it was given, while low constructiveness drifts to its
-    // own natural length below that. Raising the budget widened the gap in absolute words and
-    // lowering it widened the gap in percentage terms, because only one cell has a floor. So the
-    // target is now high constructiveness's own floor of roughly 57, with headroom above it, and
-    // low constructiveness is told plainly that it has to reach the same number.
-    wordRange = language === "zh" ? null : { min: 24, max: 38 };
-    totalWordRange = language === "zh" ? null : { min: 54, max: 70 };
-    totalWordTargetRange = language === "zh" ? null : { min: 58, max: 60 };
+    // Keep total exposure tightly matched across conditions, but use an asymmetric chat rhythm.
+    // A real manager is more likely to send a short decision and then a fuller explanation than two
+    // polished paragraphs of identical size. Indexed ranges preserve that rhythm without changing
+    // the total amount of condition-bearing content participants receive.
+    wordRange = language === "zh" ? null : { min: 14, max: 46 };
+    messageWordRanges = language === "zh"
+      ? null
+      : [{ min: 14, max: 22 }, { min: 36, max: 46 }];
+    totalWordRange = language === "zh" ? null : { min: 54, max: 68 };
+    totalWordTargetRange = language === "zh" ? null : { min: 58, max: 62 };
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
   } else if (phase === "rejection_followup") {
@@ -1826,10 +1889,7 @@ function buildInitialManagerPrompt(payload) {
       `This is rejection follow-up round ${rejectionRound}.`,
       "the participant has responded after the first rejection.",
       "Reply naturally to the participant's latest message while keeping the rejection outcome unchanged.",
-      "State clearly that the current proposal still cannot be approved or moved forward.",
-      language === "zh"
-        ? "Include the explicit sentence 这个版本仍不能批准。"
-        : "Include the explicit sentence I still cannot approve this version.",
+      "State clearly that the current proposal still cannot be approved or moved forward, but phrase that refusal differently from earlier Manager messages in this conversation.",
       language === "zh"
         ? "Produce exactly 1 complete, natural Chinese Manager message of about 52-60 Chinese characters."
         : "Produce exactly 1 Manager chat message. Aim for 35 words, and treat 35 as the target whether you have a lot to say or very little.",
@@ -1848,11 +1908,8 @@ function buildInitialManagerPrompt(payload) {
       conditionRule,
     ].filter(Boolean).join("\n");
     maxOutputTokens = language === "zh" ? 4000 : 900;
-    // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
-    // spread across conditions, with low constructiveness consistently shortest.
-    // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
-    // high-constructiveness sat at the top, reopening a 7.7% follow-up length spread. The
-    // normalizer pads short replies up to the minimum, so the raise costs no extra retries.
+    // A narrow window keeps follow-up exposure comparable across conditions. Underlength replies
+    // are rewritten naturally rather than padded with a repeated temporal phrase.
     wordRange = language === "zh" ? null : { min: 32, max: 36 };
     chineseCharRange = language === "zh" ? { min: 52, max: 60 } : null;
   } else if (phase === "rejection") {
@@ -1873,11 +1930,8 @@ function buildInitialManagerPrompt(payload) {
       conditionRule,
     ].filter(Boolean).join("\n");
     maxOutputTokens = language === "zh" ? 4000 : 900;
-    // Narrowed from 30-38 / 28-42: the wider windows let follow-up turns drift to a 13.7% length
-    // spread across conditions, with low constructiveness consistently shortest.
-    // Min raised 32 -> 34: low-constructiveness replies settled at the bottom of the window while
-    // high-constructiveness sat at the top, reopening a 7.7% follow-up length spread. The
-    // normalizer pads short replies up to the minimum, so the raise costs no extra retries.
+    // A narrow window keeps rejection exposure comparable across conditions. Underlength replies
+    // are rewritten naturally rather than padded with a repeated temporal phrase.
     wordRange = language === "zh" ? null : { min: 32, max: 36 };
     chineseCharRange = language === "zh" ? { min: 52, max: 60 } : null;
   } else if (phase === "closing") {
@@ -1885,17 +1939,18 @@ function buildInitialManagerPrompt(payload) {
       "the participant has already received the rejection and may have reacted to it.",
       "Send a short closing message (you may use up to two sentences) and leave the chat. The MAIN point of this message is to leave the door clearly and genuinely open.",
       language === "zh" ? "" : "Aim for 29 words, and treat 29 as the target for every condition, whether you have a lot to say or very little.",
-      "Wind down naturally — do NOT cut the conversation off abruptly or peremptorily. Briefly acknowledge their input or the discussion before signing off, then leave the door open. It should feel like a natural close, not a sudden hard stop.",
+      "Wind down naturally and leave the door open. It should feel like a quick workplace-chat close, not a policy statement or a sudden hard stop.",
       "You are not approving the proposal right now, but do NOT frame this as a permanent, final, or flat no. The topic stays open: make it explicit that you are open to discussing it again, hearing a stronger version, or reconsidering it in the future, and invite them to bring it back another time.",
       "The openness must feel real, not a throwaway line — it should be the heart of the message, not a tacked-on afterthought. Avoid hard-final phrasing like 'this is closed', 'my decision is final', 'there's nothing more to discuss', or 'that's the end of it'.",
       "Do not re-litigate the whole proposal or restart the full back-and-forth now; a brief, forward-looking invitation to revisit later is good.",
+      "Read the earlier Manager messages in the conversation history. Do not repeat a complete evaluative sentence or reuse the same stock rejection, appreciation, apology, dismissal, or reopening formula. In HC, proposal-specific data terms may recur when needed, but the surrounding sentence must be freshly phrased.",
       "Express the closing and the openness in the assigned condition's tone and level of specificity:",
       condition.includes("HP")
-        ? "High politeness: warm, friendly, and encouraging; clearly welcome picking it up again (e.g. 'I'd genuinely be happy to revisit this another time if you want')."
-        : "Low politeness: cold, curt, impatient, and dismissive in tone, with no apology, thanks, appreciation, praise, deference, or hedging. A sharp cue must target the proposal, such as 'this version is sloppy' or 'this is nowhere near ready', never the participant's intelligence or competence. Leave the path open only grudgingly and express that future possibility directly without redress. In HC state the required data or analysis as a flat mandatory threshold in a natural subject-led sentence. Vary the wording rather than forcing one template. A substantive prerequisite introduced by if, after, before, or once is allowed and is not polite by itself; do not combine it with could, would, may, might, perhaps, please, optionality, or an invitation. Never use a bare command such as 'Build...', 'Map...', 'Run...', or 'Bring it back...'. In LC keep the path vague and non-actionable.",
+        ? "High politeness: use one brief redressive move that engages the participant's contribution, and make the future reopening genuinely welcoming without copying a canned invitation."
+        : "Low politeness: cold, curt, impatient, and dismissive in tone, with no apology, thanks, appreciation, praise, deference, or hedging. Create one fresh sharp evaluation aimed at the proposal, never at the participant's intelligence or competence, and do not reuse an earlier readiness phrase. Leave the path open only grudgingly and express that future possibility directly without redress. In HC state the required data or analysis as a flat mandatory threshold in a natural subject-led sentence. Vary the wording rather than forcing one template. A substantive prerequisite introduced by if, after, before, or once is allowed and is not polite by itself; do not combine it with could, would, may, might, perhaps, please, optionality, or an invitation. Never begin the remedy with a bare command verb. In LC keep the path vague and non-actionable.",
       "Interpersonal cue quota: use one politeness or dismissiveness cue in this message, in one clause only. Do not stack, repeat, or rephrase it, and do not add a second cue to fill length.",
       condition.includes("HC")
-        ? "High constructiveness: name the same concrete proposal-specific data or analysis condition that would need to be met before reconsideration."
+        ? "High constructiveness: compactly name the same central proposal-specific evidence condition that would need to be met before reconsideration. Do not repeat the earlier metric list or name more than two linked observations."
         : "Low constructiveness: keep the openness entirely vague and general. Do not name a problem, standard, missing material, evidence type, or revision path. Spend the remaining length on neutral restatement of the unchanged decision rather than on more interpersonal wording.",
     ].filter(Boolean).join("\n");
     // A 20-word window (18-38) let the closing drift to a 28% length spread across condition means,
@@ -1949,6 +2004,13 @@ function buildInitialManagerPrompt(payload) {
       // phrases, producing lines like "Standard: 95% peak posts filled." that satisfy every content
       // requirement and are still hard to read.
       "Write like a real person typing to a coworker in chat: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases.",
+      language === "zh"
+        ? "使用自然、口语化的职场中文。每句话只表达一个主要意思，避免压缩式修饰语、抽象管理术语和像评分清单一样的并列堆砌。"
+        : "Use ordinary spoken workplace English and contractions when they fit. Keep one main thought per sentence. Avoid compressed modifier chains, abstract management language, and comma-heavy lists that sound written for a scoring rubric.",
+      "Do not end with procedural commentary about the conversation itself. State what you mean directly rather than saying that a sentence reopens, closes, advances, or concludes the discussion.",
+      conditionActive
+        ? "Use the full conversation history to vary the Manager's surface wording. Do not repeat a complete evaluative sentence or reuse the same appreciation, apology, deference, dismissal, or reopening formula from an earlier Manager turn. Necessary proposal terms and the clear rejection meaning may recur."
+        : "",
       "Every Manager message must end as a complete, grammatical sentence. Never stop mid-phrase or mid-clause, and do not truncate a sentence to meet the length rule.",
       "If the required content does not fit as natural sentences, say less rather than compressing it into fragments. Readability comes first.",
       // LP remains unredressed, but its HC remedy is a natural direct statement rather than a
@@ -1972,10 +2034,12 @@ function buildInitialManagerPrompt(payload) {
         ? "Low politeness performs no redressive face work of either kind: no thanks, praise, or acknowledgement of the person's thinking, and no apology, deference, or hedging of the refusal. Target the proposal, not the participant's intelligence, competence, identity, or personal worth."
         : "",
       "Do not mention politeness, constructiveness, conditions, or experimental design.",
-      wordRange && language !== "zh"
-        ? (intentEnum
-          ? `Length rule: when intent is 'reject_now', each Manager rejection message must be ${wordRange.min}-${wordRange.max} words to keep the four experimental conditions within 5% word-count difference. For 'awaiting_proposal' and 'ask_followup', keep the single message short and natural, roughly 12-26 words.`
-          : `Strict length rule: every Manager message must be ${wordRange.min}-${wordRange.max} words. This is required to keep the four experimental conditions within 5% word-count difference.`)
+      messageWordRanges && language !== "zh"
+        ? `Message-specific length rule: Message 1 must be ${messageWordRanges[0].min}-${messageWordRanges[0].max} words, and Message 2 must be ${messageWordRanges[1].min}-${messageWordRanges[1].max} words. Keep the short decision followed by the longer explanation in every condition.`
+        : wordRange && language !== "zh"
+          ? (intentEnum
+            ? `Length rule: when intent is 'reject_now', each Manager rejection message must be ${wordRange.min}-${wordRange.max} words to keep the four experimental conditions within 5% word-count difference. For 'awaiting_proposal' and 'ask_followup', keep the single message short and natural, roughly 12-26 words.`
+            : `Strict length rule: every Manager message must be ${wordRange.min}-${wordRange.max} words. This is required to keep the four experimental conditions within 5% word-count difference.`)
         : "",
       totalWordRange && language !== "zh"
         ? `Combined length rule: the two Manager messages must contain ${totalWordRange.min}-${totalWordRange.max} words in total.`
@@ -1999,6 +2063,7 @@ function buildInitialManagerPrompt(payload) {
     ].filter(Boolean).join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
     wordRange,
+    messageWordRanges,
     totalWordRange,
     totalWordTargetRange,
     chineseCharRange,
@@ -2022,6 +2087,112 @@ function normalizeManagerCondition(value) {
   return "HP_HC";
 }
 
+// While the manager's rejection is being generated and blind-validated the participant waits, and
+// a real person fills that gap by saying they need a moment. A hardcoded set of lines would be the
+// same for every participant, which is the templating problem this whole design keeps running into,
+// so a fresh set is drawn per session. The lines are deliberately about needing time to think
+// rather than about reading the message: "let me think about this" is what a manager weighing a
+// decision says, while "let me read this" narrates a mechanical step.
+const MANAGER_ACK_FALLBACK_EN = [
+  "Give me a sec.",
+  "Let me think about this for a moment.",
+  "Okay, give me a minute with this one.",
+  "Hang on, let me sit with this a moment.",
+  "Give me a moment to think it over.",
+  "One sec, I want to think about this properly.",
+];
+const MANAGER_ACK_FALLBACK_ZH = [
+  "我想想。",
+  "稍等,让我想一下。",
+  "给我点时间想想。",
+  "等一下,我琢磨一下。",
+  "让我先考虑考虑。",
+  "稍等,我想清楚再说。",
+];
+
+async function generateManagerAckLines(language) {
+  const fallback = language === "zh" ? MANAGER_ACK_FALLBACK_ZH : MANAGER_ACK_FALLBACK_EN;
+  const body = {
+    model: openaiModel,
+    input: [
+      {
+        role: "system",
+        content: [
+          "Write short things a manager types in a workplace chat right after a team member sends a proposal, to say they need a moment before answering.",
+          language === "zh"
+            ? "Write natural Simplified Chinese as typed in chat."
+            : "Write natural spoken workplace English as typed in chat. Contractions are fine.",
+          "Each line is one short sentence, at most eight words, and must sound like a real person typing, not like a status message or an automated notice.",
+          // The wait these lines cover can run past a minute, because the reply is generated and then
+          // blind-validated. Saying you are about to read the message makes that wait implausible:
+          // reading three sentences does not take a minute. Saying you need to think it over makes
+          // the same wait entirely ordinary, which is why the register leans that way. A natural
+          // first-person "let me take a look at this" is fine and is not what gave the old status
+          // label away; that was third-person system voice, not the verb.
+          "The register is asking for time or saying you want to think it over: give me a second, let me think about this, give me a minute with this. Lean towards weighing the decision rather than announcing that you are about to read it, since the participant may wait a while for the reply.",
+          "Never write in the third person and never sound like a status label or a system notice. No machine wording such as processing, request, or queue.",
+          // The line precedes a politeness-manipulated rejection, so any face work in it would be
+          // part of the manipulation rather than a constant across conditions.
+          "Never thank the person, never apologise, never praise the proposal, never say please, and never evaluate the idea in any way. These lines must work equally well before a warm reply and before a cold one.",
+          "Do not mention any name. Do not promise an answer, an outcome, or a timeframe.",
+          "Return eight clearly different lines. Vary the sentence shape, not just one word.",
+        ].filter(Boolean).join("\n"),
+      },
+      { role: "user", content: "Write the eight lines." },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "manager_ack_lines",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            lines: { type: "array", minItems: 8, maxItems: 8, items: { type: "string" } },
+          },
+          required: ["lines"],
+        },
+      },
+    },
+    max_output_tokens: supportsReasoningEffort(openaiModel) ? 1200 : 200,
+  };
+  if (supportsReasoningEffort(openaiModel)) {
+    body.reasoning = { effort: openaiReasoningEffort };
+  } else {
+    body.temperature = 1;
+  }
+
+  try {
+    const response = await fetchOpenAiResponses(body);
+    if (!response.ok) return { ok: true, lines: fallback, source: "fallback" };
+    const data = await response.json().catch(() => ({}));
+    const parsed = extractParsedObject(data) || parseOpenAiJson(extractResponseText(data));
+    const lines = parsed && Array.isArray(parsed.lines)
+      ? parsed.lines.map((line) => String(line || "").trim()).filter(Boolean)
+      : [];
+    const usable = lines.filter((line) => !MANAGER_ACK_FORBIDDEN.test(line));
+    // A partial set is still better than one shared script, but too few distinct lines defeats the
+    // purpose, so fall back rather than repeat two lines all session.
+    if (usable.length < 4) return { ok: true, lines: fallback, source: "fallback" };
+    return { ok: true, lines: usable, source: "generated" };
+  } catch (error) {
+    return { ok: true, lines: fallback, source: "fallback" };
+  }
+}
+
+// Guards the two ways a generated line could damage the study: face work would make the wait itself
+// part of the politeness manipulation, and an evaluation would preview the rejection.
+const MANAGER_ACK_FORBIDDEN = /\b(?:thanks|thank you|appreciate|sorry|apolog\w*|please|great|nice|good (?:idea|work|thinking)|interesting|Alex|Lisa|John)\b|谢谢|感谢|抱歉|不好意思|辛苦|请|不错|很好/i;
+
+
+// Register for the manager's neutral turns only: the follow-up questions before the rejection and
+// the whole second conversation. Text that is perfect on every line, with every period in place, is
+// the single most common tell in chat studies. The rejection pair, the rejection follow-ups, and
+// the closing are excluded on purpose: the register there must stay identical across conditions,
+// and any casualness would be read as carelessness and leak into the politeness manipulation.
+const NEUTRAL_CHAT_REGISTER_RULE = "This is a routine chat line, not a formal message. A short line may end without a full stop, the way people type in chat; a question still ends with a question mark. 'Complete sentence' means not stopping mid-thought, not that every line needs a period. Now and then, not every time, open with a plain acknowledgement such as ok, right, or got it before the question. Vary it, and skip it more often than you use it. These are receipt tokens, not thanks or praise, and the same wording must remain usable in every condition.";
+
 function managerConditionRules() {
   // The same refusal and revision content is redressed under high politeness and unredressed under
   // low politeness. Directness is judged at the speech-act level: explicit refusal words are not
@@ -2042,12 +2213,13 @@ function managerConditionRules() {
     "Do not claim that something is missing if the participant has already supplied it. Use their latest explanation to identify what still remains unresolved.",
     "Every HC rejection must communicate that the current proposal is not yet supported by enough proposal-specific evidence for this decision. Do not rely on the generic phrase 'needs more data'; identify the exact unanswered question and the exact analysis that would answer it.",
     "1. Proposal-specific evidence gap. Name one unresolved assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim in this proposal for which the conversation has not supplied decision-relevant data. Explain the practical consequence of deciding without that evidence.",
-    "2. Decision analysis. Explain one concrete effect, tradeoff, constraint, or uncertainty the manager has to consider for this proposal, and state what relationship, comparison, pattern, or trial result the analysis needs to establish. For an AI coordination proposal, the analysis might compare recommendation quality, supervisor approval delays, overrides, or service outcomes under AI-assisted and current coordination. For a pricing proposal, it might compare quieter-day booking gains with peak-day revenue losses. These illustrate how to reason from the proposal and must never become stock scripts.",
+    "2. Decision analysis. Explain one concrete effect, tradeoff, constraint, or uncertainty the manager has to consider for this proposal, and state what relationship, comparison, pattern, or trial result the analysis needs to establish. Infer this from the participant's actual mechanism and requested decision; do not select from examples or a preset menu.",
     "Do not satisfy the decision consideration by merely naming an abstract value or desired outcome such as 'service must stay reliable', 'safety matters', 'the change must be financially feasible', or 'we need operational feasibility'. Explain what about this proposal could affect that outcome and therefore has to be considered. The consideration may be integrated into the problem or consequence sentence; it does not need its own labelled sentence.",
     "Never announce or label the consideration with wording such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed construction such as 'Financial feasibility is the standard.'",
     highPoliteness
-      ? "3. Evidence-based improvement path. Name one or two concrete proposal-specific measures, observations, records, comparisons, or trial results the participant should analyze to resolve that exact uncertainty, and express the future path with redress. Never use an unredressed command."
-      : "3. Evidence-based improvement path. Name one or two concrete proposal-specific measures, observations, records, comparisons, or trial results the participant needs to analyze to resolve that exact uncertainty. State the requirement directly without redress in a natural subject-led sentence, but vary the wording and do not force one template. A flat substantive prerequisite may use if, after, before, or once; those words are not politeness by themselves. Do not use could, would, may, might, perhaps, please, optionality, a question, hedge, softener, deference, or invitation. Never use a clipped bare command such as 'Build...', 'Map...', 'Set...', 'Run...', 'Work out...', or 'Bring it back...'.",
+      ? "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty, and express the future path with redress. Never use an unredressed command."
+      : "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty. State the requirement directly without redress in a natural subject-led sentence, but vary the wording and do not force one template. A flat substantive prerequisite may use if, after, before, or once; those words are not politeness by themselves. Do not use could, would, may, might, perhaps, please, optionality, a question, hedge, softener, deference, or invitation. Never use a clipped bare command such as 'Build...', 'Map...', 'Set...', 'Run...', 'Work out...', or 'Bring it back...'.",
+    "Across the whole turn, stay with one central unanswered decision question and no more than two linked observations. Do not create a checklist of three or more metrics merely to sound analytical.",
     "The evidence gap, consequence, decision analysis, and improvement path must form one logical chain. The requested data and analysis must test the exact assumption or tradeoff identified in the participant's proposal, not merely add detail or produce a generic report.",
     "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. Name what should be measured or observed, what should be compared or analyzed, and how that result bears on this particular decision.",
     "Do not reuse a stock analysis or a sentence from an earlier turn or another proposal. Generate the diagnosis and path fresh from the participant's actual idea each time.",
@@ -2071,23 +2243,18 @@ function managerConditionRules() {
       ? "Repeating the refusal in new words is what makes a warm reply turn cold, because each restatement has to find a fresh way to say no and the fresh ways get harsher. One refusal, then general talk."
       : "",
     highPoliteness
-      ? "Anything you say about future handling stays redressed: 'I would rather leave this where it is for the moment' rather than a bare instruction. Keep the current refusal explicit, but attach the assigned face work to that refusal so it is polite as a whole."
+      ? "Anything you say about future handling stays redressed rather than becoming a bare instruction. Keep the current refusal explicit, but attach the assigned face work to that refusal so it is polite as a whole."
       : "",
     highPoliteness
       // A maturity judgment is good low-constructiveness filler, but it carries face threat, so
       // high politeness may only use it hedged. Unhedged it makes this cell internally
       // contradictory, which is what drove its blind-validation failures earlier.
-      ? "Use only mild broad judgments such as the overall idea needs more thought, there are a few things in it that have not been fully thought through, it is not quite in line with where we are headed, it does not quite fit the bigger picture yet, it is not quite there yet, or it is not something to take further at this stage. Keep the vagueness gentle: do not call the idea unworkable, sloppy, rough, or weak, and phrase any judgment about how developed it is in hedged form ('not quite there yet', 'a few things not fully thought through', 'could do with more time') rather than a flat 'this isn't ready'."
-      : "Use only blunt broad judgments such as the overall idea is not workable, is not mature enough, is nowhere near ready, does not line up with where the park is going, or does not fit the bigger picture. Do not invent a command or future step merely to mark low politeness. If one is included naturally, keep it direct and content-free, such as 'Leave this version where it is for now.' It must not name any problem, standard, material, or remedy.",
-    // Length is matched across conditions, so a low-constructiveness reply has spare words that a
-    // high-constructiveness reply spends on diagnosis. Filling them with extra redressive moves or
-    // dismissal makes the politeness contrast larger here than in the high-constructiveness cells,
-    // which confounds the politeness factor with the constructiveness factor. Left without a
-    // designated topic, low constructiveness simply stopped early: it settled around 56 words
-    // against high constructiveness's 61, which is a 10% gap between the two levels. Strategic fit
-    // is the filler because it is the one thing a manager can talk about at length while conveying
-    // nothing usable — it names no problem, no standard, and no revision.
-    "Your main filler topic is fit with where the park is going: its goals, its overall direction, its priorities for the season, the strategy behind how it is run. Say the proposal does not sit well with that.",
+      ? "Use a mild, hedged broad judgment about general readiness, timing, or fit. Keep the vagueness gentle and do not call the idea unworkable, sloppy, rough, or weak. Compose the judgment from the current conversation instead of selecting a stock phrase."
+      : "Use a blunt broad judgment about general readiness, maturity, or fit, without explaining it. Compose a fresh proposal-focused sharp evaluation rather than relying on the same stock adjective from an earlier Manager message. Do not invent a command or future step merely to mark low politeness. If one is included naturally, keep it direct and content-free. It must not name any problem, standard, material, or remedy.",
+    // Low constructiveness needs enough non-diagnostic language to stay length-matched with HC.
+    // Rotating several broad domains prevents that necessary filler from becoming a recognizable
+    // stock sentence. None may be tied to a concrete feature of the proposal.
+    "Use one or two vague filler domains chosen from general timing, overall fit, competing attention, or the broader direction of the park. Rotate away from whichever domain the Manager already used in this conversation. Do not explain the domain or connect it to a concrete feature of the proposal.",
     // The examples throughout these rules are illustrations of a register, not a script. Reused
     // verbatim they would make the manipulation a handful of detectable canned sentences.
     "Every example phrase in these rules is an illustration of the register, never a line to copy. Write it fresh each time in your own words, shaped by what the participant actually said and by how the conversation has gone so far. Never reuse a formula you have already used in this conversation.",
@@ -2113,12 +2280,12 @@ function managerConditionRules() {
   // sound the same.
   const highPoliteness = [
     "Politeness style: high. You are doing redressive face work while refusing.",
-    "The current rejection must be explicit and redressed as a whole. A clear phrase such as 'I cannot approve this version' remains polite when appreciation, apology, hedging, deference, or depersonalisation is clearly attached to that refusal; do not treat explicitness itself as low politeness.",
+    "The current rejection must be explicit and redressed as a whole. Direct refusal meaning remains polite when appreciation, apology, hedging, deference, or depersonalisation is clearly attached to it; do not treat explicitness itself as low politeness.",
     "If the reply includes a future next step, that next step must also be redressed rather than stated as a bare command or flat unsoftened instruction.",
     "Use one redressive move per message, drawn from either kind of politeness, and vary which kind you use across the turn rather than repeating one formula.",
     ...politenessCueQuota,
-    "Positive politeness addresses the participant's wish to be approved of: acknowledge their contribution as a colleague whose thinking you know and value ('you have clearly thought about how the peak shifts actually run'), or validate the effort behind it ('I appreciate you working this through').",
-    "Negative politeness addresses their wish not to be imposed upon: apologise for the imposition ('sorry to hold this up'), defer ('you know the gate better than I do from the floor'), hedge the refusal ('I am not sure this version gets us there yet'), or depersonalise it ('this version cannot be signed off at this stage' rather than 'I refuse it').",
+    "Positive politeness addresses the participant's wish to be approved of by acknowledging one specific contribution or the effort behind it. Compose that acknowledgment from what they actually said and do not use a canned appreciation opener.",
+    "Negative politeness addresses their wish not to be imposed upon through a brief apology, context-specific deference, a hedged refusal, or a depersonalised decision. Phrase the move freshly rather than copying a stock sentence.",
     "The redressive move must engage with what the participant actually contributed. Never open by reporting that you received the message: 'I hear you', 'I hear your point', 'noted', 'worth noting', 'understood', 'fair enough', 'point taken' are all banned. Those acknowledge receipt without any face work and read as politely closing someone down.",
     "Make clear that the decision concerns the current proposal rather than the participant personally.",
   ].join("\n");
@@ -2129,8 +2296,8 @@ function managerConditionRules() {
     "Politeness style: low. You refuse baldly, with no redressive face work of any kind.",
     "The current rejection must be explicit and unredressed. Do not attach appreciation, apology, hedging, deference, depersonalisation, or any other face work to the refusal.",
     "Do no positive politeness: no thanks, no praise, no acknowledgement of their thinking or effort, no treating them as a colleague whose view you value.",
-    "Do no negative politeness: no apology, no deference, no hedging of the refusal, and state it in your own voice ('I am not approving this') rather than depersonalising it.",
-    "Attach one face threat to the proposal per message, such as 'this version is sloppy' or 'this is nowhere near ready'.",
+    "Do no negative politeness: no apology, no deference, no hedging of the refusal, and state it in your own voice rather than depersonalising it.",
+    "Attach one freshly worded face threat to the proposal per message. Vary the evaluation across the two messages and across earlier Manager turns instead of repeating a stock readiness phrase.",
     ...politenessCueQuota,
     "Do not invent a command merely to perform low politeness. If the assigned content naturally includes a future next step, express it directly without redress using a complete subject-led statement with no hedging, softener, deference, or question.",
     "Do not pile up directives or flat next-step statements.",
@@ -2311,6 +2478,13 @@ function coworkerSpeakerOrder(mode) {
   return null;
 }
 
+// The second conversation ends the way a short online chat ends, not the way a study session ends.
+// "Thank you for taking part in this conversation. You can end this conversation now." was a
+// character reading the experiment's stage directions, and it contradicted the rule two lines
+// above it that the manager must not sound appreciative. The end-of-chat choice is already a
+// panel in the interface, so the manager has no reason to announce it.
+const NEUTRAL_MANAGER_WRAP_UP_RULE = { en: "Wrap up the way a short online chat ends. Shape: at most one plain sentence that restates their idea in your own words, the way a person would type it, then one short closing clause. Closing clauses of the right kind: 'that's clear enough for now, let's leave it there', 'ok, I've got the picture, let's stop here', 'fine, I'll leave it at that for now'. These show the register only; never reuse their words, and write the close fresh each time. Do not thank them, do not praise or judge the idea, do not say they took part in anything, and do not tell them they can end the conversation; the interface handles that. No colon summaries such as 'Noted:', and no bare noun-phrase fragments. This is an online chat, so give no reason involving a place, a desk, a gate, or anything physical.", zh: "Wrap up the way a short online chat ends. Shape: at most one plain sentence that restates their idea in your own words, the way a person would type it, then one short closing clause. Closing clauses of the right kind: '\u6211\u5927\u6982\u6e05\u695a\u4e86\uff0c\u5148\u5230\u8fd9\u91cc\u5427', '\u597d\uff0c\u6211\u4e86\u89e3\u4e86\uff0c\u5148\u804a\u5230\u8fd9', '\u884c\uff0c\u8fd9\u4e2a\u6211\u5148\u653e\u7740'. These show the register only; never reuse their words, and write the close fresh each time. Do not thank them, do not praise or judge the idea, do not say they took part in anything, and do not tell them they can end the conversation; the interface handles that. No colon summaries such as '\u6536\u5230\uff1a', and no bare noun-phrase fragments. This is an online chat, so give no reason involving a place, a desk, a gate, or anything physical." };
+
 function buildNeutralManagerPrompt(payload) {
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
@@ -2322,6 +2496,7 @@ function buildNeutralManagerPrompt(payload) {
   const intentEnum = (!isOpening && !isClosing && !isNoSubstancePrompt) ? ["ask_more", "enough"] : null;
   return {
     kind: "manager2",
+    phase,
     speakers: ["Manager"],
     minMessages: 1,
     maxMessages: 1,
@@ -2343,23 +2518,30 @@ function buildNeutralManagerPrompt(payload) {
       "Do not approve or reject the new proposal.",
       "Do not praise or criticize the participant.",
       "Do not provide detailed suggestions.",
-      "When asking follow-up questions, do not provide answer choices, examples, suggested solutions, or A/B alternatives. Do not ask questions like 'is it X or Y', 'are you thinking X or Y', 'whether X or Y', or 'X 还是 Y / X 或者 Y'. Ask open-ended questions instead, such as what they think should be done, how they would solve the issue, or what the next step should be.",
+      isClosing ? "" : "When asking follow-up questions, do not provide answer choices, examples, suggested solutions, or A/B alternatives. Do not ask questions like 'is it X or Y', 'are you thinking X or Y', 'whether X or Y', or 'X 还是 Y / X 或者 Y'. Ask open-ended questions instead, such as what they think should be done, how they would solve the issue, or what the next step should be.",
       "Stay neutral, brief, and matter-of-fact; avoid warm, rude, constructive-rejection, or evaluative language.",
+      (!isOpening && !isClosing) ? NEUTRAL_CHAT_REGISTER_RULE : "",
+      (!isOpening && !isClosing && !isNoSubstancePrompt)
+        ? "Do not attach a condition, concern, risk, or qualifier of your own to a question. Ask about what they said and stop."
+        : "",
+      (!isOpening && !isNoSubstancePrompt)
+        ? `Wrap-up rule: ${NEUTRAL_MANAGER_WRAP_UP_RULE[language === "zh" ? "zh" : "en"]}`
+        : "",
       isOpening
-        ? "This is your opening message. Just say a brief, neutral hello (e.g. 'Hi' or 'Hello, good to chat'). Keep it to a short greeting only — do not ask a question, do not invite a topic, and do not raise the background yourself."
+        ? (language === "zh"
+          ? "This is your opening message: one short line that shows you are here again, close to: 嗨，又见面了。 Do not ask anything, do not invite a topic, and do not raise the background yourself. This is an online chat, so do not mention a desk, an office, a gate, or any physical place."
+          : "This is your opening message: one short line that shows you are here again, close to: Hi again. Do not ask anything, do not invite a topic, and do not raise the background yourself. This is an online chat, so do not mention a desk, an office, a gate, or any physical place.")
         : isNoSubstancePrompt
           ? (language === "zh"
             ? "The participant has not raised a problem, suggestion, or new idea yet. Ask exactly one brief neutral question inviting them to say whether there is anything they want to discuss with you. Use natural wording close to: 你有什么想和我讨论的吗？ Do not mention the private background, do not offer examples, and do not ask multiple questions."
             : "The participant has not raised a problem, suggestion, or new idea yet. Ask exactly one brief neutral question inviting them to say whether there is anything they want to discuss with you. Use natural wording close to: Is there anything you would like to discuss with me? Do not mention the private background, do not offer examples, and do not ask multiple questions.")
         : isClosing
-          ? (language === "zh"
-            ? "Send one short neutral closing message based on the conversation. Thank the participant for taking part in this conversation and tell them they can end this conversation now."
-            : "Send one short neutral closing message based on the conversation. Thank the participant for taking part in this conversation and tell them they can end this conversation now.")
+          ? `This is the closing turn. The conversation is ending now. Send exactly one short wrap-up and do not ask a question of any kind, including about next steps, details, or what they would do. End on a statement. ${NEUTRAL_MANAGER_WRAP_UP_RULE[language === "zh" ? "zh" : "en"]}`
           : (language === "zh"
-            ? "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, thank the participant for taking part in this conversation and tell them they can end this conversation now. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask '你觉得该怎么解决这个问题？' rather than '你觉得主要应该调整目标游客群，还是调整淡季活动安排？' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."
-            : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. In that wrap-up, thank the participant for taking part in this conversation and tell them they can end this conversation now. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask 'How do you think this issue should be solved?' rather than 'Do you think this is mainly about changing the target visitors or changing off-season activities?' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."),
+            ? "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. For that wrap-up, follow the wrap-up rule given above. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask '你觉得该怎么解决这个问题？' rather than '你觉得主要应该调整目标游客群，还是调整淡季活动安排？' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."
+            : "First decide whether you still need more information. If the participant's proposal and what they have already said are detailed and clear enough that you have what you need, set intent to 'enough' and reply with a brief neutral wrap-up WITHOUT asking another question. For that wrap-up, follow the wrap-up rule given above. Otherwise set intent to 'ask_more' and ask one open-ended neutral clarification question grounded in their wording (1-2 short sentences, no repeats). The question must not give the participant options or suggested answers. For example, ask 'How do you think this issue should be solved?' rather than 'Do you think this is mainly about changing the target visitors or changing off-season activities?' Reply like a real person in a quick chat: do NOT start every message with an acknowledgement — avoid formulaic openers like 'I see', 'That's interesting', 'Thanks for explaining', 'Got it', or 'Okay, so'. Most turns should go straight to the question; only occasionally add a short natural reaction, and vary your wording so it does not sound templated. Ask no more than three follow-up questions total in this manager chat. The more detailed and complete their proposal already is, the sooner you should reach 'enough'; only keep asking while genuinely useful clarifications remain."),
       "Return only JSON matching the required schema.",
-    ].join("\n\n"),
+    ].filter(Boolean).join("\n\n"),
     user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
   };
 }
@@ -2573,9 +2755,13 @@ function managerWordCountProblem(messages, prompt) {
   if (!prompt.wordRange || !Array.isArray(messages) || !messages.length) return "";
   const managerMessages = messages
     .filter((message) => message.speaker === "Manager")
-    .map((message) => ({ text: message.text, count: wordCount(message.text) }));
+    .map((message, index) => ({
+      text: message.text,
+      count: wordCount(message.text),
+      range: managerMessageWordRange(prompt, index),
+    }));
   const problems = managerMessages
-    .filter((item) => item.count < prompt.wordRange.min || item.count > prompt.wordRange.max);
+    .filter((item) => item.count < item.range.min || item.count > item.range.max);
   const totalCount = managerMessages.reduce((sum, item) => sum + item.count, 0);
   const totalProblem = prompt.totalWordRange &&
     (totalCount < prompt.totalWordRange.min || totalCount > prompt.totalWordRange.max);
@@ -2583,7 +2769,9 @@ function managerWordCountProblem(messages, prompt) {
   if (!problems.length && !totalProblem) return "";
   return [
     `Length correction required. Previous Manager message word count(s): ${managerMessages.map((item) => item.count).join(", ")}. Combined count: ${totalCount}.`,
-    `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
+    Array.isArray(prompt.messageWordRanges) && prompt.messageWordRanges.length === managerMessages.length
+      ? `Regenerate with Message 1 at ${managerMessages[0].range.min}-${managerMessages[0].range.max} words and Message 2 at ${managerMessages[1].range.min}-${managerMessages[1].range.max} words.`
+      : `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
     prompt.totalWordRange
       ? `The Manager messages must contain ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words in total.`
       : "",
@@ -2595,6 +2783,36 @@ function managerWordCountProblem(messages, prompt) {
   ].filter(Boolean).join(" ");
 }
 
+function managerMessageWordRange(prompt, index) {
+  const indexedRange = prompt && Array.isArray(prompt.messageWordRanges)
+    ? prompt.messageWordRanges[index]
+    : null;
+  return indexedRange || prompt.wordRange;
+}
+
+// True, with a description, when every Manager message is within three words of its own cap and
+// the pair is inside the total band. Anything larger, or a total outside its band, is not small.
+const MANAGER_LENGTH_OVERSHOOT_TOLERANCE = 3;
+function managerSmallLengthOvershoot(messages, prompt) {
+  if (!prompt || prompt.phase !== "rejection_initial" || prompt.language !== "en") return "";
+  if (!prompt.totalWordRange) return "";
+  const managerMessages = (Array.isArray(messages) ? messages : [])
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => wordCount(message.text));
+  if (!managerMessages.length) return "";
+  const total = managerMessages.reduce((sum, count) => sum + count, 0);
+  if (total < prompt.totalWordRange.min || total > prompt.totalWordRange.max) return "";
+  const notes = [];
+  for (const [index, count] of managerMessages.entries()) {
+    const range = managerMessageWordRange(prompt, index);
+    if (!range) continue;
+    if (count < range.min) return "";
+    if (count > range.max + MANAGER_LENGTH_OVERSHOOT_TOLERANCE) return "";
+    if (count > range.max) notes.push(`message ${index + 1} ${count} words against a cap of ${range.max}`);
+  }
+  return notes.join("; ");
+}
+
 function managerLengthOnlyRewriteCorrection(messages, prompt, lengthProblem) {
   const managerMessages = (Array.isArray(messages) ? messages : [])
     .filter((message) => message && message.speaker === "Manager")
@@ -2604,17 +2822,38 @@ function managerLengthOnlyRewriteCorrection(messages, prompt, lengthProblem) {
   const target = prompt && prompt.totalWordTargetRange
     ? prompt.totalWordTargetRange
     : prompt && prompt.totalWordRange;
-  const tooLong = prompt && prompt.totalWordRange && total > prompt.totalWordRange.max;
-  const rewriteAction = tooLong
-    ? "Compress the previous visible Manager messages by deleting repetition and semantically empty filler only."
+  // Overflow is judged per message as well as in total. The failure this guards against was a
+  // second message of 47 words against a 46 cap with the pair at 64, inside the 54-68 total band:
+  // the old check looked only at the total, so it issued the lengthening instruction ("reach the
+  // target") for a message that needed cutting, gave the model no number, and got 47 back again.
+  const overflows = managerMessages.map((text, index) => {
+    const range = managerMessageWordRange(prompt, index);
+    return range && counts[index] > range.max ? counts[index] - range.max : 0;
+  });
+  const totalOverflow = prompt && prompt.totalWordRange && total > prompt.totalWordRange.max
+    ? total - prompt.totalWordRange.max
+    : 0;
+  const cuts = overflows
+    .map((over, index) => (over > 0
+      ? `Message ${index + 1} is ${counts[index]} words and must lose at least ${over}; aim for ${managerMessageWordRange(prompt, index).max - 2}.`
+      : ""))
+    .filter(Boolean);
+  if (totalOverflow > 0 && !cuts.length) {
+    cuts.push(`The pair is ${total} words and must lose at least ${totalOverflow}.`);
+  }
+  const rewriteAction = cuts.length
+    ? `Shorten. ${cuts.join(" ")} Cut only filler, repetition, and optional modifiers; keep every substantive element and do not add anything.`
     : "Rewrite the previous visible Manager messages to reach the target using condition-compatible neutral wording only.";
   return [
     "Length-only rewrite required.",
     lengthProblem,
     rewriteAction,
     target
-      ? `Use ${target.min}-${target.max} words across the two messages; keep each message within ${prompt.wordRange.min}-${prompt.wordRange.max} words.`
+      ? `Use ${target.min}-${target.max} words across the two messages.`
       : "",
+    Array.isArray(prompt.messageWordRanges) && prompt.messageWordRanges.length === 2
+      ? `Keep Message 1 short at ${prompt.messageWordRanges[0].min}-${prompt.messageWordRanges[0].max} words and Message 2 longer at ${prompt.messageWordRanges[1].min}-${prompt.messageWordRanges[1].max} words.`
+      : `Keep each message within ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
     "Keep the same explicit rejection, proposal-specific problem, consequence, standard, remedy path, future-step redress, and interpersonal cue direction and count. Do not add or remove a politeness cue, proposal-focused sharp cue, diagnostic detail, standard, or remedy.",
     "Preserve the same two-message division and return fresh hidden constructiveness fields that match the rewritten visible text.",
     ...managerMessages.map((text, index) => `Previous Manager message ${index + 1}: ${JSON.stringify(text)}`),
@@ -2721,6 +2960,34 @@ function managerChinesePunctuationProblem(messages, prompt) {
   ].join(" ");
 }
 
+// A second-conversation wrap-up must end the chat rather than keep it going, and must not read the
+// study's stage directions aloud. The model asked a follow-up question on the closing turn in two
+// of two samples before the closing instruction was made explicit, so the wrap-up is checked.
+function neutralManagerClosingProblem(messages, prompt, intent) {
+  if (!prompt || prompt.kind !== "manager2") return "";
+  const isWrapUp = prompt.phase === "closing" || intent === "enough";
+  if (!isWrapUp) return "";
+  const managerText = (Array.isArray(messages) ? messages : [])
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || "").trim())
+    .join(" ");
+  if (!managerText) return "";
+  const issues = [];
+  if (/[?？]/.test(managerText)) issues.push("it asked a question");
+  if (/\b(?:thank|thanks)\b|谢谢|感谢/i.test(managerText)) issues.push("it thanked the participant");
+  if (/\btaking part\b|\bparticipat/i.test(managerText)) issues.push("it referred to taking part");
+  if (/\bend (?:this|the) (?:conversation|chat)\b|可以结束|结束(?:这次|这个)?(?:对话|聊天)/i.test(managerText)) issues.push("it announced that the conversation can end");
+  if (/^(?:noted|收到)\s*[:：]/i.test(managerText)) issues.push("it opened with a colon summary");
+  if (!issues.length) return "";
+  return [
+    "Closing correction required.",
+    `The previous wrap-up did not end the chat the way a person would: ${issues.join("; ")}.`,
+    "Regenerate one short wrap-up: at most one plain sentence restating their idea in your own words, then one short closing clause.",
+    "No question of any kind, no thanks, no reference to taking part, no announcement that the conversation can end, no colon summary.",
+    "Return only valid JSON.",
+  ].join(" ");
+}
+
 function neutralManagerOptionQuestionProblem(messages, prompt, intent) {
   if (!prompt || prompt.kind !== "manager2" || intent !== "ask_more") return "";
   if (!Array.isArray(messages) || !messages.length) return "";
@@ -2760,7 +3027,9 @@ function managerMessageCountProblem(messages, prompt, intent) {
   if (actual === expected) return "";
   const lengthInstruction = prompt.language === "zh" && prompt.chineseCharRange
     ? `Each message must contain ${prompt.chineseCharRange.min}-${prompt.chineseCharRange.max} Chinese characters, the combined count must be ${prompt.chineseTotalCharRange.min}-${prompt.chineseTotalCharRange.max} Chinese characters, and both must preserve the same assigned condition.`
-    : `Each message must be ${prompt.wordRange.min}-${prompt.wordRange.max} words, the combined count must be ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words, and both must preserve the same assigned condition.`;
+    : Array.isArray(prompt.messageWordRanges) && prompt.messageWordRanges.length === 2
+      ? `Message 1 must be ${prompt.messageWordRanges[0].min}-${prompt.messageWordRanges[0].max} words, Message 2 must be ${prompt.messageWordRanges[1].min}-${prompt.messageWordRanges[1].max} words, the combined count must be ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words, and both must preserve the same assigned condition.`
+      : `Each message must be ${prompt.wordRange.min}-${prompt.wordRange.max} words, the combined count must be ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words, and both must preserve the same assigned condition.`;
   return [
     `Message count correction required. Previous Manager message count was ${actual}, but it must be exactly ${expected}.`,
     expected === 2
@@ -2888,8 +3157,9 @@ function normalizeInitialManagerLength(messages, prompt) {
     return compressOneEnglishManagerPhrase(message);
   };
 
-  for (const message of managerMessages) {
-    while (wordCount(message.text) > prompt.wordRange.max && removeOptionalWording(message)) {
+  for (const [index, message] of managerMessages.entries()) {
+    const range = managerMessageWordRange(prompt, index);
+    while (wordCount(message.text) > range.max && removeOptionalWording(message)) {
       // Remove only optional modifiers. Never truncate substantive content.
     }
   }
@@ -2902,40 +3172,9 @@ function normalizeInitialManagerLength(messages, prompt) {
     if (!candidate) break;
   }
 
-  const paddingByWords = {
-    1: "currently",
-    2: "right now",
-    3: "as presented now",
-    4: "in its current form",
-    5: "as it currently stands",
-    6: "in the version presented right now",
-  };
-  const appendPadding = (message, count) => {
-    const phrase = paddingByWords[count];
-    if (!phrase) return false;
-    const terminal = String(message.text || "").match(/([.!?])$/);
-    const punctuation = terminal ? terminal[1] : ".";
-    const base = terminal ? message.text.slice(0, -1).trim() : message.text.trim();
-    message.text = `${base}, ${phrase}${punctuation}`;
-    return true;
-  };
-
-  for (const message of managerMessages) {
-    const deficit = prompt.wordRange.min - wordCount(message.text);
-    if (deficit > 0) appendPadding(message, Math.min(6, deficit));
-  }
-  while (
-    managerMessages.reduce((sum, message) => sum + wordCount(message.text), 0) < prompt.totalWordRange.min
-  ) {
-    const total = managerMessages.reduce((sum, message) => sum + wordCount(message.text), 0);
-    const deficit = prompt.totalWordRange.min - total;
-    const candidate = [...managerMessages]
-      .sort((left, right) => wordCount(left.text) - wordCount(right.text))
-      .find((message) => wordCount(message.text) < prompt.wordRange.max);
-    if (!candidate) break;
-    const capacity = prompt.wordRange.max - wordCount(candidate.text);
-    if (!appendPadding(candidate, Math.min(6, deficit, capacity))) break;
-  }
+  // Do not pad underlength replies with fixed temporal filler such as "currently" or "right
+  // now". Those repeated endings are visible to participants and make the manager sound
+  // generated. The ordinary length correction asks the model to rewrite the message naturally.
   return normalized;
 }
 
@@ -2981,24 +3220,6 @@ function normalizeSubsequentManagerLength(messages, prompt) {
       continue;
     }
     if (!compressOneEnglishManagerPhrase(message)) break;
-  }
-  if (wordCount(message.text) < prompt.wordRange.min) {
-    const deficit = prompt.wordRange.min - wordCount(message.text);
-    const paddingByWords = {
-      1: "currently",
-      2: "right now",
-      3: "as presented now",
-      4: "in its current form",
-      5: "as it currently stands",
-      6: "in the version presented right now",
-    };
-    const phrase = paddingByWords[Math.min(6, deficit)];
-    if (phrase) {
-      const terminal = message.text.match(/([.!?])$/);
-      const punctuation = terminal ? terminal[1] : ".";
-      const base = terminal ? message.text.slice(0, -1).trim() : message.text.trim();
-      message.text = `${base}, ${phrase}${punctuation}`;
-    }
   }
   return normalized;
 }
@@ -3048,6 +3269,7 @@ function managerSafetyProblem(messages, prompt) {
   const personalName = /\b(?:Alex|Lisa|John)\b/i;
   const labelledStandard = /(?:^|[.!?;:]\s+)(?:the|our)\s+(?:(?:relevant|operational|service|safety|financial)\s+)?(?:standard|criterion|requirement)\s+(?:is|are)\b|\b(?:is|are)\s+(?:the|our)\s+(?:(?:relevant|operational|service|safety|financial)\s+)?(?:standard|criterion|requirement)(?=\s*(?:[.!?;:]|$))/i;
   const bareRemedyCommand = /(?:^|[.!?;:]\s+)(?:build|map|set|run|work out|bring|provide|prepare|show|explain|analy[sz]e|calculate|compare|define|test|add|clarify|identify|specify|document|lay out)\b/i;
+  const unidiomaticManagerFraming = /\b(?:the\s+)?decision\s+(?:stays|remains)\s+no\b|\bthat\s+(?:reopens|closes|advances|concludes)\s+the\s+discussion\b|\bsmall\s+busiest\s+weekend\b|\btemp\s+supported\b|\bpermanent\s+only\s+shifts?\b/i;
   const cjkCount = (text.match(/[\u3400-\u9fff]/g) || []).length;
 
   if (disclosure.test(text)) {
@@ -3061,6 +3283,9 @@ function managerSafetyProblem(messages, prompt) {
   }
   if (["HP_HC", "LP_HC"].includes(prompt.condition) && prompt.language === "en" && bareRemedyCommand.test(text)) {
     return "Natural wording correction required. Keep the same concrete remedy, but rewrite every bare command as a complete subject-led explanation. In LP_HC use a varied natural form that states the requirement directly with no hedge or softener; do not force one sentence template. A flat prerequisite using if, after, before, or once is allowed and is not redress by itself. In HP_HC keep the corresponding future path redressed. Do not begin a sentence with Build, Map, Set, Run, Work out, Bring, Provide, Prepare, Show, Explain, Analyze, Compare, Define, Test, Add, Clarify, Identify, Specify, Document, or Lay out. Preserve the proposal-specific problem, decision requirement, rejection, politeness condition, message count, and length. Return only valid JSON.";
+  }
+  if (prompt.language === "en" && unidiomaticManagerFraming.test(text)) {
+    return "Natural wording correction required. Rewrite the awkward or procedural phrase as ordinary idiomatic workplace chat. Avoid compressed modifier chains, phrases such as 'decision stays no', and commentary saying that a sentence reopens or closes the discussion. Preserve the proposal-specific meaning, assigned condition, rejection, message count, and length. Return only valid JSON.";
   }
   if (prompt.language === "zh" && cjkCount < 12) {
     return "Language correction required. Regenerate the complete reply in natural Simplified Chinese while preserving the rejection and assigned condition. Return only valid JSON.";
@@ -3833,9 +4058,16 @@ module.exports = {
   normalizeRow,
   normalizeVersionedRow,
   buildInitialManagerPrompt,
+  buildNeutralManagerPrompt,
+  NEUTRAL_MANAGER_WRAP_UP_RULE,
+  neutralManagerClosingProblem,
   classifyInitialManagerDiscussion,
   generateAiReply,
   managerConditionRules,
+  MANAGER_ACK_FORBIDDEN,
+  NEUTRAL_CHAT_REGISTER_RULE,
+  managerLengthOnlyRewriteCorrection,
+  managerSmallLengthOvershoot,
   managerConstructivenessMetadataProblem,
   managerConstructivenessAssessmentProblem,
   managerConstructivenessCueWarning,

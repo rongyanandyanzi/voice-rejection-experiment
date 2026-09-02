@@ -12,6 +12,8 @@ The new proposal is separate from the previous flexible labor proposal.
 
 The manager should act neutral.
 
+The manager's question turns use ordinary chat register: a short line may end without a full stop, and now and then, not every time, a question may open with a plain acknowledgement such as `ok`, `right`, or `got it`. These are receipt tokens, not thanks or praise, and the same wording is used in every condition. The greeting and the closing keep their existing form.
+
 The manager should not show clear politeness or impoliteness.
 
 The manager should not show clear high or low constructiveness.
@@ -41,7 +43,7 @@ Do not mention the previous manager interaction.
 Do not connect this new issue with the previous flexible labor proposal.
 
 ## Manager opening rule:
-The manager should not send an opening message. Alex should speak first in the second manager interaction.
+The manager opens with one short presence line, close to `Hi again.`, echoing the first conversation's opening so it reads as the same person returning. It asks nothing and invites no topic, so whether the participant raises anything remains their own choice. It names no place, desk, or gate: both people are in an online task.
 
 ## Manager Response Logic
 
@@ -114,7 +116,7 @@ Do not reveal any experimental condition.
 
 ## Example Neutral Manager Interaction
 
-The manager should not send an opening message before Alex speaks.
+The manager's opening line shows presence only; it never asks a question or invites a topic.
 
 Example style only, not fixed wording:
 
@@ -160,6 +162,8 @@ Alex should be able to prepare or edit a message during the manager’s typing d
 However, if Alex sends another message while the manager is still typing, the system should handle it naturally:
 - either queue Alex’s message and let the manager respond after finishing the current response;
 - or cancel/recalculate the pending manager response based on Alex’s latest message, if technically feasible.
+
+The manager's closing is a short online-chat wrap-up in ordinary register: at most one plain sentence restating the idea in the manager's own words, then one short closing clause of the kind `that's clear enough for now, let's leave it there` or `ok, I've got the picture, let's stop here`. The examples set the register only; the wording is written fresh each time and never copied. A wrap-up that asks a question, thanks the participant, refers to taking part, announces that the conversation can end, or opens with a colon summary is regenerated. It does not thank the participant, does not praise or judge the idea, does not say the participant took part in anything, does not tell them they can end the conversation, and gives no reason involving a place or anything physical. Colon summaries such as `Noted:` are not used. The end-of-chat choice is a panel in the interface, which is why the manager never announces it.
 
 The chat should only be locked after the manager has sent the final closing message and the system shows:
 
