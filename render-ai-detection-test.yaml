@@ -1,0 +1,35 @@
+# Test deployment of the codex/reduce-ai-detection branch. A separate service and disk, so the
+# pilot service and its data are untouched. Apply it in Render with New + > Blueprint, pick this
+# repository, and choose this file; Render then deploys this branch and redeploys on every push.
+services:
+  - type: web
+    name: voice-rejection-ai-detection-test
+    env: node
+    plan: starter
+    branch: codex/reduce-ai-detection
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.5
+      - key: OPENAI_EVALUATOR_MODEL
+        value: gpt-5.5
+      - key: OPENAI_REASONING_EFFORT
+        value: medium
+      - key: OPENAI_TIMEOUT_MS
+        value: "45000"
+      - key: AI_VALIDATION_DEBUG
+        value: "true"
+    disk:
+      name: ai-detection-test-data
+      mountPath: /var/data
+      sizeGB: 1
