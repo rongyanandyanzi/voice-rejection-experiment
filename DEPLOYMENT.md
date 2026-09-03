@@ -19,6 +19,7 @@ Set `DATA_DIR` to a persistent disk or volume path. The server writes:
 - `interactions.csv`
 - `survey_responses.csv`
 - `ai_requests.csv`
+- `chat_intent_checks.csv`
 - `experiment_data.csv`
 - `experiment_data.xlsx`
 
@@ -81,6 +82,7 @@ https://YOUR-SERVICE.onrender.com/admin/download/participants.csv?token=YOUR_ADM
 https://YOUR-SERVICE.onrender.com/admin/download/interactions.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/survey_responses.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/ai_requests.csv?token=YOUR_ADMIN_TOKEN
+https://YOUR-SERVICE.onrender.com/admin/download/chat_intent_checks.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/experiment_data.csv?token=YOUR_ADMIN_TOKEN
 https://YOUR-SERVICE.onrender.com/admin/download/experiment_data.xlsx?token=YOUR_ADMIN_TOKEN
 ```
@@ -179,6 +181,8 @@ Go through a few chat messages. Then check data download:
 https://voice-rejection-experiment.onrender.com/admin/download/participants.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/interactions.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/survey_responses.csv?token=YOUR_ADMIN_TOKEN
+https://voice-rejection-experiment.onrender.com/admin/download/ai_requests.csv?token=YOUR_ADMIN_TOKEN
+https://voice-rejection-experiment.onrender.com/admin/download/chat_intent_checks.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/experiment_data.csv?token=YOUR_ADMIN_TOKEN
 https://voice-rejection-experiment.onrender.com/admin/download/experiment_data.xlsx?token=YOUR_ADMIN_TOKEN
 ```

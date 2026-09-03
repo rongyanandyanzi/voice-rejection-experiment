@@ -1175,6 +1175,8 @@
       }
       if (questionIntent === "no_question") {
         state.prechatParticipant2AnsweredQuestions = true;
+        setComposerEnabled(false);
+        setStatus(inZh("Assigning roles", "正在分配角色"));
         await continueAfterPrechatQuestions();
         return;
       }
@@ -1539,7 +1541,17 @@
       const response = await fetchWithTimeout(`${dataEndpoint}/chat-intent-check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stage, phase, text, language }),
+        body: JSON.stringify({
+          stage,
+          phase,
+          text,
+          language,
+          prolific_pid: ids.prolific_pid,
+          study_id: ids.study_id,
+          session_id: ids.session_id,
+          condition,
+          manipulation_version: manipulationVersion,
+        }),
       });
       const data = await response.json().catch(() => ({}));
       if (response.ok && data.ok && typeof data.intent === "string") {

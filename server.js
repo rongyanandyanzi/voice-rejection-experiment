@@ -28,6 +28,7 @@ const participantsPath = path.join(dataDir, "participants.csv");
 const interactionsPath = path.join(dataDir, "interactions.csv");
 const surveyResponsesPath = path.join(dataDir, "survey_responses.csv");
 const aiRequestsPath = path.join(dataDir, "ai_requests.csv");
+const chatIntentChecksPath = path.join(dataDir, "chat_intent_checks.csv");
 const combinedCsvPath = path.join(dataDir, "experiment_data.csv");
 const workbookPath = path.join(dataDir, "experiment_data.xlsx");
 
@@ -167,6 +168,29 @@ const aiRequestColumns = [
   "validation_failure",
 ];
 
+const chatIntentCheckColumns = [
+  "prolific_pid",
+  "study_id",
+  "session_id",
+  "language",
+  "assigned_condition",
+  "manipulation_version",
+  "stage",
+  "phase",
+  "participant_text",
+  "request_time",
+  "response_time",
+  "duration_ms",
+  "ok",
+  "intent",
+  "classifier_source",
+  "model",
+  "http_status",
+  "retryable",
+  "error",
+  "cause",
+];
+
 const combinedColumns = uniqueColumns([
   "record_type",
   ...participantColumns,
@@ -178,6 +202,7 @@ let participants = loadCsv(participantsPath, participantColumns);
 let interactions = loadCsv(interactionsPath, interactionColumns);
 let surveyResponses = loadCsv(surveyResponsesPath, surveyResponseColumns);
 let aiRequests = loadCsv(aiRequestsPath, aiRequestColumns);
+let chatIntentChecks = loadCsv(chatIntentChecksPath, chatIntentCheckColumns);
 const aiReplyRequests = new Map();
 
 const server = http.createServer(async (req, res) => {
@@ -320,7 +345,42 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "POST" && req.url === "/api/chat-intent-check") {
     const payload = await readJson(req);
-    const result = await classifyChatIntentResponse(payload);
+    const requestStartedAt = Date.now();
+    const requestTime = new Date(requestStartedAt).toISOString();
+    const diagnostics = {};
+    let result;
+    try {
+      result = await classifyChatIntentResponse(payload, diagnostics);
+    } catch (error) {
+      diagnostics.source = "unexpected_error";
+      logAiFailure("chat-intent-unexpected", {
+        status: 500,
+        retryable: true,
+        stage: payload && payload.stage,
+        phase: payload && payload.phase,
+        error: "Unable to classify chat intent.",
+        cause: error && error.message ? error.message : String(error || ""),
+      });
+      result = {
+        ok: false,
+        status: 500,
+        retryable: true,
+        error: "Unable to classify chat intent.",
+        cause: error && error.message ? error.message : String(error || ""),
+      };
+    }
+    try {
+      recordChatIntentCheck(payload, result, requestStartedAt, requestTime, diagnostics.source);
+    } catch (error) {
+      logAiFailure("chat-intent-log-write", {
+        status: 500,
+        retryable: false,
+        stage: payload && payload.stage,
+        phase: payload && payload.phase,
+        error: "Unable to persist chat intent diagnostics.",
+        cause: error && error.message ? error.message : String(error || ""),
+      });
+    }
     sendJson(res, result, result.ok ? 200 : result.status || 500);
     return;
   }
@@ -387,6 +447,7 @@ function persistAll() {
   fs.writeFileSync(interactionsPath, toCsv(interactions, interactionColumns));
   fs.writeFileSync(surveyResponsesPath, toCsv(surveyResponses, surveyResponseColumns));
   persistAiRequests();
+  persistChatIntentChecks();
   fs.writeFileSync(combinedCsvPath, toCsv(combinedRows(), combinedColumns));
   fs.writeFileSync(workbookPath, createWorkbook([
     { name: "participants", columns: participantColumns, rows: participants },
@@ -398,6 +459,41 @@ function persistAll() {
 
 function persistAiRequests() {
   fs.writeFileSync(aiRequestsPath, toCsv(aiRequests, aiRequestColumns));
+}
+
+function persistChatIntentChecks() {
+  fs.writeFileSync(chatIntentChecksPath, toCsv(chatIntentChecks, chatIntentCheckColumns));
+}
+
+function recordChatIntentCheck(payload, result, requestStartedAt = Date.now(), requestTime = "", classifierSource = "") {
+  const safePayload = payload && typeof payload === "object" ? payload : {};
+  const safeResult = result && typeof result === "object" ? result : {};
+  const participantText = cleanPromptText(safePayload.text);
+  const row = normalizeRow({
+    prolific_pid: safePayload.prolific_pid,
+    study_id: safePayload.study_id,
+    session_id: safePayload.session_id,
+    language: normalizeLanguage(safePayload.language),
+    assigned_condition: safePayload.condition,
+    manipulation_version: safePayload.manipulation_version || manipulationVersion,
+    stage: safePayload.stage,
+    phase: safePayload.phase,
+    participant_text: participantText,
+    request_time: requestTime || new Date(requestStartedAt).toISOString(),
+    response_time: new Date().toISOString(),
+    duration_ms: Date.now() - requestStartedAt,
+    ok: safeResult.ok,
+    intent: safeResult.intent || "",
+    classifier_source: classifierSource || (participantText ? "openai_semantic" : "empty_input"),
+    model: openaiModel,
+    http_status: safeResult.ok ? 200 : safeResult.status || 500,
+    retryable: safeResult.retryable,
+    error: safeResult.error,
+    cause: safeResult.cause || "",
+  }, chatIntentCheckColumns);
+  chatIntentChecks.push(row);
+  persistChatIntentChecks();
+  return row;
 }
 
 function combinedRows() {
@@ -578,7 +674,7 @@ function serveStatic(req, res) {
 
   const ext = path.extname(filePath).toLowerCase();
   const basename = path.basename(filePath);
-  if (["participants.csv", "interactions.csv", "survey_responses.csv", "ai_requests.csv", "experiment_data.csv", "experiment_data.xlsx"].includes(basename)) {
+  if (["participants.csv", "interactions.csv", "survey_responses.csv", "ai_requests.csv", "chat_intent_checks.csv", "experiment_data.csv", "experiment_data.xlsx"].includes(basename)) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
@@ -636,6 +732,7 @@ function serveAdminDownload(req, res) {
     "interactions.csv": interactionsPath,
     "survey_responses.csv": surveyResponsesPath,
     "ai_requests.csv": aiRequestsPath,
+    "chat_intent_checks.csv": chatIntentChecksPath,
     "experiment_data.csv": combinedCsvPath,
     "experiment_data.xlsx": workbookPath,
   };
@@ -820,6 +917,33 @@ async function generateAiReply(payload, options = {}) {
       lastMessages = sanitizeAiMessages(result.messages, prompt, lastIntent);
       lastMessages = normalizeInitialManagerLength(lastMessages, prompt);
       lastMessages = normalizeSubsequentManagerLength(lastMessages, prompt);
+      const prechatFlowProblem = prechatQuestionTransitionProblem(lastMessages, effectivePayload);
+      if (prechatFlowProblem) {
+        if (attempt < 1) {
+          correction = prechatFlowProblem;
+          continue;
+        }
+        const failure = {
+          ok: false,
+          status: 502,
+          retryable: true,
+          error: "OpenAI could not generate a valid prechat question response.",
+        };
+        logAiFailure("prechat-question-flow-validation", {
+          ...failure,
+          cause: prechatFlowProblem,
+          stage: payload && payload.stage,
+          phase: payload && payload.phase,
+        });
+        return withAiValidationFailure(
+          failure,
+          "prechat-question-flow",
+          prechatFlowProblem,
+          lastMessages,
+          null,
+          null,
+        );
+      }
       const messageCountProblem = managerMessageCountProblem(lastMessages, prompt, lastIntent);
       if (messageCountProblem) {
         if (attempt < 2) {
@@ -1328,8 +1452,23 @@ async function classifyInitialManagerDiscussion(payload, signal) {
   };
 }
 
-async function classifyChatIntentResponse(payload) {
+async function classifyChatIntentResponse(payload, diagnostics = {}) {
+  const text = cleanPromptText(payload && payload.text);
+  const stage = String(payload && payload.stage || "").trim();
+  const phase = String(payload && payload.phase || "").trim();
+  const language = normalizeLanguage(payload && payload.language);
+  const config = chatIntentConfig(stage, phase, language);
+
+  if (!config) {
+    diagnostics.source = "not_called_invalid_request";
+    return { ok: false, status: 400, error: "Unsupported chat intent classification request." };
+  }
+  if (!text) {
+    diagnostics.source = "not_called_empty_input";
+    return { ok: true, intent: config.emptyIntent };
+  }
   if (!openaiApiKey) {
+    diagnostics.source = "not_called_missing_api_key";
     logAiFailure("chat-intent-missing-openai-key", {
       status: 503,
       error: "OPENAI_API_KEY is not configured on the server.",
@@ -1341,16 +1480,7 @@ async function classifyChatIntentResponse(payload) {
     };
   }
 
-  const text = cleanPromptText(payload && payload.text);
-  const stage = String(payload && payload.stage || "").trim();
-  const phase = String(payload && payload.phase || "").trim();
-  const language = normalizeLanguage(payload && payload.language);
-  const config = chatIntentConfig(stage, phase, language);
-
-  if (!config) {
-    return { ok: false, status: 400, error: "Unsupported chat intent classification request." };
-  }
-  if (!text) return { ok: true, intent: config.emptyIntent };
+  diagnostics.source = "openai_semantic_error";
 
   const body = {
     model: openaiModel,
@@ -1428,10 +1558,12 @@ async function classifyChatIntentResponse(payload) {
 
   const parsedObject = extractParsedObject(data);
   if (parsedObject && config.intents.includes(parsedObject.intent)) {
+    diagnostics.source = "openai_semantic";
     return { ok: true, intent: parsedObject.intent };
   }
   const parsed = parseOpenAiJson(extractResponseText(data));
   if (parsed && config.intents.includes(parsed.intent)) {
+    diagnostics.source = "openai_semantic";
     return { ok: true, intent: parsed.intent };
   }
   logAiFailure("chat-intent-invalid-json", {
@@ -1471,9 +1603,11 @@ function chatIntentConfig(stage, phase, language) {
       instructions: [
         "Classify Participant 2's latest reply during the prechat question window.",
         "The Coordinator has just asked whether Participant 2 has any quick questions or any other questions before role assignment.",
-        "Judge the participant's meaning semantically in context, not by matching a fixed list of words.",
-        "Return 'no_question' if the participant means they have no questions, no additional questions, or are ready to continue.",
-        "Return 'has_question' if the participant is asking for information, clarification, help, or a procedural answer.",
+        "Judge the participant's communicative meaning semantically in this exact conversational context. Never classify by matching a fixed word list, phrase template, punctuation mark, or sentence form.",
+        "Return 'no_question' whenever the participant means they have no questions, no additional questions, or are ready to continue. A very short conversational reply can express this meaning completely and does not need to be a full sentence.",
+        "Return 'has_question' only when the participant is actually seeking information, clarification, help, or a procedural answer.",
+        "If the participant first says no but then asks or introduces a real question, return 'has_question'. Consider the whole message rather than the opening word.",
+        "Examples such as 'no', 'no questions', or 'I'm ready' illustrate the no-question meaning only; they are not a fixed phrase list. Paraphrases with the same meaning must receive the same classification.",
         "Return 'other' only if the message is neither a no-question reply nor an actual question.",
         language === "zh" ? "The participant may write in Simplified Chinese. Understand short Chinese replies naturally in context." : "",
         "Do not answer the participant. Only classify the intent.",
@@ -1731,6 +1865,9 @@ function buildPrechatPrompt(payload) {
       "Privacy answer guide: if asked about names, location, or personal details, say no personal details are needed; a brief self-introduction is enough. If asked whether theme park experience is needed, say no; all necessary information will be provided. If asked whether answers are evaluated, say this is not a knowledge test.",
       "If any participant asks a procedural question during prechat, the Coordinator should actually answer it briefly and helpfully using the guide above. Do not deflect or dodge genuine procedural questions; give a real answer at the high level allowed.",
       "If Participant 2 asks a question that is not about the current task, study procedure, role assignment, timing, instructions, or chat setup, Coordinator should not answer the substance of that unrelated question. Instead say briefly that it is not related to the current task and redirect back to the session.",
+      phase === "question"
+        ? "This request is only for answering a participant question while the question window remains open. Do not say that role assignment is starting now, that the group is moving to role assignment now, or that private role instructions are already being shown. Do not thank Participant 2 for having no questions. The client handles the real transition separately after the semantic intent classifier decides the participant is ready to continue."
+        : "",
       "Coordinator must not reveal any participant's later role specifics, private role materials, assigned condition, the manager's future responses, or that the study involves any rejection, evaluation outcome, hypothesis, or manipulation. The high-level stage overview above is fine to share; specifics beyond it are not.",
       "If asked about later roles, the exact content of later chats, what another participant will see, or private role information, Coordinator should give the high-level overview and then say the detailed role materials will be assigned shortly and each person should follow the information shown to them.",
       "Participant 1 should not answer procedural questions about the task flow, roles, or task rules; Coordinator handles those questions.",
@@ -2695,6 +2832,39 @@ function rewriteManagerCommandStyle(text) {
     )
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function prechatQuestionTransitionProblem(messages, payload) {
+  if (
+    !payload ||
+    String(payload.stage || "") !== "prechat" ||
+    String(payload.phase || "") !== "question"
+  ) {
+    return "";
+  }
+  const combined = (Array.isArray(messages) ? messages : [])
+    .map((message) => String(message && message.text || ""))
+    .join(" ")
+    .trim();
+  if (!combined) return "";
+
+  const falseTransition = [
+    /\b(?:i['’]ll|we['’]ll|i will|we will|let['’]s)\b[^.!?]{0,90}\b(?:assign(?:ing)? (?:the )?roles?|role assignment)\b[^.!?]{0,30}\b(?:now|next)\b/i,
+    /\b(?:move|moving|go|going|proceed|proceeding|continue|continuing|start|starting|begin|beginning)\b[^.!?]{0,70}\b(?:role assignment|assign(?:ing)? (?:the )?roles?)\b[^.!?]{0,30}\bnow\b/i,
+    /\b(?:roles? (?:are|is) being assigned|role assignment (?:is|has) (?:starting|started|begun|underway))\b/i,
+    /\bprivate\b[^.!?]{0,45}\b(?:instructions?|materials?)\b[^.!?]{0,65}\b(?:shown|showing|displayed|available|on (?:your|the) screen)\b/i,
+    /(?:我|我们|大家)?现在.{0,12}(?:分配角色|进入角色分配|开始角色分配)/,
+    /(?:角色分配|分配角色).{0,10}(?:现在开始|已经开始|正在进行)/,
+    /(?:私人|个人|你的).{0,14}(?:说明|指示|材料).{0,18}(?:已经|正在|显示|屏幕)/,
+  ].some((pattern) => pattern.test(combined));
+  if (!falseTransition) return "";
+
+  return [
+    "The previous prechat response falsely announced that role assignment was starting or that private role materials were already visible.",
+    "The question window is still open. Answer only the participant's actual question without claiming that the session is moving forward now.",
+    "You may say that roles will be assigned shortly when that directly answers the question, but do not announce the transition as currently happening.",
+    "Return only valid JSON.",
+  ].join(" ");
 }
 
 function coworkerSolutionProblem(messages, prompt, intent) {
@@ -4055,12 +4225,18 @@ module.exports = {
   interactionColumns,
   surveyResponseColumns,
   aiRequestColumns,
+  chatIntentCheckColumns,
   normalizeRow,
   normalizeVersionedRow,
+  recordChatIntentCheck,
+  buildPrechatPrompt,
   buildInitialManagerPrompt,
   buildNeutralManagerPrompt,
   NEUTRAL_MANAGER_WRAP_UP_RULE,
   neutralManagerClosingProblem,
+  prechatQuestionTransitionProblem,
+  classifyChatIntentResponse,
+  chatIntentConfig,
   classifyInitialManagerDiscussion,
   generateAiReply,
   managerConditionRules,
