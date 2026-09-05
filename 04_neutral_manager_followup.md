@@ -159,9 +159,7 @@ Do not disable the send button while the manager is typing.
 
 Alex should be able to prepare or edit a message during the manager’s typing delay.
 
-However, if Alex sends another message while the manager is still typing, the system should handle it naturally:
-- either queue Alex’s message and let the manager respond after finishing the current response;
-- or cancel/recalculate the pending manager response based on Alex’s latest message, if technically feasible.
+If the participant sends another message while the manager is still replying, it is queued and handled as soon as the current turn ends, on every path. A reply that the newer message has made moot is discarded before it is shown: if the participant says only `hi`, the manager begins composing `Is there anything you would like to discuss with me?`, and the participant's actual suggestion arrives in the meantime, that prompt is dropped and the suggestion is answered instead. The discard is recorded in interactions.csv. The same rule applies to a closing that a newer message overtakes.
 
 The manager's closing is a short online-chat wrap-up in ordinary register: at most one plain sentence restating the idea in the manager's own words, then one short closing clause of the kind `that's clear enough for now, let's leave it there` or `ok, I've got the picture, let's stop here`. The examples set the register only; the wording is written fresh each time and never copied. A wrap-up that asks a question, thanks the participant, refers to taking part, announces that the conversation can end, or opens with a colon summary is regenerated. It does not thank the participant, does not praise or judge the idea, does not say the participant took part in anything, does not tell them they can end the conversation, and gives no reason involving a place or anything physical. Colon summaries such as `Noted:` are not used. The end-of-chat choice is a panel in the interface, which is why the manager never announces it.
 

@@ -2122,25 +2122,56 @@
     if (state.neutralDone) return;
     state.managerTurnActive = true;
 
+    // Anything typed while this turn is in progress is queued by handleSubmit. It must be handled
+    // on every exit from this function, not only after a question; the "anything to discuss?"
+    // branch used to return without looking at it, which dropped the participant's suggestion.
+    const drainPending = () => {
+      if (!state.pendingManagerInput) return false;
+      const pendingText = state.pendingManagerInput;
+      state.pendingManagerInput = "";
+      handleNeutralManagerInput(pendingText);
+      return true;
+    };
+    const superseded = () => Boolean(state.pendingManagerInput);
+
     const substanceIntent = await getChatIntent("manager2", "substance", text);
     if (substanceIntent !== "has_issue_or_idea") {
+      // A newer message makes a "no substance" reply to this one moot before it is even requested.
+      if (superseded()) {
+        state.managerTurnActive = false;
+        drainPending();
+        return;
+      }
       if (!state.neutralNoSubstancePrompted && state.neutralQuestionCount === 0) {
         state.neutralNoSubstancePrompted = true;
         const promptSent = await sendAiMessages({
           stage: "manager2",
           phase: "no_substance_prompt",
           alexMessage: text,
+          abortIf: superseded,
         });
         state.managerTurnActive = false;
+        if (promptSent === "aborted") {
+          // The prompt was never shown, so a later genuinely empty message may still get it.
+          state.neutralNoSubstancePrompted = false;
+          drainPending();
+          return;
+        }
         if (!promptSent) return;
+        drainPending();
         return;
       }
       const sent = await sendAiMessages({
         stage: "manager2",
         phase: "closing",
         alexMessage: text,
+        abortIf: superseded,
       });
       state.managerTurnActive = false;
+      if (sent === "aborted") {
+        drainPending();
+        return;
+      }
       if (!sent) return;
       showNeutralProceedChoice();
       return;
@@ -2153,8 +2184,13 @@
         stage: "manager2",
         phase: "closing",
         alexMessage: text,
+        abortIf: superseded,
       });
       state.managerTurnActive = false;
+      if (sent === "aborted") {
+        drainPending();
+        return;
+      }
       if (!sent) return;
       showNeutralProceedChoice();
       return;
@@ -2169,11 +2205,7 @@
     state.managerTurnActive = false;
     if (!sent) return;
     // If the participant typed ahead while the manager was replying, handle it next.
-    if (state.pendingManagerInput) {
-      const pendingText = state.pendingManagerInput;
-      state.pendingManagerInput = "";
-      return handleNeutralManagerInput(pendingText);
-    }
+    if (drainPending()) return;
     // The manager wraps up early once it judges it has enough (e.g. the
     // participant already gave a detailed proposal).
     if (state.lastAiIntent === "enough") {
@@ -2632,6 +2664,15 @@
     clearApiConnectionIssue();
 
     state.lastAiIntent = result.intent || "";
+    // A reply can become moot while it is being generated: the participant says "hi", the manager
+    // starts composing "anything you'd like to discuss?", and the participant's actual suggestion
+    // arrives before that lands. Showing it then makes the manager look as if it did not read the
+    // suggestion, and the suggestion itself was being dropped. The caller decides what counts as
+    // moot; a discarded reply is reported as "aborted" so the caller can act on the newer message.
+    if (typeof request.abortIf === "function" && request.abortIf()) {
+      recordInteraction(currentStage(), "system", `Discarded a ${request.phase} reply superseded by a newer participant message.`, "");
+      return "aborted";
+    }
     const initialRejectionPair =
       request.stage === "manager1" &&
       (request.phase === "rejection_initial" || result.intent === "reject_now");
@@ -2719,7 +2760,7 @@
     const retryMessage = inZh("The chat connection had a brief issue. Please try again.", "聊天连接短暂出现问题。请再试一次。");
     const requestId = createAiRequestId();
     const requestTimeoutMs = aiRequestTimeoutFor(request);
-    const { acknowledge: _acknowledge, ...requestFields } = request;
+    const { acknowledge: _acknowledge, abortIf: _abortIf, ...requestFields } = request;
     const requestPayload = {
       ...requestFields,
       request_id: requestId,

@@ -1671,5 +1671,22 @@ test("the discussion decision is made once, guarded on the server, and drives th
   const backstop = appSource.slice(appSource.indexOf("const reachedFollowupCap"), appSource.indexOf("const decision = await getDiscussionIntent(text);"));
   assert.match(backstop, /phase: "rejection_initial",[\s\S]*?acknowledge: true,/);
   // The client-only flag never reaches the server payload.
-  assert.match(appSource, /const \{ acknowledge: _acknowledge, \.\.\.requestFields \} = request;/);
+  assert.match(appSource, /const \{ acknowledge: _acknowledge, abortIf: _abortIf, \.\.\.requestFields \} = request;/);
+});
+
+test("a second-conversation reply overtaken by a newer message is discarded and the queue is always drained", () => {
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  // sendAiMessages honours abortIf after the reply arrives and before anything is shown.
+  assert.match(appSource, /if \(typeof request\.abortIf === "function" && request\.abortIf\(\)\) \{[\s\S]*?return "aborted";/);
+  assert.match(appSource, /const \{ acknowledge: _acknowledge, abortIf: _abortIf, \.\.\.requestFields \} = request;/);
+  const handler = appSource.slice(appSource.indexOf("async function handleNeutralManagerInput(text)"), appSource.indexOf("function showNeutralProceedChoice()"));
+  // The no-substance prompt and both closings can be discarded; the question cannot.
+  assert.equal((handler.match(/abortIf: superseded,/g) || []).length, 3);
+  assert.match(handler, /phase: "no_substance_prompt",\s*\n\s*alexMessage: text,\s*\n\s*abortIf: superseded,/);
+  assert.doesNotMatch(handler, /phase: "question",\s*\n\s*alexMessage: text,\s*\n\s*abortIf/);
+  // Every exit drains the queue: after the prompt, after each closing branch, after a question,
+  // and when the substance check itself is overtaken.
+  assert.ok((handler.match(/drainPending\(\)/g) || []).length >= 6, "queue must be drained on every path");
+  // A discarded prompt does not consume the one-time prompt allowance.
+  assert.match(handler, /if \(promptSent === "aborted"\) \{\s*\n[^\n]*\n\s*state\.neutralNoSubstancePrompted = false;/);
 });
