@@ -176,16 +176,14 @@
       ],
     },
     {
+      // The reference period is written into every item rather than shown once as a stem, and the
+      // section instruction is shown on the first page only; page 1 has already set the context.
       title: "Preparing Your Suggestion",
-      instructionEmphasis: true,
-      stemEmphasis: true,
-      instruction: "The following statements are about the second conversation you had with the manager, the one after you had reviewed the customer feedback. Please indicate how much you agree with each statement about what you actually did.",
-      stem: "Before the second conversation with the manager, I...",
       items: [
-        { id: "VQ1", text: "tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details." },
-        { id: "VQ2", text: "made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations." },
-        { id: "VQ3", text: "tried to anticipate the questions or doubts the manager might raise, and how I would answer them." },
-        { id: "VQ4", text: "made an effort to work out a clear, actionable course of action rather than a general idea." },
+        { id: "VQ1", text: "Before the second conversation with the manager, I tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details." },
+        { id: "VQ2", text: "Before the second conversation with the manager, I made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations." },
+        { id: "VQ3", text: "Before the second conversation with the manager, I tried to anticipate the questions or doubts the manager might raise, and how I would answer them." },
+        { id: "VQ4", text: "Before the second conversation with the manager, I made an effort to work out a clear, actionable course of action rather than a general idea." },
       ],
     },
     {
@@ -2325,7 +2323,7 @@
     return `
       <section class="survey-section">
         <h2>${escapeHtml(section.title)}</h2>
-        <p class="${section.instructionEmphasis ? "survey-emphasis" : ""}"${section.instructionRed ? ' style="color: #d32f2f;"' : ""}>${formatSurveyInstruction(section.instruction)}</p>
+        ${section.instruction ? `<p class="${section.instructionEmphasis ? "survey-emphasis" : ""}"${section.instructionRed ? ' style="color: #d32f2f;"' : ""}>${formatSurveyInstruction(section.instruction)}</p>` : ""}
         ${section.stem ? `<p class="survey-stem${section.stemEmphasis ? " survey-emphasis" : ""}">${escapeHtml(section.stem)}</p>` : ""}
         ${groups.map((group) => `
           ${group.label ? `<h3>${escapeHtml(group.label)}</h3>` : ""}
@@ -2452,8 +2450,8 @@
         "在刚才的互动中，有没有什么让你觉得不寻常或出乎意料的地方？请简单描述。",
       )
       : inZh(
-        "Who or what do you think you were interacting with in the chat?",
-        "你认为你在聊天中是在和谁（或什么）互动？",
+        "Who do you think you were interacting with in the chat?",
+        "你认为你在聊天中是在和谁互动？",
       );
     participant.ai_check_stage = kind;
     participant[`ai_check_${kind}_start_time`] = timestamp();
@@ -3268,8 +3266,6 @@
       },
       {
         title: "为建议所做的准备",
-        instruction: "以下陈述关于你与经理的第二次对话（你看完顾客反馈之后的那次）。请根据你实际的做法，选择你对每条陈述的同意程度。",
-        stem: "在与经理第二次对话之前，我……",
       },
       {
         title: "对经理回应原因的感知",
@@ -3303,10 +3299,10 @@
       VF4: "我利用对话中的机会，主动分享了自己的想法。",
       VF5: "我把自己的想法带进了对话，而不只是回答经理的问题。",
       VF6: "我反复提出了自己的建议和想法。",
-      VQ1: "尽量用手头的信息（比如入园记录、游客评论或位置信息）来支撑我可能提出的建议。",
-      VQ2: "努力思考了经理会有的实际顾虑，比如游客需求、可行性或园区运营。",
-      VQ3: "尽量预想了经理可能提出的问题或疑虑，以及我会怎么回答。",
-      VQ4: "努力想出了一个清晰、可执行的做法，而不只是一个笼统的想法。",
+      VQ1: "在与经理第二次对话之前，我尽量用手头的信息（比如入园记录、游客评论或位置信息）来支撑我可能提出的建议。",
+      VQ2: "在与经理第二次对话之前，我努力思考了经理会有的实际顾虑，比如游客需求、可行性或园区运营。",
+      VQ3: "在与经理第二次对话之前，我尽量预想了经理可能提出的问题或疑虑，以及我会怎么回答。",
+      VQ4: "在与经理第二次对话之前，我努力想出了一个清晰、可执行的做法，而不只是一个笼统的想法。",
       MR1: "经理受到了自己情绪的影响。",
       MR2: "经理想表现自己的权威。",
       MR3: "经理个人不喜欢我。",

@@ -96,7 +96,7 @@ Sections 1 and 2 are retrospective self-reports on the second manager conversati
 
 ### Shared instruction
 
-Displayed above each of the two sections:
+Displayed above Section 1 only, in bold red. Section 2 carries no instruction; its items each begin with the reference period instead.
 
 ```text
 The following statements are about the second conversation you had with the manager, the one after you had reviewed the customer feedback. Please indicate how much you agree with each statement about what you actually did.
@@ -134,27 +134,21 @@ I offered my own suggestions and ideas repeatedly.
 
 Voice quality improvement effort: effort directed at specific quality features of a suggestion. The four items map one to one onto the behavioural sub-scores in `code_voice_behavior.py` (evidence, concerns, clarification, actionable), so self-reported prepared quality and coded delivered quality can be compared.
 
-### Stem
-
-```text
-Before the second conversation with the manager, I...
-```
-
 #### VQ1
 
-tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details.
+Before the second conversation with the manager, I tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details.
 
 #### VQ2
 
-made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations.
+Before the second conversation with the manager, I made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations.
 
 #### VQ3
 
-tried to anticipate the questions or doubts the manager might raise, and how I would answer them.
+Before the second conversation with the manager, I tried to anticipate the questions or doubts the manager might raise, and how I would answer them.
 
 #### VQ4
 
-made an effort to work out a clear, actionable course of action rather than a general idea.
+Before the second conversation with the manager, I made an effort to work out a clear, actionable course of action rather than a general idea.
 
 ## Section 3: Perceived Reasons for Manager Response
 
@@ -337,7 +331,7 @@ Did anything about the interaction feel unusual or unexpected? Please describe b
 Page 2, an open question with a required text box. It says `in the chat` rather than naming the manager, so it does not point the participant at any one character.
 
 ```text
-Who or what do you think you were interacting with in the chat?
+Who do you think you were interacting with in the chat?
 ```
 
 Page 3 is the pilot's page, unchanged. Display the following text:

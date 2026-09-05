@@ -1459,7 +1459,7 @@ test("the AI check is a three-page funnel with the primed direct item last and u
   // The two open questions never mention AI, and the prime lives only on the direct page.
   const openPage = appSource.slice(appSource.indexOf("function renderAiCheckOpenPage"), appSource.indexOf("function handleAiCheckOpenSubmit"));
   assert.match(openPage, /Did anything about the interaction feel unusual or unexpected\? Please describe briefly\./);
-  assert.match(openPage, /Who or what do you think you were interacting with in the chat\?/);
+  assert.match(openPage, /Who do you think you were interacting with in the chat\?/);
   // Only what the participant can see: the question strings and the page markup. The internal
   // recordInteraction label says "AI check" and is never rendered.
   const visible = openPage
@@ -1577,14 +1577,24 @@ test("the second-conversation self-report is retrospective, gate-free, and align
   assert.doesNotMatch(sections, /university students|families with young children/i);
   // No status claim toward a superior.
   assert.doesNotMatch(sections, /lead(?:ing)? (?:role|contributor)/i);
-  // Quality is anchored to preparation, which is what makes it answerable by everyone.
-  assert.equal((sections.match(/stem: "Before the second conversation with the manager, I\.\.\."/g) || []).length, 1);
+  // Quality is anchored to preparation, which is what makes it answerable by everyone. The
+  // reference period is written into every quality item rather than shown once as a stem.
+  assert.doesNotMatch(sections, /stem: "/);
+  for (const id of ["VQ1", "VQ2", "VQ3", "VQ4"]) {
+    assert.match(sections, new RegExp(`id: "${id}", text: "Before the second conversation with the manager, I `), id);
+  }
+  const zhItems = appSource.slice(appSource.indexOf("const itemCopy = {"), appSource.indexOf("MR1:"));
+  for (const id of ["VQ1", "VQ2", "VQ3", "VQ4"]) {
+    assert.match(zhItems, new RegExp(`${id}: "在与经理第二次对话之前，我`), `zh ${id}`);
+  }
   assert.doesNotMatch(sections, /Effort Before the Second Conversation|id: "VE/);
   assert.doesNotMatch(appSource, /did you raise any suggestion or idea/i);
-  // Both second-conversation sections carry the bold red instruction, and the preparation stem is
-  // bold red too, so the reference period cannot be missed.
-  assert.equal((sections.match(/instructionEmphasis: true/g) || []).length, 2);
-  assert.equal((sections.match(/stemEmphasis: true/g) || []).length, 1);
+  // The bold red instruction is shown on the first page only; the second page has none, and an
+  // empty instruction renders no paragraph at all.
+  assert.equal((sections.match(/instructionEmphasis: true/g) || []).length, 1);
+  assert.equal((sections.match(/instruction: "/g) || []).length, 1);
+  assert.doesNotMatch(sections, /stemEmphasis/);
+  assert.match(appSource, /\$\{section\.instruction \? `<p class=/);
   assert.match(appSource, /class="\$\{section\.instructionEmphasis \? "survey-emphasis" : ""\}"/);
   assert.match(appSource, /survey-stem\$\{section\.stemEmphasis \? " survey-emphasis" : ""\}/);
   const css = fs.readFileSync(path.join(__dirname, "..", "styles.css"), "utf8");
