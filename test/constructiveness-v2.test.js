@@ -25,6 +25,7 @@ const {
   generateAiReply,
   managerConditionRules,
   MANAGER_ACK_FORBIDDEN,
+  lowPolitenessWordingProblem,
   decideInitialManagerDiscussion,
   NEUTRAL_CHAT_REGISTER_RULE,
   managerLengthOnlyRewriteCorrection,
@@ -1180,12 +1181,10 @@ test("manager closing runs the same blind semantic and per-message cue validatio
   }
 });
 
-test("a bare temporal cue misreported by the blind scorer does not reject an LP closing", async () => {
+test("a bare temporal cue is not scored as politeness, is rewritten once as a softener, and then tolerated", async () => {
   const originalFetch = global.fetch;
   const closingText = "That revision does not change the decision for now. This version is still sloppy, but the topic will be revisited later if the overall case changes enough.";
-  const queue = [
-    responseJson({ messages: [{ speaker: "Manager", text: closingText }] }),
-    responseJson({
+  const scoresFor = () => ({
       specific_problem: false,
       explicit_standard: false,
       actionable_remedy: false,
@@ -1203,7 +1202,12 @@ test("a bare temporal cue misreported by the blind scorer does not reject an LP 
         future_next_step: "the topic will be revisited later if the overall case changes enough",
         future_next_step_is_redressed: false,
       }],
-    }),
+    });
+  const queue = [
+    responseJson({ messages: [{ speaker: "Manager", text: closingText }] }),
+    responseJson(scoresFor()),
+    responseJson({ messages: [{ speaker: "Manager", text: closingText }] }),
+    responseJson(scoresFor()),
   ];
   const requestBodies = [];
   global.fetch = async (_url, options) => {
@@ -1214,7 +1218,12 @@ test("a bare temporal cue misreported by the blind scorer does not reject an LP 
     const result = await generateAiReply(managerPayload({ phase: "closing", condition: "LP_LC" }));
     assert.equal(result.ok, true);
     assert.equal(result.messages[0].text, closingText);
-    assert.equal(requestBodies.length, 2);
+    // generate, score, one softener rewrite, score again; then accepted with a warning
+    assert.equal(requestBodies.length, 4);
+    const rewritePrompt = JSON.stringify(requestBodies[2].input);
+    assert.match(rewritePrompt, /Wording correction required/);
+    assert.match(rewritePrompt, /'for now'/);
+    assert.ok(result.validation_warnings.includes("lp-temporal-softener-retained after one rewrite"));
     const evaluatorPrompt = JSON.stringify(requestBodies[1].input);
     assert.match(evaluatorPrompt, /'for now', 'today', and 'currently' only locate the current decision in time/i);
     assert.match(evaluatorPrompt, /Never list 'for now', 'today', or 'currently' alone as a politeness cue/i);
@@ -1698,6 +1707,10 @@ test("the discussion decision is made once, guarded on the server, and drives th
 
 test("a second-conversation reply overtaken by a newer message is discarded and the queue is always drained", () => {
   const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  // The discard note is logged under a non-chat stage: chat-stage system rows are replayed as
+  // notes when a refreshed session restores its transcript.
+  assert.match(appSource, /recordInteraction\("diagnostic", "system", `Discarded a \$\{request\.phase\} reply/);
+  assert.doesNotMatch(appSource, /restoredChatStageNames[\s\S]{0,400}"diagnostic"/);
   // sendAiMessages honours abortIf after the reply arrives and before anything is shown.
   assert.match(appSource, /if \(typeof request\.abortIf === "function" && request\.abortIf\(\)\) \{[\s\S]*?return "aborted";/);
   assert.match(appSource, /const \{ acknowledge: _acknowledge, abortIf: _abortIf, \.\.\.requestFields \} = request;/);
@@ -1711,4 +1724,29 @@ test("a second-conversation reply overtaken by a newer message is discarded and 
   assert.ok((handler.match(/drainPending\(\)/g) || []).length >= 6, "queue must be drained on every path");
   // A discarded prompt does not consume the one-time prompt allowance.
   assert.match(handler, /if \(promptSent === "aborted"\) \{\s*\n[^\n]*\n\s*state\.neutralNoSubstancePrompted = false;/);
+});
+
+test("a closing is re-checked after its typing delay, a failed request does not strand the queue, and page answers are recorded", () => {
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const sendDelayed = appSource.slice(appSource.indexOf("async function sendDelayed("), appSource.indexOf("async function sendAiMessages("));
+  assert.match(sendDelayed, /if \(typeof opts\.abortIf === "function" && opts\.abortIf\(\)\) \{\s*\n\s*state\.busy = false;\s*\n\s*return false;\s*\n\s*\}\s*\n\s*addMessage\(speaker, className, text\);/);
+  assert.match(appSource, /abortIf: request\.abortIf,\s*\n\s*\}\);\s*\n\s*if \(shown === false\)/);
+  assert.match(appSource, /Discarded a \$\{request\.phase\} reply superseded during its typing delay/);
+  const handler = appSource.slice(appSource.indexOf("async function handleNeutralManagerInput(text)"), appSource.indexOf("function showNeutralProceedChoice()"));
+  assert.doesNotMatch(handler, /if \(!(?:promptSent|sent)\) return;/, "every failure branch must drain the queue");
+  assert.ok((handler.match(/if \(!(?:promptSent|sent)\) \{\s*\n[^}]*drainPending\(\);/g) || []).length >= 4);
+  assert.match(appSource, /`survey page \$\{index \+ 1\} submitted: \$\{JSON\.stringify\(pageAnswers\)\}`/);
+});
+
+test("low-politeness temporal softeners are rewritten once, then tolerated with a warning", () => {
+  const lp = buildInitialManagerPrompt(managerPayload({ condition: "LP_HC" }));
+  const hp = buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" }));
+  const msg = (a, b) => [{ speaker: "Manager", text: a }, { speaker: "Manager", text: b }];
+  assert.equal(lowPolitenessWordingProblem(msg("I won't approve ten temps; that estimate is a guess.", "Queue length shows pressure, not staffing need."), lp), "");
+  assert.match(lowPolitenessWordingProblem(msg("I won't approve ten temps for now; that estimate is a guess.", "Right now the basis is too thin."), lp), /'for now', 'right now'/);
+  // High politeness may hedge in time; the check is a low-politeness rule only.
+  assert.equal(lowPolitenessWordingProblem(msg("I can't approve this for now.", "Perhaps later."), hp), "");
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(serverSource, /if \(!softenerRewriteAttempted\) \{\s*\n\s*softenerRewriteAttempted = true;\s*\n\s*correction = softenerProblem;\s*\n\s*continue;/);
+  assert.match(serverSource, /validationWarnings\.push\("lp-temporal-softener-retained after one rewrite"\)/);
 });

@@ -2155,7 +2155,11 @@
           drainPending();
           return;
         }
-        if (!promptSent) return;
+        if (!promptSent) {
+          // The failure notice is shown; a message queued meanwhile still gets its own turn.
+          drainPending();
+          return;
+        }
         drainPending();
         return;
       }
@@ -2170,7 +2174,10 @@
         drainPending();
         return;
       }
-      if (!sent) return;
+      if (!sent) {
+        drainPending();
+        return;
+      }
       showNeutralProceedChoice();
       return;
     }
@@ -2189,7 +2196,10 @@
         drainPending();
         return;
       }
-      if (!sent) return;
+      if (!sent) {
+        drainPending();
+        return;
+      }
       showNeutralProceedChoice();
       return;
     }
@@ -2201,7 +2211,10 @@
       alexMessage: text,
     });
     state.managerTurnActive = false;
-    if (!sent) return;
+    if (!sent) {
+      drainPending();
+      return;
+    }
     // If the participant typed ahead while the manager was replying, handle it next.
     if (drainPending()) return;
     // The manager wraps up early once it judges it has enough (e.g. the
@@ -2377,9 +2390,15 @@
       return;
     }
 
-    for (const id of ids) state.surveyAnswers[id] = form.elements[id].value;
+    const pageAnswers = {};
+    for (const id of ids) {
+      state.surveyAnswers[id] = form.elements[id].value;
+      pageAnswers[id] = form.elements[id].value;
+    }
     participant.survey_draft = JSON.stringify(state.surveyAnswers);
-    recordInteraction("post_interaction_survey", "alex", `survey page ${index + 1} submitted`, "");
+    // The answers travel with the event, so the server holds every completed page even if the
+    // participant abandons the survey before the final submit that writes the survey row.
+    recordInteraction("post_interaction_survey", "alex", `survey page ${index + 1} submitted: ${JSON.stringify(pageAnswers)}`, "");
 
     if (index < surveySections.length - 1) {
       participant.survey_page = String(index + 1);
@@ -2629,8 +2648,17 @@
     } else {
       await showTypingBeforeMessage(speaker, className, text, ms || responseDelayForText(text));
     }
+    // Checked again here, after the typing delay: a message the participant sends during that
+    // delay can make a closing moot just as much as one sent during generation. Without this the
+    // closing landed, the proceed panel disabled the composer, and the queued message was never
+    // answered.
+    if (typeof opts.abortIf === "function" && opts.abortIf()) {
+      state.busy = false;
+      return false;
+    }
     addMessage(speaker, className, text);
     state.busy = false;
+    return true;
   }
 
   async function sendAiMessages(request) {
@@ -2668,7 +2696,9 @@
     // suggestion, and the suggestion itself was being dropped. The caller decides what counts as
     // moot; a discarded reply is reported as "aborted" so the caller can act on the newer message.
     if (typeof request.abortIf === "function" && request.abortIf()) {
-      recordInteraction(currentStage(), "system", `Discarded a ${request.phase} reply superseded by a newer participant message.`, "");
+      // Logged under a diagnostic stage, not the chat stage: chat-stage system rows are replayed as
+      // notes when a refreshed session restores its transcript, and this must never be seen.
+      recordInteraction("diagnostic", "system", `Discarded a ${request.phase} reply superseded by a newer participant message.`, "");
       return "aborted";
     }
     const initialRejectionPair =
@@ -2686,11 +2716,16 @@
       } else if (isCoworkerClass(className)) {
         delayMs = coworkerResponseDelay(displayText, previousCoworkerText);
       }
-      await sendDelayed(displaySpeaker, className, displayText, delayMs, {
+      const shown = await sendDelayed(displaySpeaker, className, displayText, delayMs, {
         closing: request.phase === "closing",
         postValidation: validatedManagerTurn && messageIndex === 0,
         interMessage: initialRejectionPair && messageIndex > 0,
+        abortIf: request.abortIf,
       });
+      if (shown === false) {
+        recordInteraction("diagnostic", "system", `Discarded a ${request.phase} reply superseded during its typing delay.`, "");
+        return "aborted";
+      }
       if (isCoworkerClass(className)) previousCoworkerText = displayText;
     }
     return result.messages.length > 0;

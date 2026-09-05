@@ -945,6 +945,7 @@ async function generateAiReply(payload, options = {}) {
     let lastBlindScores = null;
     let cueTrimCorrectionAttempted = false;
     let lengthOnlyRewriteAttempts = 0;
+    let softenerRewriteAttempted = false;
     let closingBlindRewriteAttempted = false;
     let validationWarnings = [];
     // Hard validation keeps the usual two-regeneration ceiling. Additional passes are reachable
@@ -1291,6 +1292,15 @@ async function generateAiReply(payload, options = {}) {
           lastConstructiveness,
           lastBlindScores,
         );
+      }
+      const softenerProblem = lowPolitenessWordingProblem(lastMessages, prompt);
+      if (softenerProblem) {
+        if (!softenerRewriteAttempted) {
+          softenerRewriteAttempted = true;
+          correction = softenerProblem;
+          continue;
+        }
+        validationWarnings.push("lp-temporal-softener-retained after one rewrite");
       }
       const lengthProblem = shouldEnforceManagerLength(prompt, lastIntent)
         ? managerLengthProblem(lastMessages, prompt)
@@ -3503,6 +3513,30 @@ function compressOneEnglishManagerPhrase(message) {
   return false;
 }
 
+// The low-politeness prompt bans temporal softeners ("for now", "right now"), but nothing enforced
+// it: those words are not politeness cues, so the blind scorer never saw a violation. One bounded
+// rewrite removes them; if the model still uses one, the reply goes out and the slip is recorded as
+// a validation warning rather than shown to the participant as a connection error.
+const LOW_POLITENESS_SOFTENERS = /\b(?:for now|right now|at this point|at the moment|currently|this season|for the time being|at present)\b/gi;
+
+function lowPolitenessWordingProblem(messages, prompt) {
+  if (!prompt || prompt.kind !== "manager1" || prompt.language !== "en") return "";
+  if (!String(prompt.condition || "").startsWith("LP_")) return "";
+  if (!["rejection_initial", "rejection_followup", "rejection", "closing"].includes(prompt.phase)) return "";
+  const text = (Array.isArray(messages) ? messages : [])
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || ""))
+    .join(" ");
+  const found = [...new Set((text.match(LOW_POLITENESS_SOFTENERS) || []).map((hit) => hit.toLowerCase()))];
+  if (!found.length) return "";
+  return [
+    "Wording correction required.",
+    `The previous Manager messages used the temporal softener(s) ${found.map((hit) => `'${hit}'`).join(", ")}, which low politeness does not allow: they locate the refusal in time and soften it.`,
+    "Rewrite the same messages with those words removed and nothing added in their place. Keep the refusal, the judgement of the proposal, every substantive element, the message count, and the length the same.",
+    "Return only valid JSON.",
+  ].join(" ");
+}
+
 function managerSafetyProblem(messages, prompt) {
   if (!prompt || prompt.kind !== "manager1") return "";
   if (!["rejection_initial", "rejection_followup", "rejection", "closing"].includes(prompt.phase)) return "";
@@ -4317,6 +4351,7 @@ module.exports = {
   generateAiReply,
   managerConditionRules,
   MANAGER_ACK_FORBIDDEN,
+  lowPolitenessWordingProblem,
   NEUTRAL_CHAT_REGISTER_RULE,
   managerLengthOnlyRewriteCorrection,
   managerSmallLengthOvershoot,
