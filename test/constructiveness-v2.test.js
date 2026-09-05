@@ -549,12 +549,24 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   assert.match(rules.LP_HC, /substantive problem, decision consideration, and revision path equivalent to HP_HC/i);
   assert.match(rules.HP_LC, /vague substantive content equivalent to LP_LC/i);
   assert.match(rules.LP_LC, /vague substantive content equivalent to HP_LC/i);
-  assert.match(rules.LP_HC, /Keep the face threat proposal-focused/i);
+  assert.match(rules.LP_HC, /The edge goes to the idea, never to the person/i);
   assert.match(rules.HP_HC, /Positive politeness addresses/i);
   assert.match(rules.HP_HC, /Negative politeness addresses/i);
   assert.match(rules.LP_HC, /Do no positive politeness/i);
   assert.match(rules.LP_HC, /Do no negative politeness/i);
-  assert.match(rules.LP_HC, /Do not say or imply that the participant is stupid, incompetent/i);
+  assert.match(rules.LP_HC, /Never criticise the person\. Nothing about their intelligence, competence, effort, attitude, judgement, experience, seniority, or character/i);
+  // The moderate setting: one pointed judgement per message with an edge, a cold register, and no
+  // temporal softeners; no dismissal of the contribution and no impatience about the person's time.
+  for (const condition of ["LP_HC", "LP_LC"]) {
+    assert.match(rules[condition], /one freshly worded, flat sharp judgement of the proposal per message/i);
+    assert.match(rules[condition], /No metaphors, quips, wordplay, or rhetorical questions/i);
+    assert.match(rules[condition], /Never a temporal softener: no 'for now', 'at this point', 'right now'/i);
+    assert.doesNotMatch(rules[condition], /not worth (?:the|my) time|not reading further|more of my time than it deserves/i);
+    assert.match(rules[condition], /no remarks about their pay, rating, or job/i);
+  }
+  for (const condition of ["HP_HC", "HP_LC"]) {
+    assert.doesNotMatch(rules[condition], /flat sharp judgement/i);
+  }
   // HC must identify a proposal-specific evidence gap and analysis rather than repeatedly asking
   // every proposal for the same visitor-flow, staffing, or cost data.
   for (const condition of ["HP_HC", "LP_HC"]) {
@@ -592,7 +604,7 @@ test("politeness rules preserve content equivalence and keep LP criticism propos
   // Repeating the refusal is what pushed the warm cell into face-threat territory.
   assert.match(rules.HP_LC, /Spend the remaining length on that and on the other general talk, not on saying no again/i);
   assert.match(rules.HP_LC, /State the refusal once and then stop refusing/i);
-  assert.match(rules.LP_LC, /Spend the remaining length on that and on neutral restatement/i);
+  assert.match(rules.LP_LC, /Spend the remaining length on that and on curt restatement/i);
   assert.doesNotMatch(rules.LP_LC, /State the refusal once and then stop refusing/i);
   for (const condition of ["HP_LC", "LP_LC"]) {
     assert.match(rules[condition], /keep exactly the same number of politeness or dismissiveness cues/i);

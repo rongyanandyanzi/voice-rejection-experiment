@@ -165,7 +165,7 @@ Negative politeness addresses their wish not to be imposed upon: apologising for
 
 High politeness uses one redressive move per message and varies which kind it draws on. Receipt-of-message phrases such as `I hear you` or `noted` do not count: they acknowledge without performing any face work.
 
-Low politeness performs neither kind, states the refusal in the manager's own voice, and attaches one face threat to the proposal per message. The threat targets the proposal, never the participant's intelligence, competence, or worth.
+Low politeness performs neither kind, states the refusal in the manager's own voice, and attaches one flat sharp judgement of the proposal per message, stated plainly (too thin; no basis; a guess; not ready) with no metaphors, quips, or rhetorical questions; the impoliteness is in the coldness and the absence of any softener, not in wit. The register is cold and short, with no temporal softeners (for now, at this point, right now). The threat goes to the proposal, never to the person: nothing about intelligence, competence, effort, attitude, judgement, experience, seniority, or character, no sarcasm at them, no insults, no remarks about pay, rating, or job. A reply the blind scorer judges to attack the person is regenerated.
 
 The quota is per message rather than per turn. The first rejection is two messages, and one move for the pair left the second reading as pure business.
 
@@ -203,7 +203,7 @@ It does not use:
 * Apology.
 * Warmth, deference, or hedging.
 
-The face threat targets the proposal and uses exactly one sharp cue per message. The generator creates that judgment from the current exchange rather than selecting a stock readiness phrase. Attacks on the participant are prohibited.
+The face threat targets the proposal and uses exactly one flat sharp cue per message, composed fresh from the current exchange rather than drawn from a stock list. Attacks on the participant are prohibited and cause regeneration.
 
 Low politeness does not need to add a next-step line. In LP HC, the required concrete remedy is stated directly without redress as a complete subject-led sentence rather than a clipped command. Its wording varies naturally with the proposal instead of following a fixed template. In LP LC, no command is added merely to sound blunt; if future handling is mentioned naturally, it stays direct, vague, and non-actionable.
 
