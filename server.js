@@ -343,6 +343,51 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/api/discussion-intent") {
+    // Returns only the decision (awaiting_proposal, ask_followup, reject_now), so the browser
+    // knows about seven seconds in whether a rejection is coming and can have the manager say
+    // "give me a moment" then, rather than guessing from a clock. Total time is unchanged: the
+    // classifier runs once here and the reply request that follows does not run it again.
+    const payload = await readJson(req);
+    const requestStartedAt = Date.now();
+    const requestTime = new Date(requestStartedAt).toISOString();
+    let result;
+    try {
+      result = await decideInitialManagerDiscussion(payload);
+    } catch (error) {
+      result = {
+        ok: false,
+        status: 500,
+        retryable: true,
+        error: "Unable to decide the next manager step.",
+        cause: error && error.message ? error.message : String(error || ""),
+      };
+    }
+    if (!result.ok) {
+      logAiFailure("discussion-intent", { ...result, stage: "manager1", phase: "discussion_decision" });
+    }
+    try {
+      recordChatIntentCheck(
+        { ...payload, stage: "manager1", phase: "discussion_decision", text: payload && payload.alexMessage },
+        result,
+        requestStartedAt,
+        requestTime,
+        result.ok ? "openai_semantic" : "openai_semantic_error",
+      );
+    } catch (error) {
+      logAiFailure("discussion-intent-log-write", {
+        status: 500,
+        retryable: false,
+        stage: "manager1",
+        phase: "discussion_decision",
+        error: "Unable to persist discussion decision diagnostics.",
+        cause: error && error.message ? error.message : String(error || ""),
+      });
+    }
+    sendJson(res, result, result.ok ? 200 : result.status || 500);
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/api/chat-intent-check") {
     const payload = await readJson(req);
     const requestStartedAt = Date.now();
@@ -857,19 +902,28 @@ async function generateAiReply(payload, options = {}) {
   let effectivePayload = payload || {};
   let resolvedDiscussionIntent = "";
   if (signal && signal.aborted) return aiPipelineAbortResult(signal);
-  if (String(effectivePayload.stage || "") === "manager1" && String(effectivePayload.phase || "") === "discussion") {
-    const classification = await classifyInitialManagerDiscussion(effectivePayload, signal);
+  const isManager1 = String(effectivePayload.stage || "") === "manager1";
+  if (isManager1 && String(effectivePayload.phase || "") === "discussion") {
+    // Combined path: decide and generate in one request. The browser uses this only as a fallback
+    // when its separate decision request failed.
+    const decision = await decideInitialManagerDiscussion(effectivePayload, signal);
     if (signal && signal.aborted) return aiPipelineAbortResult(signal);
-    if (!classification.ok) return classification;
-    resolvedDiscussionIntent = classification.intent;
-    if (resolvedDiscussionIntent === "reject_now" && Number(effectivePayload.followupsAsked || 0) === 0) {
-      resolvedDiscussionIntent = "ask_followup";
-    }
+    if (!decision.ok) return decision;
+    resolvedDiscussionIntent = decision.intent;
     effectivePayload = {
       ...effectivePayload,
       phase: resolvedDiscussionIntent === "reject_now" ? "rejection_initial" : "discussion_neutral",
       discussionIntent: resolvedDiscussionIntent,
     };
+  } else if (
+    isManager1 &&
+    String(effectivePayload.phase || "") === "discussion_neutral" &&
+    ["awaiting_proposal", "ask_followup"].includes(String(effectivePayload.discussionIntent || ""))
+  ) {
+    // Decision-first path: the browser already holds the decision from /api/discussion-intent and
+    // asks for the neutral turn directly. Nothing is classified again, so the reply cannot
+    // contradict what the browser has already acted on.
+    resolvedDiscussionIntent = String(effectivePayload.discussionIntent);
   }
 
   const prompt = buildAiPrompt(effectivePayload);
@@ -1359,6 +1413,20 @@ function withAiValidationFailure(failure, kind, cause, messages, constructivenes
       blind_scores: blindScores && typeof blindScores === "object" ? blindScores : null,
     },
   };
+}
+
+// The one place that turns the classifier's answer into the decision the rest of the system acts on.
+// Used both inside /api/ai-reply and by the /api/discussion-intent endpoint the browser calls first,
+// so the guard below cannot be bypassed by asking for the decision separately: a browser can never
+// obtain reject_now before at least one follow-up has been asked.
+async function decideInitialManagerDiscussion(payload, signal) {
+  const classification = await classifyInitialManagerDiscussion(payload, signal);
+  if (!classification.ok) return classification;
+  let intent = classification.intent;
+  if (intent === "reject_now" && Number(payload && payload.followupsAsked || 0) === 0) {
+    intent = "ask_followup";
+  }
+  return { ok: true, intent };
 }
 
 async function classifyInitialManagerDiscussion(payload, signal) {
@@ -4238,6 +4306,7 @@ module.exports = {
   classifyChatIntentResponse,
   chatIntentConfig,
   classifyInitialManagerDiscussion,
+  decideInitialManagerDiscussion,
   generateAiReply,
   managerConditionRules,
   MANAGER_ACK_FORBIDDEN,

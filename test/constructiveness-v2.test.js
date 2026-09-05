@@ -25,6 +25,7 @@ const {
   generateAiReply,
   managerConditionRules,
   MANAGER_ACK_FORBIDDEN,
+  decideInitialManagerDiscussion,
   NEUTRAL_CHAT_REGISTER_RULE,
   managerLengthOnlyRewriteCorrection,
   managerSmallLengthOvershoot,
@@ -925,7 +926,8 @@ test("the manager acknowledges receipt while generating, then types naturally", 
   // saying something a person would say instead of by an invented status widget.
   assert.doesNotMatch(appSource, /showManagerHoldingIndicator|Manager is reviewing your message/);
   assert.match(appSource, /async function runManagerWaitPresence\(replyPromise\)/);
-  assert.match(appSource, /const presence = acknowledgeableTurn \? runManagerWaitPresence\(replyPromise\) : null/);
+  // Known rejection turns acknowledge immediately; everything else falls back to the clock.
+  assert.match(appSource, /if \(request\.acknowledge\) presence = postManagerAcknowledgement\(\);\s*\n\s*else if \(acknowledgeableTurn\) presence = runManagerWaitPresence\(replyPromise\);/);
   // A closing is a sign-off, not deliberation, so it is never acknowledged however long it takes.
   assert.match(
     appSource,
@@ -938,8 +940,7 @@ test("the manager acknowledges receipt while generating, then types naturally", 
   assert.match(appSource, /addMessage\("Manager", "manager", pickManagerAckLine\(\)\)/);
   // Generated per session rather than shipped as one script every participant sees.
   assert.match(appSource, /fetch\("\/api\/manager-ack-lines"/);
-  // Nothing should key off the phase: the first rejection arrives on a "discussion" request whenever
-  // the model decides reject_now inside that turn, which is the longest wait in the study.
+  // The phase is no longer guessed from the clock alone: the browser asks for the decision first.
   assert.doesNotMatch(appSource, /acknowledgedManagerTurn/);
   // The wait is silent. Neutral follow-ups finish in 5-12 seconds and must pass with no
   // acknowledgement at all; only a wait past twenty seconds, which in practice is the turn that
@@ -951,8 +952,8 @@ test("the manager acknowledges receipt while generating, then types naturally", 
   // lines is the tell this sequence exists to remove.
   assert.match(
     appSource,
-    /if \(settled\) return;\s*\n\s*const typingIndicator = showTypingIndicator\("Manager", "manager"\);/,
-    "the typing indicator may only appear after the threshold has already passed",
+    /await Promise\.race\(\[tracked, delay\(MANAGER_ACK_THRESHOLD_MS\)\]\);\s*\n\s*if \(settled\) return;\s*\n\s*await postManagerAcknowledgement\(\);/,
+    "the fallback may only speak after the threshold has already passed",
   );
   const ackBlock = appSource.slice(
     appSource.indexOf("const MANAGER_ACK_FALLBACK_EN"),
@@ -1561,4 +1562,114 @@ test("a second-conversation wrap-up that keeps the chat going or reads stage dir
   assert.match(neutralManagerClosingProblem(msg("What else would the events involve?"), question, "enough"), /asked a question/);
   assert.equal(neutralManagerClosingProblem(msg("What else would the events involve?"), question, "ask_more"), "");
   assert.equal(question.phase, "question");
+});
+
+test("the second-conversation self-report is retrospective, gate-free, and aligned across languages", () => {
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const sections = appSource.slice(appSource.indexOf("const surveySections = ["), appSource.indexOf('title: "Perceived Reasons for Manager Response"'));
+  // Past tense only: no future-tense intention item survives in sections 1-3.
+  assert.doesNotMatch(sections, /text: "I will\b/);
+  assert.doesNotMatch(sections, /Before receiving the manager's feedback/);
+  for (const id of ["VF1", "VF2", "VF3", "VF4", "VF5", "VF6", "VQ1", "VQ2", "VQ3", "VQ4"]) {
+    assert.match(sections, new RegExp(`id: "${id}"`), id);
+  }
+  // Proposal-specific content is gone, so any proposal can be reported on.
+  assert.doesNotMatch(sections, /university students|families with young children/i);
+  // No status claim toward a superior.
+  assert.doesNotMatch(sections, /lead(?:ing)? (?:role|contributor)/i);
+  // Quality is anchored to preparation, which is what makes it answerable by everyone.
+  assert.equal((sections.match(/stem: "Before the second conversation with the manager, I\.\.\."/g) || []).length, 1);
+  assert.doesNotMatch(sections, /Effort Before the Second Conversation|id: "VE/);
+  assert.doesNotMatch(appSource, /did you raise any suggestion or idea/i);
+  // Both second-conversation sections carry the bold red instruction, and the preparation stem is
+  // bold red too, so the reference period cannot be missed.
+  assert.equal((sections.match(/instructionEmphasis: true/g) || []).length, 2);
+  assert.equal((sections.match(/stemEmphasis: true/g) || []).length, 1);
+  assert.match(appSource, /class="\$\{section\.instructionEmphasis \? "survey-emphasis" : ""\}"/);
+  assert.match(appSource, /survey-stem\$\{section\.stemEmphasis \? " survey-emphasis" : ""\}/);
+  const css = fs.readFileSync(path.join(__dirname, "..", "styles.css"), "utf8");
+  assert.match(css, /\.survey-emphasis \{[^}]*color: #[0-9a-f]{6};[^}]*font-weight: 700;/i);
+  // The Chinese copy is applied by section index, so it must have exactly as many entries.
+  const englishCount = (sections.match(/title: "/g) || []).length;
+  assert.equal(englishCount, 2);
+  const zh = appSource.slice(appSource.indexOf("const sectionCopy = ["), appSource.indexOf("const itemCopy = {"));
+  const zhFirstThree = zh.slice(0, zh.indexOf('title: "对经理回应原因的感知"'));
+  assert.equal((zhFirstThree.match(/title:/g) || []).length, englishCount, "zh section copy must stay index-aligned");
+  const itemCopy = appSource.slice(appSource.indexOf("const itemCopy = {"), appSource.indexOf("MR1:"));
+  for (const id of ["VF5", "VQ1", "VQ4"]) assert.match(itemCopy, new RegExp(`${id}: "`), `zh ${id}`);
+  assert.doesNotMatch(itemCopy, /VE[1-4]:/);
+  // Recorded columns: the quality items run straight into the attribution items.
+  const i = surveyResponseColumns.indexOf("VQ4");
+  assert.deepEqual(surveyResponseColumns.slice(i, i + 2), ["VQ4", "MR1"]);
+  assert.ok(!surveyResponseColumns.some((column) => /^VE\d$/.test(column)));
+});
+
+test("the survey is one section per page, validated per page, with no way back and a resumable draft", () => {
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(appSource, /function renderSurveyPage\(index\)/);
+  assert.match(appSource, /function handleSurveyPageSubmit\(event, index\)/);
+  assert.doesNotMatch(appSource, /function handleSurveySubmit\(/);
+  // One section rendered per page, not the whole list.
+  assert.match(appSource, /\$\{renderSurveySection\(section\)\}/);
+  assert.doesNotMatch(appSource, /surveySections\.map\(renderSurveySection\)/);
+  // Continue until the last page, then Submit; no back control anywhere in the survey.
+  assert.match(appSource, /isLast \? inZh\("Submit", "提交"\) : inZh\("Continue", "继续"\)/);
+  const survey = appSource.slice(appSource.indexOf("function surveySectionItemIds"), appSource.indexOf("// The suspicion probe is a funnel."));
+  assert.doesNotMatch(survey, /Back<\/button>|survey-back|history\.back/i);
+  // Validation is scoped to the page's own items.
+  assert.match(survey, /const ids = surveySectionItemIds\(surveySections\[index\]\);\s*\n\s*const missingResponse = ids\.some/);
+  // The row is posted once, from the accumulated answers, with every item present.
+  assert.match(survey, /for \(const id of surveyItemIds\) \{\s*\n\s*responses\[id\] = state\.surveyAnswers\[id\];/);
+  assert.match(survey, /postJson\("\/survey", responses\)/);
+  assert.equal((survey.match(/postJson\("\/survey"/g) || []).length, 1);
+  // Draft and page index persist on the participant record and are cleared on completion.
+  assert.match(appSource, /survey_page: storedSession\.survey_page \|\| ""/);
+  assert.match(appSource, /survey_draft: storedSession\.survey_draft \|\| ""/);
+  assert.match(survey, /participant\.survey_draft = JSON\.stringify\(state\.surveyAnswers\)/);
+  assert.match(survey, /participant\.survey_page = "";\s*\n\s*participant\.survey_draft = "";/);
+  // Start time is kept on resume rather than reset.
+  assert.match(survey, /const resuming = participant\.survey_completion_status === "partial" && Boolean\(participant\.survey_start_time\)/);
+});
+
+test("the discussion decision is made once, guarded on the server, and drives the acknowledgement", async () => {
+  // Server: the guard lives in the decision itself.
+  const originalFetch = global.fetch;
+  global.fetch = async () => responseJson({ intent: "reject_now" });
+  try {
+    const early = await decideInitialManagerDiscussion({ alexMessage: "Hire temps for the peak.", history: [], followupsAsked: 0, language: "en" });
+    assert.deepEqual(early, { ok: true, intent: "ask_followup" });
+    const later = await decideInitialManagerDiscussion({ alexMessage: "Hire temps for the peak.", history: [], followupsAsked: 1, language: "en" });
+    assert.deepEqual(later, { ok: true, intent: "reject_now" });
+  } finally {
+    global.fetch = originalFetch;
+  }
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.match(serverSource, /req\.url === "\/api\/discussion-intent"/);
+  // The combined path and the decision endpoint share the one decision function.
+  assert.equal((serverSource.match(/await decideInitialManagerDiscussion\(/g) || []).length, 2);
+  // A neutral turn requested with a decision attached is not classified again.
+  assert.match(serverSource, /String\(effectivePayload\.phase \|\| ""\) === "discussion_neutral" &&\s*\n\s*\["awaiting_proposal", "ask_followup"\]\.includes/);
+
+  // Browser: decide first, then act on the decision; acknowledge immediately on reject_now.
+  const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(appSource, /async function getDiscussionIntent\(text\)/);
+  assert.match(appSource, /fetchWithTimeout\(`\$\{dataEndpoint\}\/discussion-intent`/);
+  const branch = appSource.slice(appSource.indexOf("const decision = await getDiscussionIntent(text);"), appSource.indexOf("if (state.managerRejected) {", appSource.indexOf("const decision = await getDiscussionIntent(text);")));
+  assert.match(branch, /if \(decision === "reject_now"\) \{[\s\S]*?phase: "rejection_initial",[\s\S]*?acknowledge: true,/);
+  assert.match(branch, /else if \(decision === "unknown"\) \{[\s\S]*?phase: "discussion",/);
+  assert.match(branch, /else \{[\s\S]*?phase: "discussion_neutral",\s*\n\s*discussionIntent: decision,/);
+  // Counters use the decision, not the reply's intent, because the rejection path returns none.
+  assert.match(branch, /const intent = decision === "unknown" \? state\.lastAiIntent : decision;/);
+  // The immediate acknowledgement bypasses the clock; the clock remains only as the fallback.
+  assert.match(appSource, /if \(request\.acknowledge\) presence = postManagerAcknowledgement\(\);\s*\n\s*else if \(acknowledgeableTurn\) presence = runManagerWaitPresence\(replyPromise\);/);
+  assert.match(appSource, /async function postManagerAcknowledgement\(\)/);
+  // The line set is fetched when the manager chat opens, so the first acknowledgement is not
+  // delayed by generating its own wording.
+  const managerChat = appSource.slice(appSource.indexOf("async function renderManagerChat()"), appSource.indexOf("function createChat"));
+  assert.match(managerChat, /createChat\([^\n]*\);\s*\n(?:\s*\/\/[^\n]*\n)*\s*loadManagerAckLines\(\);/);
+  // The backstop rejection after the follow-up cap is also known in advance.
+  const backstop = appSource.slice(appSource.indexOf("const reachedFollowupCap"), appSource.indexOf("const decision = await getDiscussionIntent(text);"));
+  assert.match(backstop, /phase: "rejection_initial",[\s\S]*?acknowledge: true,/);
+  // The client-only flag never reaches the server payload.
+  assert.match(appSource, /const \{ acknowledge: _acknowledge, \.\.\.requestFields \} = request;/);
 });

@@ -504,6 +504,12 @@ textarea {
   font-weight: 700;
 }
 
+.survey-progress {
+  color: var(--muted);
+  font-size: 13px;
+  margin: -6px 0 14px;
+}
+
 .survey-emphasis {
   color: #c72828;
   font-weight: 700;

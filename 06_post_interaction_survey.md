@@ -69,7 +69,9 @@ Use the following 1-5 Likert scale for all survey items:
 
 ## Survey Layout
 
-The survey should be presented in a Qualtrics-style matrix format.
+The survey is presented one section per page, in the order the sections are listed below, with a `Page X of N` line under the title. Each page shows that section's title, instruction, stem if it has one, and its matrix. The button reads `Continue` on every page but the last, where it reads `Submit`. A page cannot be left until every item on it is answered. There is no way back to an earlier page. Answers are held in a local draft so that a refresh resumes on the same page; the survey row is posted once, when the last page is submitted. `survey_start_time` is when the first page was shown and `survey_submit_time` is when the last page was submitted; each page shown and each page submitted is also recorded in interactions.csv.
+
+Within a page, the section is presented in a Qualtrics-style matrix format.
 
 For each section:
 
@@ -80,7 +82,7 @@ For each section:
 - Use radio buttons for responses.
 - Each row should allow only one response.
 - Every item should be required.
-- The participant should not be able to submit or continue until all items are answered.
+- The participant should not be able to continue until all items on the current page are answered.
 
 Recommended column labels:
 
@@ -88,69 +90,71 @@ Recommended column labels:
 
 For small screens, the layout should remain readable. If needed, use a mobile-friendly layout where each item is shown with five radio options underneath.
 
-## Section 1: Future Communication Intentions
+## Sections 1 and 2: The Second Conversation
 
-### Section Title
+Sections 1 and 2 are retrospective self-reports on the second manager conversation. They replace the earlier future-tense intention items, which were shown after that conversation had already taken place. Every item can be answered by a participant who raised nothing: the frequency items then attract disagreement, and the quality items are anchored to the preparation phase. No gate question is used and no item is skipped.
 
-Future Communication Intentions
+### Shared instruction
 
-### Instruction
+Displayed above each of the two sections:
 
-Before receiving the manager's feedback, please indicate your next steps and how you intend to proceed with your proposal.
+```text
+The following statements are about the second conversation you had with the manager, the one after you had reviewed the customer feedback. Please indicate how much you agree with each statement about what you actually did.
+```
 
-### Items
+## Section 1: Raising Ideas in the Second Conversation
+
+Voice frequency.
 
 #### VF1
 
-I will take the initiative multiple times to propose specific improvements for attracting more visitors during off-season weekdays.
+I proposed specific improvements to the manager more than once.
 
 #### VF2
 
-I will make a point to suggest new ways to attract nearby university students.
+I made a point of raising new ideas about the visitor issue with the manager.
 
 #### VF3
 
-Even if the manager seems dismissive, I will persist in communicating my alternative views on how the park can improve off-season weekday attendance.
+Even when the manager seemed unresponsive, I kept putting forward my views.
 
 #### VF4
 
-I will take every opportunity during the session to share proactive ideas on expanding the park's visitor base beyond families with young children.
+I used the opportunities in the conversation to share my ideas proactively.
 
 #### VF5
 
-I will be a lead contributor throughout the discussion regarding how to attract nearby university students and make better use of the park's surrounding environment.
+I brought my own ideas into the conversation rather than only answering the manager's questions.
 
 #### VF6
 
-I will repeatedly offer my own constructive suggestions and ideas to improve the park's visitor strategy during off-season weekdays.
+I offered my own suggestions and ideas repeatedly.
 
-## Section 2: Proposal Preparation Intentions
+## Section 2: Preparing Your Suggestion
 
-### Section Title
+Voice quality improvement effort: effort directed at specific quality features of a suggestion. The four items map one to one onto the behavioural sub-scores in `code_voice_behavior.py` (evidence, concerns, clarification, actionable), so self-reported prepared quality and coded delivered quality can be compared.
 
-Proposal Preparation Intentions
+### Stem
 
-### Instruction
-
-Before receiving the manager's feedback, please indicate how you intend to improve the quality of your proposal.
-
-### Items
+```text
+Before the second conversation with the manager, I...
+```
 
 #### VQ1
 
-When presenting my suggestion, I will strive to showcase a well-researched proposal backed by entrance records, visitor comments, and location information.
+tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details.
 
 #### VQ2
 
-When offering my opinions, I will make every effort to address the manager's specific concerns regarding visitor demand, feasibility, and park operations.
+made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations.
 
 #### VQ3
 
-When proposing ways to attract nearby university students, I will attempt to clarify any doubts the manager might have about whether this visitor group is suitable for the park.
+tried to anticipate the questions or doubts the manager might raise, and how I would answer them.
 
 #### VQ4
 
-When pointing out the limitations of relying mainly on families with young children, I will prepare a clear, actionable solution for the manager.
+made an effort to work out a clear, actionable course of action rather than a general idea.
 
 ## Section 3: Perceived Reasons for Manager Response
 
@@ -510,7 +514,7 @@ Allowed values:
 
 ### VQ1-VQ4
 
-Voice quality improvement effort items.
+Voice quality improvement effort items: effort directed at specific quality features, anchored to the preparation phase before the second conversation.
 
 Allowed values:
 

@@ -99,6 +99,7 @@
     humanCheckAnswer: "",
     humanCheckVerified: false,
     aiCheckStartTime: "",
+    surveyAnswers: {},
     lastManagerShowedTyping: false,
     busy: false,
   };
@@ -122,6 +123,8 @@
     survey_completion_status: storedSession.survey_completion_status || "not_reached",
     survey_start_time: storedSession.survey_start_time || "",
     survey_submit_time: storedSession.survey_submit_time || "",
+    survey_page: storedSession.survey_page || "",
+    survey_draft: storedSession.survey_draft || "",
     completed_ai_check: storedSession.completed_ai_check || "false",
     ai_check_start_time: storedSession.ai_check_start_time || "",
     ai_check_submit_time: storedSession.ai_check_submit_time || "",
@@ -151,26 +154,38 @@
         "Strongly agree",
       ];
   const surveySections = [
+    // Sections 1-3 are retrospective reports on the second manager conversation. They used to be
+    // future-tense intentions ("I will...") shown after that conversation had already happened,
+    // which read as a contradiction and turned the answers into after-the-fact justification.
+    // Every item is worded so that a participant who raised nothing can still answer it: frequency
+    // items simply attract disagreement, and the quality items are anchored to the preparation
+    // phase, so no gate is needed and nobody is left missing on quality.
     {
-      title: "Future Communication Intentions",
-      instruction: "Before receiving the manager's feedback, please indicate your next steps and how you intend to proceed with your proposal.",
+      title: "Raising Ideas in the Second Conversation",
+      // Bold red so participants cannot miss that these items are about the second conversation,
+      // not the rejection they have just been asked about.
+      instructionEmphasis: true,
+      instruction: "The following statements are about the second conversation you had with the manager, the one after you had reviewed the customer feedback. Please indicate how much you agree with each statement about what you actually did.",
       items: [
-        { id: "VF1", text: "I will take the initiative multiple times to propose specific improvements for attracting more visitors during off-season weekdays." },
-        { id: "VF2", text: "I will make a point to suggest new ways to attract nearby university students." },
-        { id: "VF3", text: "Even if the manager seems dismissive, I will persist in communicating my alternative views on how the park can improve off-season weekday attendance." },
-        { id: "VF4", text: "I will take every opportunity during the session to share proactive ideas on expanding the park's visitor base beyond families with young children." },
-        { id: "VF5", text: "I will be a lead contributor throughout the discussion regarding how to attract nearby university students and make better use of the park's surrounding environment." },
-        { id: "VF6", text: "I will repeatedly offer my own constructive suggestions and ideas to improve the park's visitor strategy during off-season weekdays." },
+        { id: "VF1", text: "I proposed specific improvements to the manager more than once." },
+        { id: "VF2", text: "I made a point of raising new ideas about the visitor issue with the manager." },
+        { id: "VF3", text: "Even when the manager seemed unresponsive, I kept putting forward my views." },
+        { id: "VF4", text: "I used the opportunities in the conversation to share my ideas proactively." },
+        { id: "VF5", text: "I brought my own ideas into the conversation rather than only answering the manager's questions." },
+        { id: "VF6", text: "I offered my own suggestions and ideas repeatedly." },
       ],
     },
     {
-      title: "Proposal Preparation Intentions",
-      instruction: "Before receiving the manager's feedback, please indicate how you intend to improve the quality of your proposal.",
+      title: "Preparing Your Suggestion",
+      instructionEmphasis: true,
+      stemEmphasis: true,
+      instruction: "The following statements are about the second conversation you had with the manager, the one after you had reviewed the customer feedback. Please indicate how much you agree with each statement about what you actually did.",
+      stem: "Before the second conversation with the manager, I...",
       items: [
-        { id: "VQ1", text: "When presenting my suggestion, I will strive to showcase a well-researched proposal backed by entrance records, visitor comments, and location information." },
-        { id: "VQ2", text: "When offering my opinions, I will make every effort to address the manager's specific concerns regarding visitor demand, feasibility, and park operations." },
-        { id: "VQ3", text: "When proposing ways to attract nearby university students, I will attempt to clarify any doubts the manager might have about whether this visitor group is suitable for the park." },
-        { id: "VQ4", text: "When pointing out the limitations of relying mainly on families with young children, I will prepare a clear, actionable solution for the manager." },
+        { id: "VQ1", text: "tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details." },
+        { id: "VQ2", text: "made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations." },
+        { id: "VQ3", text: "tried to anticipate the questions or doubts the manager might raise, and how I would answer them." },
+        { id: "VQ4", text: "made an effort to work out a clear, actionable course of action rather than a general idea." },
       ],
     },
     {
@@ -876,6 +891,10 @@
     state.lastAiIntent = "";
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
+    // The acknowledgement lines are generated once per session. Fetching them here, while the
+    // opening plays, means the first "give me a moment" is not delayed by generating its own
+    // wording: measured, that delay put the line at 12 s after the send instead of about 8.
+    loadManagerAckLines();
     state.managerTurnActive = true;
     // The role assignment was already announced in the task room and acknowledged there, so
     // re-introducing it here reads as a script restart rather than the same person continuing.
@@ -939,6 +958,7 @@
     state.lastAiIntent = "";
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
+    loadManagerAckLines();
     state.managerTurnActive = true;
     await sendDelayed("Manager", "manager", inZh(
       "So, from what you've read so far, what do you think the park should do?",
@@ -1536,6 +1556,40 @@
     return Math.max(1, Math.ceil(cjkChars.length / 1.8) + nonCjkWords);
   }
 
+  // Asks the server for its decision on the discussion turn before asking for the reply. The
+  // decision arrives in about seven seconds; a rejection then takes a further thirty or so to
+  // generate. Knowing early is what lets the manager say "give me a moment" at a human moment,
+  // only on turns where a rejection is actually coming. Returns "unknown" on any failure, in
+  // which case the caller falls back to the combined request and the clock-based acknowledgement.
+  async function getDiscussionIntent(text) {
+    try {
+      const response = await fetchWithTimeout(`${dataEndpoint}/discussion-intent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stage: "manager1",
+          phase: "discussion",
+          alexMessage: text,
+          followupsAsked: state.managerFollowupsAsked,
+          condition,
+          language,
+          prolific_pid: ids.prolific_pid,
+          study_id: ids.study_id,
+          session_id: ids.session_id,
+          manipulation_version: manipulationVersion,
+          history: recentChatHistory(),
+        }),
+      }, 60000);
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.ok && ["awaiting_proposal", "ask_followup", "reject_now"].includes(data.intent)) {
+        return data.intent;
+      }
+    } catch (error) {
+      console.warn("Unable to obtain the discussion decision.", error);
+    }
+    return "unknown";
+  }
+
   async function getChatIntent(stage, phase, text) {
     try {
       const response = await fetchWithTimeout(`${dataEndpoint}/chat-intent-check`, {
@@ -1583,6 +1637,7 @@
           condition,
           alexMessage: text,
           rejectionRound: 1,
+          acknowledge: true,
         });
         if (!sent) {
           state.managerRejected = false;
@@ -1594,21 +1649,45 @@
 
       state.lastAiIntent = "";
       state.managerDiscussionTurns += 1;
-      const sent = await sendAiMessages({
-        stage: "manager1",
-        phase: "discussion",
-        condition,
-        alexMessage: text,
-        followupsAsked: state.managerFollowupsAsked,
-      });
+      // Decision first, reply second. The server decides once; the reply request carries that
+      // decision and does not classify again, so the reply can never contradict what has already
+      // been shown. If the decision request fails, the combined request is used exactly as before.
+      const decision = await getDiscussionIntent(text);
+      let sent;
+      if (decision === "reject_now") {
+        sent = await sendAiMessages({
+          stage: "manager1",
+          phase: "rejection_initial",
+          condition,
+          alexMessage: text,
+          rejectionRound: 1,
+          acknowledge: true,
+        });
+      } else if (decision === "unknown") {
+        sent = await sendAiMessages({
+          stage: "manager1",
+          phase: "discussion",
+          condition,
+          alexMessage: text,
+          followupsAsked: state.managerFollowupsAsked,
+        });
+      } else {
+        sent = await sendAiMessages({
+          stage: "manager1",
+          phase: "discussion_neutral",
+          discussionIntent: decision,
+          condition,
+          alexMessage: text,
+          followupsAsked: state.managerFollowupsAsked,
+        });
+      }
       if (!sent) {
         state.managerDiscussionTurns -= 1;
         finishManagerTurn();
         return;
       }
-      const intent = state.lastAiIntent;
+      const intent = decision === "unknown" ? state.lastAiIntent : decision;
       if (intent === "reject_now") {
-        // The discussion turn already delivered the first rejection message.
         state.managerRejected = true;
         state.managerRejectionRound = 1;
       } else if (intent === "ask_followup") {
@@ -2133,34 +2212,79 @@
     });
   }
 
+  // One section per page. A single long page put nine matrices and fifty rows in front of the
+  // participant at once; paging keeps each construct's instruction and stem next to its items, and
+  // validates each page before the next is shown. There is no way back: the attribution and tone
+  // sections must not be revised after later sections have been seen. Answers are kept in a draft
+  // on the participant record (local storage only; the server has no column for it), so a refresh
+  // resumes on the page the participant was on rather than starting the survey over.
+  function surveySectionItemIds(section) {
+    const groups = section.groups || [{ items: section.items || [] }];
+    return groups.flatMap((group) => (group.items || []).map((item) => item.id));
+  }
+
+  function readSurveyDraft() {
+    try {
+      const draft = JSON.parse(participant.survey_draft || "{}");
+      return draft && typeof draft === "object" ? draft : {};
+    } catch (error) {
+      return {};
+    }
+  }
+
   function renderPostInteractionSurvey() {
     markForwardStage("survey");
     state.part = "survey";
-    state.surveyStartTime = timestamp();
-    participant.completed_post_interaction_survey = "false";
-    participant.survey_completion_status = "partial";
-    participant.survey_start_time = state.surveyStartTime;
-    participant.survey_submit_time = "";
-    participant.experiment_end_time = state.surveyStartTime;
-    participant.completion_status = "partial";
+    const resuming = participant.survey_completion_status === "partial" && Boolean(participant.survey_start_time);
+    if (!resuming) {
+      state.surveyStartTime = timestamp();
+      participant.completed_post_interaction_survey = "false";
+      participant.survey_completion_status = "partial";
+      participant.survey_start_time = state.surveyStartTime;
+      participant.survey_submit_time = "";
+      participant.survey_page = "0";
+      participant.survey_draft = "";
+      participant.experiment_end_time = state.surveyStartTime;
+      participant.completion_status = "partial";
+      recordInteraction("post_interaction_survey", "system", "Post-Interaction Questions started.", "");
+    } else {
+      state.surveyStartTime = participant.survey_start_time;
+    }
+    state.surveyAnswers = readSurveyDraft();
+    const page = Math.min(Math.max(0, Number(participant.survey_page) || 0), surveySections.length - 1);
     saveParticipant();
-    recordInteraction("post_interaction_survey", "system", "Post-Interaction Questions page displayed.", "");
+    renderSurveyPage(page);
+  }
+
+  function renderSurveyPage(index) {
+    const section = surveySections[index];
+    const isLast = index === surveySections.length - 1;
+    participant.survey_page = String(index);
+    saveParticipant();
+    recordInteraction(
+      "post_interaction_survey",
+      "system",
+      `Survey page ${index + 1} of ${surveySections.length} displayed: ${section.title}.`,
+      "",
+    );
 
     screen.innerHTML = `
       <article class="page survey-page">
         <h1>${escapeHtml(inZh("Post-Interaction Questions", "互动后的问题"))}</h1>
+        <p class="survey-progress">${escapeHtml(inZh(`Page ${index + 1} of ${surveySections.length}`, `第 ${index + 1} 页，共 ${surveySections.length} 页`))}</p>
         <p>${escapeHtml(inZh("Please answer the following questions based on your experience in this study. There are no right or wrong answers. Please indicate the extent to which you agree with each statement.", "请根据你在本研究中的体验回答以下问题。答案没有对错，请选择你对每项陈述的同意程度。"))}</p>
         <form id="survey-form" novalidate>
-          ${surveySections.map(renderSurveySection).join("")}
+          ${renderSurveySection(section)}
           <p class="validation-message" id="survey-validation" aria-live="polite"></p>
           <div class="survey-submit">
-            <button class="button" type="submit">${escapeHtml(inZh("Submit", "提交"))}</button>
+            <button class="button" type="submit">${escapeHtml(isLast ? inZh("Submit", "提交") : inZh("Continue", "继续"))}</button>
           </div>
         </form>
       </article>
     `;
 
-    document.getElementById("survey-form").addEventListener("submit", handleSurveySubmit);
+    document.getElementById("survey-form").addEventListener("submit", (event) => handleSurveyPageSubmit(event, index));
+    window.scrollTo(0, 0);
   }
 
   function renderSurveySection(section) {
@@ -2169,8 +2293,8 @@
     return `
       <section class="survey-section">
         <h2>${escapeHtml(section.title)}</h2>
-        <p${section.instructionRed ? ' style="color: #d32f2f;"' : ""}>${formatSurveyInstruction(section.instruction)}</p>
-        ${section.stem ? `<p class="survey-stem">${escapeHtml(section.stem)}</p>` : ""}
+        <p class="${section.instructionEmphasis ? "survey-emphasis" : ""}"${section.instructionRed ? ' style="color: #d32f2f;"' : ""}>${formatSurveyInstruction(section.instruction)}</p>
+        ${section.stem ? `<p class="survey-stem${section.stemEmphasis ? " survey-emphasis" : ""}">${escapeHtml(section.stem)}</p>` : ""}
         ${groups.map((group) => `
           ${group.label ? `<h3>${escapeHtml(group.label)}</h3>` : ""}
           ${renderSurveyMatrix(group.items, options)}
@@ -2209,24 +2333,45 @@
     `;
   }
 
-  function handleSurveySubmit(event) {
+  function handleSurveyPageSubmit(event, index) {
     event.preventDefault();
     const form = event.currentTarget;
     const validation = document.getElementById("survey-validation");
-    const missingResponse = surveyItemIds.some((id) => !form.elements[id] || !form.elements[id].value);
+    const ids = surveySectionItemIds(surveySections[index]);
+    const missingResponse = ids.some((id) => !form.elements[id] || !form.elements[id].value);
 
     if (missingResponse) {
-      const message = inZh("Please answer all questions before continuing.", "请先回答所有问题。");
+      const message = inZh("Please answer all questions on this page before continuing.", "请先回答本页的所有问题。");
       validation.textContent = message;
       recordInteraction("post_interaction_survey", "system", message, "");
       return;
     }
 
+    for (const id of ids) state.surveyAnswers[id] = form.elements[id].value;
+    participant.survey_draft = JSON.stringify(state.surveyAnswers);
+    recordInteraction("post_interaction_survey", "alex", `survey page ${index + 1} submitted`, "");
+
+    if (index < surveySections.length - 1) {
+      participant.survey_page = String(index + 1);
+      saveParticipant();
+      renderSurveyPage(index + 1);
+      return;
+    }
+
+    // A resumed session whose draft was lost can reach the last page with earlier answers missing;
+    // send it back to the first incomplete page rather than posting a partial row.
+    const firstIncomplete = surveySections.findIndex((section) =>
+      surveySectionItemIds(section).some((id) => !state.surveyAnswers[id]));
+    if (firstIncomplete !== -1) {
+      renderSurveyPage(firstIncomplete);
+      return;
+    }
+
     const submitTime = timestamp();
     const responses = {
-      prolific_pid: ids.prolific_pid,
-      study_id: ids.study_id,
-      session_id: ids.session_id,
+      prolific_pid: participant.prolific_pid,
+      study_id: participant.study_id,
+      session_id: participant.session_id,
       language,
       assigned_condition: condition,
       condition_source: conditionSource,
@@ -2235,9 +2380,8 @@
       survey_submit_time: submitTime,
       survey_completion_status: "completed",
     };
-
     for (const id of surveyItemIds) {
-      responses[id] = form.elements[id].value;
+      responses[id] = state.surveyAnswers[id];
     }
 
     postJson("/survey", responses);
@@ -2245,6 +2389,8 @@
     participant.survey_completion_status = "completed";
     participant.survey_start_time = responses.survey_start_time;
     participant.survey_submit_time = submitTime;
+    participant.survey_page = "";
+    participant.survey_draft = "";
     participant.experiment_end_time = submitTime;
     participant.completion_status = "partial";
     saveParticipant();
@@ -2461,17 +2607,16 @@
     const validatedManagerTurn =
       request.stage === "manager1" &&
       ["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"].includes(request.phase);
-    // Whether the manager needs a moment is decided by how long the reply actually takes, not by the
-    // phase. The first rejection usually arrives on a "discussion" request, because the model
-    // decides reject_now inside that turn, so keying the acknowledgement to the rejection phases
-    // missed the single longest wait in the study. Timing it instead also matches what a person
-    // does: you only say "give me a sec" when you actually need one.
-    // A closing is the manager signing off, not deliberating: there is nothing left to weigh, so
-    // saying they need a moment would be about nothing. Closings are never acknowledged, however
-    // long they take to generate.
+    // When the caller already knows a rejection is coming (request.acknowledge), the manager says
+    // "give me a moment" right away, while the reply is generated. That is the human moment for
+    // it: as soon as you realise you need to think, not after a long silence. Otherwise the
+    // clock-based fallback runs, which only speaks if the wait passes the threshold. A closing is
+    // the manager signing off, not deliberating, and is never acknowledged.
     const acknowledgeableTurn = validatedManagerTurn && request.phase !== "closing";
     const replyPromise = requestAiMessages(request);
-    const presence = acknowledgeableTurn ? runManagerWaitPresence(replyPromise) : null;
+    let presence = null;
+    if (request.acknowledge) presence = postManagerAcknowledgement();
+    else if (acknowledgeableTurn) presence = runManagerWaitPresence(replyPromise);
     let result;
     try {
       result = await replyPromise;
@@ -2574,8 +2719,9 @@
     const retryMessage = inZh("The chat connection had a brief issue. Please try again.", "聊天连接短暂出现问题。请再试一次。");
     const requestId = createAiRequestId();
     const requestTimeoutMs = aiRequestTimeoutFor(request);
+    const { acknowledge: _acknowledge, ...requestFields } = request;
     const requestPayload = {
-      ...request,
+      ...requestFields,
       request_id: requestId,
       condition,
       language,
@@ -2768,32 +2914,33 @@
   // Shown while generation and blind validation run. It is a real Manager message: the participant
   // sees it in the transcript and it is recorded, which is what makes it read as a person rather
   // than as a status widget.
-  // Only a wait long enough to need explaining gets one. Measured on this pipeline, neutral
-  // follow-up turns finish in 5-12 seconds while the turn that produces the rejection takes about
-  // 40, so this threshold separates them without the client having to know which turn it is on -
-  // which it cannot, because the first rejection arrives on a "discussion" request whenever the
-  // model decides reject_now inside that turn.
+  // A short typing burst, then the acknowledgement line. Used immediately when the turn is known to
+  // be a rejection, and by the clock-based fallback below.
+  async function postManagerAcknowledgement() {
+    const linesReady = loadManagerAckLines();
+    const typingIndicator = showTypingIndicator("Manager", "manager");
+    await Promise.all([linesReady, delay(randomBetween(700, 1200))]);
+    typingIndicator.remove();
+    addMessage("Manager", "manager", pickManagerAckLine());
+  }
+
+  // Fallback only, for turns whose kind is not known in advance: the combined discussion request
+  // when the decision request failed, and later rejection rounds. Neutral follow-ups finish in
+  // 5-12 seconds and the first rejection takes about 40, so the threshold keeps the line off the
+  // follow-ups. The wait itself is silent: a typing indicator held for twenty seconds and then
+  // followed by two short lines is the tell this whole sequence exists to remove.
   const MANAGER_ACK_THRESHOLD_MS = 20000;
 
-  // Drives what the participant sees while the reply is generated and blind-validated. The wait
-  // itself is silent: a typing indicator held for twenty seconds and then followed by a short
-  // message is the tell this whole sequence exists to remove, because nobody types that long to
-  // produce two lines. Silence reads as a manager who has not started writing yet.
   async function runManagerWaitPresence(replyPromise) {
     let settled = false;
     const tracked = replyPromise.then(
       () => { settled = true; },
       () => { settled = true; },
     );
-    // Warmed during the wait, and memoised, so the acknowledgement is not itself delayed by the
-    // request that generates its wording.
-    const linesReady = loadManagerAckLines();
+    loadManagerAckLines();
     await Promise.race([tracked, delay(MANAGER_ACK_THRESHOLD_MS)]);
     if (settled) return;
-    const typingIndicator = showTypingIndicator("Manager", "manager");
-    await Promise.all([linesReady, delay(randomBetween(700, 1200))]);
-    typingIndicator.remove();
-    addMessage("Manager", "manager", pickManagerAckLine());
+    await postManagerAcknowledgement();
   }
 
   function responseDelayForText(text) {
@@ -3075,12 +3222,13 @@
     if (!isChinese) return;
     const sectionCopy = [
       {
-        title: "未来沟通意向",
-        instruction: "请根据你在任务中的体验，回答你接下来可能会怎么做，以及会如何继续推进自己的建议。",
+        title: "第二次对话中的建言",
+        instruction: "以下陈述关于你与经理的第二次对话（你看完顾客反馈之后的那次）。请根据你实际的做法，选择你对每条陈述的同意程度。",
       },
       {
-        title: "建议准备意向",
-        instruction: "请根据你在任务中的体验，回答你会如何进一步完善自己的建议。",
+        title: "为建议所做的准备",
+        instruction: "以下陈述关于你与经理的第二次对话（你看完顾客反馈之后的那次）。请根据你实际的做法，选择你对每条陈述的同意程度。",
+        stem: "在与经理第二次对话之前，我……",
       },
       {
         title: "对经理回应原因的感知",
@@ -3108,16 +3256,16 @@
       },
     ];
     const itemCopy = {
-      VF1: "我会多次主动提出具体的改进建议，帮助园区在淡季工作日吸引更多游客。",
-      VF2: "我会特别提出吸引附近大学生的新方法。",
-      VF3: "即使经理看起来不太重视，我也会继续表达自己对改善淡季工作日客流的看法。",
-      VF4: "在整个任务中，我会抓住机会主动分享想法，帮助园区吸引低龄儿童家庭之外的游客。",
-      VF5: "在讨论如何吸引附近大学生、如何更好利用园区周边环境时，我会积极贡献想法。",
-      VF6: "我会继续提出建设性的建议和想法，帮助改善园区淡季工作日的游客策略。",
-      VQ1: "在提出建议时，我会努力展示一个经过充分研究的方案，并用入园记录、游客评论和位置信息作为支持。",
-      VQ2: "在表达意见时，我会尽量回应经理对游客需求、可行性和园区运营的具体顾虑。",
-      VQ3: "在提出吸引附近大学生的方法时，我会尽量解释这个游客群体为什么适合园区。",
-      VQ4: "在指出主要依赖低龄儿童家庭的局限时，我会为经理准备一个清晰、可执行的解决方案。",
+      VF1: "我不止一次向经理提出了具体的改进建议。",
+      VF2: "我特意向经理提出了关于客流问题的新想法。",
+      VF3: "即使经理看起来反应不大，我也继续表达了自己的看法。",
+      VF4: "我利用对话中的机会，主动分享了自己的想法。",
+      VF5: "我把自己的想法带进了对话，而不只是回答经理的问题。",
+      VF6: "我反复提出了自己的建议和想法。",
+      VQ1: "尽量用手头的信息（比如入园记录、游客评论或位置信息）来支撑我可能提出的建议。",
+      VQ2: "努力思考了经理会有的实际顾虑，比如游客需求、可行性或园区运营。",
+      VQ3: "尽量预想了经理可能提出的问题或疑虑，以及我会怎么回答。",
+      VQ4: "努力想出了一个清晰、可执行的做法，而不只是一个笼统的想法。",
       MR1: "经理受到了自己情绪的影响。",
       MR2: "经理想表现自己的权威。",
       MR3: "经理个人不喜欢我。",
