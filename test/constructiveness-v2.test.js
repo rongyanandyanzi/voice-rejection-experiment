@@ -160,7 +160,7 @@ test("initial rejection uses a short decision followed by a longer structured ex
       { min: 14, max: 22 },
       { min: 36, max: 46 },
     ]);
-    assert.deepEqual(prompt.totalWordRange, { min: 54, max: 68 });
+    assert.deepEqual(prompt.totalWordRange, { min: 56, max: 64 });
     assert.deepEqual(prompt.totalWordTargetRange, { min: 58, max: 62 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.equal(prompt.constructivenessAssessmentMode, "rejection");
@@ -703,7 +703,7 @@ test("English first rejection length normalization preserves the short-then-long
   assert.match(normalized[1].text, /role training/i);
   assert.ok(wordCount(normalized[0].text) >= 14 && wordCount(normalized[0].text) <= 22);
   assert.ok(wordCount(normalized[1].text) >= 36 && wordCount(normalized[1].text) <= 46);
-  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 54);
+  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 56);
 });
 
 test("Chinese first rejection removes only optional wording to enter the matched total", () => {
@@ -1443,7 +1443,7 @@ test("generated manager acknowledgement lines cannot carry face work or an evalu
 
 test("an over-cap message is shortened with an exact cut, and a small overshoot is accepted last", () => {
   const prompt = buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" }));
-  // 17 / 47: inside the 54-68 total band, one word over Message 2's cap of 46. This is the shape
+  // 17 / 47: inside the 56-64 total band, one word over Message 2's cap of 46. This is the shape
   // that previously drew the lengthening instruction and then failed after 65 seconds.
   const pair = [
     { speaker: "Manager", text: exactWords("I cannot approve this yet because the plan gives no basis for how many temps", 17) },

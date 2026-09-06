@@ -2095,7 +2095,7 @@ function buildInitialManagerPrompt(payload) {
     messageWordRanges = language === "zh"
       ? null
       : [{ min: 14, max: 22 }, { min: 36, max: 46 }];
-    totalWordRange = language === "zh" ? null : { min: 54, max: 68 };
+    totalWordRange = language === "zh" ? null : { min: 56, max: 64 };
     totalWordTargetRange = language === "zh" ? null : { min: 58, max: 62 };
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
@@ -3078,7 +3078,7 @@ function managerLengthOnlyRewriteCorrection(messages, prompt, lengthProblem) {
     ? prompt.totalWordTargetRange
     : prompt && prompt.totalWordRange;
   // Overflow is judged per message as well as in total. The failure this guards against was a
-  // second message of 47 words against a 46 cap with the pair at 64, inside the 54-68 total band:
+  // second message of 47 words against a 46 cap with the pair at 64, inside the 56-64 total band:
   // the old check looked only at the total, so it issued the lengthening instruction ("reach the
   // target") for a message that needed cutting, gave the model no number, and got 47 back again.
   const overflows = managerMessages.map((text, index) => {
