@@ -2061,7 +2061,7 @@ function buildInitialManagerPrompt(payload) {
       "Reject the proposal for now and split the turn into exactly two chat messages with a natural short-then-long rhythm.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
-        : "Produce exactly 2 Manager messages with 58-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions.",
+        : "Produce exactly 2 Manager messages with 60-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions.",
       "Message 1 contains the condition-matched interpersonal style, the explicit rejection, and a brief proposal-focused reaction. It should sound like the first thing a manager would actually type, not a miniature report.",
       language === "zh"
         ? "用自然、明确但不固定的中文表达当前版本不会获批，不要照抄示例句式。"
@@ -2096,7 +2096,11 @@ function buildInitialManagerPrompt(payload) {
       ? null
       : [{ min: 14, max: 22 }, { min: 36, max: 46 }];
     totalWordRange = language === "zh" ? null : { min: 54, max: 68 };
-    totalWordTargetRange = language === "zh" ? null : { min: 58, max: 62 };
+    // Target moved up from 58-62: high constructiveness lands at 61-63 against the ceiling while low
+    // constructiveness sat at 59-60 against the old target, a 5.5% spread. Raising the target lifts
+    // the low-constructiveness cells without touching the ceiling; narrowing the band instead
+    // (measured at 56-64) only pushed high constructiveness into length failures.
+    totalWordTargetRange = language === "zh" ? null : { min: 60, max: 62 };
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
   } else if (phase === "rejection_followup") {

@@ -161,7 +161,7 @@ test("initial rejection uses a short decision followed by a longer structured ex
       { min: 36, max: 46 },
     ]);
     assert.deepEqual(prompt.totalWordRange, { min: 54, max: 68 });
-    assert.deepEqual(prompt.totalWordTargetRange, { min: 58, max: 62 });
+    assert.deepEqual(prompt.totalWordTargetRange, { min: 60, max: 62 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.equal(prompt.constructivenessAssessmentMode, "rejection");
     assert.match(prompt.system, /proposal_problem, relevant_standard, and revision_path/);
@@ -1090,7 +1090,7 @@ test("an overlong initial rejection gets one length-only rewrite and full blind 
     assert.equal(result.messages.reduce((sum, message) => sum + wordCount(message.text), 0), 59);
     const rewritePrompt = JSON.stringify(requestBodies[2].input);
     assert.match(rewritePrompt, /Length-only rewrite required/i);
-    assert.match(rewritePrompt, /58-62 words across the two messages/i);
+    assert.match(rewritePrompt, /60-62 words across the two messages/i);
     assert.match(rewritePrompt, /Previous Manager message 1/i);
     assert.deepEqual(
       requestBodies.map((body) => body.text.format.name),
