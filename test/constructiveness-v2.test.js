@@ -150,22 +150,22 @@ test("legacy pre-rejection followup entry point is also neutral", () => {
   assert.doesNotMatch(hp.system, /High-politeness conditions should|High-constructiveness conditions may/i);
 });
 
-test("initial rejection uses a short decision followed by a longer structured explanation", () => {
+test("initial rejection controls total length while leaving the two-message split flexible", () => {
   for (const condition of conditions) {
     const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
     assert.equal(prompt.minMessages, 2);
     assert.equal(prompt.maxMessages, 2);
-    assert.deepEqual(prompt.wordRange, { min: 14, max: 46 });
-    assert.deepEqual(prompt.messageWordRanges, [
-      { min: 14, max: 22 },
-      { min: 36, max: 46 },
-    ]);
+    assert.equal(prompt.wordRange, null);
+    assert.equal(prompt.messageWordRanges, null);
     assert.deepEqual(prompt.totalWordRange, { min: 54, max: 68 });
     assert.deepEqual(prompt.totalWordTargetRange, { min: 60, max: 62 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.equal(prompt.constructivenessAssessmentMode, "rejection");
     assert.match(prompt.system, /proposal_problem, relevant_standard, and revision_path/);
     assert.match(prompt.system, /Reject the proposal for now/i);
+    assert.match(prompt.system, /short decision/i);
+    assert.match(prompt.system, /longer explanation/i);
+    assert.doesNotMatch(prompt.system, /14-22|36-46|each message must contain/i);
   }
   const chinese = buildInitialManagerPrompt(managerPayload({ condition: "HP_HC", language: "zh" }));
   assert.equal(chinese.wordRange, null);
@@ -673,7 +673,7 @@ test("refusals and optional future steps are redressed only under high politenes
   assert.match(neutral.system, /Do not use any politeness or constructiveness manipulation/i);
 });
 
-test("message count and length validators enforce the two-message rejection", () => {
+test("initial rejection validates exactly two messages and only their combined word count", () => {
   const prompt = buildInitialManagerPrompt(managerPayload());
   const valid = validHighReply().messages;
   assert.equal(managerMessageCountProblem(valid, prompt, ""), "");
@@ -683,6 +683,7 @@ test("message count and length validators enforce the two-message rejection", ()
     { speaker: "Manager", text: exactWords("Two", 40) },
   ], prompt), "");
   assert.match(managerMessageCountProblem(valid.slice(0, 1), prompt, ""), /exactly 2/);
+  assert.match(managerMessageCountProblem([...valid, valid[0]], prompt, ""), /exactly 2/);
   assert.match(managerWordCountProblem([
     { speaker: "Manager", text: "This is too short." },
     valid[1],
@@ -691,7 +692,32 @@ test("message count and length validators enforce the two-message rejection", ()
   assert.equal(chineseCharacterCount("一二三四五，abc"), 5);
 });
 
-test("English first rejection length normalization preserves the short-then-long rhythm", () => {
+test("uneven initial rejection messages inside the total band are accepted without normalization", () => {
+  for (const condition of conditions) {
+    const prompt = buildInitialManagerPrompt(managerPayload({ condition }));
+    for (const [first, second] of [[14, 40], [17, 47], [10, 50], [25, 35], [20, 48]]) {
+      const pair = [
+        { speaker: "Manager", text: exactWords("I still cannot approve this proposal", first) },
+        { speaker: "Manager", text: exactWords("The evidence is still incomplete", second) },
+      ];
+      assert.equal(managerWordCountProblem(pair, prompt), "", `${condition}: ${first}+${second}`);
+      assert.equal(managerLengthProblem(pair, prompt), "");
+      assert.equal(managerSmallLengthOvershoot(pair, prompt), "");
+      assert.deepEqual(normalizeInitialManagerLength(pair, prompt), pair);
+    }
+    for (const [first, second] of [[17, 36], [22, 47]]) {
+      const pair = [
+        { speaker: "Manager", text: exactWords("First", first) },
+        { speaker: "Manager", text: exactWords("Second", second) },
+      ];
+      assert.match(managerWordCountProblem(pair, prompt), /54-68 words in total/);
+      assert.match(managerLengthProblem(pair, prompt), /Length correction required/);
+      assert.equal(managerSmallLengthOvershoot(pair, prompt), "");
+    }
+  }
+});
+
+test("English first rejection normalization trims only when its combined total is overlong", () => {
   const prompt = buildInitialManagerPrompt(managerPayload());
   const messages = [
     { speaker: "Manager", text: "At this point I really cannot approve this proposal currently because the flexible staffing idea still leaves a clearly unresolved risk to reliable entry service right now." },
@@ -701,9 +727,8 @@ test("English first rejection length normalization preserves the short-then-long
   assert.equal(managerWordCountProblem(normalized, prompt), "");
   assert.match(normalized[0].text, /cannot approve/i);
   assert.match(normalized[1].text, /role training/i);
-  assert.ok(wordCount(normalized[0].text) >= 14 && wordCount(normalized[0].text) <= 22);
-  assert.ok(wordCount(normalized[1].text) >= 36 && wordCount(normalized[1].text) <= 46);
-  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 54);
+  const total = normalized.reduce((sum, message) => sum + wordCount(message.text), 0);
+  assert.ok(total >= 54 && total <= 68);
 });
 
 test("Chinese first rejection removes only optional wording to enter the matched total", () => {
@@ -1106,6 +1131,43 @@ test("an overlong initial rejection gets one length-only rewrite and full blind 
   }
 });
 
+test("a semantically valid initial rejection with a 47-word second message needs no length retry", async () => {
+  const originalFetch = global.fetch;
+  const reply = validHighReply();
+  reply.messages = [
+    {
+      speaker: "Manager",
+      text: "I appreciate the care behind this, but I cannot approve the flexible staffing proposal without stronger evidence.",
+    },
+    {
+      speaker: "Manager",
+      text: "I would consider a revised version after a matched peak shift trial compares entry errors and queue times for trained temporary workers against permanent staff under similar visitor demand, so we can see whether the added coverage helps without increasing the burden on our experienced permanent staff.",
+    },
+  ];
+  assert.deepEqual(reply.messages.map((message) => wordCount(message.text)), [17, 47]);
+  const scores = validHighEvaluatorScores();
+  scores.message_scores[1].future_next_step = reply.messages[1].text;
+  const queue = [responseJson(reply), responseJson(scores)];
+  const requestBodies = [];
+  global.fetch = async (_url, options) => {
+    requestBodies.push(JSON.parse(options.body));
+    assert.ok(queue.length, "a valid total must not trigger a length rewrite");
+    return queue.shift();
+  };
+  try {
+    const result = await generateAiReply(managerPayload());
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.messages, reply.messages);
+    assert.deepEqual(result.validation_warnings, []);
+    assert.deepEqual(requestBodies.map((body) => body.text.format.name), [
+      "experiment_chat_reply",
+      "manager_constructiveness_blind_score",
+    ]);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
 test("blind cue evidence must occur in its corresponding Manager message", async () => {
   const originalFetch = global.fetch;
   const queue = [
@@ -1441,34 +1503,28 @@ test("generated manager acknowledgement lines cannot carry face work or an evalu
   }
 });
 
-test("an over-cap message is shortened with an exact cut, and a small overshoot is accepted last", () => {
+test("initial rejection length correction targets the total without adding per-message caps", () => {
   const prompt = buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" }));
-  // 17 / 47: inside the 54-68 total band, one word over Message 2's cap of 46. This is the shape
-  // that previously drew the lengthening instruction and then failed after 65 seconds.
-  const pair = [
-    { speaker: "Manager", text: exactWords("I cannot approve this yet because the plan gives no basis for how many temps", 17) },
-    { speaker: "Manager", text: exactWords("The analysis has to show hourly visitor flow against role coverage before I reconsider", 47) },
+  const overlong = [
+    { speaker: "Manager", text: exactWords("First", 22) },
+    { speaker: "Manager", text: exactWords("Second", 47) },
   ];
-  const problem = managerWordCountProblem(pair, prompt);
+  const problem = managerWordCountProblem(overlong, prompt);
   assert.match(problem, /Length correction required/);
-  const rewrite = managerLengthOnlyRewriteCorrection(pair, prompt, problem);
-  assert.match(rewrite, /Shorten\. Message 2 is 47 words and must lose at least 1; aim for 44\./);
+  const rewrite = managerLengthOnlyRewriteCorrection(overlong, prompt, problem);
+  assert.match(rewrite, /Shorten\. The pair is 69 words and must lose at least 1\./);
+  assert.match(rewrite, /60-62 words across the two messages/);
+  assert.doesNotMatch(rewrite, /Message [12] is \d+ words and must lose|keep each message within|14-22|36-46/i);
   assert.doesNotMatch(rewrite, /reach the target/);
-  // Within tolerance and inside the total band: accepted, with the miss described.
-  assert.match(managerSmallLengthOvershoot(pair, prompt), /message 2 47 words against a cap of 46/);
-  // Four over is not small.
-  const far = [pair[0], { speaker: "Manager", text: exactWords(pair[1].text, 50) }];
-  assert.equal(managerSmallLengthOvershoot(far, prompt), "");
-  // Nor is a pair outside the total band, however each message sits.
-  const heavy = [{ speaker: "Manager", text: exactWords(pair[0].text, 22) }, { speaker: "Manager", text: exactWords(pair[1].text, 48) }];
-  assert.equal(managerSmallLengthOvershoot(heavy, prompt), "");
-  // An under-length pair still gets the lengthening instruction.
-  const short = [pair[0], { speaker: "Manager", text: exactWords(pair[1].text, 36) }];
-  assert.match(managerLengthOnlyRewriteCorrection(short, prompt, managerWordCountProblem(short, prompt)), /reach the target/);
-  // The loop allows two shortening passes for the first rejection.
-  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
-  assert.match(serverSource, /lengthOnlyRewriteAttempts < 2 &&\s*\n\s*attempt < 4/);
-  assert.match(serverSource, /validationWarnings\.push\(`length-overshoot-accepted: \$\{smallOvershoot\}`\)/);
+  assert.equal(managerSmallLengthOvershoot(overlong, prompt), "");
+  const short = [
+    { speaker: "Manager", text: exactWords("First", 17) },
+    { speaker: "Manager", text: exactWords("Second", 36) },
+  ];
+  const expansion = managerLengthOnlyRewriteCorrection(short, prompt, managerWordCountProblem(short, prompt));
+  assert.match(expansion, /reach the target/);
+  assert.match(expansion, /60-62 words across the two messages/);
+  assert.doesNotMatch(expansion, /keep each message within|14-22|36-46/i);
 });
 
 test("the AI check is a three-page funnel with the primed direct item last and unchanged", () => {
