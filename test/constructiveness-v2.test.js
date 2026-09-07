@@ -9,6 +9,8 @@ process.env.DATA_DIR = testDataDir;
 process.env.OPENAI_API_KEY = "test-key";
 process.env.OPENAI_MODEL = "gpt-4.1-mini";
 process.env.OPENAI_EVALUATOR_MODEL = "gpt-4.1-mini";
+// Network retries must not slow the suite.
+process.env.OPENAI_RETRY_BACKOFF_MS = "1,1";
 
 const {
   manipulationVersion,
@@ -25,6 +27,11 @@ const {
   generateAiReply,
   managerConditionRules,
   MANAGER_ACK_FORBIDDEN,
+  fetchOpenAiResponses,
+  networkErrorCode,
+  isRetryableNetworkError,
+  appendCsvRow,
+  ensureCsvHeader,
   lowPolitenessWordingProblem,
   decideInitialManagerDiscussion,
   NEUTRAL_CHAT_REGISTER_RULE,
@@ -1749,4 +1756,84 @@ test("low-politeness temporal softeners are rewritten once, then tolerated with 
   const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
   assert.match(serverSource, /if \(!softenerRewriteAttempted\) \{\s*\n\s*softenerRewriteAttempted = true;\s*\n\s*correction = softenerProblem;\s*\n\s*continue;/);
   assert.match(serverSource, /validationWarnings\.push\("lp-temporal-softener-retained after one rewrite"\)/);
+});
+
+test("network failures to OpenAI are retried with backoff and reported with their cause code", async () => {
+  const timeoutError = () => {
+    const inner = new Error("connect ETIMEDOUT 1.2.3.4:443");
+    inner.code = "ETIMEDOUT";
+    const aggregate = new AggregateError([inner], "");
+    const outer = new TypeError("fetch failed");
+    outer.cause = aggregate;
+    return outer;
+  };
+  assert.equal(networkErrorCode(timeoutError()), "ETIMEDOUT");
+  assert.equal(networkErrorCode(new Error("plain")), "");
+  assert.equal(isRetryableNetworkError(timeoutError()), true);
+  const abort = new Error("aborted"); abort.name = "AbortError";
+  assert.equal(isRetryableNetworkError(abort), false);
+
+  const originalFetch = global.fetch;
+  try {
+    // Two timeouts, then success: the caller never sees the fault.
+    let calls = 0;
+    global.fetch = async () => { calls += 1; if (calls < 3) throw timeoutError(); return responseJson({ ok: true }); };
+    const response = await fetchOpenAiResponses({ model: "x" });
+    assert.equal(response.status, 200);
+    assert.equal(calls, 3);
+    // Three timeouts: the error that surfaces carries the code and the attempt count, so the
+    // request log says ETIMEDOUT rather than "fetch failed".
+    calls = 0;
+    global.fetch = async () => { calls += 1; throw timeoutError(); };
+    await assert.rejects(fetchOpenAiResponses({ model: "x" }), (error) => {
+      assert.equal(error.name, "OpenAINetworkError");
+      assert.equal(error.code, "ETIMEDOUT");
+      assert.match(error.message, /fetch failed \(ETIMEDOUT, after 3 attempts\)/);
+      return true;
+    });
+    assert.equal(calls, 3);
+    // A non-network error is not retried.
+    calls = 0;
+    global.fetch = async () => { calls += 1; throw new SyntaxError("bad json"); };
+    await assert.rejects(fetchOpenAiResponses({ model: "x" }), /bad json/);
+    assert.equal(calls, 1);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("saves append single rows and never rebuild derived files; the workbook is built on download", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "persist-test-"));
+  const file = path.join(dir, "rows.csv");
+  const columns = ["a", "b"];
+  // Header written once, rows appended, quoting consistent with toCsv.
+  ensureCsvHeader(file, columns, []);
+  appendCsvRow(file, columns, { a: "1", b: "x,y" });
+  appendCsvRow(file, columns, { a: "2", b: 'say "hi"' });
+  assert.equal(fs.readFileSync(file, "utf8"), 'a,b\n1,"x,y"\n2,"say ""hi"""\n');
+  // An older header (a column added since) triggers one rewrite from memory, so later appends line up.
+  fs.writeFileSync(file, "a\n1\n");
+  ensureCsvHeader(file, columns, [{ a: "1", b: "restored" }]);
+  assert.equal(fs.readFileSync(file, "utf8"), "a,b\n1,restored\n");
+
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.doesNotMatch(serverSource, /function persistAll\(/);
+  // Interactions, AI requests and intent checks append; participants and surveys coalesce a rewrite
+  // after the acknowledgement; nothing on a save path touches the workbook.
+  assert.match(serverSource, /interactions\.push\(row\);\s*\n[^\n]*\n\s*appendCsvRow\(interactionsPath, interactionColumns, row\);\s*\n\s*sendJson\(res, \{ ok: true \}\);/);
+  assert.match(serverSource, /upsertParticipant\(row\);\s*\n[^\n]*\n\s*sendJson\(res, \{ ok: true \}\);\s*\n\s*scheduleRewrite\("participants"\);/);
+  assert.match(serverSource, /upsertSurveyResponse\(row\);\s*\n\s*sendJson\(res, \{ ok: true \}\);\s*\n\s*scheduleRewrite\("survey"\);/);
+  assert.match(serverSource, /aiRequests\.push\(aiRequestRow\);\s*\n\s*appendCsvRow\(aiRequestsPath, aiRequestColumns, aiRequestRow\);/);
+  assert.match(serverSource, /chatIntentChecks\.push\(row\);\s*\n\s*appendCsvRow\(chatIntentChecksPath, chatIntentCheckColumns, row\);/);
+  const saveRoutes = serverSource.slice(serverSource.indexOf('req.url === "/api/participant"'), serverSource.indexOf('req.url === "/api/captcha-config"'));
+  assert.doesNotMatch(saveRoutes, /buildDerivedFiles\(\)|createWorkbook\(|toCsv\(/);
+  const aiReplyRoute = serverSource.slice(serverSource.indexOf('req.url === "/api/ai-reply"'), serverSource.indexOf('req.url === "/api/discussion-intent"'));
+  assert.doesNotMatch(aiReplyRoute, /buildDerivedFiles\(\)|createWorkbook\(|toCsv\(/);
+  const download = serverSource.slice(serverSource.indexOf("function serveAdminDownload("), serverSource.indexOf("function setCors("));
+  assert.match(download, /if \(fileName === "experiment_data\.csv" \|\| fileName === "experiment_data\.xlsx"\) \{\s*\n\s*buildDerivedFiles\(\);/);
+  // Startup checks headers only; the workbook is not built at boot.
+  assert.match(serverSource, /\nmigrateCsvFiles\(\);\n/);
+  assert.doesNotMatch(serverSource, /\nbuildDerivedFiles\(\);\n/);
+  // A deploy's SIGTERM flushes a pending coalesced rewrite.
+  assert.match(serverSource, /process\.on\(signalName, \(\) => \{\s*\n\s*try \{ flushRewrites\(\); \}/);
 });

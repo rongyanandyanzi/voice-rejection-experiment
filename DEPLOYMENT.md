@@ -25,6 +25,16 @@ Set `DATA_DIR` to a persistent disk or volume path. The server writes:
 
 Do not deploy on a platform/filesystem where server files disappear on restart unless you attach a persistent volume.
 
+### How the files are written
+
+Rows that are only ever added (`interactions.csv`, `ai_requests.csv`, `chat_intent_checks.csv`) are appended one line at a time as they arrive. `participants.csv` and `survey_responses.csv`, whose rows are updated in place, are rewritten from memory, but the rewrite is coalesced: a save is acknowledged at once and the file is written once, about 1.5 seconds later, for any burst of saves (`WRITE_COALESCE_MS`). `experiment_data.csv` and `experiment_data.xlsx` are derived files, built only when the admin download route requests them. On startup each CSV header is compared with the current column list and the file is rewritten once if columns were added, so appended rows always line up.
+
+The pilot on 6 September rewrote every file, including the 14.7 MB workbook, on every save; at 50 saves a minute that pinned the 0.5-CPU instance and starved the event loop, and 38% of OpenAI calls timed out on connect (`ETIMEDOUT`). Do not reintroduce a per-save rebuild.
+
+### OpenAI network retries
+
+A network-level failure reaching OpenAI (`ETIMEDOUT`, `ECONNRESET`, DNS errors and the like) is retried twice with a short backoff (`OPENAI_RETRY_BACKOFF_MS`, default `1000,2000`) before it is reported. The failure that surfaces carries the underlying code and the attempt count, for example `fetch failed (ETIMEDOUT, after 3 attempts)`, in `ai_requests.csv` and `chat_intent_checks.csv`.
+
 ## Environment Variables
 
 - `PORT`: supplied by the host.

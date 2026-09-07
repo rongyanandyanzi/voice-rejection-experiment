@@ -218,8 +218,9 @@ const server = http.createServer(async (req, res) => {
     const payload = await readJson(req);
     const row = normalizeVersionedRow(payload, participantColumns);
     upsertParticipant(row);
-    persistAll();
+    // Acknowledge first; the participants file is rewritten once, shortly, for any burst of saves.
     sendJson(res, { ok: true });
+    scheduleRewrite("participants");
     return;
   }
 
@@ -227,7 +228,8 @@ const server = http.createServer(async (req, res) => {
     const payload = await readJson(req);
     const row = normalizeVersionedRow(payload, interactionColumns);
     interactions.push(row);
-    persistAll();
+    // One appended line, microseconds: done before the acknowledgement so the receipt is honest.
+    appendCsvRow(interactionsPath, interactionColumns, row);
     sendJson(res, { ok: true });
     return;
   }
@@ -236,8 +238,8 @@ const server = http.createServer(async (req, res) => {
     const payload = await readJson(req);
     const row = normalizeVersionedRow(payload, surveyResponseColumns);
     upsertSurveyResponse(row);
-    persistAll();
     sendJson(res, { ok: true });
+    scheduleRewrite("survey");
     return;
   }
 
@@ -301,7 +303,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (!reusedRequest) {
-      aiRequests.push(normalizeRow({
+      const aiRequestRow = normalizeRow({
         prolific_pid: payload.prolific_pid,
         study_id: payload.study_id,
         session_id: payload.session_id,
@@ -324,8 +326,9 @@ const server = http.createServer(async (req, res) => {
         validation_failure: result.validation_failure
           ? JSON.stringify(result.validation_failure)
           : "",
-      }, aiRequestColumns));
-      persistAiRequests();
+      }, aiRequestColumns);
+      aiRequests.push(aiRequestRow);
+      appendCsvRow(aiRequestsPath, aiRequestColumns, aiRequestRow);
     }
     if (!res.writableEnded && !res.destroyed) {
       const publicResult = { ...result };
@@ -487,12 +490,73 @@ function upsertSurveyResponse(row) {
   }
 }
 
-function persistAll() {
-  fs.writeFileSync(participantsPath, toCsv(participants, participantColumns));
-  fs.writeFileSync(interactionsPath, toCsv(interactions, interactionColumns));
-  fs.writeFileSync(surveyResponsesPath, toCsv(surveyResponses, surveyResponseColumns));
-  persistAiRequests();
-  persistChatIntentChecks();
+// ---- Persistence ----
+// The pilot on 6 September ran at 100% CPU on a 0.5-CPU instance with only 2-5 requests in flight,
+// and 38% of OpenAI calls died as ETIMEDOUT on connect: the event loop was starved. The cause was
+// this layer. Every save rewrote all five CSVs, the combined CSV and a 14.7 MB Excel workbook,
+// synchronously, on the request thread; at pilot data size that was 0.2 s per save on a fast Mac
+// and seconds on the instance, fifty times a minute at the peak.
+//
+// Now: rows that are only ever added (interactions, AI requests, intent checks) are appended one
+// line at a time, microseconds each. Rows that are updated in place (participants, survey
+// responses) are rewritten, but the rewrite is coalesced: the request is acknowledged first and
+// the file is written once, WRITE_COALESCE_MS later, however many saves arrive in between. The
+// combined CSV and the workbook are derived files, built only when the admin download asks for
+// them. At startup each CSV's header is checked against the current columns and the file is
+// rewritten once if columns were added, so appends always line up.
+const WRITE_COALESCE_MS = Math.max(200, Number(process.env.WRITE_COALESCE_MS || 1500));
+const rewriteDirty = { participants: false, survey: false };
+let rewriteTimer = null;
+
+function csvLine(row, columns) {
+  return `${columns.map((column) => csvCell(row[column])).join(",")}\n`;
+}
+
+function ensureCsvHeader(filePath, columns, rows) {
+  const expected = `${columns.join(",")}\n`;
+  let current = "";
+  if (fs.existsSync(filePath)) {
+    const fd = fs.openSync(filePath, "r");
+    try {
+      const buffer = Buffer.alloc(4096);
+      const read = fs.readSync(fd, buffer, 0, buffer.length, 0);
+      current = buffer.toString("utf8", 0, read).split("\n")[0];
+    } finally {
+      fs.closeSync(fd);
+    }
+  }
+  if (current === columns.join(",")) return;
+  // Missing, empty, or written with an older column set: rewrite once from memory.
+  fs.writeFileSync(filePath, toCsv(rows, columns));
+}
+
+function appendCsvRow(filePath, columns, row) {
+  fs.appendFileSync(filePath, csvLine(row, columns));
+}
+
+function scheduleRewrite(kind) {
+  rewriteDirty[kind] = true;
+  if (rewriteTimer) return;
+  rewriteTimer = setTimeout(flushRewrites, WRITE_COALESCE_MS);
+}
+
+function flushRewrites() {
+  if (rewriteTimer) {
+    clearTimeout(rewriteTimer);
+    rewriteTimer = null;
+  }
+  if (rewriteDirty.participants) {
+    rewriteDirty.participants = false;
+    fs.writeFileSync(participantsPath, toCsv(participants, participantColumns));
+  }
+  if (rewriteDirty.survey) {
+    rewriteDirty.survey = false;
+    fs.writeFileSync(surveyResponsesPath, toCsv(surveyResponses, surveyResponseColumns));
+  }
+}
+
+function buildDerivedFiles() {
+  flushRewrites();
   fs.writeFileSync(combinedCsvPath, toCsv(combinedRows(), combinedColumns));
   fs.writeFileSync(workbookPath, createWorkbook([
     { name: "participants", columns: participantColumns, rows: participants },
@@ -502,12 +566,13 @@ function persistAll() {
   ]));
 }
 
-function persistAiRequests() {
-  fs.writeFileSync(aiRequestsPath, toCsv(aiRequests, aiRequestColumns));
-}
-
-function persistChatIntentChecks() {
-  fs.writeFileSync(chatIntentChecksPath, toCsv(chatIntentChecks, chatIntentCheckColumns));
+function migrateCsvFiles() {
+  fs.mkdirSync(dataDir, { recursive: true });
+  ensureCsvHeader(participantsPath, participantColumns, participants);
+  ensureCsvHeader(interactionsPath, interactionColumns, interactions);
+  ensureCsvHeader(surveyResponsesPath, surveyResponseColumns, surveyResponses);
+  ensureCsvHeader(aiRequestsPath, aiRequestColumns, aiRequests);
+  ensureCsvHeader(chatIntentChecksPath, chatIntentCheckColumns, chatIntentChecks);
 }
 
 function recordChatIntentCheck(payload, result, requestStartedAt = Date.now(), requestTime = "", classifierSource = "") {
@@ -537,7 +602,7 @@ function recordChatIntentCheck(payload, result, requestStartedAt = Date.now(), r
     cause: safeResult.cause || "",
   }, chatIntentCheckColumns);
   chatIntentChecks.push(row);
-  persistChatIntentChecks();
+  appendCsvRow(chatIntentChecksPath, chatIntentCheckColumns, row);
   return row;
 }
 
@@ -783,6 +848,14 @@ function serveAdminDownload(req, res) {
   };
   const filePath = allowedFiles[fileName];
 
+  // The combined CSV and the workbook are built here, on demand, never per save; the coalesced
+  // rewrites are flushed first so every download reflects the latest state.
+  if (fileName === "experiment_data.csv" || fileName === "experiment_data.xlsx") {
+    buildDerivedFiles();
+  } else if (filePath) {
+    flushRewrites();
+  }
+
   if (!filePath || !fs.existsSync(filePath)) {
     res.writeHead(404);
     res.end("Not found");
@@ -838,7 +911,85 @@ function aiPipelineAbortResult(signal) {
   };
 }
 
+// Node reports every network-level failure as a TypeError whose message is just "fetch failed"; the
+// reason (ETIMEDOUT, ECONNRESET, EAI_AGAIN, ...) sits in a nested cause, sometimes inside an
+// AggregateError when several addresses were tried. The pilot logged only the outer message, so
+// the cause of 605 failures had to be recovered from the platform's raw logs after the fact.
+function networkErrorCode(error) {
+  const seen = new Set();
+  const stack = [error];
+  while (stack.length) {
+    const current = stack.shift();
+    if (!current || typeof current !== "object" || seen.has(current)) continue;
+    seen.add(current);
+    if (typeof current.code === "string" && current.code) return current.code;
+    if (current.cause) stack.push(current.cause);
+    if (Array.isArray(current.errors)) stack.push(...current.errors);
+  }
+  return "";
+}
+
+const OPENAI_RETRYABLE_NETWORK_CODES = new Set([
+  "ETIMEDOUT", "ECONNRESET", "ECONNREFUSED", "EPIPE", "EAI_AGAIN", "ENOTFOUND", "ENETUNREACH", "EHOSTUNREACH",
+  "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_SOCKET", "UND_ERR_HEADERS_TIMEOUT", "UND_ERR_BODY_TIMEOUT",
+]);
+// Two retries, so three attempts, with a short backoff. A transient fault of the kind seen on
+// 6 September then costs a few seconds instead of the participant's turn.
+const openaiRetryBackoffMs = String(process.env.OPENAI_RETRY_BACKOFF_MS || "1000,2000")
+  .split(",").map((value) => Math.max(0, Number(value) || 0));
+
+function isRetryableNetworkError(error) {
+  if (!error || error.name === "AbortError") return false;
+  const code = networkErrorCode(error);
+  if (code) return OPENAI_RETRYABLE_NETWORK_CODES.has(code);
+  return error.name === "TypeError" && /fetch failed/i.test(String(error.message || ""));
+}
+
+function abortableDelay(ms, externalSignal) {
+  return new Promise((resolve, reject) => {
+    if (externalSignal && externalSignal.aborted) {
+      reject(externalSignal.reason || new Error("aborted"));
+      return;
+    }
+    const timer = setTimeout(() => {
+      if (externalSignal) externalSignal.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    function onAbort() {
+      clearTimeout(timer);
+      reject(externalSignal.reason || new Error("aborted"));
+    }
+    if (externalSignal) externalSignal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
 async function fetchOpenAiResponses(body, externalSignal) {
+  const attempts = openaiRetryBackoffMs.length + 1;
+  let lastError = null;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await fetchOpenAiResponsesOnce(body, externalSignal);
+    } catch (error) {
+      lastError = error;
+      const retryable = attempt < attempts && isRetryableNetworkError(error) && !(externalSignal && externalSignal.aborted);
+      if (!retryable) break;
+      const code = networkErrorCode(error) || "fetch failed";
+      console.warn(`[openai-retry] attempt ${attempt} of ${attempts} failed (${code}); retrying in ${openaiRetryBackoffMs[attempt - 1]}ms`);
+      await abortableDelay(openaiRetryBackoffMs[attempt - 1], externalSignal);
+    }
+  }
+  if (isRetryableNetworkError(lastError) || (lastError && lastError.name === "TypeError")) {
+    const code = networkErrorCode(lastError) || "unknown";
+    const networkError = new Error(`fetch failed (${code}, after ${attempts} attempt${attempts === 1 ? "" : "s"})`);
+    networkError.name = "OpenAINetworkError";
+    networkError.code = code;
+    networkError.cause = lastError;
+    throw networkError;
+  }
+  throw lastError;
+}
+
+async function fetchOpenAiResponsesOnce(body, externalSignal) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), openaiRequestTimeoutMs);
   const abortFromCaller = () => controller.abort(externalSignal.reason);
@@ -4329,7 +4480,14 @@ function crc32(buffer) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-persistAll();
+migrateCsvFiles();
+// Render sends SIGTERM on every deploy; a pending coalesced rewrite must not be lost to it.
+for (const signalName of ["SIGTERM", "SIGINT"]) {
+  process.on(signalName, () => {
+    try { flushRewrites(); } catch (error) { console.error("Unable to flush pending writes:", error.message); }
+    process.exit(0);
+  });
+}
 
 module.exports = {
   server,
@@ -4355,6 +4513,13 @@ module.exports = {
   generateAiReply,
   managerConditionRules,
   MANAGER_ACK_FORBIDDEN,
+  fetchOpenAiResponses,
+  networkErrorCode,
+  isRetryableNetworkError,
+  appendCsvRow,
+  ensureCsvHeader,
+  flushRewrites,
+  buildDerivedFiles,
   lowPolitenessWordingProblem,
   NEUTRAL_CHAT_REGISTER_RULE,
   managerLengthOnlyRewriteCorrection,
