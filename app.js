@@ -63,8 +63,6 @@
 
   const state = {
     part: "prechat",
-    lastManagerAckLine: "",
-    managerAckLines: [],
     prechatAwaitingIntro: false,
     prechatIntroReceived: false,
     prechatReminderShown: false,
@@ -889,10 +887,6 @@
     state.lastAiIntent = "";
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
-    // The acknowledgement lines are generated once per session. Fetching them here, while the
-    // opening plays, means the first "give me a moment" is not delayed by generating its own
-    // wording: measured, that delay put the line at 12 s after the send instead of about 8.
-    loadManagerAckLines();
     state.managerTurnActive = true;
     // The role assignment was already announced in the task room and acknowledged there, so
     // re-introducing it here reads as a script restart rather than the same person continuing.
@@ -956,7 +950,6 @@
     state.lastAiIntent = "";
     saveParticipant();
     createChat(inZh("Manager Chat", "经理聊天室"), inZh("Manager online", "经理在线"), true);
-    loadManagerAckLines();
     state.managerTurnActive = true;
     await sendDelayed("Manager", "manager", inZh(
       "So, from what you've read so far, what do you think the park should do?",
@@ -1635,7 +1628,6 @@
           condition,
           alexMessage: text,
           rejectionRound: 1,
-          acknowledge: true,
         });
         if (!sent) {
           state.managerRejected = false;
@@ -1659,7 +1651,6 @@
           condition,
           alexMessage: text,
           rejectionRound: 1,
-          acknowledge: true,
         });
       } else if (decision === "unknown") {
         sent = await sendAiMessages({
@@ -2665,23 +2656,10 @@
     const validatedManagerTurn =
       request.stage === "manager1" &&
       ["discussion", "rejection_initial", "rejection_followup", "rejection", "closing"].includes(request.phase);
-    // When the caller already knows a rejection is coming (request.acknowledge), the manager says
-    // "give me a moment" right away, while the reply is generated. That is the human moment for
-    // it: as soon as you realise you need to think, not after a long silence. Otherwise the
-    // clock-based fallback runs, which only speaks if the wait passes the threshold. A closing is
-    // the manager signing off, not deliberating, and is never acknowledged.
-    const acknowledgeableTurn = validatedManagerTurn && request.phase !== "closing";
-    const replyPromise = requestAiMessages(request);
-    let presence = null;
-    if (request.acknowledge) presence = postManagerAcknowledgement();
-    else if (acknowledgeableTurn) presence = runManagerWaitPresence(replyPromise);
-    let result;
-    try {
-      result = await replyPromise;
-    } finally {
-      // Never let the reply overtake the presence sequence when generation returns quickly.
-      if (presence) await presence;
-    }
+    // The wait while a reply is generated and validated is silent: no typing indicator is held
+    // across it, and the manager sends nothing until the reply itself is ready. The "give me a
+    // moment" line that used to fill the wait was removed at the author's request.
+    const result = await requestAiMessages(request);
     if (!result.ok) {
       console.warn(result.error || "The AI chat service is not available. Please check the server configuration.");
       setApiConnectionIssue();
@@ -2793,7 +2771,7 @@
     const retryMessage = inZh("The chat connection had a brief issue. Please try again.", "聊天连接短暂出现问题。请再试一次。");
     const requestId = createAiRequestId();
     const requestTimeoutMs = aiRequestTimeoutFor(request);
-    const { acknowledge: _acknowledge, abortIf: _abortIf, ...requestFields } = request;
+    const { abortIf: _abortIf, ...requestFields } = request;
     const requestPayload = {
       ...requestFields,
       request_id: requestId,
@@ -2926,95 +2904,6 @@
     messagesEl.appendChild(row);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return row;
-  }
-
-  // A real chat client has no "reviewing your message" state, so an invented one reads as a machine
-  // affordance to a suspicious participant. A manager who has just been sent a proposal does the
-  // human equivalent instead: says they need a moment. The register is asking for time or wanting to
-  // think it over, never narrating that they are reading the message.
-  //
-  // The lines are generated once per session rather than hardcoded, so two participants do not see
-  // the same script. They carry no face work in either direction — no thanks or appreciation
-  // (positive politeness) and no apology or deference (negative politeness) — because they sit
-  // immediately before the politeness-manipulated rejection and would otherwise become part of it.
-  // This local set is the fallback when generation is unavailable.
-  const MANAGER_ACK_FALLBACK_EN = [
-    "Give me a sec.",
-    "Let me think about this for a moment.",
-    "Okay, give me a minute with this one.",
-    "Hang on, let me sit with this a moment.",
-    "Give me a moment to think it over.",
-    "One sec, I want to think about this properly.",
-  ];
-  const MANAGER_ACK_FALLBACK_ZH = [
-    "我想想。",
-    "稍等,让我想一下。",
-    "给我点时间想想。",
-    "等一下,我琢磨一下。",
-    "让我先考虑考虑。",
-    "稍等,我想清楚再说。",
-  ];
-
-  async function loadManagerAckLines() {
-    if (state.managerAckLines.length) return;
-    try {
-      const response = await fetch("/api/manager-ack-lines", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ language: isChinese ? "zh" : "en" }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (Array.isArray(data.lines) && data.lines.length >= 4) {
-        state.managerAckLines = data.lines;
-        return;
-      }
-    } catch (error) {
-      // Falls through to the local set below.
-    }
-    state.managerAckLines = inZhArray(MANAGER_ACK_FALLBACK_EN, MANAGER_ACK_FALLBACK_ZH);
-  }
-
-  function pickManagerAckLine() {
-    const lines = state.managerAckLines.length
-      ? state.managerAckLines
-      : inZhArray(MANAGER_ACK_FALLBACK_EN, MANAGER_ACK_FALLBACK_ZH);
-    const available = lines.filter((line) => line !== state.lastManagerAckLine);
-    const pool = available.length ? available : lines;
-    const line = pool[Math.floor(Math.random() * pool.length)];
-    state.lastManagerAckLine = line;
-    return line;
-  }
-
-  // Shown while generation and blind validation run. It is a real Manager message: the participant
-  // sees it in the transcript and it is recorded, which is what makes it read as a person rather
-  // than as a status widget.
-  // A short typing burst, then the acknowledgement line. Used immediately when the turn is known to
-  // be a rejection, and by the clock-based fallback below.
-  async function postManagerAcknowledgement() {
-    const linesReady = loadManagerAckLines();
-    const typingIndicator = showTypingIndicator("Manager", "manager");
-    await Promise.all([linesReady, delay(randomBetween(700, 1200))]);
-    typingIndicator.remove();
-    addMessage("Manager", "manager", pickManagerAckLine());
-  }
-
-  // Fallback only, for turns whose kind is not known in advance: the combined discussion request
-  // when the decision request failed, and later rejection rounds. Neutral follow-ups finish in
-  // 5-12 seconds and the first rejection takes about 40, so the threshold keeps the line off the
-  // follow-ups. The wait itself is silent: a typing indicator held for twenty seconds and then
-  // followed by two short lines is the tell this whole sequence exists to remove.
-  const MANAGER_ACK_THRESHOLD_MS = 20000;
-
-  async function runManagerWaitPresence(replyPromise) {
-    let settled = false;
-    const tracked = replyPromise.then(
-      () => { settled = true; },
-      () => { settled = true; },
-    );
-    loadManagerAckLines();
-    await Promise.race([tracked, delay(MANAGER_ACK_THRESHOLD_MS)]);
-    if (settled) return;
-    await postManagerAcknowledgement();
   }
 
   function responseDelayForText(text) {

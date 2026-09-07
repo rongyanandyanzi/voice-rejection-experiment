@@ -26,7 +26,6 @@ const {
   neutralManagerClosingProblem,
   generateAiReply,
   managerConditionRules,
-  MANAGER_ACK_FORBIDDEN,
   fetchOpenAiResponses,
   networkErrorCode,
   isRetryableNetworkError,
@@ -940,60 +939,19 @@ test("first manager interaction displays only an AI-generated condition-matched 
   assert.doesNotMatch(appSource, /randomBetween\(4500, 6500\)/);
 });
 
-test("the manager acknowledges receipt while generating, then types naturally", () => {
+test("the wait for a manager reply is silent, then the reply types at a natural speed", () => {
   const appSource = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
-  // A real chat client has no "reviewing your message" state, so the wait is filled by the manager
-  // saying something a person would say instead of by an invented status widget.
+  // No acknowledgement of any kind: no generated lines, no clock, no status widget.
+  assert.doesNotMatch(appSource, /postManagerAcknowledgement|runManagerWaitPresence|pickManagerAckLine|loadManagerAckLines|MANAGER_ACK|manager-ack-lines|acknowledge: true/);
   assert.doesNotMatch(appSource, /showManagerHoldingIndicator|Manager is reviewing your message/);
-  assert.match(appSource, /async function runManagerWaitPresence\(replyPromise\)/);
-  // Known rejection turns acknowledge immediately; everything else falls back to the clock.
-  assert.match(appSource, /if \(request\.acknowledge\) presence = postManagerAcknowledgement\(\);\s*\n\s*else if \(acknowledgeableTurn\) presence = runManagerWaitPresence\(replyPromise\);/);
-  // A closing is a sign-off, not deliberation, so it is never acknowledged however long it takes.
-  assert.match(
-    appSource,
-    /const acknowledgeableTurn = validatedManagerTurn && request\.phase !== "closing";/,
-    "closings must never be acknowledged",
-  );
-  assert.doesNotMatch(appSource, /participantSpokeSinceRejection/);
-  assert.match(appSource, /finally \{[\s\S]*await presence/);
-  // The acknowledgement is a real recorded Manager message, not a transient indicator.
-  assert.match(appSource, /addMessage\("Manager", "manager", pickManagerAckLine\(\)\)/);
-  // Generated per session rather than shipped as one script every participant sees.
-  assert.match(appSource, /fetch\("\/api\/manager-ack-lines"/);
-  // The phase is no longer guessed from the clock alone: the browser asks for the decision first.
-  assert.doesNotMatch(appSource, /acknowledgedManagerTurn/);
-  // The wait is silent. Neutral follow-ups finish in 5-12 seconds and must pass with no
-  // acknowledgement at all; only a wait past twenty seconds, which in practice is the turn that
-  // produces the rejection, earns one.
-  assert.match(appSource, /const MANAGER_ACK_THRESHOLD_MS = 20000/);
-  assert.doesNotMatch(appSource, /MANAGER_NOTICE_DELAY/);
-  assert.match(appSource, /await Promise\.race\(\[tracked, delay\(MANAGER_ACK_THRESHOLD_MS\)\]\);\s*\n\s*if \(settled\) return;/);
-  // No typing indicator is held across the wait: twenty seconds of typing followed by two short
-  // lines is the tell this sequence exists to remove.
-  assert.match(
-    appSource,
-    /await Promise\.race\(\[tracked, delay\(MANAGER_ACK_THRESHOLD_MS\)\]\);\s*\n\s*if \(settled\) return;\s*\n\s*await postManagerAcknowledgement\(\);/,
-    "the fallback may only speak after the threshold has already passed",
-  );
-  const ackBlock = appSource.slice(
-    appSource.indexOf("const MANAGER_ACK_FALLBACK_EN"),
-    appSource.indexOf("async function loadManagerAckLines"),
-  );
-  // Third-person status voice is what made the old indicator read as a machine, so the lines must
-  // be first person. The verb itself was never the problem.
-  assert.doesNotMatch(ackBlock, /\bManager is\b|\bprocessing\b/i);
-  // No face work in either direction, or it becomes part of the politeness manipulation it precedes.
-  assert.doesNotMatch(ackBlock, /thank|appreciate|sorry|apolog|please|great|good work/i);
-  assert.match(appSource, /lines\.filter\(\(line\) => line !== state\.lastManagerAckLine\)/);
+  // Nothing is shown while the reply is generated; the reply then arrives with a typing indicator
+  // sized to its length.
+  assert.match(appSource, /const result = await requestAiMessages\(request\);/);
   assert.match(appSource, /postValidation: validatedManagerTurn && messageIndex === 0/);
   assert.match(appSource, /interMessage: initialRejectionPair && messageIndex > 0/);
-  // One typing speed for every validated manager turn. The old 300-420 wpm profile under a 5.2
-  // second cap was a reading speed, and it let a 44-word message land after a few seconds of typing.
   assert.match(appSource, /const MANAGER_TYPING_WPM = \{ min: 140, max: 180 \}/);
-  assert.match(appSource, /const MANAGER_TYPING_DELAY_MS = \{ min: 2500, max: 11000 \}/);
-  assert.doesNotMatch(appSource, /randomBetween\(300, 420\)|randomBetween\(180, 220\)/);
-  assert.equal((appSource.match(/const typingDelay = managerTypingDelayFor\(text\)/g) || []).length, 2,
-    "both the first-message and inter-message paths must share the one speed");
+  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
+  assert.doesNotMatch(serverSource, /manager-ack-lines|generateManagerAckLines|MANAGER_ACK/);
 });
 
 test("failed HC structure regenerates and internal fields never reach the browser response", async () => {
@@ -1422,32 +1380,6 @@ test.after(() => {
   fs.rmSync(testDataDir, { recursive: true, force: true });
 });
 
-test("generated manager acknowledgement lines cannot carry face work or an evaluation", () => {
-  const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
-  // The line sits immediately before a politeness-manipulated rejection, so anything face-bearing in
-  // it would be applied identically to warm and cold conditions and blur the contrast.
-  assert.match(serverSource, /Never thank the person, never apologise, never praise the proposal/);
-  assert.match(serverSource, /Never write in the third person and never sound like a status label/);
-  assert.match(serverSource, /const MANAGER_ACK_FORBIDDEN =/);
-  for (const bad of [
-    "Thanks, give me a sec.",
-    "Sorry, one moment.",
-    "Great idea, let me think.",
-    "Give me a minute, Alex.",
-    "谢谢,我想想。",
-  ]) {
-    assert.ok(MANAGER_ACK_FORBIDDEN.test(bad), `should reject: ${bad}`);
-  }
-  for (const good of [
-    "Give me a sec.",
-    "Let me think about this for a moment.",
-    "Okay, give me a minute with this one.",
-    "让我想想。",
-  ]) {
-    assert.ok(!MANAGER_ACK_FORBIDDEN.test(good), `should keep: ${good}`);
-  }
-});
-
 test("an over-cap message is shortened with an exact cut, and a small overshoot is accepted last", () => {
   const prompt = buildInitialManagerPrompt(managerPayload({ condition: "HP_HC" }));
   // 17 / 47: inside the 54-68 total band, one word over Message 2's cap of 46. This is the shape
@@ -1669,7 +1601,7 @@ test("the survey is one section per page, validated per page, with no way back a
   assert.match(survey, /const resuming = participant\.survey_completion_status === "partial" && Boolean\(participant\.survey_start_time\)/);
 });
 
-test("the discussion decision is made once, guarded on the server, and drives the acknowledgement", async () => {
+test("the discussion decision is made once and guarded on the server", async () => {
   // Server: the guard lives in the decision itself.
   const originalFetch = global.fetch;
   global.fetch = async () => responseJson({ intent: "reject_now" });
@@ -1693,23 +1625,16 @@ test("the discussion decision is made once, guarded on the server, and drives th
   assert.match(appSource, /async function getDiscussionIntent\(text\)/);
   assert.match(appSource, /fetchWithTimeout\(`\$\{dataEndpoint\}\/discussion-intent`/);
   const branch = appSource.slice(appSource.indexOf("const decision = await getDiscussionIntent(text);"), appSource.indexOf("if (state.managerRejected) {", appSource.indexOf("const decision = await getDiscussionIntent(text);")));
-  assert.match(branch, /if \(decision === "reject_now"\) \{[\s\S]*?phase: "rejection_initial",[\s\S]*?acknowledge: true,/);
+  assert.match(branch, /if \(decision === "reject_now"\) \{[\s\S]*?phase: "rejection_initial",/);
   assert.match(branch, /else if \(decision === "unknown"\) \{[\s\S]*?phase: "discussion",/);
   assert.match(branch, /else \{[\s\S]*?phase: "discussion_neutral",\s*\n\s*discussionIntent: decision,/);
   // Counters use the decision, not the reply's intent, because the rejection path returns none.
   assert.match(branch, /const intent = decision === "unknown" \? state\.lastAiIntent : decision;/);
-  // The immediate acknowledgement bypasses the clock; the clock remains only as the fallback.
-  assert.match(appSource, /if \(request\.acknowledge\) presence = postManagerAcknowledgement\(\);\s*\n\s*else if \(acknowledgeableTurn\) presence = runManagerWaitPresence\(replyPromise\);/);
-  assert.match(appSource, /async function postManagerAcknowledgement\(\)/);
-  // The line set is fetched when the manager chat opens, so the first acknowledgement is not
-  // delayed by generating its own wording.
-  const managerChat = appSource.slice(appSource.indexOf("async function renderManagerChat()"), appSource.indexOf("function createChat"));
-  assert.match(managerChat, /createChat\([^\n]*\);\s*\n(?:\s*\/\/[^\n]*\n)*\s*loadManagerAckLines\(\);/);
-  // The backstop rejection after the follow-up cap is also known in advance.
+  // The backstop rejection after the follow-up cap still uses the rejection phase directly.
   const backstop = appSource.slice(appSource.indexOf("const reachedFollowupCap"), appSource.indexOf("const decision = await getDiscussionIntent(text);"));
-  assert.match(backstop, /phase: "rejection_initial",[\s\S]*?acknowledge: true,/);
+  assert.match(backstop, /phase: "rejection_initial",/);
   // The client-only flag never reaches the server payload.
-  assert.match(appSource, /const \{ acknowledge: _acknowledge, abortIf: _abortIf, \.\.\.requestFields \} = request;/);
+  assert.match(appSource, /const \{ abortIf: _abortIf, \.\.\.requestFields \} = request;/);
 });
 
 test("a second-conversation reply overtaken by a newer message is discarded and the queue is always drained", () => {
@@ -1720,7 +1645,7 @@ test("a second-conversation reply overtaken by a newer message is discarded and 
   assert.doesNotMatch(appSource, /restoredChatStageNames[\s\S]{0,400}"diagnostic"/);
   // sendAiMessages honours abortIf after the reply arrives and before anything is shown.
   assert.match(appSource, /if \(typeof request\.abortIf === "function" && request\.abortIf\(\)\) \{[\s\S]*?return "aborted";/);
-  assert.match(appSource, /const \{ acknowledge: _acknowledge, abortIf: _abortIf, \.\.\.requestFields \} = request;/);
+  assert.match(appSource, /const \{ abortIf: _abortIf, \.\.\.requestFields \} = request;/);
   const handler = appSource.slice(appSource.indexOf("async function handleNeutralManagerInput(text)"), appSource.indexOf("function showNeutralProceedChoice()"));
   // The no-substance prompt and both closings can be discarded; the question cannot.
   assert.equal((handler.match(/abortIf: superseded,/g) || []).length, 3);

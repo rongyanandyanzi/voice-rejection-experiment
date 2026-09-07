@@ -339,13 +339,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "POST" && req.url === "/api/manager-ack-lines") {
-    const payload = await readJson(req);
-    const result = await generateManagerAckLines(payload.language === "zh" ? "zh" : "en");
-    sendJson(res, result);
-    return;
-  }
-
   if (req.method === "POST" && req.url === "/api/discussion-intent") {
     // Returns only the decision (awaiting_proposal, ask_followup, reject_now), so the browser
     // knows about seven seconds in whether a rejection is coming and can have the manager say
@@ -2457,104 +2450,6 @@ function normalizeManagerCondition(value) {
   return "HP_HC";
 }
 
-// While the manager's rejection is being generated and blind-validated the participant waits, and
-// a real person fills that gap by saying they need a moment. A hardcoded set of lines would be the
-// same for every participant, which is the templating problem this whole design keeps running into,
-// so a fresh set is drawn per session. The lines are deliberately about needing time to think
-// rather than about reading the message: "let me think about this" is what a manager weighing a
-// decision says, while "let me read this" narrates a mechanical step.
-const MANAGER_ACK_FALLBACK_EN = [
-  "Give me a sec.",
-  "Let me think about this for a moment.",
-  "Okay, give me a minute with this one.",
-  "Hang on, let me sit with this a moment.",
-  "Give me a moment to think it over.",
-  "One sec, I want to think about this properly.",
-];
-const MANAGER_ACK_FALLBACK_ZH = [
-  "我想想。",
-  "稍等,让我想一下。",
-  "给我点时间想想。",
-  "等一下,我琢磨一下。",
-  "让我先考虑考虑。",
-  "稍等,我想清楚再说。",
-];
-
-async function generateManagerAckLines(language) {
-  const fallback = language === "zh" ? MANAGER_ACK_FALLBACK_ZH : MANAGER_ACK_FALLBACK_EN;
-  const body = {
-    model: openaiModel,
-    input: [
-      {
-        role: "system",
-        content: [
-          "Write short things a manager types in a workplace chat right after a team member sends a proposal, to say they need a moment before answering.",
-          language === "zh"
-            ? "Write natural Simplified Chinese as typed in chat."
-            : "Write natural spoken workplace English as typed in chat. Contractions are fine.",
-          "Each line is one short sentence, at most eight words, and must sound like a real person typing, not like a status message or an automated notice.",
-          // The wait these lines cover can run past a minute, because the reply is generated and then
-          // blind-validated. Saying you are about to read the message makes that wait implausible:
-          // reading three sentences does not take a minute. Saying you need to think it over makes
-          // the same wait entirely ordinary, which is why the register leans that way. A natural
-          // first-person "let me take a look at this" is fine and is not what gave the old status
-          // label away; that was third-person system voice, not the verb.
-          "The register is asking for time or saying you want to think it over: give me a second, let me think about this, give me a minute with this. Lean towards weighing the decision rather than announcing that you are about to read it, since the participant may wait a while for the reply.",
-          "Never write in the third person and never sound like a status label or a system notice. No machine wording such as processing, request, or queue.",
-          // The line precedes a politeness-manipulated rejection, so any face work in it would be
-          // part of the manipulation rather than a constant across conditions.
-          "Never thank the person, never apologise, never praise the proposal, never say please, and never evaluate the idea in any way. These lines must work equally well before a warm reply and before a cold one.",
-          "Do not mention any name. Do not promise an answer, an outcome, or a timeframe.",
-          "Return eight clearly different lines. Vary the sentence shape, not just one word.",
-        ].filter(Boolean).join("\n"),
-      },
-      { role: "user", content: "Write the eight lines." },
-    ],
-    text: {
-      format: {
-        type: "json_schema",
-        name: "manager_ack_lines",
-        strict: true,
-        schema: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            lines: { type: "array", minItems: 8, maxItems: 8, items: { type: "string" } },
-          },
-          required: ["lines"],
-        },
-      },
-    },
-    max_output_tokens: supportsReasoningEffort(openaiModel) ? 1200 : 200,
-  };
-  if (supportsReasoningEffort(openaiModel)) {
-    body.reasoning = { effort: openaiReasoningEffort };
-  } else {
-    body.temperature = 1;
-  }
-
-  try {
-    const response = await fetchOpenAiResponses(body);
-    if (!response.ok) return { ok: true, lines: fallback, source: "fallback" };
-    const data = await response.json().catch(() => ({}));
-    const parsed = extractParsedObject(data) || parseOpenAiJson(extractResponseText(data));
-    const lines = parsed && Array.isArray(parsed.lines)
-      ? parsed.lines.map((line) => String(line || "").trim()).filter(Boolean)
-      : [];
-    const usable = lines.filter((line) => !MANAGER_ACK_FORBIDDEN.test(line));
-    // A partial set is still better than one shared script, but too few distinct lines defeats the
-    // purpose, so fall back rather than repeat two lines all session.
-    if (usable.length < 4) return { ok: true, lines: fallback, source: "fallback" };
-    return { ok: true, lines: usable, source: "generated" };
-  } catch (error) {
-    return { ok: true, lines: fallback, source: "fallback" };
-  }
-}
-
-// Guards the two ways a generated line could damage the study: face work would make the wait itself
-// part of the politeness manipulation, and an evaluation would preview the rejection.
-const MANAGER_ACK_FORBIDDEN = /\b(?:thanks|thank you|appreciate|sorry|apolog\w*|please|great|nice|good (?:idea|work|thinking)|interesting|Alex|Lisa|John)\b|谢谢|感谢|抱歉|不好意思|辛苦|请|不错|很好/i;
-
 
 // Register for the manager's neutral turns only: the follow-up questions before the rejection and
 // the whole second conversation. Text that is perfect on every line, with every period in place, is
@@ -4512,7 +4407,6 @@ module.exports = {
   decideInitialManagerDiscussion,
   generateAiReply,
   managerConditionRules,
-  MANAGER_ACK_FORBIDDEN,
   fetchOpenAiResponses,
   networkErrorCode,
   isRetryableNetworkError,
