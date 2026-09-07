@@ -2061,7 +2061,7 @@ function buildInitialManagerPrompt(payload) {
       "Reject the proposal for now and split the turn into exactly two chat messages with a natural short-then-long rhythm.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
-        : "Produce exactly 2 Manager messages and aim for 60-62 words across the pair. Message 1 should be a short decision and immediate reaction. Message 2 should be a longer explanation. This short-then-long rhythm is style guidance only: there are no individual message word limits. Only the combined word count is checked, identically across all four conditions.",
+        : "Produce exactly 2 Manager messages with 60-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions.",
       "Message 1 contains the condition-matched interpersonal style, the explicit rejection, and a brief proposal-focused reaction. It should sound like the first thing a manager would actually type, not a miniature report.",
       language === "zh"
         ? "用自然、明确但不固定的中文表达当前版本不会获批，不要照抄示例句式。"
@@ -2087,8 +2087,14 @@ function buildInitialManagerPrompt(payload) {
     // and the reply came back as "incomplete", which was 3 of 4 failures in the last batch. Raising
     // the ceiling costs nothing when it is not used.
     maxOutputTokens = language === "zh" ? 5000 : 1400;
-    // Match total exposure only. The short decision followed by a fuller explanation is style
-    // guidance, not an independent length gate or a reason to rewrite either message.
+    // Keep total exposure tightly matched across conditions, but use an asymmetric chat rhythm.
+    // A real manager is more likely to send a short decision and then a fuller explanation than two
+    // polished paragraphs of identical size. Indexed ranges preserve that rhythm without changing
+    // the total amount of condition-bearing content participants receive.
+    wordRange = language === "zh" ? null : { min: 14, max: 46 };
+    messageWordRanges = language === "zh"
+      ? null
+      : [{ min: 14, max: 22 }, { min: 36, max: 46 }];
     totalWordRange = language === "zh" ? null : { min: 54, max: 68 };
     // Target moved up from 58-62: high constructiveness lands at 61-63 against the ceiling while low
     // constructiveness sat at 59-60 against the old target, a 5.5% spread. Raising the target lifts
@@ -2990,7 +2996,7 @@ function coworkerSolutionProblem(messages, prompt, intent) {
 }
 
 function shouldEnforceManagerLength(prompt, intent) {
-  if (!prompt.wordRange && !prompt.totalWordRange && !prompt.chineseCharRange) return false;
+  if (!prompt.wordRange && !prompt.chineseCharRange) return false;
   if (Array.isArray(prompt.intentEnum) && prompt.intentEnum.length) {
     return intent === "reject_now";
   }
@@ -3005,7 +3011,7 @@ function managerLengthProblem(messages, prompt) {
 }
 
 function managerWordCountProblem(messages, prompt) {
-  if (!prompt || (!prompt.wordRange && !prompt.totalWordRange) || !Array.isArray(messages) || !messages.length) return "";
+  if (!prompt.wordRange || !Array.isArray(messages) || !messages.length) return "";
   const managerMessages = messages
     .filter((message) => message.speaker === "Manager")
     .map((message, index) => ({
@@ -3014,21 +3020,17 @@ function managerWordCountProblem(messages, prompt) {
       range: managerMessageWordRange(prompt, index),
     }));
   const problems = managerMessages
-    .filter((item) => item.range && (item.count < item.range.min || item.count > item.range.max));
+    .filter((item) => item.count < item.range.min || item.count > item.range.max);
   const totalCount = managerMessages.reduce((sum, item) => sum + item.count, 0);
   const totalProblem = prompt.totalWordRange &&
     (totalCount < prompt.totalWordRange.min || totalCount > prompt.totalWordRange.max);
 
   if (!problems.length && !totalProblem) return "";
   return [
-    prompt.wordRange || prompt.messageWordRanges
-      ? `Length correction required. Previous Manager message word count(s): ${managerMessages.map((item) => item.count).join(", ")}. Combined count: ${totalCount}.`
-      : `Length correction required. Combined Manager word count: ${totalCount}.`,
+    `Length correction required. Previous Manager message word count(s): ${managerMessages.map((item) => item.count).join(", ")}. Combined count: ${totalCount}.`,
     Array.isArray(prompt.messageWordRanges) && prompt.messageWordRanges.length === managerMessages.length
       ? `Regenerate with Message 1 at ${managerMessages[0].range.min}-${managerMessages[0].range.max} words and Message 2 at ${managerMessages[1].range.min}-${managerMessages[1].range.max} words.`
-      : prompt.wordRange
-        ? `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`
-        : "",
+      : `Regenerate the Manager message so every Manager message is ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
     prompt.totalWordRange
       ? `The Manager messages must contain ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words in total.`
       : "",
@@ -3044,11 +3046,11 @@ function managerMessageWordRange(prompt, index) {
   const indexedRange = prompt && Array.isArray(prompt.messageWordRanges)
     ? prompt.messageWordRanges[index]
     : null;
-  return indexedRange || (prompt && prompt.wordRange) || null;
+  return indexedRange || prompt.wordRange;
 }
 
-// Legacy support for prompts with individual caps. Total-only first rejections have no such
-// overshoot: they either meet the combined band or need a length correction.
+// True, with a description, when every Manager message is within three words of its own cap and
+// the pair is inside the total band. Anything larger, or a total outside its band, is not small.
 const MANAGER_LENGTH_OVERSHOOT_TOLERANCE = 3;
 function managerSmallLengthOvershoot(messages, prompt) {
   if (!prompt || prompt.phase !== "rejection_initial" || prompt.language !== "en") return "";
@@ -3079,8 +3081,10 @@ function managerLengthOnlyRewriteCorrection(messages, prompt, lengthProblem) {
   const target = prompt && prompt.totalWordTargetRange
     ? prompt.totalWordTargetRange
     : prompt && prompt.totalWordRange;
-  // Only configured ranges can require cuts. First rejections have a combined range without
-  // individual caps, so their correction names the pair's excess rather than a message budget.
+  // Overflow is judged per message as well as in total. The failure this guards against was a
+  // second message of 47 words against a 46 cap with the pair at 64, inside the 54-68 total band:
+  // the old check looked only at the total, so it issued the lengthening instruction ("reach the
+  // target") for a message that needed cutting, gave the model no number, and got 47 back again.
   const overflows = managerMessages.map((text, index) => {
     const range = managerMessageWordRange(prompt, index);
     return range && counts[index] > range.max ? counts[index] - range.max : 0;
@@ -3108,9 +3112,7 @@ function managerLengthOnlyRewriteCorrection(messages, prompt, lengthProblem) {
       : "",
     Array.isArray(prompt.messageWordRanges) && prompt.messageWordRanges.length === 2
       ? `Keep Message 1 short at ${prompt.messageWordRanges[0].min}-${prompt.messageWordRanges[0].max} words and Message 2 longer at ${prompt.messageWordRanges[1].min}-${prompt.messageWordRanges[1].max} words.`
-      : prompt.wordRange
-        ? `Keep each message within ${prompt.wordRange.min}-${prompt.wordRange.max} words.`
-        : "Use a short decision followed by a fuller explanation, with no individual word limits.",
+      : `Keep each message within ${prompt.wordRange.min}-${prompt.wordRange.max} words.`,
     "Keep the same explicit rejection, proposal-specific problem, consequence, standard, remedy path, future-step redress, and interpersonal cue direction and count. Do not add or remove a politeness cue, proposal-focused sharp cue, diagnostic detail, standard, or remedy.",
     "Preserve the same two-message division and return fresh hidden constructiveness fields that match the rewritten visible text.",
     ...managerMessages.map((text, index) => `Previous Manager message ${index + 1}: ${JSON.stringify(text)}`),
@@ -3286,7 +3288,7 @@ function managerMessageCountProblem(messages, prompt, intent) {
     ? `Each message must contain ${prompt.chineseCharRange.min}-${prompt.chineseCharRange.max} Chinese characters, the combined count must be ${prompt.chineseTotalCharRange.min}-${prompt.chineseTotalCharRange.max} Chinese characters, and both must preserve the same assigned condition.`
     : Array.isArray(prompt.messageWordRanges) && prompt.messageWordRanges.length === 2
       ? `Message 1 must be ${prompt.messageWordRanges[0].min}-${prompt.messageWordRanges[0].max} words, Message 2 must be ${prompt.messageWordRanges[1].min}-${prompt.messageWordRanges[1].max} words, the combined count must be ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words, and both must preserve the same assigned condition.`
-      : `The combined count must be ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words, and both messages must preserve the same assigned condition. There are no individual message word limits.`;
+      : `Each message must be ${prompt.wordRange.min}-${prompt.wordRange.max} words, the combined count must be ${prompt.totalWordRange.min}-${prompt.totalWordRange.max} words, and both must preserve the same assigned condition.`;
   return [
     `Message count correction required. Previous Manager message count was ${actual}, but it must be exactly ${expected}.`,
     expected === 2
@@ -3298,7 +3300,7 @@ function managerMessageCountProblem(messages, prompt, intent) {
 
 function normalizeInitialManagerLength(messages, prompt) {
   if (!prompt || prompt.kind !== "manager1" || prompt.phase !== "rejection_initial") return messages;
-  const hasEnglishRanges = prompt.language === "en" && prompt.totalWordRange;
+  const hasEnglishRanges = prompt.language === "en" && prompt.wordRange && prompt.totalWordRange;
   const hasChineseRanges = prompt.language === "zh" && prompt.chineseCharRange && prompt.chineseTotalCharRange;
   if (!hasEnglishRanges && !hasChineseRanges) return messages;
   const normalized = (Array.isArray(messages) ? messages : []).map((message) => ({ ...message }));
@@ -3416,7 +3418,6 @@ function normalizeInitialManagerLength(messages, prompt) {
 
   for (const [index, message] of managerMessages.entries()) {
     const range = managerMessageWordRange(prompt, index);
-    if (!range) continue;
     while (wordCount(message.text) > range.max && removeOptionalWording(message)) {
       // Remove only optional modifiers. Never truncate substantive content.
     }
