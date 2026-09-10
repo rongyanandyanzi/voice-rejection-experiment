@@ -1,0 +1,29 @@
+<!-- Manager message page: paste into the HTML view of a Text/Graphic question.
+     Piped text: ${e://Field/proposal}, ${e://Field/rejection_msg1}, ${e://Field/rejection_msg2}.
+     Piped text is inserted unescaped; the proposal is the participant's own words. -->
+<div style="max-width:640px;margin:0 auto;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <div style="border:1px solid #d9dee5;border-radius:12px;overflow:hidden;background:#ffffff;">
+    <div style="background:#f4f6f9;padding:12px 16px;border-bottom:1px solid #e3e7ec;font-size:14px;color:#556270;">
+      Aetheria Gardens &middot; Team messages
+    </div>
+    <div style="padding:16px;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <div style="max-width:82%;background:#e8f0fe;border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;">
+          <div style="font-size:12px;color:#66707a;margin-bottom:4px;">You &middot; to Park Manager</div>
+          ${e://Field/proposal}
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#2f5d8a;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;">PM</div>
+        <div style="max-width:82%;">
+          <div style="font-size:12px;color:#66707a;margin-bottom:4px;">Park Manager &middot; just now</div>
+          <div style="background:#f1f3f5;border-radius:4px 14px 14px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;margin-bottom:8px;">${e://Field/rejection_msg1}</div>
+          <div style="background:#f1f3f5;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;">${e://Field/rejection_msg2}</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 16px;border-top:1px solid #e3e7ec;font-size:13px;color:#77818b;">
+      The manager has closed this thread. Replies are not possible here.
+    </div>
+  </div>
+</div>

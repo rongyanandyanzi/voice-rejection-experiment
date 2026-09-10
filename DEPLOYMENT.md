@@ -205,6 +205,42 @@ https://voice-rejection-experiment.onrender.com/participants.csv
 
 It should return `403 Forbidden`.
 
+## Qualtrics mode (one-shot rejection)
+
+In the one-shot design the survey runs on Qualtrics and this service only generates and validates the
+manager's first rejection. The chat routes still exist, but nothing in the Qualtrics study uses them.
+
+Routes used by the survey (see `qualtrics/survey_flow.md`):
+
+- `GET /api/health`: pinged from the consent page to wake a sleeping free instance.
+- `POST /api/rejection/start` with `{request_id, condition, language, proposal, prolific_pid, study_id, session_id}`:
+  validates the input, starts generation in the background and returns `{ok, job, status, reused}` at
+  once. `request_id` is the Qualtrics ResponseID; sending the same id again returns the same job, and a
+  failed job is replaced by a new one.
+- `GET /api/rejection/result?job=<request_id>`: `{status: "pending"}`, then
+  `{status: "ok", messages, compliance_code, latency_ms}` or `{status: "failed", error, retryable}`.
+  Jobs are kept in memory for 30 minutes.
+
+The rejection is generated with `delivery: "message"`, which reframes the prompt as one written reply
+in two paragraphs (no greeting, no question back) while keeping the message count, the length bands
+and every validator of the chat version. `compliance_code` is an integer bitmask of the blind-score
+flags (decoded by `decodeComplianceCode` in `server.js` and listed in `qualtrics/survey_flow.md`), so
+the browser never sees the score object.
+
+Hosting: the free plan is enough. Create the service without a persistent disk; the CSV files are
+then recreated empty on every restart, which is fine because Qualtrics stores all study data. A free
+instance sleeps after about 15 idle minutes and takes up to a minute to wake, which the consent page
+ping covers. Environment variables: `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_EVALUATOR_MODEL`,
+`OPENAI_REASONING_EFFORT`, `AI_PIPELINE_TIMEOUT_MS`, and
+
+- `ALLOWED_ORIGINS`: comma-separated origins allowed to call the two rejection routes, for example
+  `https://*.qualtrics.com`. Unset means every origin (local development only).
+- `REJECTION_RATE_LIMIT`: starts allowed per client IP per window, default `6/600` (6 per 10 minutes).
+- `REJECTION_JOB_MAX_ATTEMPTS`: full generations per job before it is reported failed, default `2`.
+
+QA for this register: run the harness with `QA_DELIVERY=message QA_PHASES=rejection_initial` against a
+local server started with `EXPOSE_QA_DIAGNOSTICS=1`.
+
 ## Prolific URL
 
 Use this URL format in Prolific:

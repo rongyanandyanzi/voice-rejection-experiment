@@ -150,6 +150,35 @@ Before the second conversation with the manager, I tried to anticipate the quest
 
 Before the second conversation with the manager, I made an effort to work out a clear, actionable course of action rather than a general idea.
 
+### One-shot (Qualtrics) variant
+
+In the one-shot design there is no second conversation: after the manager's written rejection and
+the second background materials, the participant may write one suggestion in a text box. The same
+items apply with the reference period changed. A participant who wrote nothing can answer every
+item; the frequency items then attract disagreement.
+
+Shared instruction, bold red, above the frequency items only:
+
+```text
+The following statements are about the second task, in which you could write a suggestion to the manager after reading the additional materials. Please indicate how much you agree with each statement about what you actually did.
+```
+
+Frequency items (VF1 to VF6):
+
+- VF1: I proposed more than one specific improvement to the manager in the second task.
+- VF2: I made a point of raising new ideas about the visitor issue with the manager.
+- VF3: Even though the manager had turned down my earlier proposal, I still put forward my views.
+- VF4: I used the opportunity in the second task to share my ideas proactively.
+- VF5: I brought my own ideas into the suggestion rather than only restating what the materials said.
+- VF6: I offered several suggestions and ideas of my own.
+
+Quality effort items (VQ1 to VQ4), each beginning with the reference period:
+
+- VQ1: Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details.
+- VQ2: Before writing my suggestion in the second task, I made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations.
+- VQ3: Before writing my suggestion in the second task, I tried to anticipate the questions or doubts the manager might raise, and how I would answer them.
+- VQ4: Before writing my suggestion in the second task, I made an effort to work out a clear, actionable course of action rather than a general idea.
+
 ## Section 3: Perceived Reasons for Manager Response
 
 ### Section Title

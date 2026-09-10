@@ -204,6 +204,14 @@ let surveyResponses = loadCsv(surveyResponsesPath, surveyResponseColumns);
 let aiRequests = loadCsv(aiRequestsPath, aiRequestColumns);
 let chatIntentChecks = loadCsv(chatIntentChecksPath, chatIntentCheckColumns);
 const aiReplyRequests = new Map();
+// One-shot rejection jobs for the Qualtrics design: started at once, generated in the background,
+// polled by the survey page. Keyed by the request id (the Qualtrics ResponseID) so a page reload
+// reuses the job instead of generating a second rejection.
+const rejectionJobs = new Map();
+const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS);
+const rejectionRateLimit = parseRateLimit(process.env.REJECTION_RATE_LIMIT || "6/600");
+const rejectionStartsByIp = new Map();
+let rejectionGenerator = (payload, options) => generateAiReply(payload, options);
 
 const server = http.createServer(async (req, res) => {
   setCors(res);
@@ -259,10 +267,44 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/api/rejection/start") {
+    if (!originAllowed(req)) {
+      sendJson(res, { ok: false, error: "origin_not_allowed" }, 403);
+      return;
+    }
+    if (!rateLimitAllows(rejectionStartsByIp, clientIp(req), rejectionRateLimit)) {
+      sendJson(res, { ok: false, error: "rate_limited", retryable: true }, 429);
+      return;
+    }
+    const payload = await readJson(req);
+    const check = validateRejectionStart(payload);
+    if (!check.ok) {
+      sendJson(res, { ok: false, error: check.error }, 400);
+      return;
+    }
+    const { job, reused } = startRejectionJob(check.value);
+    sendJson(res, { ok: true, job: job.id, status: job.status, reused });
+    return;
+  }
+
+  if (req.method === "GET" && req.url.startsWith("/api/rejection/result")) {
+    if (!originAllowed(req)) {
+      sendJson(res, { ok: false, error: "origin_not_allowed" }, 403);
+      return;
+    }
+    const jobId = normalizeAiRequestId(new URL(req.url, "http://localhost").searchParams.get("job"));
+    const job = jobId ? rejectionJobs.get(jobId) : null;
+    if (!job) {
+      sendJson(res, { ok: false, status: "unknown", error: "unknown_job" }, 404);
+      return;
+    }
+    sendJson(res, rejectionJobView(job));
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/api/ai-reply") {
     const payload = await readJson(req);
     const requestStartedAt = Date.now();
-    const requestTime = new Date(requestStartedAt).toISOString();
     const requestId = normalizeAiRequestId(payload.request_id);
     const existingRequest = requestId ? aiReplyRequests.get(requestId) : null;
     let requestEntry = existingRequest;
@@ -302,38 +344,12 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    if (!reusedRequest) {
-      const aiRequestRow = normalizeRow({
-        prolific_pid: payload.prolific_pid,
-        study_id: payload.study_id,
-        session_id: payload.session_id,
-        language: payload.language,
-        assigned_condition: payload.condition,
-        manipulation_version: payload.manipulation_version || manipulationVersion,
-        stage: payload.stage,
-        phase: payload.phase,
-        request_time: requestTime,
-        response_time: new Date().toISOString(),
-        duration_ms: Date.now() - requestStartedAt,
-        ok: result.ok,
-        http_status: result.ok ? 200 : result.status || 500,
-        retryable: result.retryable,
-        error: result.error,
-        cause: result.cause || "",
-        validation_warnings: Array.isArray(result.validation_warnings)
-          ? result.validation_warnings.join(" | ")
-          : "",
-        validation_failure: result.validation_failure
-          ? JSON.stringify(result.validation_failure)
-          : "",
-      }, aiRequestColumns);
-      aiRequests.push(aiRequestRow);
-      appendCsvRow(aiRequestsPath, aiRequestColumns, aiRequestRow);
-    }
+    if (!reusedRequest) recordAiRequest(payload, result, requestStartedAt);
     if (!res.writableEnded && !res.destroyed) {
       const publicResult = { ...result };
       delete publicResult.validation_warnings;
       delete publicResult.validation_failure;
+      if (!exposeQaDiagnostics) delete publicResult.compliance_code;
       sendJson(res, publicResult, result.ok ? 200 : result.status || 500);
     }
     return;
@@ -890,6 +906,267 @@ function logAiFailure(context, details = {}) {
 function normalizeAiRequestId(value) {
   const requestId = String(value || "").trim();
   return /^[A-Za-z0-9_-]{8,128}$/.test(requestId) ? requestId : "";
+}
+
+// ---------------------------------------------------------------------------
+// One-shot rejection jobs (Qualtrics design)
+// ---------------------------------------------------------------------------
+const REJECTION_JOB_TTL_MS = 30 * 60 * 1000;
+// A pipeline that fails validation after its own five attempts is run again from scratch once, so
+// the survey only sees "failed" after two full generations. Two pipelines fit inside the waiting
+// page's 300 s window (AI_PIPELINE_TIMEOUT_MS is 135 s).
+const REJECTION_JOB_MAX_ATTEMPTS = Math.max(1, Number(process.env.REJECTION_JOB_MAX_ATTEMPTS || 2));
+const REJECTION_OPENING_REQUEST = {
+  en: "Thanks. Send me your suggestion for what the park should do about the staffing situation, and I'll reply once I've read it.",
+  zh: "谢谢。请把你对乐园用工问题的建议发给我，我看完后会回复你。",
+};
+// The survey stores one integer per participant instead of the blind-score object, so nothing
+// about the manipulation is readable in the browser. Decode with decodeComplianceCode.
+const COMPLIANCE_BITS = [
+  ["specific_problem", 1],
+  ["explicit_standard", 2],
+  ["actionable_remedy", 4],
+  ["current_rejection_redressed", 8],
+  ["future_next_step_redressed", 16],
+  ["explicit_future_openness", 32],
+  ["concrete_reopening_condition", 64],
+  ["personal_attack_without_diagnosis", 128],
+  ["current_rejection_maintained", 256],
+];
+const COMPLIANCE_SCORED_BIT = 512;
+
+function managerComplianceCode(scores) {
+  if (!scores || typeof scores !== "object") return 0;
+  let code = COMPLIANCE_SCORED_BIT;
+  for (const [key, bit] of COMPLIANCE_BITS) {
+    if (scores[key] === true) code |= bit;
+  }
+  return code;
+}
+
+function decodeComplianceCode(code) {
+  const value = Number(code) || 0;
+  const decoded = { scored: Boolean(value & COMPLIANCE_SCORED_BIT) };
+  for (const [key, bit] of COMPLIANCE_BITS) decoded[key] = Boolean(value & bit);
+  return decoded;
+}
+
+function parseAllowedOrigins(value) {
+  return String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+// Patterns are origins such as https://brand.qualtrics.com, or https://*.qualtrics.com for any
+// subdomain. An empty allowlist (no ALLOWED_ORIGINS) allows every origin, as in local development.
+function originMatches(origin, patterns) {
+  let parsed;
+  try {
+    parsed = new URL(String(origin || ""));
+  } catch (error) {
+    return false;
+  }
+  return patterns.some((pattern) => {
+    const [protocol, host] = String(pattern).split("://");
+    if (!host) return false;
+    if (`${protocol}:` !== parsed.protocol) return false;
+    if (host.startsWith("*.")) {
+      const suffix = host.slice(1);
+      return parsed.host.endsWith(suffix) && parsed.host.length > suffix.length;
+    }
+    return parsed.host === host;
+  });
+}
+
+function originAllowed(req, patterns = allowedOrigins) {
+  if (!patterns.length) return true;
+  let origin = String(req.headers.origin || "").trim();
+  if (!origin && req.headers.referer) {
+    try { origin = new URL(String(req.headers.referer)).origin; } catch (error) { origin = ""; }
+  }
+  return originMatches(origin, patterns);
+}
+
+function parseRateLimit(value) {
+  const [count, seconds] = String(value || "").split("/").map(Number);
+  return { count: count > 0 ? count : 6, windowMs: (seconds > 0 ? seconds : 600) * 1000 };
+}
+
+function clientIp(req) {
+  const forwarded = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  return forwarded || (req.socket && req.socket.remoteAddress) || "unknown";
+}
+
+function rateLimitAllows(store, key, limit, now = Date.now()) {
+  const recent = (store.get(key) || []).filter((time) => now - time < limit.windowMs);
+  if (recent.length >= limit.count) {
+    store.set(key, recent);
+    return false;
+  }
+  recent.push(now);
+  store.set(key, recent);
+  return true;
+}
+
+function validateRejectionStart(payload) {
+  const source = payload && typeof payload === "object" ? payload : {};
+  const condition = String(source.condition || "").trim().toUpperCase();
+  if (!MANAGER_CONDITIONS.includes(condition)) return { ok: false, error: "invalid_condition" };
+  const language = String(source.language || "en").trim().toLowerCase();
+  if (!["en", "zh"].includes(language)) return { ok: false, error: "invalid_language" };
+  const proposal = String(source.proposal || "").replace(/\s+/g, " ").trim();
+  if (proposal.length < 20 || proposal.length > 2000) return { ok: false, error: "invalid_proposal_length" };
+  const requestId = normalizeAiRequestId(source.request_id);
+  if (!requestId) return { ok: false, error: "invalid_request_id" };
+  const short = (value) => cleanPromptText(value || "").slice(0, 64);
+  return {
+    ok: true,
+    value: {
+      condition,
+      language,
+      proposal,
+      requestId,
+      prolificPid: short(source.prolific_pid),
+      studyId: short(source.study_id),
+      sessionId: short(source.session_id),
+    },
+  };
+}
+
+function startRejectionJob(value, options = {}) {
+  const existing = rejectionJobs.get(value.requestId);
+  if (existing && existing.status !== "failed") return { job: existing, reused: true };
+  const generate = typeof options.generate === "function" ? options.generate : rejectionGenerator;
+  const maxAttempts = Math.max(1, Number(options.maxAttempts || REJECTION_JOB_MAX_ATTEMPTS));
+  const startedAt = Date.now();
+  const payload = {
+    stage: "manager1",
+    phase: "rejection_initial",
+    delivery: "message",
+    condition: value.condition,
+    language: value.language,
+    alexMessage: value.proposal,
+    history: [{ speaker: "Manager", text: REJECTION_OPENING_REQUEST[value.language] || REJECTION_OPENING_REQUEST.en }],
+    prolific_pid: value.prolificPid,
+    study_id: value.studyId,
+    session_id: value.sessionId,
+    request_id: value.requestId,
+    manipulation_version: manipulationVersion,
+  };
+  const job = {
+    id: value.requestId,
+    status: "pending",
+    condition: value.condition,
+    language: value.language,
+    startedAt,
+    attempts: 0,
+    messages: [],
+    complianceCode: null,
+    latencyMs: null,
+    error: "",
+    retryable: false,
+  };
+  const runAttempt = () => {
+    const controller = new AbortController();
+    const pipelineTimeout = setTimeout(() => {
+      controller.abort(new Error(`Rejection pipeline timed out after ${aiPipelineTimeoutMs}ms.`));
+    }, aiPipelineTimeoutMs);
+    const attemptStartedAt = Date.now();
+    return Promise.resolve()
+      .then(() => generate(payload, { signal: controller.signal }))
+      .catch((error) => ({
+        ok: false,
+        status: 500,
+        retryable: true,
+        error: error && error.message ? error.message : "Rejection generation failed.",
+      }))
+      .then((result) => {
+        clearTimeout(pipelineTimeout);
+        const settled = result || { ok: false, status: 500, retryable: false, error: "Rejection generation failed." };
+        try {
+          recordAiRequest(payload, settled, attemptStartedAt);
+        } catch (error) {
+          console.error("Unable to record the rejection request:", error.message);
+        }
+        return settled;
+      });
+  };
+  job.promise = (async () => {
+    let result = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      job.attempts = attempt;
+      result = await runAttempt();
+      if (result.ok || !result.retryable) break;
+      if (attempt < maxAttempts) {
+        console.warn(`[rejection-job] ${job.id} attempt ${attempt} failed (${result.error}); starting a fresh generation.`);
+      }
+    }
+    job.latencyMs = Date.now() - startedAt;
+    if (result.ok) {
+      job.status = "ok";
+      job.messages = (Array.isArray(result.messages) ? result.messages : []).map((message) => ({
+        speaker: message.speaker,
+        text: message.text,
+      }));
+      job.complianceCode = Number.isInteger(result.compliance_code) ? result.compliance_code : 0;
+    } else {
+      job.status = "failed";
+      job.error = result.error || "Rejection generation failed.";
+      job.retryable = Boolean(result.retryable);
+    }
+    setTimeout(() => {
+      if (rejectionJobs.get(job.id) === job) rejectionJobs.delete(job.id);
+    }, REJECTION_JOB_TTL_MS).unref();
+    return result;
+  })();
+  rejectionJobs.set(job.id, job);
+  return { job, reused: false };
+}
+
+function rejectionJobView(job) {
+  const view = { ok: job.status !== "failed", job: job.id, status: job.status, latency_ms: job.latencyMs, attempts: job.attempts };
+  if (job.status === "ok") {
+    view.messages = job.messages;
+    view.compliance_code = job.complianceCode;
+  }
+  if (job.status === "failed") {
+    view.error = job.error;
+    view.retryable = job.retryable;
+  }
+  return view;
+}
+
+function setRejectionGeneratorForTests(generator) {
+  rejectionGenerator = typeof generator === "function"
+    ? generator
+    : (payload, options) => generateAiReply(payload, options);
+}
+
+function recordAiRequest(payload, result, requestStartedAt) {
+  const aiRequestRow = normalizeRow({
+    prolific_pid: payload.prolific_pid,
+    study_id: payload.study_id,
+    session_id: payload.session_id,
+    language: payload.language,
+    assigned_condition: payload.condition,
+    manipulation_version: payload.manipulation_version || manipulationVersion,
+    stage: payload.stage,
+    phase: payload.phase,
+    request_time: new Date(requestStartedAt).toISOString(),
+    response_time: new Date().toISOString(),
+    duration_ms: Date.now() - requestStartedAt,
+    ok: result.ok,
+    http_status: result.ok ? 200 : result.status || 500,
+    retryable: result.retryable,
+    error: result.error,
+    cause: result.cause || "",
+    validation_warnings: Array.isArray(result.validation_warnings)
+      ? result.validation_warnings.join(" | ")
+      : "",
+    validation_failure: result.validation_failure
+      ? JSON.stringify(result.validation_failure)
+      : "",
+  }, aiRequestColumns);
+  aiRequests.push(aiRequestRow);
+  appendCsvRow(aiRequestsPath, aiRequestColumns, aiRequestRow);
 }
 
 function aiPipelineAbortResult(signal) {
@@ -1458,6 +1735,7 @@ async function generateAiReply(payload, options = {}) {
           // Diagnostics for the QA harness only. Env-gated so a participant's browser can never
           // receive the blind scores, which would expose the manipulation being applied to them.
           blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
+          compliance_code: managerComplianceCode(lastBlindScores),
         };
       }
       // Shortening a reply is cheap and keeps its content; regenerating from scratch is neither, and
@@ -1498,6 +1776,7 @@ async function generateAiReply(payload, options = {}) {
           intent: lastIntent,
           validation_warnings: validationWarnings,
           blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
+          compliance_code: managerComplianceCode(lastBlindScores),
         };
       }
       const failure = {
@@ -2132,6 +2411,10 @@ function buildInitialManagerPrompt(payload) {
   }
   const rejectionRound = Number(payload.rejectionRound || 0);
   const followupsAsked = Number(payload.followupsAsked || 0);
+  // "message" delivery is the one-shot Qualtrics design: the participant submitted a written
+  // suggestion and reads the manager's reply once, in a message box, with no chance to answer.
+  // Only the framing changes; message count, length bands and every validator stay the same.
+  const messageDelivery = String(payload.delivery || "").trim().toLowerCase() === "message";
   // Redress is assessed separately for the current refusal and for any future next step. A clear
   // refusal such as "I cannot approve this" can still be polite when face work is attached to that
   // refusal. Low politeness does not need to manufacture a command; it only keeps any naturally
@@ -2202,7 +2485,9 @@ function buildInitialManagerPrompt(payload) {
     task = [
       "the participant has explained their proposal.",
       "This is the manager's first rejection turn.",
-      "Reject the proposal for now and split the turn into exactly two chat messages with a natural short-then-long rhythm.",
+      messageDelivery
+        ? "Reject the proposal for now in one written reply made of exactly two short paragraphs, returned as two Manager messages with a natural short-then-long rhythm."
+        : "Reject the proposal for now and split the turn into exactly two chat messages with a natural short-then-long rhythm.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
         : "Produce exactly 2 Manager messages with 60-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions.",
@@ -2214,7 +2499,9 @@ function buildInitialManagerPrompt(payload) {
       "Treat the two messages as one content unit. In HC all the numbered components must appear across the two messages combined; in LC none of them may appear in either.",
       "Both messages must strictly preserve the assigned politeness and constructiveness condition.",
       "Do not make one message neutral and only the other condition-specific.",
-      "Leave room for the participant to respond.",
+      messageDelivery
+        ? "This reply is not part of a live chat. The participant submitted the suggestion in writing and will read your reply once, with no chance to answer, so do not greet them, do not ask them anything, and do not refer to earlier chat turns or to a conversation. Because the participant cannot reply, anything you say about what happens next must be complete in this message and must carry the assigned interpersonal style: with high politeness, attach genuine face work such as hedging, appreciation, an apology, or an invitation to that future path; with low politeness, state it flatly."
+        : "Leave room for the participant to respond.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       nextStepStyleRule,
       "Do not approve the proposal.",
@@ -2338,13 +2625,16 @@ function buildInitialManagerPrompt(payload) {
     phase,
     language,
     followupsAsked,
+    delivery: messageDelivery ? "message" : "chat",
     speakers: ["Manager"],
     minMessages,
     maxMessages,
     temperature: 0.72,
     maxOutputTokens,
     system: [
-      "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
+      messageDelivery
+        ? "You are the Park Manager at Aetheria Gardens replying in writing, through the park's internal messaging system, to a suggestion submitted by the participant, an Operations Team Member."
+        : "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
       outputLanguageInstruction(language),
       identityNonDisclosureRule(),
@@ -2366,7 +2656,9 @@ function buildInitialManagerPrompt(payload) {
       // guards against is a tight word budget being met by dropping articles and stacking noun
       // phrases, producing lines like "Standard: 95% peak posts filled." that satisfy every content
       // requirement and are still hard to read.
-      "Write like a real person typing to a coworker in chat: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases.",
+      messageDelivery
+        ? "Write like a real manager replying to a coworker's message: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases."
+        : "Write like a real person typing to a coworker in chat: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases.",
       language === "zh"
         ? "使用自然、口语化的职场中文。每句话只表达一个主要意思，避免压缩式修饰语、抽象管理术语和像评分清单一样的并列堆砌。"
         : "Use ordinary spoken workplace English and contractions when they fit. Keep one main thought per sentence. Avoid compressed modifier chains, abstract management language, and comma-heavy lists that sound written for a scoring rubric.",
@@ -2424,7 +2716,9 @@ function buildInitialManagerPrompt(payload) {
       task,
       "Return only JSON matching the required schema.",
     ].filter(Boolean).join("\n\n"),
-    user: `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
+    user: messageDelivery
+      ? `Your earlier request to the participant:\n${history}\n\nSuggestion submitted by the participant:\n${alexMessage}`
+      : `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
     wordRange,
     messageWordRanges,
     totalWordRange,
@@ -4398,6 +4692,15 @@ module.exports = {
   buildPrechatPrompt,
   buildInitialManagerPrompt,
   buildNeutralManagerPrompt,
+  startRejectionJob,
+  validateRejectionStart,
+  rejectionJobView,
+  rejectionJobs,
+  setRejectionGeneratorForTests,
+  originMatches,
+  rateLimitAllows,
+  managerComplianceCode,
+  decodeComplianceCode,
   NEUTRAL_MANAGER_WRAP_UP_RULE,
   neutralManagerClosingProblem,
   prechatQuestionTransitionProblem,

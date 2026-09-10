@@ -1,0 +1,2136 @@
+{
+  "SurveyEntry": {
+    "SurveyID": "SV_3b0d6e803297aa6",
+    "SurveyName": "Workplace Interaction Study (one-shot)",
+    "SurveyDescription": null,
+    "SurveyOwnerID": "UR_989d7e660c90136",
+    "SurveyBrandID": "ustbsem",
+    "DivisionID": null,
+    "SurveyLanguage": "EN",
+    "SurveyActiveResponseSet": "RS_679028c04e6badf",
+    "SurveyStatus": "Inactive",
+    "SurveyStartDate": "0000-00-00 00:00:00",
+    "SurveyExpirationDate": "0000-00-00 00:00:00",
+    "SurveyCreationDate": "2026-09-10 19:20:23",
+    "CreatorID": "UR_989d7e660c90136",
+    "LastModified": "2026-09-10 19:20:23",
+    "LastAccessed": "0000-00-00 00:00:00",
+    "LastActivated": "0000-00-00 00:00:00",
+    "Deleted": null
+  },
+  "SurveyElements": [
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "BL",
+      "PrimaryAttribute": "Survey Blocks",
+      "SecondaryAttribute": null,
+      "TertiaryAttribute": null,
+      "Payload": [
+        {
+          "Type": "Default",
+          "Description": "Consent",
+          "ID": "BL_aaa957d48d75b79",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID1"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID2"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Role materials",
+          "ID": "BL_3f43ed762ff4423",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID3"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID4"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID5"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID6"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID7"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID8"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Role materials re-read",
+          "ID": "BL_2b1532b400c4da8",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID9"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Proposal",
+          "ID": "BL_aa1c621cd2735d1",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID10"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Waiting page",
+          "ID": "BL_1b298f4b6ade37b",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID11"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID12"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Manager message",
+          "ID": "BL_1fb11c2a43b36d8",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID13"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID14"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Second materials",
+          "ID": "BL_46950b12c27012c",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID15"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID16"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID17"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Second suggestion",
+          "ID": "BL_13e0d72764eada5",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID18"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Post-task questions",
+          "ID": "BL_c21c26523547f87",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID19"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID20"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID21"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID22"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID23"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID24"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "AI check",
+          "ID": "BL_4375df7022e3c96",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID25"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID26"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID27"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Feedback",
+          "ID": "BL_caf0ac966328511",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID28"
+            }
+          ]
+        },
+        {
+          "Type": "Trash",
+          "Description": "Trash / Unused Questions",
+          "ID": "BL_170a144cb00c0a6"
+        }
+      ]
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "FL",
+      "PrimaryAttribute": "Survey Flow",
+      "SecondaryAttribute": null,
+      "TertiaryAttribute": null,
+      "Payload": {
+        "Flow": [
+          {
+            "Type": "EmbeddedData",
+            "FlowID": "FL_2",
+            "EmbeddedData": [
+              {
+                "Description": "PROLIFIC_PID",
+                "Type": "Recipient",
+                "Field": "PROLIFIC_PID",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "STUDY_ID",
+                "Type": "Recipient",
+                "Field": "STUDY_ID",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "SESSION_ID",
+                "Type": "Recipient",
+                "Field": "SESSION_ID",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "condition",
+                "Type": "Recipient",
+                "Field": "condition",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "proposal",
+                "Type": "Recipient",
+                "Field": "proposal",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "rejection_job",
+                "Type": "Recipient",
+                "Field": "rejection_job",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "rejection_status",
+                "Type": "Recipient",
+                "Field": "rejection_status",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "rejection_wait_ms",
+                "Type": "Recipient",
+                "Field": "rejection_wait_ms",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "rejection_msg1",
+                "Type": "Recipient",
+                "Field": "rejection_msg1",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "rejection_msg2",
+                "Type": "Recipient",
+                "Field": "rejection_msg2",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "rejection_compliance_code",
+                "Type": "Recipient",
+                "Field": "rejection_compliance_code",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "rejection_latency_ms",
+                "Type": "Recipient",
+                "Field": "rejection_latency_ms",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "voice_start",
+                "Type": "Recipient",
+                "Field": "voice_start",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "voice_submit",
+                "Type": "Recipient",
+                "Field": "voice_submit",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "voice_text",
+                "Type": "Recipient",
+                "Field": "voice_text",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              },
+              {
+                "Description": "briefing_wrong",
+                "Type": "Recipient",
+                "Field": "briefing_wrong",
+                "VariableType": "String",
+                "DataVisibility": [],
+                "AnalyzeText": false
+              }
+            ]
+          },
+          {
+            "Type": "Block",
+            "ID": "BL_aaa957d48d75b79",
+            "FlowID": "FL_3",
+            "Autofill": []
+          },
+          {
+            "Type": "Branch",
+            "FlowID": "FL_5",
+            "Description": "No consent",
+            "BranchLogic": {
+              "0": {
+                "0": {
+                  "LogicType": "Question",
+                  "QuestionID": "QID2",
+                  "QuestionIsInLoop": "no",
+                  "ChoiceLocator": "q://QID2/SelectableChoice/2",
+                  "Operator": "Selected",
+                  "QuestionIDFromLocator": "QID2",
+                  "LeftOperand": "q://QID2/SelectableChoice/2",
+                  "Type": "Expression",
+                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Consent: No</span> <span class=\"OpDesc\">Is Selected</span>"
+                },
+                "Type": "If"
+              },
+              "Type": "BooleanExpression"
+            },
+            "Flow": [
+              {
+                "Type": "EndSurvey",
+                "FlowID": "FL_4",
+                "EndingType": "Advanced",
+                "Options": {
+                  "Advanced": "true",
+                  "SurveyTermination": "DefaultMessage"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "BlockRandomizer",
+            "FlowID": "FL_10",
+            "SubSet": 1,
+            "EvenPresentation": true,
+            "Flow": [
+              {
+                "Type": "EmbeddedData",
+                "FlowID": "FL_6",
+                "EmbeddedData": [
+                  {
+                    "Description": "condition",
+                    "Type": "Custom",
+                    "Field": "condition",
+                    "VariableType": "String",
+                    "DataVisibility": [],
+                    "AnalyzeText": false,
+                    "Value": "HP_HC"
+                  }
+                ]
+              },
+              {
+                "Type": "EmbeddedData",
+                "FlowID": "FL_7",
+                "EmbeddedData": [
+                  {
+                    "Description": "condition",
+                    "Type": "Custom",
+                    "Field": "condition",
+                    "VariableType": "String",
+                    "DataVisibility": [],
+                    "AnalyzeText": false,
+                    "Value": "HP_LC"
+                  }
+                ]
+              },
+              {
+                "Type": "EmbeddedData",
+                "FlowID": "FL_8",
+                "EmbeddedData": [
+                  {
+                    "Description": "condition",
+                    "Type": "Custom",
+                    "Field": "condition",
+                    "VariableType": "String",
+                    "DataVisibility": [],
+                    "AnalyzeText": false,
+                    "Value": "LP_HC"
+                  }
+                ]
+              },
+              {
+                "Type": "EmbeddedData",
+                "FlowID": "FL_9",
+                "EmbeddedData": [
+                  {
+                    "Description": "condition",
+                    "Type": "Custom",
+                    "Field": "condition",
+                    "VariableType": "String",
+                    "DataVisibility": [],
+                    "AnalyzeText": false,
+                    "Value": "LP_LC"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_3f43ed762ff4423",
+            "FlowID": "FL_11",
+            "Autofill": []
+          },
+          {
+            "Type": "Branch",
+            "FlowID": "FL_14",
+            "Description": "Briefing check wrong",
+            "BranchLogic": {
+              "0": {
+                "0": {
+                  "LogicType": "Question",
+                  "QuestionID": "QID4",
+                  "QuestionIsInLoop": "no",
+                  "ChoiceLocator": "q://QID4/SelectableChoice/2",
+                  "Operator": "NotSelected",
+                  "QuestionIDFromLocator": "QID4",
+                  "LeftOperand": "q://QID4/SelectableChoice/2",
+                  "Type": "Expression",
+                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Role check</span> <span class=\"OpDesc\">Is Not Selected</span>"
+                },
+                "1": {
+                  "LogicType": "Question",
+                  "QuestionID": "QID6",
+                  "QuestionIsInLoop": "no",
+                  "ChoiceLocator": "q://QID6/SelectableChoice/1",
+                  "Operator": "NotSelected",
+                  "QuestionIDFromLocator": "QID6",
+                  "LeftOperand": "q://QID6/SelectableChoice/1",
+                  "Type": "Expression",
+                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Problem check</span> <span class=\"OpDesc\">Is Not Selected</span>",
+                  "Conjuction": "Or"
+                },
+                "2": {
+                  "LogicType": "Question",
+                  "QuestionID": "QID8",
+                  "QuestionIsInLoop": "no",
+                  "ChoiceLocator": "q://QID8/SelectableChoice/1",
+                  "Operator": "NotSelected",
+                  "QuestionIDFromLocator": "QID8",
+                  "LeftOperand": "q://QID8/SelectableChoice/1",
+                  "Type": "Expression",
+                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Suggestion check</span> <span class=\"OpDesc\">Is Not Selected</span>",
+                  "Conjuction": "Or"
+                },
+                "Type": "If"
+              },
+              "Type": "BooleanExpression"
+            },
+            "Flow": [
+              {
+                "Type": "EmbeddedData",
+                "FlowID": "FL_12",
+                "EmbeddedData": [
+                  {
+                    "Description": "briefing_wrong",
+                    "Type": "Custom",
+                    "Field": "briefing_wrong",
+                    "VariableType": "String",
+                    "DataVisibility": [],
+                    "AnalyzeText": false,
+                    "Value": "1"
+                  }
+                ]
+              },
+              {
+                "Type": "Standard",
+                "ID": "BL_2b1532b400c4da8",
+                "FlowID": "FL_13",
+                "Autofill": []
+              }
+            ]
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_aa1c621cd2735d1",
+            "FlowID": "FL_15",
+            "Autofill": []
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_1b298f4b6ade37b",
+            "FlowID": "FL_16",
+            "Autofill": []
+          },
+          {
+            "Type": "Branch",
+            "FlowID": "FL_18",
+            "Description": "Reply failed",
+            "BranchLogic": {
+              "0": {
+                "0": {
+                  "LogicType": "EmbeddedField",
+                  "LeftOperand": "rejection_status",
+                  "Operator": "NotEqualTo",
+                  "RightOperand": "ok",
+                  "Type": "Expression",
+                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"LeftOpDesc\">rejection_status</span> <span class=\"OpDesc\">NotEqualTo</span> <span class=\"RightOpDesc\">ok</span>"
+                },
+                "Type": "If"
+              },
+              "Type": "BooleanExpression"
+            },
+            "Flow": [
+              {
+                "Type": "EndSurvey",
+                "FlowID": "FL_17",
+                "EndingType": "Advanced",
+                "Options": {
+                  "Advanced": "true",
+                  "SurveyTermination": "Redirect",
+                  "EOSRedirectURL": "https://app.prolific.com/submissions/complete?cc=TECHNICAL_ISSUE_CODE"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_1fb11c2a43b36d8",
+            "FlowID": "FL_19",
+            "Autofill": []
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_46950b12c27012c",
+            "FlowID": "FL_20",
+            "Autofill": []
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_13e0d72764eada5",
+            "FlowID": "FL_21",
+            "Autofill": []
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_c21c26523547f87",
+            "FlowID": "FL_22",
+            "Autofill": []
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_4375df7022e3c96",
+            "FlowID": "FL_23",
+            "Autofill": []
+          },
+          {
+            "Type": "Standard",
+            "ID": "BL_caf0ac966328511",
+            "FlowID": "FL_24",
+            "Autofill": []
+          },
+          {
+            "Type": "EndSurvey",
+            "FlowID": "FL_25",
+            "EndingType": "Advanced",
+            "Options": {
+              "Advanced": "true",
+              "SurveyTermination": "Redirect",
+              "EOSRedirectURL": "https://app.prolific.com/submissions/complete?cc=COMPLETION_CODE"
+            }
+          }
+        ],
+        "Properties": {
+          "Count": 25
+        },
+        "FlowID": "FL_1",
+        "Type": "Root"
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "PL",
+      "PrimaryAttribute": "Preview Link",
+      "SecondaryAttribute": null,
+      "TertiaryAttribute": null,
+      "Payload": {
+        "PreviewType": "Brand",
+        "PreviewID": "7bf26843-91d1-5d0b-8346-96533f4e779b"
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "PROJ",
+      "PrimaryAttribute": "CORE",
+      "SecondaryAttribute": null,
+      "TertiaryAttribute": "1.1.0",
+      "Payload": {
+        "ProjectCategory": "CORE",
+        "SchemaVersion": "1.1.0"
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "QC",
+      "PrimaryAttribute": "Survey Question Count",
+      "SecondaryAttribute": "28",
+      "TertiaryAttribute": null,
+      "Payload": null
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "RS",
+      "PrimaryAttribute": "RS_679028c04e6badf",
+      "SecondaryAttribute": "Default Response Set",
+      "TertiaryAttribute": null,
+      "Payload": null
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SCO",
+      "PrimaryAttribute": "Scoring",
+      "SecondaryAttribute": null,
+      "TertiaryAttribute": null,
+      "Payload": {
+        "ScoringCategories": [],
+        "ScoringCategoryGroups": [],
+        "ScoringSummaryCategory": null,
+        "ScoringSummaryAfterQuestions": 0,
+        "ScoringSummaryAfterSurvey": 0,
+        "DefaultScoringCategory": null,
+        "AutoScoringCategory": null
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SO",
+      "PrimaryAttribute": "Survey Options",
+      "SecondaryAttribute": null,
+      "TertiaryAttribute": null,
+      "Payload": {
+        "BackButton": "false",
+        "SaveAndContinue": "true",
+        "SurveyProtection": "PublicSurvey",
+        "BallotBoxStuffingPrevention": "false",
+        "NoIndex": "Yes",
+        "SecureResponseFiles": "true",
+        "SurveyExpiration": "None",
+        "SurveyTermination": "Redirect",
+        "EOSRedirectURL": "https://app.prolific.com/submissions/complete?cc=COMPLETION_CODE",
+        "Header": "",
+        "Footer": "",
+        "ProgressBarDisplay": "None",
+        "PartialData": "+1 week",
+        "ValidationMessage": "",
+        "PreviousButton": "",
+        "NextButton": "",
+        "SurveyTitle": "Workplace Interaction Study",
+        "SkinLibrary": "ustbsem",
+        "SkinType": "component",
+        "Skin": {
+          "brandingId": null,
+          "templateId": "*simple",
+          "overrides": null
+        },
+        "NewScoring": 1,
+        "SurveyMetaDescription": "Online workplace interaction study."
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID1",
+      "SecondaryAttribute": "Consent text",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Participant information and consent</strong></p><p>[Paste your approved consent text here. The page below asks for consent; a participant who declines is taken to the end of the survey.]</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionJS": "// Consent page: question JavaScript.\n// Wakes the free Render instance so it is awake by the time the participant reaches the waiting\n// page (a sleeping free instance takes up to a minute to answer its first request).\n// Replace SERVICE_URL with the deployed service origin, no trailing slash.\nQualtrics.SurveyEngine.addOnload(function () {\n  var SERVICE_URL = \"https://YOUR-SERVICE.onrender.com\";\n  try {\n    fetch(SERVICE_URL + \"/api/health\", { method: \"GET\", mode: \"cors\", cache: \"no-store\" }).catch(function () {});\n  } catch (error) {}\n});\n",
+        "QuestionID": "QID1",
+        "DataExportTag": "consent_text",
+        "QuestionDescription": "Consent text",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID2",
+      "SecondaryAttribute": "Do you agree to take part in this study?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Do you agree to take part in this study?",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "Yes, I agree to take part"
+          },
+          "2": {
+            "Display": "No, I do not want to take part"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 3,
+        "NextAnswerId": 1,
+        "QuestionID": "QID2",
+        "DataExportTag": "consent",
+        "QuestionDescription": "Do you agree to take part in this study?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID3",
+      "SecondaryAttribute": "Role materials 1",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 1 of 3</p><h2 style=\"margin-top:4px;\">Your Role</h2><p>Thanks for taking part in this online customer feedback task.</p><p>Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.</p><p>The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID3",
+        "DataExportTag": "role_1",
+        "QuestionDescription": "Role materials 1",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID4",
+      "SecondaryAttribute": "What is your role in the upcoming task?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "What is your role in the upcoming task?",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "Park Manager"
+          },
+          "2": {
+            "Display": "Operations Team Member"
+          },
+          "3": {
+            "Display": "Theme park visitor"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 4,
+        "NextAnswerId": 1,
+        "QuestionID": "QID4",
+        "DataExportTag": "check_role",
+        "QuestionDescription": "What is your role in the upcoming task?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID5",
+      "SecondaryAttribute": "Role materials 2",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 2 of 3</p><h2 style=\"margin-top:4px;\">Background Information</h2><p>Aetheria Gardens is currently facing a significant staffing challenge. Because the park relies almost exclusively on full-time, permanent employees, it is experiencing a “labor seesaw”:</p><ul><li>Off-season: Daily attendance drops to around 500 visitors, leaving the park with a costly surplus of idle staff.</li><li>Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.</li></ul><p>The current labor plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID5",
+        "DataExportTag": "role_2",
+        "QuestionDescription": "Role materials 2",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID6",
+      "SecondaryAttribute": "What is the main staffing problem at Aetheria Gardens?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "What is the main staffing problem at Aetheria Gardens?",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "Too many idle staff in off-season and too few staff in peak season"
+          },
+          "2": {
+            "Display": "The park has too few visitors in every season"
+          },
+          "3": {
+            "Display": "The QR code ticket system is broken"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 4,
+        "NextAnswerId": 1,
+        "QuestionID": "QID6",
+        "DataExportTag": "check_problem",
+        "QuestionDescription": "What is the main staffing problem at Aetheria Gardens?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID7",
+      "SecondaryAttribute": "Role materials 3",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Your Possible Suggestion</h2><p>You believe the theme park must adopt a more agile employment model in order to survive.</p><p>For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.</p><p>Although proposing labor-related changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance.</p><p>You may propose adopting a more flexible employment model to the manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach.</p><p>Next, you will write your suggestion and send it to the manager through the park’s team messaging system.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID7",
+        "DataExportTag": "role_3",
+        "QuestionDescription": "Role materials 3",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID8",
+      "SecondaryAttribute": "What suggestion may you bring up with the manager?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "What suggestion may you bring up with the manager?",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "A flexible labor model using options such as temporary staff, interns, or a flexible labor pool"
+          },
+          "2": {
+            "Display": "Raising ticket prices during peak season"
+          },
+          "3": {
+            "Display": "Building new rides for families"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 4,
+        "NextAnswerId": 1,
+        "QuestionID": "QID8",
+        "DataExportTag": "check_suggestion",
+        "QuestionDescription": "What suggestion may you bring up with the manager?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID9",
+      "SecondaryAttribute": "Re-read materials",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 1 of 3</p><h2 style=\"margin-top:4px;\">Your Role</h2><p>Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.</p><p>The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 2 of 3</p><h2 style=\"margin-top:4px;\">Background Information</h2><p>Aetheria Gardens relies almost exclusively on full-time, permanent employees, and is experiencing a “labor seesaw”: around 500 visitors a day in the off-season, leaving a costly surplus of idle staff, and around 5,000 visitors a day in peak season, leaving teams overwhelmed and shorthanded. The current labor plan was developed by park management, is not flexible enough, and labor costs are becoming increasingly difficult to manage.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Your Possible Suggestion</h2><p>You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. Next, you will write your suggestion and send it to the manager.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID9",
+        "DataExportTag": "role_reread",
+        "QuestionDescription": "Re-read materials",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID10",
+      "SecondaryAttribute": "Write your suggestion to the park manager.   Say what you think the park should do about the staffin",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Write your suggestion to the park manager.</strong></p><p>Say what you think the park should do about the staffing situation and why. Your message will be sent to the manager, who will read it and reply.</p>",
+        "QuestionType": "TE",
+        "Selector": "ESTB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "InputWidth": 600,
+          "InputHeight": 220
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "QuestionJS": "// Proposal page: question JavaScript on the Text Entry (essay) question.\n// Keeps Next disabled until the participant has written MIN_WORDS words, and copies the text into\n// the embedded field \"proposal\" on submit so later pages can read it without piped text.\nQualtrics.SurveyEngine.addOnload(function () {\n  var MIN_WORDS = 20;\n  var question = this;\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  if (!textarea) return;\n  var hint = document.createElement(\"div\");\n  hint.style.cssText = \"margin-top:6px;font-size:13px;color:#666;\";\n  textarea.parentNode.appendChild(hint);\n  function update() {\n    var words = textarea.value.trim().split(/\\s+/).filter(Boolean).length;\n    if (words >= MIN_WORDS) {\n      question.enableNextButton();\n      hint.textContent = \"\";\n    } else {\n      question.disableNextButton();\n      hint.textContent = \"Please write at least \" + MIN_WORDS + \" words (\" + words + \" so far).\";\n    }\n  }\n  textarea.addEventListener(\"input\", update);\n  update();\n});\n\nQualtrics.SurveyEngine.addOnPageSubmit(function () {\n  var textarea = this.getQuestionContainer().querySelector(\"textarea\");\n  if (textarea) Qualtrics.SurveyEngine.setEmbeddedData(\"proposal\", textarea.value.trim());\n});\n",
+        "QuestionID": "QID10",
+        "DataExportTag": "proposal",
+        "QuestionDescription": "Write your suggestion to the park manager.   Say what you think the park should do about the staffin",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID11",
+      "SecondaryAttribute": "Waiting page",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Your suggestion has been sent to the park manager.</strong></p><p>While you wait for the reply, here is some further information about the situation.</p><p><strong>While the manager reads your suggestion</strong></p><p>Some further facts about the staffing situation at Aetheria Gardens:</p><ul><li><strong>Visitor numbers.</strong> On a typical off-season weekday the park receives around 500 visitors. On a</li></ul><p>peak-season day it receives around 5,000. The busiest hour at the entrance is 10:00 to 11:00.</p><ul><li><strong>Entrance operations.</strong> At peak, the queue for ticket checking at the main entrance can reach 30 to</li></ul><p>45 minutes at the busiest hour. In the off-season, several entrance staff have long stretches with no</p><p>visitors to serve.</p><ul><li><strong>The workforce.</strong> Almost all staff are full-time permanent employees on year-round contracts. Labour</li></ul><p>is the park's largest cost. The current labour plan was agreed by the management team for the whole</p><p>year.</p><ul><li><strong>Records the park keeps.</strong> A weekly visitor forecast (from bookings and previous years), a daily</li></ul><p>entrance queue log, and daily staffing rosters and payroll.</p><ul><li><strong>Training.</strong> New entrance staff need a short induction of about two days before they work on their</li></ul><p>own.</p><p>The manager will reply shortly.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionJS": "// Waiting page: question JavaScript on the Text/Graphic question that shows \"Your suggestion has\n// been sent\" and the extra facts. Starts the rejection job in the background, polls for the reply,\n// stores it in embedded data, and enables Next only when the reply has arrived AND the minimum\n// reading time has passed. After MAX_WAIT_MS (5 minutes) without a reply it records rejection_status = failed so\n// the survey flow can branch to the technical-problem end page.\n//\n// Embedded fields written here (declare them in the survey flow first): rejection_job,\n// rejection_status, rejection_wait_ms, rejection_msg1, rejection_msg2, rejection_compliance_code,\n// rejection_latency_ms. Fields read: ResponseID, condition, proposal, PROLIFIC_PID, STUDY_ID, SESSION_ID.\nQualtrics.SurveyEngine.addOnload(function () {\n  var SERVICE_URL = \"https://YOUR-SERVICE.onrender.com\";\n  var MIN_READ_MS = 60000;   // minimum time on this page\n  var MAX_WAIT_MS = 300000;  // give up after this (two full server-side generations fit inside)\n  var POLL_MS = 3000;\n  var MAX_STARTS = 3;\n\n  var question = this;\n  var startedAt = Date.now();\n  var requestId = \"${e://Field/ResponseID}\";\n  var condition = \"${e://Field/condition}\";\n  var proposal = Qualtrics.SurveyEngine.getEmbeddedData(\"proposal\") || \"\";\n  var ids = {\n    prolific_pid: \"${e://Field/PROLIFIC_PID}\",\n    study_id: \"${e://Field/STUDY_ID}\",\n    session_id: \"${e://Field/SESSION_ID}\"\n  };\n\n  var status = document.createElement(\"p\");\n  status.id = \"manager-reply-status\";\n  status.style.cssText = \"margin-top:16px;color:#555;font-style:italic;\";\n  status.textContent = \"The manager is reading your suggestion\\u2026\";\n  question.getQuestionContainer().appendChild(status);\n  question.disableNextButton();\n\n  var finished = false;\n  var starts = 0;\n\n  function setEd(name, value) { Qualtrics.SurveyEngine.setEmbeddedData(name, value); }\n\n  function enableWhenRead() {\n    var remaining = MIN_READ_MS - (Date.now() - startedAt);\n    if (remaining > 0) { setTimeout(enableWhenRead, remaining); return; }\n    status.textContent = Qualtrics.SurveyEngine.getEmbeddedData(\"rejection_status\") === \"ok\"\n      ? \"The manager has replied. Click Next to read the reply.\"\n      : \"Click Next to continue.\";\n    question.enableNextButton();\n  }\n\n  function finish(newStatus) {\n    if (finished) return;\n    finished = true;\n    setEd(\"rejection_status\", newStatus);\n    setEd(\"rejection_wait_ms\", String(Date.now() - startedAt));\n    enableWhenRead();\n  }\n\n  function startJob() {\n    starts += 1;\n    return fetch(SERVICE_URL + \"/api/rejection/start\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({\n        request_id: requestId,\n        condition: condition,\n        language: \"en\",\n        proposal: proposal,\n        prolific_pid: ids.prolific_pid,\n        study_id: ids.study_id,\n        session_id: ids.session_id\n      })\n    }).then(function (response) { return response.json(); }).then(function (data) {\n      if (!data.ok) throw new Error(data.error || \"start_failed\");\n      setEd(\"rejection_job\", data.job);\n    });\n  }\n\n  function poll() {\n    if (finished) return;\n    if (Date.now() - startedAt > MAX_WAIT_MS) { finish(\"failed\"); return; }\n    fetch(SERVICE_URL + \"/api/rejection/result?job=\" + encodeURIComponent(requestId), { cache: \"no-store\" })\n      .then(function (response) { return response.json(); })\n      .then(function (data) {\n        if (data.status === \"ok\") {\n          var messages = data.messages || [];\n          setEd(\"rejection_msg1\", messages[0] ? messages[0].text : \"\");\n          setEd(\"rejection_msg2\", messages[1] ? messages[1].text : \"\");\n          setEd(\"rejection_compliance_code\", data.compliance_code == null ? \"\" : String(data.compliance_code));\n          setEd(\"rejection_latency_ms\", data.latency_ms == null ? \"\" : String(data.latency_ms));\n          finish(\"ok\");\n          return;\n        }\n        if (data.status === \"failed\" || data.status === \"unknown\") {\n          // A failed job is replaced by a new one under the same request id; an unknown job means\n          // the service restarted (or was still waking up when the first start was sent).\n          if (starts < MAX_STARTS) {\n            return startJob().catch(function () {}).then(function () { setTimeout(poll, POLL_MS); });\n          }\n          finish(\"failed\");\n          return;\n        }\n        setTimeout(poll, POLL_MS);\n      })\n      .catch(function () { setTimeout(poll, POLL_MS); });\n  }\n\n  startJob().catch(function () {}).then(function () { setTimeout(poll, POLL_MS); });\n});\n",
+        "QuestionID": "QID11",
+        "DataExportTag": "waiting",
+        "QuestionDescription": "Waiting page",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID12",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID12",
+        "DataExportTag": "t_waiting",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID13",
+      "SecondaryAttribute": "Manager message",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Reply from the park manager</strong></p><div style=\"max-width:640px;margin:0 auto;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">\n  <div style=\"border:1px solid #d9dee5;border-radius:12px;overflow:hidden;background:#ffffff;\">\n    <div style=\"background:#f4f6f9;padding:12px 16px;border-bottom:1px solid #e3e7ec;font-size:14px;color:#556270;\">\n      Aetheria Gardens &middot; Team messages\n    </div>\n    <div style=\"padding:16px;\">\n      <div style=\"display:flex;justify-content:flex-end;margin-bottom:16px;\">\n        <div style=\"max-width:82%;background:#e8f0fe;border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;\">\n          <div style=\"font-size:12px;color:#66707a;margin-bottom:4px;\">You &middot; to Park Manager</div>\n          ${e://Field/proposal}\n        </div>\n      </div>\n      <div style=\"display:flex;gap:10px;align-items:flex-start;\">\n        <div style=\"flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#2f5d8a;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;\">PM</div>\n        <div style=\"max-width:82%;\">\n          <div style=\"font-size:12px;color:#66707a;margin-bottom:4px;\">Park Manager &middot; just now</div>\n          <div style=\"background:#f1f3f5;border-radius:4px 14px 14px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;margin-bottom:8px;\">${e://Field/rejection_msg1}</div>\n          <div style=\"background:#f1f3f5;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;\">${e://Field/rejection_msg2}</div>\n        </div>\n      </div>\n    </div>\n    <div style=\"padding:10px 16px;border-top:1px solid #e3e7ec;font-size:13px;color:#77818b;\">\n      The manager has closed this thread. Replies are not possible here.\n    </div>\n  </div>\n</div><p><span style=\"color:#667;\">Click Next when you have read the reply.</span></p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID13",
+        "DataExportTag": "manager_message",
+        "QuestionDescription": "Manager message",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID14",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "20",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID14",
+        "DataExportTag": "t_message",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID15",
+      "SecondaryAttribute": "Materials 1",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 1 of 3</p><h2 style=\"margin-top:4px;\">Off-Season Situation</h2><p>Now, please continue reading your materials. These materials describe the theme park's <strong>off-season situation</strong>.</p><p>On a typical off-season weekday, the park receives <strong>around 500 visitors</strong>.</p><p>The entrance is quiet for long periods, and staff members at the gate have <strong>relatively little work to do</strong>.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID15",
+        "DataExportTag": "materials_1",
+        "QuestionDescription": "Materials 1",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID16",
+      "SecondaryAttribute": "Materials 2",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 2 of 3</p><h2 style=\"margin-top:4px;\">Visitor Pattern</h2><p>Most visitors are <strong>families with young children</strong>. Families with children under 10 account for <strong>around 70% to 75%</strong> of daily visitors, while other visitor groups make up a much smaller share.</p><p>Aetheria Gardens is <strong>far from the city center</strong>, and many families say the location is <strong>not very convenient</strong>.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID16",
+        "DataExportTag": "materials_2",
+        "QuestionDescription": "Materials 2",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID17",
+      "SecondaryAttribute": "Materials 3",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Nearby Visitors</h2><p>There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.</p><p>Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.</p><p>On the next page you can send the manager a message about this situation if you wish.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID17",
+        "DataExportTag": "materials_3",
+        "QuestionDescription": "Materials 3",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID18",
+      "SecondaryAttribute": "Message to the park manager (optional)   You can send the park manager a suggestion about the situat",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Message to the park manager (optional)</strong></p><p>You can send the park manager a suggestion about the situation you have just read. Write it below, or leave the box empty if you have nothing to add.</p>",
+        "QuestionType": "TE",
+        "Selector": "ESTB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "InputWidth": 600,
+          "InputHeight": 220
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "OFF",
+            "Type": "None"
+          }
+        },
+        "QuestionJS": "// Voice DV page: question JavaScript on the optional Text Entry (essay) question.\n// Records when the page opened and when it was submitted, and copies the text into \"voice_text\".\nQualtrics.SurveyEngine.addOnload(function () {\n  Qualtrics.SurveyEngine.setEmbeddedData(\"voice_start\", new Date().toISOString());\n});\n\nQualtrics.SurveyEngine.addOnPageSubmit(function () {\n  var textarea = this.getQuestionContainer().querySelector(\"textarea\");\n  Qualtrics.SurveyEngine.setEmbeddedData(\"voice_submit\", new Date().toISOString());\n  Qualtrics.SurveyEngine.setEmbeddedData(\"voice_text\", textarea ? textarea.value.trim() : \"\");\n});\n",
+        "QuestionID": "QID18",
+        "DataExportTag": "voice_text_q",
+        "QuestionDescription": "Message to the park manager (optional)   You can send the park manager a suggestion about the situat",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID19",
+      "SecondaryAttribute": "Survey intro",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Post-task questions</strong></p><p>Please answer the following questions based on your experience in this study. There are no right or wrong answers. Please indicate the extent to which you agree with each statement.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID19",
+        "DataExportTag": "survey_intro",
+        "QuestionDescription": "Survey intro",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID20",
+      "SecondaryAttribute": "The following statements are about the second task, in which you could write a suggestion to the man",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong style=\"color:#c0392b;\">The following statements are about the second task, in which you could write a suggestion to the manager after reading the additional materials. Please indicate how much you agree with each statement about what you actually did.</strong></p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "I proposed more than one specific improvement to the manager in the second task."
+          },
+          "2": {
+            "Display": "I made a point of raising new ideas about the visitor issue with the manager."
+          },
+          "3": {
+            "Display": "Even though the manager had turned down my earlier proposal, I still put forward my views."
+          },
+          "4": {
+            "Display": "I used the opportunity in the second task to share my ideas proactively."
+          },
+          "5": {
+            "Display": "I brought my own ideas into the suggestion rather than only restating what the materials said."
+          },
+          "6": {
+            "Display": "I offered several suggestions and ideas of my own."
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "VF1",
+          "2": "VF2",
+          "3": "VF3",
+          "4": "VF4",
+          "5": "VF5",
+          "6": "VF6"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 7,
+        "NextAnswerId": 6,
+        "QuestionID": "QID20",
+        "DataExportTag": "VF",
+        "QuestionDescription": "The following statements are about the second task, in which you could write a suggestion to the man",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID21",
+      "SecondaryAttribute": "Preparing your suggestion",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Preparing your suggestion</strong></p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details."
+          },
+          "2": {
+            "Display": "Before writing my suggestion in the second task, I made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations."
+          },
+          "3": {
+            "Display": "Before writing my suggestion in the second task, I tried to anticipate the questions or doubts the manager might raise, and how I would answer them."
+          },
+          "4": {
+            "Display": "Before writing my suggestion in the second task, I made an effort to work out a clear, actionable course of action rather than a general idea."
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "VQ1",
+          "2": "VQ2",
+          "3": "VQ3",
+          "4": "VQ4"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 5,
+        "NextAnswerId": 6,
+        "QuestionID": "QID21",
+        "DataExportTag": "VQ",
+        "QuestionDescription": "Preparing your suggestion",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID22",
+      "SecondaryAttribute": "Perceived reasons for the manager’s response   Please indicate why you think the manager rejected yo",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Perceived reasons for the manager’s response</strong></p><p>Please indicate why you think the manager rejected your suggestion about the labor plan.</p><p><em>The manager rejected my suggestion because...</em></p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "The manager was influenced by their emotions."
+          },
+          "2": {
+            "Display": "The manager wanted to demonstrate their authority."
+          },
+          "3": {
+            "Display": "The manager personally disliked me."
+          },
+          "4": {
+            "Display": "My proposal for improvement was mediocre."
+          },
+          "5": {
+            "Display": "My suggestion did not really improve the current methods or practices."
+          },
+          "6": {
+            "Display": "The changes I suggested for work arrangements did not really help much."
+          },
+          "7": {
+            "Display": "I made impractical recommendations about how to fix work-related problems."
+          },
+          "8": {
+            "Display": "My suggestion was not very useful."
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "MR1",
+          "2": "MR2",
+          "3": "MR3",
+          "4": "PR1",
+          "5": "PR2",
+          "6": "PR3",
+          "7": "PR4",
+          "8": "PR5"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 9,
+        "NextAnswerId": 6,
+        "QuestionID": "QID22",
+        "DataExportTag": "REASON",
+        "QuestionDescription": "Perceived reasons for the manager’s response   Please indicate why you think the manager rejected yo",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID23",
+      "SecondaryAttribute": "Perceived tone of the manager’s response   Please indicate how you perceived the manager’s attitude ",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Perceived tone of the manager’s response</strong></p><p>Please indicate how you perceived the manager’s attitude when they rejected your suggestion about the labor plan.</p><p><em>The manager’s response was...</em></p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "Polite"
+          },
+          "2": {
+            "Display": "Courteous"
+          },
+          "3": {
+            "Display": "Sensitive to my feelings"
+          },
+          "4": {
+            "Display": "Respectful toward me"
+          },
+          "5": {
+            "Display": "Considerate toward me"
+          },
+          "6": {
+            "Display": "Appropriate"
+          },
+          "7": {
+            "Display": "Civil"
+          },
+          "8": {
+            "Display": "Tactful"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "MA1",
+          "2": "MA2",
+          "3": "MA3",
+          "4": "MA4",
+          "5": "MA5",
+          "6": "MA6",
+          "7": "MA7",
+          "8": "MA8"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 9,
+        "NextAnswerId": 6,
+        "QuestionID": "QID23",
+        "DataExportTag": "MA",
+        "QuestionDescription": "Perceived tone of the manager’s response   Please indicate how you perceived the manager’s attitude ",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID24",
+      "SecondaryAttribute": "Perceived usefulness of the manager’s response   Please indicate how you perceived the manager’s res",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Perceived usefulness of the manager’s response</strong></p><p>Please indicate how you perceived the manager’s response when they rejected your suggestion about the labor plan.</p><p><em>When rejecting my suggestion, the manager...</em></p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "Pointed to specific aspects of my proposal that I could actually work on."
+          },
+          "2": {
+            "Display": "Suggested that the problems with my proposal could be fixed."
+          },
+          "3": {
+            "Display": "Made reference to clear, legitimate standards my proposal would have to meet."
+          },
+          "4": {
+            "Display": "Was very specific and detailed."
+          },
+          "5": {
+            "Display": "Made reference to specific parts of my proposal that were problematic."
+          },
+          "6": {
+            "Display": "Provided clear enough guidance that I knew what to change."
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "MC1",
+          "2": "MC2",
+          "3": "MC3",
+          "4": "MC4",
+          "5": "MC5",
+          "6": "MC6"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 7,
+        "NextAnswerId": 6,
+        "QuestionID": "QID24",
+        "DataExportTag": "MC",
+        "QuestionDescription": "Perceived usefulness of the manager’s response   Please indicate how you perceived the manager’s res",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID25",
+      "SecondaryAttribute": "A few final questions   Did anything about the interaction feel unusual or unexpected? Please descri",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>A few final questions</strong></p><p>Did anything about the interaction feel unusual or unexpected? Please describe briefly.</p>",
+        "QuestionType": "TE",
+        "Selector": "ESTB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "InputWidth": 600,
+          "InputHeight": 120
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID25",
+        "DataExportTag": "ai_check_unusual",
+        "QuestionDescription": "A few final questions   Did anything about the interaction feel unusual or unexpected? Please descri",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID26",
+      "SecondaryAttribute": "A few final questions   Who do you think you were interacting with in the message exchange?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>A few final questions</strong></p><p>Who do you think you were interacting with in the message exchange?</p>",
+        "QuestionType": "TE",
+        "Selector": "ESTB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "InputWidth": 600,
+          "InputHeight": 120
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID26",
+        "DataExportTag": "ai_check_who",
+        "QuestionDescription": "A few final questions   Who do you think you were interacting with in the message exchange?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID27",
+      "SecondaryAttribute": "One more question   In Prolific recruitment, studies may sometimes include AI participants. To help ",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>One more question</strong></p><p>In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the question below.</p><p>Do you think the manager who replied to you may have been AI?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "Yes"
+          },
+          "2": {
+            "Display": "No"
+          },
+          "3": {
+            "Display": "Not sure"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 4,
+        "NextAnswerId": 1,
+        "QuestionID": "QID27",
+        "DataExportTag": "manager_ai_suspicion",
+        "QuestionDescription": "One more question   In Prolific recruitment, studies may sometimes include AI participants. To help ",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID28",
+      "SecondaryAttribute": "Task feedback   If you have any suggestions about this online task, please share them with us.  You ",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Task feedback</strong></p><p>If you have any suggestions about this online task, please share them with us.</p><p>You may also submit without adding a suggestion. Please do not include your name or other personal information.</p>",
+        "QuestionType": "TE",
+        "Selector": "ESTB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "InputWidth": 600,
+          "InputHeight": 140
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "OFF",
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID28",
+        "DataExportTag": "task_feedback",
+        "QuestionDescription": "Task feedback   If you have any suggestions about this online task, please share them with us.  You ",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "STAT",
+      "PrimaryAttribute": "Survey Statistics",
+      "SecondaryAttribute": null,
+      "TertiaryAttribute": null,
+      "Payload": {
+        "MobileCompatible": true,
+        "ID": "Survey Statistics"
+      }
+    }
+  ]
+}

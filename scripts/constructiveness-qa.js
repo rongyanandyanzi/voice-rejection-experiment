@@ -221,6 +221,8 @@ async function callReply(proposal, condition, phase) {
       alexMessage: latest,
       followupsAsked: 2,
       rejectionRound: phase === "rejection_followup" ? 2 : 1,
+      // QA_DELIVERY=message runs the one-shot Qualtrics register through the same gates.
+      delivery: process.env.QA_DELIVERY || undefined,
     }),
   });
   const data = await response.json().catch(() => ({}));
