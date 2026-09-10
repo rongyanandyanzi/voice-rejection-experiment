@@ -127,6 +127,32 @@ class Survey:
             payload["QuestionJS"] = js
         return self.add_question(tag, payload, strip_html(question_text))
 
+    def hidden_text(self, tag, label):
+        payload = {
+            "QuestionText": label,
+            "QuestionType": "TE",
+            "Selector": "SL",
+            "Configuration": {"QuestionDescriptionOption": "UseText"},
+            "Validation": force_validation(False),
+            "QuestionJS": read("js_hidden_field.js"),
+        }
+        return self.add_question(tag, payload, label)
+
+    def expr_text(self, qid, operator, value, label=""):
+        locator = f"q://{qid}/ChoiceTextEntryValue"
+        return {
+            "LogicType": "Question",
+            "QuestionID": qid,
+            "QuestionIsInLoop": "no",
+            "ChoiceLocator": locator,
+            "Operator": operator,
+            "QuestionIDFromLocator": qid,
+            "LeftOperand": locator,
+            "RightOperand": value,
+            "Type": "Expression",
+            "Description": f"<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">{html.escape(label)}</span> <span class=\"OpDesc\">{html.escape(operator)}</span> <span class=\"RightOpDesc\">{html.escape(value)}</span>",
+        }
+
     def timing(self, tag, min_seconds=0):
         payload = {
             "QuestionText": "Timing",
@@ -456,19 +482,31 @@ def build(args):
     s.block("Proposal", [proposal])
 
     # 4. Waiting page --------------------------------------------------------
-    waiting = s.text("waiting", paragraphs(
+    waiting = s.text("waiting", "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>" + paragraphs(
         "<strong>Your suggestion has been sent to the park manager.</strong>",
         "While you wait for the reply, here is some further information about the situation.",
     ) + extra_facts_html(), js=survey_js("js_waiting_page.js", s.service_url), description="Waiting page")
+    # Hidden carriers, in the order js_waiting_page.js expects (input[type=text] order on the page).
+    h_status = s.hidden_text("rejection_status_q", "rejection status")
+    h_msg1 = s.hidden_text("rejection_msg1_q", "rejection message 1")
+    h_msg2 = s.hidden_text("rejection_msg2_q", "rejection message 2")
+    h_code = s.hidden_text("rejection_code_q", "rejection compliance code")
+    h_latency = s.hidden_text("rejection_latency_q", "rejection latency ms")
+    h_wait = s.hidden_text("rejection_wait_q", "waiting page wait ms")
     t_wait = s.timing("t_waiting", 0)
-    s.block("Waiting page", [waiting, t_wait])
+    s.block("Waiting page", [waiting, h_status, h_msg1, h_msg2, h_code, h_latency, h_wait, t_wait])
 
     # 5. Manager message -----------------------------------------------------------
     card = read("manager_message_card.html")
     card = re.sub(r"<!--.*?-->", "", card, flags=re.S).strip()
+    # Pipe the reply from the hidden carrier questions (always saved with the waiting page); the
+    # proposal from the proposal question itself.
+    card = card.replace("${e://Field/rejection_msg1}", "${q://" + h_msg1 + "/ChoiceTextEntryValue}")
+    card = card.replace("${e://Field/rejection_msg2}", "${q://" + h_msg2 + "/ChoiceTextEntryValue}")
+    card = card.replace("${e://Field/proposal}", "${q://" + proposal + "/ChoiceTextEntryValue}")
     message = s.text("manager_message", paragraphs("<strong>Reply from the park manager</strong>") + card + paragraphs(
         "<span style=\"color:#667;\">Click Next when you have read the reply.</span>",
-    ), description="Manager message")
+    ), js=survey_js("js_manager_message.js", s.service_url), description="Manager message")
     t_message = s.timing("t_message", 20)
     s.block("Manager message", [message, t_message])
 
@@ -589,7 +627,7 @@ def build(args):
         ], [s.flow_embedded([("briefing_wrong", "1")]), s.flow_block("Role materials re-read")], "Briefing check wrong"),
         s.flow_block("Proposal"),
         s.flow_block("Waiting page"),
-        s.flow_branch([s.expr_embedded("rejection_status", "NotEqualTo", "ok")], [s.flow_end(s.tech_issue_url)], "Reply failed"),
+        s.flow_branch([s.expr_text(h_status, "NotEqualTo", "ok", "rejection status")], [s.flow_end(s.tech_issue_url)], "Reply failed"),
         s.flow_block("Manager message"),
         s.flow_block("Second materials"),
         s.flow_block("Second suggestion"),

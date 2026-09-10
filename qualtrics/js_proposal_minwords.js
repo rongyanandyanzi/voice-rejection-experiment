@@ -25,5 +25,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
 Qualtrics.SurveyEngine.addOnPageSubmit(function () {
   var textarea = this.getQuestionContainer().querySelector("textarea");
-  if (textarea) Qualtrics.SurveyEngine.setEmbeddedData("proposal", textarea.value.trim());
+  var text = textarea ? textarea.value.trim() : "";
+  Qualtrics.SurveyEngine.setEmbeddedData("proposal", text);
+  try { if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === "function") Qualtrics.SurveyEngine.setJSEmbeddedData("proposal", text); } catch (error) {}
+  // getEmbeddedData on a later page does not return values set from JavaScript, so the waiting
+  // page reads the proposal from sessionStorage (same origin for the whole survey).
+  try { sessionStorage.setItem("vr_proposal", text); } catch (error) {}
 });

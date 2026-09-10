@@ -14,6 +14,8 @@ Files in this folder:
 | `js_proposal_minwords.js` | Question JavaScript on the proposal essay question |
 | `js_waiting_page.js` | Question JavaScript on the waiting page (sent notice + extra facts) |
 | `manager_message_card.html` | HTML of the Text/Graphic question on the manager message page |
+| `js_manager_message.js` | Question JavaScript on that same Text/Graphic question (fills the card if a piped value is empty) |
+| `js_hidden_field.js` | Question JavaScript on the six hidden single-line Text Entry questions of the waiting page |
 | `js_voice_timestamps.js` | Question JavaScript on the second suggestion essay question |
 | `extra_facts.md` | Draft text for the waiting page, to be approved before use |
 
@@ -44,10 +46,15 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
 6. **Block: Waiting page.** One Text/Graphic question whose HTML starts with a short notice
    ("Your suggestion has been sent to the park manager. While you wait for the reply, here is some
    further information about the situation.") followed by the approved content of `extra_facts.md`.
-   Attach `js_waiting_page.js`. Add a Timing question to the same page with no auto-advance and no
-   submit delay; the script controls the Next button. Defaults in the script: minimum 60 s on the page,
+   Attach `js_waiting_page.js`. Below it, on the same page, six hidden single-line Text Entry
+   questions in this order: rejection_status_q, rejection_msg1_q, rejection_msg2_q,
+   rejection_code_q, rejection_latency_q, rejection_wait_q (each with `js_hidden_field.js`, not
+   forced). The script writes the reply into them, because in the current survey engine values set
+   with setEmbeddedData are not readable by later JavaScript and were not reliable for branch logic
+   in preview; question answers are always saved with the page. Then a Timing question with no
+   auto-advance and no submit delay; the script controls the Next button. Defaults in the script: minimum 60 s on the page,
    give up after 300 s, poll every 3 s, up to three job starts. The service itself re-runs a failed generation once, so a "failed" status means two full generations failed.
-7. **Branch:** if `rejection_status` is not equal to `ok`, End of Survey element with a custom message
+7. **Branch:** if the hidden question `rejection_status_q` is not equal to `ok`, End of Survey element with a custom message
    ("A technical problem stopped the study. Please return to Prolific and use the completion code
    below so you are paid for your time.") and the technical-issue completion code or redirect. These
    responses are excluded from analysis.

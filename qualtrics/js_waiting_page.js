@@ -16,9 +16,29 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   var question = this;
   var startedAt = Date.now();
-  var requestId = "${e://Field/ResponseID}";
-  var condition = "${e://Field/condition}";
-  var proposal = Qualtrics.SurveyEngine.getEmbeddedData("proposal") || "";
+  // The hidden spans are filled by piped text when the page renders; the JS strings are the
+  // fallback. The request id is the ResponseID when Qualtrics provides one, otherwise a random
+  // id kept in sessionStorage so a reload reuses the same job.
+  // Qualtrics scans question JavaScript for piped text, so the literal "$" + "{" must never
+  // appear in the source; it is assembled at run time instead.
+  var PIPE_START = String.fromCharCode(36) + "{";
+  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : ""; }
+  function domValue(id, fallback) {
+    var el = document.getElementById(id);
+    return unpiped(el ? el.textContent.trim() : "") || unpiped(fallback || "");
+  }
+  var condition = domValue("vr-condition", "${e://Field/condition}");
+  var requestId = domValue("vr-response-id", "${e://Field/ResponseID}");
+  if (!/^[A-Za-z0-9_-]{8,128}$/.test(requestId)) {
+    try { requestId = sessionStorage.getItem("vr_request_id") || ""; } catch (error) {}
+    if (!requestId) {
+      requestId = "R_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      try { sessionStorage.setItem("vr_request_id", requestId); } catch (error) {}
+    }
+  }
+  var proposal = "";
+  try { proposal = sessionStorage.getItem("vr_proposal") || ""; } catch (error) {}
+  if (!proposal) proposal = Qualtrics.SurveyEngine.getEmbeddedData("proposal") || "";
   var ids = {
     prolific_pid: "${e://Field/PROLIFIC_PID}",
     study_id: "${e://Field/STUDY_ID}",
@@ -33,14 +53,34 @@ Qualtrics.SurveyEngine.addOnload(function () {
   question.disableNextButton();
 
   var finished = false;
+  var finalStatus = "";
   var starts = 0;
 
-  function setEd(name, value) { Qualtrics.SurveyEngine.setEmbeddedData(name, value); }
+  // Results are written three ways: embedded data (both APIs), the hidden text questions on this
+  // page (question answers are always saved with the page and can drive branch logic and piped
+  // text), and sessionStorage (fallback for the message page).
+  var HIDDEN = { rejection_status: 0, rejection_msg1: 1, rejection_msg2: 2, rejection_compliance_code: 3, rejection_latency_ms: 4, rejection_wait_ms: 5 };
+  function setHidden(index, value) {
+    var inputs = document.querySelectorAll("input[type=text]");
+    var input = inputs[index];
+    if (!input) return;
+    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(input, value == null ? "" : String(value));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  function setEd(name, value) {
+    var text = value == null ? "" : String(value);
+    try { Qualtrics.SurveyEngine.setEmbeddedData(name, text); } catch (error) {}
+    try { if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === "function") Qualtrics.SurveyEngine.setJSEmbeddedData(name, text); } catch (error) {}
+    if (HIDDEN[name] !== undefined) setHidden(HIDDEN[name], text);
+    try { sessionStorage.setItem("vr_" + name, text); } catch (error) {}
+  }
 
   function enableWhenRead() {
     var remaining = MIN_READ_MS - (Date.now() - startedAt);
     if (remaining > 0) { setTimeout(enableWhenRead, remaining); return; }
-    status.textContent = Qualtrics.SurveyEngine.getEmbeddedData("rejection_status") === "ok"
+    status.textContent = finalStatus === "ok"
       ? "The manager has replied. Click Next to read the reply."
       : "Click Next to continue.";
     question.enableNextButton();
@@ -49,6 +89,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
   function finish(newStatus) {
     if (finished) return;
     finished = true;
+    finalStatus = newStatus;
     setEd("rejection_status", newStatus);
     setEd("rejection_wait_ms", String(Date.now() - startedAt));
     enableWhenRead();
