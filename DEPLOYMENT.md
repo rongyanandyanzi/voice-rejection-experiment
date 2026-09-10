@@ -227,7 +227,7 @@ and every validator of the chat version. `compliance_code` is an integer bitmask
 flags (decoded by `decodeComplianceCode` in `server.js` and listed in `qualtrics/survey_flow.md`), so
 the browser never sees the score object.
 
-Hosting: the free plan is enough. Create the service without a persistent disk; the CSV files are
+Hosting: the free plan is enough. `render-qualtrics.yaml` is a ready blueprint for it (New + > Blueprint in Render, choose this repository and that file; Render asks for the OpenAI key while applying). Create the service without a persistent disk; the CSV files are
 then recreated empty on every restart, which is fine because Qualtrics stores all study data. A free
 instance sleeps after about 15 idle minutes and takes up to a minute to wake, which the consent page
 ping covers. Environment variables: `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_EVALUATOR_MODEL`,

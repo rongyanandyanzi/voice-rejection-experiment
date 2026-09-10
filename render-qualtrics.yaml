@@ -1,0 +1,43 @@
+# Free-tier generation service for the Qualtrics one-shot design. No disk: Qualtrics stores all
+# study data, this service only generates and validates the manager's rejection.
+# Apply in Render with New + > Blueprint, pick this repository and this file. Render asks for the
+# OPENAI_API_KEY value while applying (sync: false); nothing else needs typing.
+services:
+  - type: web
+    # The service name becomes the public subdomain the survey scripts call, so it names the
+    # fictional park and nothing about the method.
+    name: aetheria-gardens-messages
+    env: node
+    plan: free
+    branch: qualtrics-one-shot
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: ./data
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.5
+      - key: OPENAI_EVALUATOR_MODEL
+        value: gpt-5.5
+      - key: OPENAI_REASONING_EFFORT
+        value: medium
+      - key: OPENAI_TIMEOUT_MS
+        value: "45000"
+      - key: AI_PIPELINE_TIMEOUT_MS
+        value: "135000"
+      - key: ALLOWED_ORIGINS
+        value: https://*.qualtrics.com
+      - key: REJECTION_RATE_LIMIT
+        value: 6/600
+      - key: REJECTION_JOB_MAX_ATTEMPTS
+        value: "2"
+      - key: AI_VALIDATION_DEBUG
+        value: "true"
