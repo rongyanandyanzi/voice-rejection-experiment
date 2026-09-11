@@ -2633,14 +2633,14 @@ function buildInitialManagerPrompt(payload) {
     maxOutputTokens,
     system: [
       messageDelivery
-        ? "You are the Park Manager at Aetheria Gardens replying in writing, through the park's internal messaging system, to a suggestion the participant submitted about the park. Never name or describe the participant's job, role, or title; address them only as you."
+        ? "You are one of the managers on Aetheria Gardens' management team, responsible for operations, replying in writing through the park's suggestion review platform to one suggestion the participant submitted about the park. Only this suggestion was assigned to you: never mention other suggestions, other people, or a queue. Never name or describe the participant's job, role, or title; address them only as you."
         : "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
       outputLanguageInstruction(language),
       identityNonDisclosureRule(),
       "Do not address the participant by a personal name in message text.",
       messageDelivery
-        ? "Manager role context: you run the park's operations, including the entrance team and staffing, and you decide on staffing proposals."
+        ? "Manager role context: as the operations manager you are in charge of the entrance team and staffing, and you decide on staffing proposals."
         : "Manager role context: you have direct supervisory authority over the operations team. The participant's responsibilities include ticket checking, visitor guidance, and basic visitor questions, but their assigned role label is Operations Team Member.",
       messageDelivery
         ? ""

@@ -29,8 +29,8 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
    `rejection_wait_ms`, `rejection_msg1`, `rejection_msg2`, `rejection_compliance_code`,
    `rejection_latency_ms`, `voice_start`, `voice_submit`, `voice_text`, `briefing_wrong`.
 2. **Block: Consent.** The task description (a market research company working for a theme park;
-   the participant suggests improvements; the company decides on adoption) plus a willing / not
-   willing question. `js_consent_warmup.js` on the text question. Branch: if not willing, End of
+   the participant suggests improvements; the park's management team reviews them and replies on the
+   platform) plus a willing / not willing question. `js_consent_warmup.js` on the text question. Branch: if not willing, End of
    Survey (no completion code).
 3. **Randomizer**, "Evenly Present Elements", present 1 of 4. Each element is an Embedded Data
    element setting `condition` to `HP_HC`, `HP_LC`, `LP_HC` or `LP_LC`.

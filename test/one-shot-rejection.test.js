@@ -51,7 +51,8 @@ test("message delivery reframes the first rejection as a written reply without c
   const message = buildInitialManagerPrompt({ ...base, delivery: "message" });
   assert.equal(chat.delivery, "chat");
   assert.equal(message.delivery, "message");
-  assert.match(message.system, /internal messaging system/);
+  assert.match(message.system, /suggestion review platform/);
+  assert.match(message.system, /never mention other suggestions/);
   assert.match(message.system, /do not greet them, do not ask them anything/);
   assert.doesNotMatch(message.system, /Leave room for the participant to respond/);
   assert.match(chat.system, /Leave room for the participant to respond/);

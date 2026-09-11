@@ -421,7 +421,7 @@ def build(args):
         paragraphs(
             "<strong>About this task</strong>",
             "This task is run by a market research company on behalf of a theme park that wants to improve its service quality.",
-            "You will be asked to make suggestions to help the park improve its service quality. The market research company will decide whether to adopt your suggestions.",
+            "You will be asked to make suggestions to help the park. Suggestions are reviewed by the park’s management team, which decides whether to adopt them, and you will receive a reply on this platform.",
             "Are you willing to take part in this task?",
         ),
         js=survey_js("js_consent_warmup.js", s.service_url),
@@ -434,7 +434,7 @@ def build(args):
     role1 = s.text("role_1", page_header("Background 1 of 3", "The Park") + paragraphs(
         "Thanks for taking part in this task.",
         "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.",
-        "The park manager is in charge of the entrance team and of how the park is staffed.",
+        "The park is run by a management team. Its operations managers are in charge of the entrance team and of how the park is staffed.",
     ), description="Background 1")
     check1 = s.single_choice("check_park", "What does the entrance team at Aetheria Gardens do every day?", [
         "Checking tickets, guiding visitors into the park and answering simple questions",
@@ -459,7 +459,7 @@ def build(args):
         "For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.",
         "You are not required to propose changes to the staffing approach, but you may still suggest a change to the current arrangement in order to improve the theme park’s performance.",
         "You may propose adopting a more flexible employment model to the park manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach.",
-        "Next, you will write your suggestion. The market research company will pass it on to the park manager, who will read it and reply.",
+        "The park’s management team is reviewing suggestions on this platform today. Your suggestion will be passed to one of the managers, who will read it and reply to you here.",
     ), description="Background 3")
     check3 = s.single_choice("check_suggestion", "What suggestion may you bring up with the manager?", [
         "A flexible labor model using options such as temporary staff, interns, or a flexible labor pool",
@@ -471,25 +471,25 @@ def build(args):
     reread = s.text("role_reread", paragraphs(
         "<strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.",
     ) + page_header("Background 1 of 3", "The Park") + paragraphs(
-        "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park manager is in charge of the entrance team and of how the park is staffed.",
+        "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park is run by a management team; its operations managers are in charge of the entrance team and of how the park is staffed.",
     ) + page_header("Background 2 of 3", "The Staffing Situation") + paragraphs(
         "Aetheria Gardens relies almost exclusively on full-time, permanent employees, and is experiencing a “labor seesaw”: around 500 visitors a day in the off-season, leaving a costly surplus of idle staff, and around 5,000 visitors a day in peak season, leaving teams overwhelmed and shorthanded. The current labor plan was developed by park management, is not flexible enough, and labor costs are becoming increasingly difficult to manage.",
     ) + page_header("Background 3 of 3", "Your Possible Suggestion") + paragraphs(
-        "You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. Next, you will write your suggestion, which the market research company will pass on to the park manager.",
+        "You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. The park’s management team is reviewing suggestions on this platform today; your suggestion will be passed to one of the managers, who will reply to you here.",
     ), description="Re-read materials")
     s.block("Background re-read", [reread])
 
     # 3. Proposal --------------------------------------------------------------
     proposal = s.essay("proposal", paragraphs(
         "<strong>Write your suggestion to the park manager.</strong>",
-        "Say what you think the park should do about the staffing situation and why. The market research company will pass your message to the park manager, who will read it and reply.",
+        "Say what you think the park should do about the staffing situation and why. Your suggestion will be passed to one of the park’s managers, who will read it and reply to you here.",
     ), force=True, js=survey_js("js_proposal_minwords.js", s.service_url), height=220)
     s.block("Proposal", [proposal])
 
     # 4. Waiting page --------------------------------------------------------
     waiting = s.text("waiting", "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>" + paragraphs(
-        "<strong>Your suggestion has been sent to the park manager.</strong>",
-        "While you wait for the reply, here is some further information about the situation.",
+        "<strong>Your suggestion has been submitted and assigned to one of the park’s managers.</strong>",
+        "Replies usually arrive within a few minutes. While you wait, here is some further information about the park.",
     ) + extra_facts_html(), js=survey_js("js_waiting_page.js", s.service_url), description="Waiting page")
     # Hidden carriers, in the order js_waiting_page.js expects (input[type=text] order on the page).
     h_status = s.hidden_text("rejection_status_q", "rejection status")
@@ -528,14 +528,14 @@ def build(args):
     m3 = s.text("materials_3", page_header("Materials 3 of 3", "Nearby Visitors") + paragraphs(
         "There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
         "Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.",
-        "On the next page you can send the manager a message about this situation if you wish.",
+        "On the next page you can submit a further suggestion about this situation if you wish.",
     ), description="Materials 3")
     s.block("Second materials", [m1, "PB", m2, "PB", m3])
 
     # 7. Voice DV -------------------------------------------------------------
     voice = s.essay("voice_text_q", paragraphs(
-        "<strong>Message to the park manager (optional)</strong>",
-        "You can send the park manager a suggestion about the situation you have just read. Write it below, or leave the box empty if you have nothing to add.",
+        "<strong>A further suggestion (optional)</strong>",
+        "You can submit a further suggestion about the situation you have just read. It will be passed to the park’s management team in the same way. Write it below, or leave the box empty if you have nothing to add.",
     ), force=False, js=survey_js("js_voice_timestamps.js", s.service_url), height=220)
     s.block("Second suggestion", [voice])
 
