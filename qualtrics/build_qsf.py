@@ -528,14 +528,14 @@ def build(args):
     m3 = s.text("materials_3", page_header("Materials 3 of 3", "Nearby Visitors") + paragraphs(
         "There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
         "Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.",
-        "On the next page you can submit a further suggestion about this situation if you wish.",
+        "On the next page you can submit a further suggestion about this situation if you wish. It will go to the same manager who replied to you.",
     ), description="Materials 3")
     s.block("Second materials", [m1, "PB", m2, "PB", m3])
 
     # 7. Voice DV -------------------------------------------------------------
     voice = s.essay("voice_text_q", paragraphs(
         "<strong>A further suggestion (optional)</strong>",
-        "You can submit a further suggestion about the situation you have just read. It will be passed to the park’s management team in the same way. Write it below, or leave the box empty if you have nothing to add.",
+        "You can submit a further suggestion about the situation you have just read. It will be reviewed by the same manager who replied to your first suggestion. Write it below, or leave the box empty if you have nothing to add.",
     ), force=False, js=survey_js("js_voice_timestamps.js", s.service_url), height=220)
     s.block("Second suggestion", [voice])
 

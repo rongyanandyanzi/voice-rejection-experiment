@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-09-11 12:15:50",
+    "SurveyCreationDate": "2026-09-11 12:17:16",
     "CreatorID": "UR_989d7e660c90136",
-    "LastModified": "2026-09-11 12:15:50",
+    "LastModified": "2026-09-11 12:17:16",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -1597,7 +1597,7 @@
       "SecondaryAttribute": "Materials 3",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Nearby Visitors</h2><p>There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.</p><p>Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.</p><p>On the next page you can submit a further suggestion about this situation if you wish.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Nearby Visitors</h2><p>There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.</p><p>Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.</p><p>On the next page you can submit a further suggestion about this situation if you wish. It will go to the same manager who replied to you.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1627,7 +1627,7 @@
       "SecondaryAttribute": "A further suggestion (optional)   You can submit a further suggestion about the situation you have j",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>A further suggestion (optional)</strong></p><p>You can submit a further suggestion about the situation you have just read. It will be passed to the park’s management team in the same way. Write it below, or leave the box empty if you have nothing to add.</p>",
+        "QuestionText": "<p><strong>A further suggestion (optional)</strong></p><p>You can submit a further suggestion about the situation you have just read. It will be reviewed by the same manager who replied to your first suggestion. Write it below, or leave the box empty if you have nothing to add.</p>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
