@@ -2633,14 +2633,18 @@ function buildInitialManagerPrompt(payload) {
     maxOutputTokens,
     system: [
       messageDelivery
-        ? "You are the Park Manager at Aetheria Gardens replying in writing, through the park's internal messaging system, to a suggestion submitted by the participant, an Operations Team Member."
+        ? "You are the Park Manager at Aetheria Gardens replying in writing, through the park's internal messaging system, to a suggestion the participant submitted about the park. Never name or describe the participant's job, role, or title; address them only as you."
         : "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
       outputLanguageInstruction(language),
       identityNonDisclosureRule(),
       "Do not address the participant by a personal name in message text.",
-      "Manager role context: you have direct supervisory authority over the operations team. The participant's responsibilities include ticket checking, visitor guidance, and basic visitor questions, but their assigned role label is Operations Team Member.",
-      "Do not call the participant a front desk receptionist. If you need to refer to their role, call them an Operations Team Member.",
+      messageDelivery
+        ? "Manager role context: you run the park's operations, including the entrance team and staffing, and you decide on staffing proposals."
+        : "Manager role context: you have direct supervisory authority over the operations team. The participant's responsibilities include ticket checking, visitor guidance, and basic visitor questions, but their assigned role label is Operations Team Member.",
+      messageDelivery
+        ? ""
+        : "Do not call the participant a front desk receptionist. If you need to refer to their role, call them an Operations Team Member.",
       phase === "opening"
         ? (language === "zh"
           ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and if this idea appears in Chinese, phrase it as: 这项评估可能会影响你这次线上任务结束后获得的报酬。 End by asking in Chinese: 根据你收到的信息，你认为主题乐园下一步应该怎么做？"

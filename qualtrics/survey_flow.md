@@ -28,17 +28,18 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
    these from the URL query string), `condition`, `proposal`, `rejection_job`, `rejection_status`,
    `rejection_wait_ms`, `rejection_msg1`, `rejection_msg2`, `rejection_compliance_code`,
    `rejection_latency_ms`, `voice_start`, `voice_submit`, `voice_text`, `briefing_wrong`.
-2. **Block: Consent.** Consent text plus a yes/no question. `js_consent_warmup.js` on the text
-   question. Branch: if consent is no, End of Survey (no completion code).
+2. **Block: Consent.** The task description (a market research company working for a theme park;
+   the participant suggests improvements; the company decides on adoption) plus a willing / not
+   willing question. `js_consent_warmup.js` on the text question. Branch: if not willing, End of
+   Survey (no completion code).
 3. **Randomizer**, "Evenly Present Elements", present 1 of 4. Each element is an Embedded Data
    element setting `condition` to `HP_HC`, `HP_LC`, `LP_HC` or `LP_LC`.
-4. **Block: Role materials.** Three Text/Graphic pages copied from `app.js` (`roleMaterialPages`,
-   about lines 400 to 460): the park and your role, the labour seesaw, your possible suggestion. Change
-   the last sentence of page 3 from "you are about to enter an online chat with your manager" to
-   "Next, you will write your suggestion and send it to the manager." Below each page keep its
-   briefing-check item (single answer, Request Response). Branch after each check: if the answer is
-   wrong, set `briefing_wrong` = 1 and show a one-page "Please read the information again" block with
-   the same material, then continue regardless.
+4. **Block: Background.** Three Text/Graphic pages: the park and its entrance team (no job role for
+   the participant), the labour seesaw (from `app.js` `roleMaterialPages`), the possible suggestion
+   (ending "the market research company will pass it on to the park manager, who will read it and
+   reply"). Below each page a reading-check item (single answer, Request Response). Branch after the
+   three checks: if any answer is wrong, set `briefing_wrong` = 1 and show a one-page "Please read
+   the information again" block with the same material, then continue regardless.
 5. **Block: Proposal.** One Text Entry question, Essay box, Request Response, with
    `js_proposal_minwords.js`. Prompt:
    "Write the suggestion you want to send to the park manager. Say what the park should do and why.

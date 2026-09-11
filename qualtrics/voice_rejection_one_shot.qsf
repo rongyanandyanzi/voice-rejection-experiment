@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-09-10 23:23:51",
+    "SurveyCreationDate": "2026-09-11 11:48:04",
     "CreatorID": "UR_989d7e660c90136",
-    "LastModified": "2026-09-10 23:23:51",
+    "LastModified": "2026-09-11 11:48:04",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -43,8 +43,8 @@
         },
         {
           "Type": "Standard",
-          "Description": "Role materials",
-          "ID": "BL_3f43ed762ff4423",
+          "Description": "Background",
+          "ID": "BL_3a997383d9a91dc",
           "BlockElements": [
             {
               "Type": "Question",
@@ -89,8 +89,8 @@
         },
         {
           "Type": "Standard",
-          "Description": "Role materials re-read",
-          "ID": "BL_2b1532b400c4da8",
+          "Description": "Background re-read",
+          "ID": "BL_4c2da98477fd698",
           "BlockElements": [
             {
               "Type": "Question",
@@ -536,7 +536,7 @@
           },
           {
             "Type": "Standard",
-            "ID": "BL_3f43ed762ff4423",
+            "ID": "BL_3a997383d9a91dc",
             "FlowID": "FL_11",
             "Autofill": []
           },
@@ -550,12 +550,12 @@
                   "LogicType": "Question",
                   "QuestionID": "QID4",
                   "QuestionIsInLoop": "no",
-                  "ChoiceLocator": "q://QID4/SelectableChoice/2",
+                  "ChoiceLocator": "q://QID4/SelectableChoice/1",
                   "Operator": "NotSelected",
                   "QuestionIDFromLocator": "QID4",
-                  "LeftOperand": "q://QID4/SelectableChoice/2",
+                  "LeftOperand": "q://QID4/SelectableChoice/1",
                   "Type": "Expression",
-                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Role check</span> <span class=\"OpDesc\">Is Not Selected</span>"
+                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Park check</span> <span class=\"OpDesc\">Is Not Selected</span>"
                 },
                 "1": {
                   "LogicType": "Question",
@@ -603,7 +603,7 @@
               },
               {
                 "Type": "Standard",
-                "ID": "BL_2b1532b400c4da8",
+                "ID": "BL_4c2da98477fd698",
                 "FlowID": "FL_13",
                 "Autofill": []
               }
@@ -806,7 +806,7 @@
       "SecondaryAttribute": "Consent text",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Participant information and consent</strong></p><p>[Paste your approved consent text here. The page below asks for consent; a participant who declines is taken to the end of the survey.]</p>",
+        "QuestionText": "<p><strong>About this task</strong></p><p>This task is run by a market research company on behalf of a theme park that wants to improve its service quality.</p><p>You will be asked to make suggestions to help the park improve its service quality. The market research company will decide whether to adopt your suggestions.</p><p>Are you willing to take part in this task?</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -834,10 +834,10 @@
       "SurveyID": "SV_3b0d6e803297aa6",
       "Element": "SQ",
       "PrimaryAttribute": "QID2",
-      "SecondaryAttribute": "Do you agree to take part in this study?",
+      "SecondaryAttribute": "Are you willing to take part in this task?",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "Do you agree to take part in this study?",
+        "QuestionText": "Are you willing to take part in this task?",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -846,7 +846,7 @@
         },
         "Choices": {
           "1": {
-            "Display": "Yes, I agree to take part"
+            "Display": "Yes, I am willing to take part"
           },
           "2": {
             "Display": "No, I do not want to take part"
@@ -867,7 +867,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID2",
         "DataExportTag": "consent",
-        "QuestionDescription": "Do you agree to take part in this study?",
+        "QuestionDescription": "Are you willing to take part in this task?",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -880,10 +880,10 @@
       "SurveyID": "SV_3b0d6e803297aa6",
       "Element": "SQ",
       "PrimaryAttribute": "QID3",
-      "SecondaryAttribute": "Role materials 1",
+      "SecondaryAttribute": "Background 1",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 1 of 3</p><h2 style=\"margin-top:4px;\">Your Role</h2><p>Thanks for taking part in this online customer feedback task.</p><p>Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.</p><p>The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>Thanks for taking part in this task.</p><p>The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.</p><p>The park manager is in charge of the entrance team and of how the park is staffed.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -897,7 +897,7 @@
         },
         "QuestionID": "QID3",
         "DataExportTag": "role_1",
-        "QuestionDescription": "Role materials 1",
+        "QuestionDescription": "Background 1",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -910,10 +910,10 @@
       "SurveyID": "SV_3b0d6e803297aa6",
       "Element": "SQ",
       "PrimaryAttribute": "QID4",
-      "SecondaryAttribute": "What is your role in the upcoming task?",
+      "SecondaryAttribute": "What does the entrance team at Aetheria Gardens do every day?",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "What is your role in the upcoming task?",
+        "QuestionText": "What does the entrance team at Aetheria Gardens do every day?",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -922,13 +922,13 @@
         },
         "Choices": {
           "1": {
-            "Display": "Park Manager"
+            "Display": "Checking tickets, guiding visitors into the park and answering simple questions"
           },
           "2": {
-            "Display": "Operations Team Member"
+            "Display": "Operating the rides"
           },
           "3": {
-            "Display": "Theme park visitor"
+            "Display": "Cooking in the park restaurants"
           }
         },
         "ChoiceOrder": [
@@ -946,8 +946,8 @@
         "NextChoiceId": 4,
         "NextAnswerId": 1,
         "QuestionID": "QID4",
-        "DataExportTag": "check_role",
-        "QuestionDescription": "What is your role in the upcoming task?",
+        "DataExportTag": "check_park",
+        "QuestionDescription": "What does the entrance team at Aetheria Gardens do every day?",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -960,10 +960,10 @@
       "SurveyID": "SV_3b0d6e803297aa6",
       "Element": "SQ",
       "PrimaryAttribute": "QID5",
-      "SecondaryAttribute": "Role materials 2",
+      "SecondaryAttribute": "Background 2",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 2 of 3</p><h2 style=\"margin-top:4px;\">Background Information</h2><p>Aetheria Gardens is currently facing a significant staffing challenge. Because the park relies almost exclusively on full-time, permanent employees, it is experiencing a “labor seesaw”:</p><ul><li>Off-season: Daily attendance drops to around 500 visitors, leaving the park with a costly surplus of idle staff.</li><li>Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.</li></ul><p>The current labor plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">The Staffing Situation</h2><p>Aetheria Gardens is currently facing a significant staffing challenge. Because the park relies almost exclusively on full-time, permanent employees, it is experiencing a “labor seesaw”:</p><ul><li>Off-season: Daily attendance drops to around 500 visitors, leaving the park with a costly surplus of idle staff.</li><li>Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.</li></ul><p>The current labor plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -977,7 +977,7 @@
         },
         "QuestionID": "QID5",
         "DataExportTag": "role_2",
-        "QuestionDescription": "Role materials 2",
+        "QuestionDescription": "Background 2",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1040,10 +1040,10 @@
       "SurveyID": "SV_3b0d6e803297aa6",
       "Element": "SQ",
       "PrimaryAttribute": "QID7",
-      "SecondaryAttribute": "Role materials 3",
+      "SecondaryAttribute": "Background 3",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Your Possible Suggestion</h2><p>You believe the theme park must adopt a more agile employment model in order to survive.</p><p>For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.</p><p>Although proposing labor-related changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance.</p><p>You may propose adopting a more flexible employment model to the manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach.</p><p>Next, you will write your suggestion and send it to the manager through the park’s team messaging system.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Possible Suggestion</h2><p>You believe the theme park must adopt a more agile employment model in order to survive.</p><p>For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.</p><p>You are not required to propose changes to the staffing approach, but you may still suggest a change to the current arrangement in order to improve the theme park’s performance.</p><p>You may propose adopting a more flexible employment model to the park manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach.</p><p>Next, you will write your suggestion. The market research company will pass it on to the park manager, who will read it and reply.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1057,7 +1057,7 @@
         },
         "QuestionID": "QID7",
         "DataExportTag": "role_3",
-        "QuestionDescription": "Role materials 3",
+        "QuestionDescription": "Background 3",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1123,7 +1123,7 @@
       "SecondaryAttribute": "Re-read materials",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 1 of 3</p><h2 style=\"margin-top:4px;\">Your Role</h2><p>Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.</p><p>The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 2 of 3</p><h2 style=\"margin-top:4px;\">Background Information</h2><p>Aetheria Gardens relies almost exclusively on full-time, permanent employees, and is experiencing a “labor seesaw”: around 500 visitors a day in the off-season, leaving a costly surplus of idle staff, and around 5,000 visitors a day in peak season, leaving teams overwhelmed and shorthanded. The current labor plan was developed by park management, is not flexible enough, and labor costs are becoming increasingly difficult to manage.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Role Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Your Possible Suggestion</h2><p>You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. Next, you will write your suggestion and send it to the manager.</p>",
+        "QuestionText": "<p><strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park manager is in charge of the entrance team and of how the park is staffed.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">The Staffing Situation</h2><p>Aetheria Gardens relies almost exclusively on full-time, permanent employees, and is experiencing a “labor seesaw”: around 500 visitors a day in the off-season, leaving a costly surplus of idle staff, and around 5,000 visitors a day in peak season, leaving teams overwhelmed and shorthanded. The current labor plan was developed by park management, is not flexible enough, and labor costs are becoming increasingly difficult to manage.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Possible Suggestion</h2><p>You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. Next, you will write your suggestion, which the market research company will pass on to the park manager.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1153,7 +1153,7 @@
       "SecondaryAttribute": "Write your suggestion to the park manager.   Say what you think the park should do about the staffin",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Write your suggestion to the park manager.</strong></p><p>Say what you think the park should do about the staffing situation and why. Your message will be sent to the manager, who will read it and reply.</p>",
+        "QuestionText": "<p><strong>Write your suggestion to the park manager.</strong></p><p>Say what you think the park should do about the staffing situation and why. The market research company will pass your message to the park manager, who will read it and reply.</p>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {

@@ -419,65 +419,70 @@ def build(args):
     consent_text = s.text(
         "consent_text",
         paragraphs(
-            "<strong>Participant information and consent</strong>",
-            "[Paste your approved consent text here. The page below asks for consent; a participant who declines is taken to the end of the survey.]",
+            "<strong>About this task</strong>",
+            "This task is run by a market research company on behalf of a theme park that wants to improve its service quality.",
+            "You will be asked to make suggestions to help the park improve its service quality. The market research company will decide whether to adopt your suggestions.",
+            "Are you willing to take part in this task?",
         ),
         js=survey_js("js_consent_warmup.js", s.service_url),
         description="Consent text",
     )
-    consent = s.single_choice("consent", "Do you agree to take part in this study?", ["Yes, I agree to take part", "No, I do not want to take part"])
+    consent = s.single_choice("consent", "Are you willing to take part in this task?", ["Yes, I am willing to take part", "No, I do not want to take part"])
     s.block("Consent", [consent_text, consent], block_type="Default")
 
     # 2. Role materials ------------------------------------------------------------
-    role1 = s.text("role_1", page_header("Role Materials 1 of 3", "Your Role") + paragraphs(
-        "Thanks for taking part in this online customer feedback task.",
-        "Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.",
-        "The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.",
-    ), description="Role materials 1")
-    check1 = s.single_choice("check_role", "What is your role in the upcoming task?", ["Park Manager", "Operations Team Member", "Theme park visitor"])
-    role2 = s.text("role_2", page_header("Role Materials 2 of 3", "Background Information") + paragraphs(
+    role1 = s.text("role_1", page_header("Background 1 of 3", "The Park") + paragraphs(
+        "Thanks for taking part in this task.",
+        "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.",
+        "The park manager is in charge of the entrance team and of how the park is staffed.",
+    ), description="Background 1")
+    check1 = s.single_choice("check_park", "What does the entrance team at Aetheria Gardens do every day?", [
+        "Checking tickets, guiding visitors into the park and answering simple questions",
+        "Operating the rides",
+        "Cooking in the park restaurants",
+    ])
+    role2 = s.text("role_2", page_header("Background 2 of 3", "The Staffing Situation") + paragraphs(
         "Aetheria Gardens is currently facing a significant staffing challenge. Because the park relies almost exclusively on full-time, permanent employees, it is experiencing a “labor seesaw”:",
     ) + bullets([
         "Off-season: Daily attendance drops to around 500 visitors, leaving the park with a costly surplus of idle staff.",
         "Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.",
     ]) + paragraphs(
         "The current labor plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage.",
-    ), description="Role materials 2")
+    ), description="Background 2")
     check2 = s.single_choice("check_problem", "What is the main staffing problem at Aetheria Gardens?", [
         "Too many idle staff in off-season and too few staff in peak season",
         "The park has too few visitors in every season",
         "The QR code ticket system is broken",
     ])
-    role3 = s.text("role_3", page_header("Role Materials 3 of 3", "Your Possible Suggestion") + paragraphs(
+    role3 = s.text("role_3", page_header("Background 3 of 3", "Your Possible Suggestion") + paragraphs(
         "You believe the theme park must adopt a more agile employment model in order to survive.",
         "For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.",
-        "Although proposing labor-related changes is not required by your role, you still want to suggest a change to the current procedure in order to improve the theme park’s performance.",
-        "You may propose adopting a more flexible employment model to the manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach.",
-        "Next, you will write your suggestion and send it to the manager through the park’s team messaging system.",
-    ), description="Role materials 3")
+        "You are not required to propose changes to the staffing approach, but you may still suggest a change to the current arrangement in order to improve the theme park’s performance.",
+        "You may propose adopting a more flexible employment model to the park manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach.",
+        "Next, you will write your suggestion. The market research company will pass it on to the park manager, who will read it and reply.",
+    ), description="Background 3")
     check3 = s.single_choice("check_suggestion", "What suggestion may you bring up with the manager?", [
         "A flexible labor model using options such as temporary staff, interns, or a flexible labor pool",
         "Raising ticket prices during peak season",
         "Building new rides for families",
     ])
-    s.block("Role materials", [role1, "PB", check1, "PB", role2, "PB", check2, "PB", role3, "PB", check3])
+    s.block("Background", [role1, "PB", check1, "PB", role2, "PB", check2, "PB", role3, "PB", check3])
 
     reread = s.text("role_reread", paragraphs(
         "<strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.",
-    ) + page_header("Role Materials 1 of 3", "Your Role") + paragraphs(
-        "Today, you will act as an Operations Team Member at a theme park called Aetheria Gardens. You will work directly under a Park Manager.",
-        "The operations team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.",
-    ) + page_header("Role Materials 2 of 3", "Background Information") + paragraphs(
+    ) + page_header("Background 1 of 3", "The Park") + paragraphs(
+        "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park manager is in charge of the entrance team and of how the park is staffed.",
+    ) + page_header("Background 2 of 3", "The Staffing Situation") + paragraphs(
         "Aetheria Gardens relies almost exclusively on full-time, permanent employees, and is experiencing a “labor seesaw”: around 500 visitors a day in the off-season, leaving a costly surplus of idle staff, and around 5,000 visitors a day in peak season, leaving teams overwhelmed and shorthanded. The current labor plan was developed by park management, is not flexible enough, and labor costs are becoming increasingly difficult to manage.",
-    ) + page_header("Role Materials 3 of 3", "Your Possible Suggestion") + paragraphs(
-        "You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. Next, you will write your suggestion and send it to the manager.",
+    ) + page_header("Background 3 of 3", "Your Possible Suggestion") + paragraphs(
+        "You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. Next, you will write your suggestion, which the market research company will pass on to the park manager.",
     ), description="Re-read materials")
-    s.block("Role materials re-read", [reread])
+    s.block("Background re-read", [reread])
 
     # 3. Proposal --------------------------------------------------------------
     proposal = s.essay("proposal", paragraphs(
         "<strong>Write your suggestion to the park manager.</strong>",
-        "Say what you think the park should do about the staffing situation and why. Your message will be sent to the manager, who will read it and reply.",
+        "Say what you think the park should do about the staffing situation and why. The market research company will pass your message to the park manager, who will read it and reply.",
     ), force=True, js=survey_js("js_proposal_minwords.js", s.service_url), height=220)
     s.block("Proposal", [proposal])
 
@@ -619,12 +624,12 @@ def build(args):
         s.flow_block("Consent"),
         s.flow_branch([s.expr_choice(consent, 2, True, "Consent: No")], [s.flow_end()], "No consent"),
         s.flow_randomizer([s.flow_embedded([("condition", value)]) for value in ["HP_HC", "HP_LC", "LP_HC", "LP_LC"]]),
-        s.flow_block("Role materials"),
+        s.flow_block("Background"),
         s.flow_branch([
-            s.expr_choice(check1, 2, False, "Role check"),
+            s.expr_choice(check1, 1, False, "Park check"),
             s.expr_choice(check2, 1, False, "Problem check"),
             s.expr_choice(check3, 1, False, "Suggestion check"),
-        ], [s.flow_embedded([("briefing_wrong", "1")]), s.flow_block("Role materials re-read")], "Briefing check wrong"),
+        ], [s.flow_embedded([("briefing_wrong", "1")]), s.flow_block("Background re-read")], "Briefing check wrong"),
         s.flow_block("Proposal"),
         s.flow_block("Waiting page"),
         s.flow_branch([s.expr_text(h_status, "NotEqualTo", "ok", "rejection status")], [s.flow_end(s.tech_issue_url)], "Reply failed"),
