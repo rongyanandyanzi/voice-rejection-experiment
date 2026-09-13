@@ -441,30 +441,31 @@ def build(args):
         "Operating the rides",
         "Cooking in the park restaurants",
     ])
-    role2 = s.text("role_2", page_header("Background 2 of 3", "The Staffing Situation") + paragraphs(
-        "Aetheria Gardens is currently facing a significant staffing challenge. Because the park relies almost exclusively on full-time, permanent employees, it is experiencing a “labor seesaw”:",
+    role2 = s.text("role_2", page_header("Background 2 of 3", "How the Park Is Staffed Now") + paragraphs(
+        "Aetheria Gardens employs a full-time, permanent workforce all year round. The park’s operations managers designed this staffing plan, and the management team approved it this year. The managers consider it the right approach: in their view it keeps service consistent, avoids constant retraining, and shows the park’s commitment to its staff.",
+        "Some figures from the past year:",
     ) + bullets([
-        "Off-season: Daily attendance drops to around 500 visitors, leaving the park with a costly surplus of idle staff.",
-        "Peak season: Daily attendance surges to around 5,000 visitors, leaving teams overwhelmed and shorthanded.",
-    ]) + paragraphs(
-        "The current labor plan was developed by park management. However, this plan is not flexible enough, and labor costs are becoming increasingly difficult to manage.",
-    ), description="Background 2")
-    check2 = s.single_choice("check_problem", "What is the main staffing problem at Aetheria Gardens?", [
-        "Too many idle staff in off-season and too few staff in peak season",
-        "The park has too few visitors in every season",
-        "The QR code ticket system is broken",
+        "On a typical off-season weekday the park receives around 500 visitors; on a peak-season day, around 5,000.",
+        "The number of entrance staff on duty is the same in both seasons.",
+        "In the off-season, entrance staff spend long stretches with no visitors to serve.",
+        "On peak days, the queue at the entrance reaches 30 to 45 minutes at the busiest hour, and visitor complaints about waiting are highest in those weeks.",
+        "Staff costs are the park’s largest expense and have risen for three years in a row.",
+    ]), description="Background 2")
+    check2 = s.single_choice("check_plan", "According to the management team, why does the park keep a fully permanent workforce all year?", [
+        "It keeps service consistent, avoids retraining, and shows commitment to staff",
+        "Because visitor numbers are the same all year",
+        "Because temporary staff are not allowed by law",
     ])
-    role3 = s.text("role_3", page_header("Background 3 of 3", "Your Possible Suggestion") + paragraphs(
-        "You believe the theme park must adopt a more agile employment model in order to survive.",
-        "For example, the park could use temporary staff and interns to manage high-volume attendance surges, or convert part of the current permanent workforce into a flexible labor pool to better align staffing levels with fluctuating demand.",
-        "You are not required to propose changes to the staffing approach, but you may still suggest a change to the current arrangement in order to improve the theme park’s performance.",
-        "You may propose adopting a more flexible employment model to the park manager. Please note that the current labor plan has already been agreed upon by the theme park’s management team, so proposing changes would mean raising a significant challenge to the current approach.",
+    role3 = s.text("role_3", page_header("Background 3 of 3", "Your Suggestion") + paragraphs(
+        "The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead.",
+        "Bear in mind that the plan was designed by the managers themselves and approved this year, so questioning it means challenging a decision that the manager reading your suggestion helped to make. Managers can accept or decline suggestions, and the manager who reviews yours will also rate it.",
+        "Your suggestion is sent with your participant ID: the manager sees it as coming from you, and the reply is addressed to you personally.",
         "The park’s management team is reviewing suggestions on this platform today. Your suggestion will be passed to one of the managers, who will read it and reply to you here.",
     ), description="Background 3")
-    check3 = s.single_choice("check_suggestion", "What suggestion may you bring up with the manager?", [
-        "A flexible labor model using options such as temporary staff, interns, or a flexible labor pool",
-        "Raising ticket prices during peak season",
-        "Building new rides for families",
+    check3 = s.single_choice("check_task", "What are you invited to do in this task?", [
+        "Point out problems with the current staffing approach and propose what the park should do instead",
+        "Rate the park’s rides and restaurants",
+        "Design a new ticket price list",
     ])
     s.block("Background", [role1, "PB", check1, "PB", role2, "PB", check2, "PB", role3, "PB", check3])
 
@@ -472,24 +473,24 @@ def build(args):
         "<strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.",
     ) + page_header("Background 1 of 3", "The Park") + paragraphs(
         "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park is run by a management team; its operations managers are in charge of the entrance team and of how the park is staffed.",
-    ) + page_header("Background 2 of 3", "The Staffing Situation") + paragraphs(
-        "Aetheria Gardens relies almost exclusively on full-time, permanent employees, and is experiencing a “labor seesaw”: around 500 visitors a day in the off-season, leaving a costly surplus of idle staff, and around 5,000 visitors a day in peak season, leaving teams overwhelmed and shorthanded. The current labor plan was developed by park management, is not flexible enough, and labor costs are becoming increasingly difficult to manage.",
-    ) + page_header("Background 3 of 3", "Your Possible Suggestion") + paragraphs(
-        "You believe the park must adopt a more agile employment model, for example temporary staff and interns for attendance surges, or a flexible labor pool. The current labor plan has already been agreed by the management team, so proposing a change means raising a significant challenge to the current approach. The park’s management team is reviewing suggestions on this platform today; your suggestion will be passed to one of the managers, who will reply to you here.",
+    ) + page_header("Background 2 of 3", "How the Park Is Staffed Now") + paragraphs(
+        "The park employs a full-time, permanent workforce all year round. The operations managers designed this plan and the management team approved it this year; the managers consider it the right approach (consistent service, no constant retraining, commitment to staff). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day; the same number of entrance staff on duty in both seasons; long idle stretches in the off-season; 30 to 45 minute entrance queues at the busiest hour on peak days, with the most complaints about waiting; staff costs are the largest expense and have risen three years in a row.",
+    ) + page_header("Background 3 of 3", "Your Suggestion") + paragraphs(
+        "The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead. The plan was designed by the managers themselves, so questioning it means challenging a decision the manager reading your suggestion helped to make; managers can accept or decline suggestions and will rate yours. Your suggestion is sent with your participant ID and the reply is addressed to you personally. One of the managers will read it and reply to you here.",
     ), description="Re-read materials")
     s.block("Background re-read", [reread])
 
     # 3. Proposal --------------------------------------------------------------
     proposal = s.essay("proposal", paragraphs(
         "<strong>Write your suggestion to the park manager.</strong>",
-        "Say what you think the park should do about the staffing situation and why. Your suggestion will be passed to one of the park’s managers, who will read it and reply to you here.",
+        "Say what you think is wrong with the current staffing approach, what the park should do instead, and why. Your suggestion will be passed to one of the park’s managers, who will read it, rate it, and reply to you here.",
     ), force=True, js=survey_js("js_proposal_minwords.js", s.service_url), height=220)
     s.block("Proposal", [proposal])
 
     # 4. Waiting page --------------------------------------------------------
     waiting = s.text("waiting", "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>" + paragraphs(
         "<strong>Your suggestion has been submitted and assigned to one of the park’s managers.</strong>",
-        "Replies usually arrive within a few minutes. While you wait, here is some further information about the park.",
+        "The manager will read it, rate it, and reply. Replies usually arrive within a few minutes. While you wait, here is some further information about the park.",
     ) + extra_facts_html(), js=survey_js("js_waiting_page.js", s.service_url), description="Waiting page")
     # Hidden carriers, in the order js_waiting_page.js expects (input[type=text] order on the page).
     h_status = s.hidden_text("rejection_status_q", "rejection status")
@@ -535,7 +536,7 @@ def build(args):
     # 7. Voice DV -------------------------------------------------------------
     voice = s.essay("voice_text_q", paragraphs(
         "<strong>A further suggestion (optional)</strong>",
-        "You can submit a further suggestion about the situation you have just read. It will be reviewed by the same manager who replied to your first suggestion. Write it below, or leave the box empty if you have nothing to add.",
+        "You can submit a further suggestion about the situation you have just read. It will be reviewed and rated by the same manager who replied to your first suggestion. Write it below, or leave the box empty if you have nothing to add.",
     ), force=False, js=survey_js("js_voice_timestamps.js", s.service_url), height=220)
     s.block("Second suggestion", [voice])
 
