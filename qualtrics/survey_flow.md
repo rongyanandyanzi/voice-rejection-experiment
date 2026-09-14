@@ -78,7 +78,9 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
     unusual or unexpected? Please describe briefly." (text), "Who do you think you were interacting
     with in the chat?" reworded to "…in the message exchange?" (text), then the direct yes / no /
     not sure question with the "studies may sometimes include AI participants" preamble.
-13. **Block: Feedback and demographics.** Task feedback text box, then demographics.
+13. **Block: Feedback.** Task feedback text box, then a short closing page stating that every
+    participant receives the bonus regardless of the manager's rating (the bonus is paid to
+    everyone after the study; say so in the ethics application and the Prolific description).
 14. **End of Survey:** redirect to the Prolific completion URL.
 
 ## Embedded data dictionary

@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-09-13 22:55:09",
+    "SurveyCreationDate": "2026-09-14 10:57:37",
     "CreatorID": "UR_989d7e660c90136",
-    "LastModified": "2026-09-13 22:55:09",
+    "LastModified": "2026-09-14 10:57:37",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -275,6 +275,13 @@
             {
               "Type": "Question",
               "QuestionID": "QID34"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID35"
             }
           ]
         },
@@ -736,7 +743,7 @@
       "SurveyID": "SV_3b0d6e803297aa6",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "34",
+      "SecondaryAttribute": "35",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -806,7 +813,7 @@
       "SecondaryAttribute": "Consent text",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>About this task</strong></p><p>This task is run by a market research company on behalf of a theme park that wants to improve its service quality.</p><p>You will be asked to make suggestions to help the park. Suggestions are reviewed by the park’s management team, which decides whether to adopt them, and you will receive a reply on this platform.</p><p>Are you willing to take part in this task?</p>",
+        "QuestionText": "<p><strong>About this task</strong></p><p>This task is run by a market research company on behalf of a theme park that wants to improve its service quality.</p><p>You will be asked to make suggestions to help the park. Suggestions are reviewed by the park’s management team, which decides whether to adopt them, and you will receive a reply on this platform.</p><p>The manager who reviews your suggestion will also rate it. Suggestions rated as useful by the park earn a bonus payment on top of the base payment.</p><p>Are you willing to take part in this task?</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1043,7 +1050,7 @@
       "SecondaryAttribute": "Background 3",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Suggestion</h2><p>The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead.</p><p>Bear in mind that the plan was designed by the managers themselves and approved this year, so questioning it means challenging a decision that the manager reading your suggestion helped to make. Managers can accept or decline suggestions, and the manager who reviews yours will also rate it.</p><p>Your suggestion is sent with your participant ID: the manager sees it as coming from you, and the reply is addressed to you personally.</p><p>The park’s management team is reviewing suggestions on this platform today. Your suggestion will be passed to one of the managers, who will read it and reply to you here.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Suggestion</h2><p>The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead.</p><p>Bear in mind that the plan was designed by the managers themselves and approved this year, so questioning it means challenging a decision that the manager reading your suggestion helped to make. Managers can accept or decline suggestions, and the manager who reviews yours will also rate it; the rating decides whether you receive the bonus.</p><p>Your suggestion is sent with your participant ID: the manager sees it as coming from you, and the reply is addressed to you personally.</p><p>The park’s management team is reviewing suggestions on this platform today. Your suggestion will be passed to one of the managers, who will read it and reply to you here.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1123,7 +1130,7 @@
       "SecondaryAttribute": "Re-read materials",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park is run by a management team; its operations managers are in charge of the entrance team and of how the park is staffed.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">How the Park Is Staffed Now</h2><p>The park employs a full-time, permanent workforce all year round. The operations managers designed this plan and the management team approved it this year; the managers consider it the right approach (consistent service, no constant retraining, commitment to staff). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day; the same number of entrance staff on duty in both seasons; long idle stretches in the off-season; 30 to 45 minute entrance queues at the busiest hour on peak days, with the most complaints about waiting; staff costs are the largest expense and have risen three years in a row.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Suggestion</h2><p>The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead. The plan was designed by the managers themselves, so questioning it means challenging a decision the manager reading your suggestion helped to make; managers can accept or decline suggestions and will rate yours. Your suggestion is sent with your participant ID and the reply is addressed to you personally. One of the managers will read it and reply to you here.</p>",
+        "QuestionText": "<p><strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park is run by a management team; its operations managers are in charge of the entrance team and of how the park is staffed.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">How the Park Is Staffed Now</h2><p>The park employs a full-time, permanent workforce all year round. The operations managers designed this plan and the management team approved it this year; the managers consider it the right approach (consistent service, no constant retraining, commitment to staff). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day; the same number of entrance staff on duty in both seasons; long idle stretches in the off-season; 30 to 45 minute entrance queues at the busiest hour on peak days, with the most complaints about waiting; staff costs are the largest expense and have risen three years in a row.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Suggestion</h2><p>The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead. The plan was designed by the managers themselves, so questioning it means challenging a decision the manager reading your suggestion helped to make; managers can accept or decline suggestions and will rate yours, and the rating decides whether you receive the bonus. Your suggestion is sent with your participant ID and the reply is addressed to you personally. One of the managers will read it and reply to you here.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1627,7 +1634,7 @@
       "SecondaryAttribute": "A further suggestion (optional)   You can submit a further suggestion about the situation you have j",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>A further suggestion (optional)</strong></p><p>You can submit a further suggestion about the situation you have just read. It will be reviewed and rated by the same manager who replied to your first suggestion. Write it below, or leave the box empty if you have nothing to add.</p>",
+        "QuestionText": "<p><strong>A further suggestion (optional)</strong></p><p>You can submit a further suggestion about the situation you have just read. It will be reviewed and rated by the same manager who replied to your first suggestion, and the rating affects your bonus in the same way. Write it below, or leave the box empty if you have nothing to add.</p>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -2328,6 +2335,36 @@
         "QuestionID": "QID34",
         "DataExportTag": "task_feedback",
         "QuestionDescription": "Task feedback   If you have any suggestions about this online task, please share them with us.  You ",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_3b0d6e803297aa6",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID35",
+      "SecondaryAttribute": "Debrief",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><strong>Thank you for taking part.</strong></p><p>Every participant in this study receives the bonus payment, regardless of the manager’s rating. Click Next to complete the task and return to Prolific.</p>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID35",
+        "DataExportTag": "debrief",
+        "QuestionDescription": "Debrief",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {

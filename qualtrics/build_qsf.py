@@ -422,6 +422,7 @@ def build(args):
             "<strong>About this task</strong>",
             "This task is run by a market research company on behalf of a theme park that wants to improve its service quality.",
             "You will be asked to make suggestions to help the park. Suggestions are reviewed by the park’s management team, which decides whether to adopt them, and you will receive a reply on this platform.",
+            "The manager who reviews your suggestion will also rate it. Suggestions rated as useful by the park earn a bonus payment on top of the base payment.",
             "Are you willing to take part in this task?",
         ),
         js=survey_js("js_consent_warmup.js", s.service_url),
@@ -458,7 +459,7 @@ def build(args):
     ])
     role3 = s.text("role_3", page_header("Background 3 of 3", "Your Suggestion") + paragraphs(
         "The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead.",
-        "Bear in mind that the plan was designed by the managers themselves and approved this year, so questioning it means challenging a decision that the manager reading your suggestion helped to make. Managers can accept or decline suggestions, and the manager who reviews yours will also rate it.",
+        "Bear in mind that the plan was designed by the managers themselves and approved this year, so questioning it means challenging a decision that the manager reading your suggestion helped to make. Managers can accept or decline suggestions, and the manager who reviews yours will also rate it; the rating decides whether you receive the bonus.",
         "Your suggestion is sent with your participant ID: the manager sees it as coming from you, and the reply is addressed to you personally.",
         "The park’s management team is reviewing suggestions on this platform today. Your suggestion will be passed to one of the managers, who will read it and reply to you here.",
     ), description="Background 3")
@@ -476,7 +477,7 @@ def build(args):
     ) + page_header("Background 2 of 3", "How the Park Is Staffed Now") + paragraphs(
         "The park employs a full-time, permanent workforce all year round. The operations managers designed this plan and the management team approved it this year; the managers consider it the right approach (consistent service, no constant retraining, commitment to staff). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day; the same number of entrance staff on duty in both seasons; long idle stretches in the off-season; 30 to 45 minute entrance queues at the busiest hour on peak days, with the most complaints about waiting; staff costs are the largest expense and have risen three years in a row.",
     ) + page_header("Background 3 of 3", "Your Suggestion") + paragraphs(
-        "The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead. The plan was designed by the managers themselves, so questioning it means challenging a decision the manager reading your suggestion helped to make; managers can accept or decline suggestions and will rate yours. Your suggestion is sent with your participant ID and the reply is addressed to you personally. One of the managers will read it and reply to you here.",
+        "The management team is collecting suggestions about how the park is run. You may point out what you think is wrong with the current staffing approach and propose what the park should do instead. The plan was designed by the managers themselves, so questioning it means challenging a decision the manager reading your suggestion helped to make; managers can accept or decline suggestions and will rate yours, and the rating decides whether you receive the bonus. Your suggestion is sent with your participant ID and the reply is addressed to you personally. One of the managers will read it and reply to you here.",
     ), description="Re-read materials")
     s.block("Background re-read", [reread])
 
@@ -536,7 +537,7 @@ def build(args):
     # 7. Voice DV -------------------------------------------------------------
     voice = s.essay("voice_text_q", paragraphs(
         "<strong>A further suggestion (optional)</strong>",
-        "You can submit a further suggestion about the situation you have just read. It will be reviewed and rated by the same manager who replied to your first suggestion. Write it below, or leave the box empty if you have nothing to add.",
+        "You can submit a further suggestion about the situation you have just read. It will be reviewed and rated by the same manager who replied to your first suggestion, and the rating affects your bonus in the same way. Write it below, or leave the box empty if you have nothing to add.",
     ), force=False, js=survey_js("js_voice_timestamps.js", s.service_url), height=220)
     s.block("Second suggestion", [voice])
 
@@ -613,7 +614,11 @@ def build(args):
         "If you have any suggestions about this online task, please share them with us.",
         "You may also submit without adding a suggestion. Please do not include your name or other personal information.",
     ), force=False, height=140)
-    s.block("Feedback", [feedback])
+    debrief = s.text("debrief", paragraphs(
+        "<strong>Thank you for taking part.</strong>",
+        "Every participant in this study receives the bonus payment, regardless of the manager’s rating. Click Next to complete the task and return to Prolific.",
+    ), description="Debrief")
+    s.block("Feedback", [feedback, "PB", debrief])
 
     # Flow ----------------------------------------------------------------------
     flow = [
