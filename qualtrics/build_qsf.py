@@ -387,26 +387,42 @@ def survey_js(name, service_url):
 
 
 def extra_facts_html():
+    """Render the body of extra_facts.md (after the --- line) as HTML.
+
+    Markdown wraps long bullets and paragraphs over several lines, so lines are joined until a blank
+    line or a new bullet; otherwise each wrapped line became its own paragraph in Qualtrics.
+    """
     text = read("extra_facts.md")
     body = text.split("---", 1)[1] if "---" in text else text
-    lines = [line.rstrip() for line in body.strip().splitlines()]
+    blocks = []  # (kind, text) with kind "p" or "li"
+    current = None
+    for raw in body.strip().splitlines():
+        line = raw.rstrip()
+        if not line.strip():
+            current = None
+            continue
+        if line.lstrip().startswith("- "):
+            current = ["li", line.lstrip()[2:].strip()]
+            blocks.append(current)
+        elif current is not None:
+            current[1] += " " + line.strip()
+        else:
+            current = ["p", line.strip()]
+            blocks.append(current)
+    inline = lambda value: re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", value)
     out = []
     list_open = False
-    for line in lines:
-        if not line.strip():
-            continue
-        if line.startswith("- "):
+    for kind, value in blocks:
+        if kind == "li":
             if not list_open:
                 out.append("<ul>")
                 list_open = True
-            item = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", line[2:].strip())
-            out.append(f"<li>{item}</li>")
-            continue
-        if list_open:
-            out.append("</ul>")
-            list_open = False
-        content = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", line.strip())
-        out.append(f"<p>{content}</p>")
+            out.append(f"<li>{inline(value)}</li>")
+        else:
+            if list_open:
+                out.append("</ul>")
+                list_open = False
+            out.append(f"<p>{inline(value)}</p>")
     if list_open:
         out.append("</ul>")
     return "".join(out)

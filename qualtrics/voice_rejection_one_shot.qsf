@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-09-14 10:57:37",
+    "SurveyCreationDate": "2026-09-14 14:06:50",
     "CreatorID": "UR_989d7e660c90136",
-    "LastModified": "2026-09-14 10:57:37",
+    "LastModified": "2026-09-14 14:06:50",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -1194,7 +1194,7 @@
       "SecondaryAttribute": "Waiting page",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span><p><strong>Your suggestion has been submitted and assigned to one of the park’s managers.</strong></p><p>The manager will read it, rate it, and reply. Replies usually arrive within a few minutes. While you wait, here is some further information about the park.</p><p><strong>While the manager reads your suggestion</strong></p><p>A few more facts about how the park works:</p><ul><li><strong>Records the park keeps.</strong> A weekly visitor forecast (from bookings and previous years), a daily</li></ul><p>entrance queue log, and daily staffing rosters and payroll.</p><ul><li><strong>Training.</strong> New entrance staff need a short induction of about two days before they work on their</li></ul><p>own.</p><ul><li><strong>How suggestions are handled.</strong> The manager who receives a suggestion reads it, decides whether</li></ul><p>the park will take it forward, rates it, and replies through this platform.</p><p>The manager will reply shortly.</p>",
+        "QuestionText": "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span><p><strong>Your suggestion has been submitted and assigned to one of the park’s managers.</strong></p><p>The manager will read it, rate it, and reply. Replies usually arrive within a few minutes. While you wait, here is some further information about the park.</p><p><strong>While the manager reads your suggestion</strong></p><p>A few more facts about how the park works:</p><ul><li><strong>Records the park keeps.</strong> A weekly visitor forecast (from bookings and previous years), a daily entrance queue log, and daily staffing rosters and payroll.</li><li><strong>Training.</strong> New entrance staff need a short induction of about two days before they work on their own.</li><li><strong>How suggestions are handled.</strong> The manager who receives a suggestion reads it, decides whether the park will take it forward, rates it, and replies through this platform.</li></ul><p>The manager will reply shortly.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
