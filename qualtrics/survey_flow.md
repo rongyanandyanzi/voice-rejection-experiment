@@ -26,6 +26,13 @@ Files in this folder:
 
 In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the service origin.
 
+Prices on the plan under review (UK 2026 mid-size family park band, benchmarked against Gulliver's
+£27-£31, Drayton Manor £46 gate, Paultons £61.50, Merlin flagships £64-£68): adult £34, child aged
+3 to 15 £28, under-3s free, parking free, family ticket (two adults, two children) £110 saving £14
+on the £124 of four separate tickets. Same price every day and the same online as at the gate. The
+same figures appear in `extra_facts.md` and in the message-mode manager prompt in `server.js`, so
+change all three together.
+
 ## Survey Flow, top to bottom
 
 1. **Embedded Data** (must be the first element, so every field exists before JavaScript writes it).
@@ -41,7 +48,7 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
    element setting `condition` to `HP_HC`, `HP_LC`, `LP_HC` or `LP_LC`.
 4. **Block: Background.** Three Text/Graphic pages: the park and how tickets are bought (no job role
    for the participant; the marketing manager drew up the plan under review), the plan under review
-   with last year's figures, and "Your review" (the manager did not ask for the reviews, the owner did; the
+   with its prices and last year's figures, and "Your review" (the manager did not ask for the reviews, the owner did; the
    manager can decline, rates every review, the rating decides the bonus; the review carries the
    reviewer ID; the manager answers during today's session). Below each page a reading-check item (single answer, Request Response). Branch after the
    three checks: if any answer is wrong, set `briefing_wrong` = 1 and show a one-page "Please read

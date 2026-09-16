@@ -13,9 +13,9 @@ the reply.
 **Notes supplied with the plan**
 
 **How tickets are sold on a normal day.** The park opens at 9:00. Visitors either buy at the gate on
-the day or book online in advance, and the price is the same either way. Most families buy the
-family ticket, which covers two adults and two children; everyone else buys single adult and child
-tickets. Online bookings are usually made in the last two days before a visit, so the park rarely
+the day or book online in advance, and the price is £34 an adult and £28 a child either way. Most
+families buy the family ticket at £110, which covers two adults and two children and saves £14 on
+the £124 those tickets cost separately; everyone else buys single adult and child tickets. Online bookings are usually made in the last two days before a visit, so the park rarely
 knows more than a day ahead how busy it will be.
 
 **What the season does to sales.** On an off-season weekday around 500 visitors spread across the
