@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-09-16 22:53:55",
+    "SurveyCreationDate": "2026-09-16 23:13:21",
     "CreatorID": "UR_002ab9591e50a93",
-    "LastModified": "2026-09-16 22:53:55",
+    "LastModified": "2026-09-16 23:13:21",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -794,7 +794,7 @@
         "ValidationMessage": "",
         "PreviousButton": "",
         "NextButton": "",
-        "SurveyTitle": "Workplace Interaction Study",
+        "SurveyTitle": "Consumer Review Panel",
         "SkinLibrary": "ustbsem",
         "SkinType": "component",
         "Skin": {

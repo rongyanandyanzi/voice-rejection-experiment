@@ -314,7 +314,7 @@ class Survey:
             "ValidationMessage": "",
             "PreviousButton": "",
             "NextButton": "",
-            "SurveyTitle": "Workplace Interaction Study",
+            "SurveyTitle": "Consumer Review Panel",
             "SkinLibrary": self.brand,
             "SkinType": "component",
             "Skin": {"brandingId": None, "templateId": "*simple", "overrides": None},
