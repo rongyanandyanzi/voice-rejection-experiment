@@ -1,26 +1,26 @@
 {
   "SurveyEntry": {
-    "SurveyID": "SV_82351c2d3f0f497",
-    "SurveyName": "Plan Review Session",
+    "SurveyID": "SV_99f13dd5fa6be8d",
+    "SurveyName": "Consumer Review Panel",
     "SurveyDescription": null,
-    "SurveyOwnerID": "UR_2676d08857e4a53",
+    "SurveyOwnerID": "UR_002ab9591e50a93",
     "SurveyBrandID": "ustbsem",
     "DivisionID": null,
     "SurveyLanguage": "EN",
-    "SurveyActiveResponseSet": "RS_19921e0f09def7b",
+    "SurveyActiveResponseSet": "RS_a0ccb5e32a0e1bb",
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-09-16 10:05:29",
-    "CreatorID": "UR_2676d08857e4a53",
-    "LastModified": "2026-09-16 10:05:29",
+    "SurveyCreationDate": "2026-09-16 18:53:50",
+    "CreatorID": "UR_002ab9591e50a93",
+    "LastModified": "2026-09-16 18:53:50",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
   },
   "SurveyElements": [
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "BL",
       "PrimaryAttribute": "Survey Blocks",
       "SecondaryAttribute": null,
@@ -29,7 +29,7 @@
         {
           "Type": "Default",
           "Description": "Consent",
-          "ID": "BL_b29af696eb524be",
+          "ID": "BL_df4d9737fd8526c",
           "BlockElements": [
             {
               "Type": "Question",
@@ -44,7 +44,7 @@
         {
           "Type": "Standard",
           "Description": "Background",
-          "ID": "BL_0be0f70495fbe13",
+          "ID": "BL_bf0f084b0c4dd44",
           "BlockElements": [
             {
               "Type": "Question",
@@ -90,7 +90,7 @@
         {
           "Type": "Standard",
           "Description": "Background re-read",
-          "ID": "BL_da9d4b055a15b06",
+          "ID": "BL_ea5c886c5e47ec8",
           "BlockElements": [
             {
               "Type": "Question",
@@ -101,7 +101,7 @@
         {
           "Type": "Standard",
           "Description": "Proposal",
-          "ID": "BL_191882821da02e8",
+          "ID": "BL_f60aa874cee2eaa",
           "BlockElements": [
             {
               "Type": "Question",
@@ -112,7 +112,7 @@
         {
           "Type": "Standard",
           "Description": "Waiting page",
-          "ID": "BL_6bc31799080a53f",
+          "ID": "BL_fac15245c3f9610",
           "BlockElements": [
             {
               "Type": "Question",
@@ -151,7 +151,7 @@
         {
           "Type": "Standard",
           "Description": "Manager message",
-          "ID": "BL_99507ec34173904",
+          "ID": "BL_bf165314a93aa9e",
           "BlockElements": [
             {
               "Type": "Question",
@@ -166,7 +166,7 @@
         {
           "Type": "Standard",
           "Description": "Second materials",
-          "ID": "BL_71cace7d9cc584b",
+          "ID": "BL_260f75a7a2da70c",
           "BlockElements": [
             {
               "Type": "Question",
@@ -191,7 +191,7 @@
         {
           "Type": "Standard",
           "Description": "Second suggestion",
-          "ID": "BL_109f939eacf78fa",
+          "ID": "BL_0b8fa4c7353d49d",
           "BlockElements": [
             {
               "Type": "Question",
@@ -202,7 +202,7 @@
         {
           "Type": "Standard",
           "Description": "Post-task questions",
-          "ID": "BL_7151652cdfd0ad0",
+          "ID": "BL_67379fcb8ccd831",
           "BlockElements": [
             {
               "Type": "Question",
@@ -245,7 +245,7 @@
         {
           "Type": "Standard",
           "Description": "AI check",
-          "ID": "BL_cf20b3e9643376f",
+          "ID": "BL_63fc86063f89233",
           "BlockElements": [
             {
               "Type": "Question",
@@ -270,7 +270,7 @@
         {
           "Type": "Standard",
           "Description": "Feedback",
-          "ID": "BL_9887d2754669420",
+          "ID": "BL_a0b1cdaf157191a",
           "BlockElements": [
             {
               "Type": "Question",
@@ -288,12 +288,12 @@
         {
           "Type": "Trash",
           "Description": "Trash / Unused Questions",
-          "ID": "BL_cbf321aac2a6d80"
+          "ID": "BL_671c67eaccb570a"
         }
       ]
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "FL",
       "PrimaryAttribute": "Survey Flow",
       "SecondaryAttribute": null,
@@ -436,7 +436,7 @@
           },
           {
             "Type": "Block",
-            "ID": "BL_b29af696eb524be",
+            "ID": "BL_df4d9737fd8526c",
             "FlowID": "FL_3",
             "Autofill": []
           },
@@ -543,7 +543,7 @@
           },
           {
             "Type": "Standard",
-            "ID": "BL_0be0f70495fbe13",
+            "ID": "BL_bf0f084b0c4dd44",
             "FlowID": "FL_11",
             "Autofill": []
           },
@@ -610,7 +610,7 @@
               },
               {
                 "Type": "Standard",
-                "ID": "BL_da9d4b055a15b06",
+                "ID": "BL_ea5c886c5e47ec8",
                 "FlowID": "FL_13",
                 "Autofill": []
               }
@@ -618,13 +618,13 @@
           },
           {
             "Type": "Standard",
-            "ID": "BL_191882821da02e8",
+            "ID": "BL_f60aa874cee2eaa",
             "FlowID": "FL_15",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_6bc31799080a53f",
+            "ID": "BL_fac15245c3f9610",
             "FlowID": "FL_16",
             "Autofill": []
           },
@@ -665,37 +665,37 @@
           },
           {
             "Type": "Standard",
-            "ID": "BL_99507ec34173904",
+            "ID": "BL_bf165314a93aa9e",
             "FlowID": "FL_19",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_71cace7d9cc584b",
+            "ID": "BL_260f75a7a2da70c",
             "FlowID": "FL_20",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_109f939eacf78fa",
+            "ID": "BL_0b8fa4c7353d49d",
             "FlowID": "FL_21",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_7151652cdfd0ad0",
+            "ID": "BL_67379fcb8ccd831",
             "FlowID": "FL_22",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_cf20b3e9643376f",
+            "ID": "BL_63fc86063f89233",
             "FlowID": "FL_23",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_9887d2754669420",
+            "ID": "BL_a0b1cdaf157191a",
             "FlowID": "FL_24",
             "Autofill": []
           },
@@ -718,18 +718,18 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "PL",
       "PrimaryAttribute": "Preview Link",
       "SecondaryAttribute": null,
       "TertiaryAttribute": null,
       "Payload": {
         "PreviewType": "Brand",
-        "PreviewID": "9037abfa-a03c-5cc9-b2f2-da325c95ba3c"
+        "PreviewID": "a62d69ae-aabf-54c6-bdd0-c5c679af33ec"
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "PROJ",
       "PrimaryAttribute": "CORE",
       "SecondaryAttribute": null,
@@ -740,7 +740,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
       "SecondaryAttribute": "35",
@@ -748,15 +748,15 @@
       "Payload": null
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "RS",
-      "PrimaryAttribute": "RS_19921e0f09def7b",
+      "PrimaryAttribute": "RS_a0ccb5e32a0e1bb",
       "SecondaryAttribute": "Default Response Set",
       "TertiaryAttribute": null,
       "Payload": null
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SCO",
       "PrimaryAttribute": "Scoring",
       "SecondaryAttribute": null,
@@ -772,7 +772,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SO",
       "PrimaryAttribute": "Survey Options",
       "SecondaryAttribute": null,
@@ -807,13 +807,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID1",
       "SecondaryAttribute": "Consent text",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>About this task</strong></p><p>This task is run by a market research company. Businesses ask the company to collect outside reviews of their plans from people who are not part of the business.</p><p>Today’s client is Aetheria Gardens, a theme park. Its owner wants the park’s staffing plan reviewed by outsiders before the plan goes ahead. You will read the plan and the figures behind it and write a short review for the manager who drew it up.</p><p>The manager answers reviews in writing during today’s review session and rates each review for usefulness. Reviews the manager rates as useful earn a bonus on top of the base payment.</p><p>Are you willing to take part in this task?</p>",
+        "QuestionText": "<p><strong>About this task</strong></p><p>This task is run by a market research company. Businesses ask the company to have plans that affect customers reviewed by the people who buy from them.</p><p>Today’s client is Aetheria Gardens, a theme park. Its owner wants the park’s ticket and promotion plan for next season reviewed by consumers before it goes ahead. You will read the plan and the figures behind it and write a short review for the manager who drew it up.</p><p>The manager answers reviews in writing during today’s panel session and rates each review for usefulness. Reviews the manager rates as useful earn a bonus on top of the base payment.</p><p>Are you willing to take part in this task?</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -838,7 +838,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID2",
       "SecondaryAttribute": "Are you willing to take part in this task?",
@@ -884,13 +884,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID3",
       "SecondaryAttribute": "Background 1",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>Thanks for taking part in this task.</p><p>The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.</p><p>The park is run by a management team. The operations manager is in charge of the entrance team and of how the park is staffed, and drew up the staffing plan you are asked to review.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>Thanks for taking part in this task.</p><p>The theme park is called Aetheria Gardens. Visitors buy tickets at the gate on the day or online in advance, and the park sells a standard adult ticket, a child ticket, and one family ticket.</p><p>The park is run by a management team. The marketing manager is in charge of ticket pricing and promotions, and drew up the ticket and promotion plan you are asked to review.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -914,13 +914,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID4",
-      "SecondaryAttribute": "What does the entrance team at Aetheria Gardens do every day?",
+      "SecondaryAttribute": "How do visitors buy tickets for Aetheria Gardens?",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "What does the entrance team at Aetheria Gardens do every day?",
+        "QuestionText": "How do visitors buy tickets for Aetheria Gardens?",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -929,13 +929,13 @@
         },
         "Choices": {
           "1": {
-            "Display": "Checking tickets, guiding visitors into the park and answering simple questions"
+            "Display": "At the gate on the day, or online in advance"
           },
           "2": {
-            "Display": "Operating the rides"
+            "Display": "Only through travel agents"
           },
           "3": {
-            "Display": "Cooking in the park restaurants"
+            "Display": "Only by monthly subscription"
           }
         },
         "ChoiceOrder": [
@@ -954,7 +954,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID4",
         "DataExportTag": "check_park",
-        "QuestionDescription": "What does the entrance team at Aetheria Gardens do every day?",
+        "QuestionDescription": "How do visitors buy tickets for Aetheria Gardens?",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -964,13 +964,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID5",
       "SecondaryAttribute": "Background 2",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">The Plan Under Review</h2><p>Aetheria Gardens employs a full-time, permanent workforce all year round. The operations manager drew up this staffing plan, the management team approved it this year, and the manager stands by it: in their view it keeps service consistent, avoids repeated retraining, and shows the park’s commitment to its permanent staff.</p><p>Some figures from the past year:</p><ul><li>On a typical off-season weekday the park receives around 500 visitors; on a peak-season day, around 5,000.</li><li>The number of entrance staff on duty is the same in both seasons.</li><li>In the off-season, entrance staff spend long stretches with no visitors to serve.</li><li>On peak days, the queue at the entrance reaches 30 to 45 minutes at the busiest hour, and visitor complaints about waiting are highest in those weeks.</li><li>Staff costs are the park’s largest expense and have risen for three years in a row.</li></ul>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">The Plan Under Review</h2><p>Aetheria Gardens charges one standard adult price and one child price, the same every day of the year. The family ticket, for two adults and two children, is the only discount the park offers: there is no weekday, off-peak, group, student or advance-booking price, and the online price is the same as the price at the gate. Nearly all of the park’s advertising spend goes to family-focused advertising in the nearby city.</p><p>The marketing manager drew up this plan, the management team approved it this year, and the manager stands by it: in their view one clear price is easy for visitors to understand and easy to sell, discounting would train visitors to wait for offers and cut into margin, and the family focus is what the park is known for.</p><p>Some figures from the past year:</p><ul><li>On a typical off-season weekday the park receives around 500 visitors; on a peak-season day, around 5,000.</li><li>On peak days most visitors arrive between 10:00 and 11:00, and the queue at the entrance reaches 30 to 45 minutes at the busiest hour.</li><li>Ticket income is the park’s largest source of revenue and has been flat for three years in a row.</li><li>The commonest complaints from visitors are the queue at peak times, that a day out is too expensive, and that weekdays feel empty.</li><li>The park has never run a discount other than the family ticket.</li></ul>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -994,13 +994,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID6",
-      "SecondaryAttribute": "According to the operations manager, why does the park keep a fully permanent workforce all year?",
+      "SecondaryAttribute": "According to the marketing manager, why does the park keep one price all year with the family ticket",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "According to the operations manager, why does the park keep a fully permanent workforce all year?",
+        "QuestionText": "According to the marketing manager, why does the park keep one price all year with the family ticket as its only discount?",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1009,13 +1009,13 @@
         },
         "Choices": {
           "1": {
-            "Display": "It keeps service consistent, avoids retraining, and shows commitment to staff"
+            "Display": "It is easy to understand, protects margin, and keeps the park focused on families"
           },
           "2": {
             "Display": "Because visitor numbers are the same all year"
           },
           "3": {
-            "Display": "Because temporary staff are not allowed by law"
+            "Display": "Because ticket prices are set by law"
           }
         },
         "ChoiceOrder": [
@@ -1034,7 +1034,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID6",
         "DataExportTag": "check_plan",
-        "QuestionDescription": "According to the operations manager, why does the park keep a fully permanent workforce all year?",
+        "QuestionDescription": "According to the marketing manager, why does the park keep one price all year with the family ticket",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1044,13 +1044,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID7",
       "SecondaryAttribute": "Background 3",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Review</h2><p>Your review goes to the operations manager who drew up the plan. Say what you think is wrong with the current plan and what the park should do instead.</p><p>The manager did not ask for these reviews; the park’s owner did, so the manager is answering reviews of their own plan. The manager can decline to take a review forward, rates every review for usefulness, and the rating decides whether you receive the bonus.</p><p>Your review is sent with your reviewer ID: the manager sees it as coming from you, and the reply is addressed to you personally.</p><p>The manager is answering reviews during today’s session, so you will receive the reply here.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Review</h2><p>Your review goes to the marketing manager who drew up the plan. Say what you think is wrong with the current ticket and promotion plan and what the park should do instead.</p><p>The manager did not ask for these reviews; the park’s owner did, so the manager is answering reviews of their own plan. The manager can decline to take a review forward, rates every review for usefulness, and the rating decides whether you receive the bonus.</p><p>Your review is sent with your reviewer ID: the manager sees it as coming from you, and the reply is addressed to you personally.</p><p>The manager is answering reviews during today’s session, so you will receive the reply here.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1074,7 +1074,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID8",
       "SecondaryAttribute": "Who reads and rates your review?",
@@ -1089,13 +1089,13 @@
         },
         "Choices": {
           "1": {
-            "Display": "The operations manager who drew up the plan"
+            "Display": "The marketing manager who drew up the plan"
           },
           "2": {
             "Display": "The market research company"
           },
           "3": {
-            "Display": "Other participants in this session"
+            "Display": "Other people on the panel"
           }
         },
         "ChoiceOrder": [
@@ -1124,13 +1124,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID9",
       "SecondaryAttribute": "Re-read materials",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park is run by a management team; the operations manager is in charge of the entrance team and of how the park is staffed, and drew up the plan you are asked to review.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">The Plan Under Review</h2><p>The park employs a full-time, permanent workforce all year round. The operations manager drew up this plan and the management team approved it this year; the manager stands by it (consistent service, no repeated retraining, commitment to permanent staff). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day; the same number of entrance staff on duty in both seasons; long idle stretches in the off-season; 30 to 45 minute entrance queues at the busiest hour on peak days, with the most complaints about waiting; staff costs are the largest expense and have risen three years in a row.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Review</h2><p>Your review goes to the operations manager who drew up the plan: say what you think is wrong with the current plan and what the park should do instead. The manager did not ask for these reviews, the park’s owner did; the manager can decline to take a review forward, rates every review, and the rating decides whether you receive the bonus. Your review is sent with your reviewer ID and the reply is addressed to you personally. The manager is answering reviews during today’s session, so you will receive the reply here.</p>",
+        "QuestionText": "<p><strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 1 of 3</p><h2 style=\"margin-top:4px;\">The Park</h2><p>The theme park is called Aetheria Gardens. Visitors buy tickets at the gate on the day or online in advance, and the park sells a standard adult ticket, a child ticket, and one family ticket. The park is run by a management team; the marketing manager is in charge of ticket pricing and promotions, and drew up the plan you are asked to review.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 2 of 3</p><h2 style=\"margin-top:4px;\">The Plan Under Review</h2><p>One standard adult price and one child price, the same every day of the year; the family ticket (two adults, two children) is the only discount, with no weekday, off-peak, group, student or advance-booking price, and the online price equals the gate price; nearly all advertising spend goes to family-focused advertising in the nearby city. The marketing manager drew up this plan and the management team approved it this year; the manager stands by it (one clear price is easy to understand and to sell, discounting would train visitors to wait for offers and cut margin, and the family focus is what the park is known for). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day, most arriving between 10:00 and 11:00, when the entrance queue reaches 30 to 45 minutes; ticket income is the largest source of revenue and has been flat for three years; the commonest complaints are the peak queue, the cost of a day out, and weekdays that feel empty.</p><p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Background 3 of 3</p><h2 style=\"margin-top:4px;\">Your Review</h2><p>Your review goes to the marketing manager who drew up the plan: say what you think is wrong with the current ticket and promotion plan and what the park should do instead. The manager did not ask for these reviews, the park’s owner did; the manager can decline to take a review forward, rates every review, and the rating decides whether you receive the bonus. Your review is sent with your reviewer ID and the reply is addressed to you personally. The manager is answering reviews during today’s session, so you will receive the reply here.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1154,13 +1154,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID10",
-      "SecondaryAttribute": "Your review of the staffing plan   Say what is wrong with the current plan, what the park should do ",
+      "SecondaryAttribute": "Your review of the ticket and promotion plan   Say what is wrong with the current plan, what the par",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Your review of the staffing plan</strong></p><p>Say what is wrong with the current plan, what the park should do instead, and why. It goes to the operations manager who drew up the plan, who will read it, rate it, and reply to you here.</p>",
+        "QuestionText": "<p><strong>Your review of the ticket and promotion plan</strong></p><p>Say what is wrong with the current plan, what the park should do instead, and why. It goes to the marketing manager who drew up the plan, who will read it, rate it, and reply to you here.</p>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -1178,7 +1178,7 @@
         "QuestionJS": "// Proposal page: question JavaScript on the Text Entry (essay) question.\n// Keeps Next disabled until the participant has written MIN_WORDS words, and copies the text into\n// the embedded field \"proposal\" on submit so later pages can read it without piped text.\nQualtrics.SurveyEngine.addOnload(function () {\n  var MIN_WORDS = 20;\n  var question = this;\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  if (!textarea) return;\n  var hint = document.createElement(\"div\");\n  hint.style.cssText = \"margin-top:6px;font-size:13px;color:#666;\";\n  textarea.parentNode.appendChild(hint);\n  function update() {\n    var words = textarea.value.trim().split(/\\s+/).filter(Boolean).length;\n    if (words >= MIN_WORDS) {\n      question.enableNextButton();\n      hint.textContent = \"\";\n    } else {\n      question.disableNextButton();\n      hint.textContent = \"Please write at least \" + MIN_WORDS + \" words (\" + words + \" so far).\";\n    }\n  }\n  textarea.addEventListener(\"input\", update);\n  update();\n});\n\nQualtrics.SurveyEngine.addOnPageSubmit(function () {\n  var textarea = this.getQuestionContainer().querySelector(\"textarea\");\n  var text = textarea ? textarea.value.trim() : \"\";\n  Qualtrics.SurveyEngine.setEmbeddedData(\"proposal\", text);\n  try { if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === \"function\") Qualtrics.SurveyEngine.setJSEmbeddedData(\"proposal\", text); } catch (error) {}\n  // getEmbeddedData on a later page does not return values set from JavaScript, so the waiting\n  // page reads the proposal from sessionStorage (same origin for the whole survey).\n  try { sessionStorage.setItem(\"vr_proposal\", text); } catch (error) {}\n});\n",
         "QuestionID": "QID10",
         "DataExportTag": "proposal",
-        "QuestionDescription": "Your review of the staffing plan   Say what is wrong with the current plan, what the park should do ",
+        "QuestionDescription": "Your review of the ticket and promotion plan   Say what is wrong with the current plan, what the par",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1188,13 +1188,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID11",
       "SecondaryAttribute": "Waiting page",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span><p><strong>Your review has been sent to the operations manager.</strong></p><p>The manager is answering reviews during this session; replies usually arrive within a few minutes. While you wait, here are the notes the park supplied with the plan.</p><p><strong>Notes supplied with the plan</strong></p><p><strong>How the entrance works on a normal day.</strong> The park opens at 9:00. Every visitor's ticket is scanned once at the gate, and families with young children and school groups usually need extra help with visitor categories and directions, which is why the entrance team is the park's largest single team. Staff work in shifts. A new member of the entrance team needs about two days of induction before working alone, and an experienced colleague has to stay on the gate with them during that time.</p><p><strong>What the season does to the entrance.</strong> On an off-season weekday around 500 visitors spread across the whole day, so gate staff often wait a long time between visitors. On a peak-season day around 5,000 visitors arrive, most of them between 10:00 and 11:00; that is when the queue reaches 30 to 45 minutes and when most complaints about waiting come in. The same number of entrance staff is rostered on both kinds of day.</p><p><strong>What the park records.</strong> The park keeps a weekly visitor forecast built from bookings and previous years, a daily log of entrance queue times, and daily staffing rosters and payroll. The effect of any staffing change on queues and on costs can therefore be checked against records rather than guessed.</p><p><strong>What the manager weighs.</strong> Staff costs are the park's largest expense and have risen three years in a row. The manager who drew up the plan points to consistent service, no repeated retraining, and the park's commitment to its permanent staff. Any change to the plan has to answer to both sides: queues and complaints at peak, and cost and idle time in the off-season.</p><p><strong>How your review is handled.</strong> The manager reads it, decides whether the park will take it forward, rates it for usefulness, and replies on this platform. The reply is written for you personally.</p>",
+        "QuestionText": "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span><p><strong>Your review has been sent to the marketing manager.</strong></p><p>The manager is answering reviews during this panel session; replies usually arrive within a few minutes. While you wait, here are the notes the park supplied with the plan.</p><p><strong>Notes supplied with the plan</strong></p><p><strong>How tickets are sold on a normal day.</strong> The park opens at 9:00. Visitors either buy at the gate on the day or book online in advance, and the price is the same either way. Most families buy the family ticket, which covers two adults and two children; everyone else buys single adult and child tickets. Online bookings are usually made in the last two days before a visit, so the park rarely knows more than a day ahead how busy it will be.</p><p><strong>What the season does to sales.</strong> On an off-season weekday around 500 visitors spread across the whole day, and much of the park's capacity goes unsold. On a peak-season day around 5,000 visitors arrive, most of them between 10:00 and 11:00; that is when the entrance queue reaches 30 to 45 minutes and when most complaints about waiting come in. The price is the same on both kinds of day.</p><p><strong>What the park records.</strong> The park keeps daily ticket sales broken down by ticket type, the lead time between booking and visit, the number of visitors arriving in each hour, and comments collected from visitors as they leave. The effect of any change to prices or offers on visitor numbers, on when people arrive, and on income can therefore be checked against records rather than guessed.</p><p><strong>What the manager weighs.</strong> Ticket income is the park's largest source of revenue and has been flat for three years. The manager who drew up the plan points to a price that visitors understand at a glance, margin that discounting would erode, and the family positioning the park is known for. Any change to the plan has to answer to both sides: the empty weekdays and the complaints about cost, and the risk of selling at a discount to visitors who would have paid the full price anyway.</p><p><strong>How your review is handled.</strong> The manager reads it, decides whether the park will take it forward, rates it for usefulness, and replies on this platform. The reply is written for you personally.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1206,7 +1206,7 @@
             "Type": "None"
           }
         },
-        "QuestionJS": "// Waiting page: question JavaScript on the Text/Graphic question that shows \"Your suggestion has\n// been sent\" and the extra facts. Starts the rejection job in the background, polls for the reply,\n// stores it in embedded data, and enables Next only when the reply has arrived AND the minimum\n// reading time has passed. After MAX_WAIT_MS (5 minutes) without a reply it records rejection_status = failed so\n// the survey flow can branch to the technical-problem end page.\n//\n// Embedded fields written here (declare them in the survey flow first): rejection_job,\n// rejection_status, rejection_wait_ms, rejection_msg1, rejection_msg2, rejection_compliance_code,\n// rejection_latency_ms. Fields read: ResponseID, condition, proposal, PROLIFIC_PID, STUDY_ID, SESSION_ID.\nQualtrics.SurveyEngine.addOnload(function () {\n  var SERVICE_URL = \"https://aetheria-gardens-messages.onrender.com\";\n  var MIN_READ_MS = 60000;   // minimum time on this page\n  var MAX_WAIT_MS = 300000;  // give up after this (two full server-side generations fit inside)\n  var POLL_MS = 3000;\n  var MAX_STARTS = 3;\n\n  var question = this;\n  var startedAt = Date.now();\n  // The hidden spans are filled by piped text when the page renders; the JS strings are the\n  // fallback. The request id is the ResponseID when Qualtrics provides one, otherwise a random\n  // id kept in sessionStorage so a reload reuses the same job.\n  // Qualtrics scans question JavaScript for piped text, so the literal \"$\" + \"{\" must never\n  // appear in the source; it is assembled at run time instead.\n  var PIPE_START = String.fromCharCode(36) + \"{\";\n  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : \"\"; }\n  function domValue(id, fallback) {\n    var el = document.getElementById(id);\n    return unpiped(el ? el.textContent.trim() : \"\") || unpiped(fallback || \"\");\n  }\n  var condition = domValue(\"vr-condition\", \"${e://Field/condition}\");\n  var requestId = domValue(\"vr-response-id\", \"${e://Field/ResponseID}\");\n  if (!/^[A-Za-z0-9_-]{8,128}$/.test(requestId)) {\n    try { requestId = sessionStorage.getItem(\"vr_request_id\") || \"\"; } catch (error) {}\n    if (!requestId) {\n      requestId = \"R_\" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);\n      try { sessionStorage.setItem(\"vr_request_id\", requestId); } catch (error) {}\n    }\n  }\n  var proposal = \"\";\n  try { proposal = sessionStorage.getItem(\"vr_proposal\") || \"\"; } catch (error) {}\n  if (!proposal) proposal = Qualtrics.SurveyEngine.getEmbeddedData(\"proposal\") || \"\";\n  var ids = {\n    prolific_pid: \"${e://Field/PROLIFIC_PID}\",\n    study_id: \"${e://Field/STUDY_ID}\",\n    session_id: \"${e://Field/SESSION_ID}\"\n  };\n\n  var status = document.createElement(\"p\");\n  status.id = \"manager-reply-status\";\n  status.style.cssText = \"margin-top:16px;color:#555;font-style:italic;\";\n  status.textContent = \"Your review is with the operations manager\\u2026\";\n  question.getQuestionContainer().appendChild(status);\n  question.disableNextButton();\n\n  var finished = false;\n  var finalStatus = \"\";\n  var starts = 0;\n\n  // Results are written three ways: embedded data (both APIs), the hidden text questions on this\n  // page (question answers are always saved with the page and can drive branch logic and piped\n  // text), and sessionStorage (fallback for the message page).\n  var HIDDEN = { rejection_status: 0, rejection_msg1: 1, rejection_msg2: 2, rejection_compliance_code: 3, rejection_latency_ms: 4, rejection_wait_ms: 5 };\n  function setHidden(index, value) {\n    var inputs = document.querySelectorAll(\"input[type=text]\");\n    var input = inputs[index];\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value == null ? \"\" : String(value));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n  function setEd(name, value) {\n    var text = value == null ? \"\" : String(value);\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, text); } catch (error) {}\n    try { if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === \"function\") Qualtrics.SurveyEngine.setJSEmbeddedData(name, text); } catch (error) {}\n    if (HIDDEN[name] !== undefined) setHidden(HIDDEN[name], text);\n    try { sessionStorage.setItem(\"vr_\" + name, text); } catch (error) {}\n  }\n\n  function enableWhenRead() {\n    var remaining = MIN_READ_MS - (Date.now() - startedAt);\n    if (remaining > 0) { setTimeout(enableWhenRead, remaining); return; }\n    status.textContent = finalStatus === \"ok\"\n      ? \"The manager has replied. Click Next to read the reply.\"\n      : \"Click Next to continue.\";\n    question.enableNextButton();\n  }\n\n  function finish(newStatus) {\n    if (finished) return;\n    finished = true;\n    finalStatus = newStatus;\n    setEd(\"rejection_status\", newStatus);\n    setEd(\"rejection_wait_ms\", String(Date.now() - startedAt));\n    enableWhenRead();\n  }\n\n  function startJob() {\n    starts += 1;\n    return fetch(SERVICE_URL + \"/api/rejection/start\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({\n        request_id: requestId,\n        condition: condition,\n        language: \"en\",\n        proposal: proposal,\n        prolific_pid: ids.prolific_pid,\n        study_id: ids.study_id,\n        session_id: ids.session_id\n      })\n    }).then(function (response) { return response.json(); }).then(function (data) {\n      if (!data.ok) throw new Error(data.error || \"start_failed\");\n      setEd(\"rejection_job\", data.job);\n    });\n  }\n\n  function poll() {\n    if (finished) return;\n    if (Date.now() - startedAt > MAX_WAIT_MS) { finish(\"failed\"); return; }\n    fetch(SERVICE_URL + \"/api/rejection/result?job=\" + encodeURIComponent(requestId), { cache: \"no-store\" })\n      .then(function (response) { return response.json(); })\n      .then(function (data) {\n        if (data.status === \"ok\") {\n          var messages = data.messages || [];\n          setEd(\"rejection_msg1\", messages[0] ? messages[0].text : \"\");\n          setEd(\"rejection_msg2\", messages[1] ? messages[1].text : \"\");\n          setEd(\"rejection_compliance_code\", data.compliance_code == null ? \"\" : String(data.compliance_code));\n          setEd(\"rejection_latency_ms\", data.latency_ms == null ? \"\" : String(data.latency_ms));\n          finish(\"ok\");\n          return;\n        }\n        if (data.status === \"failed\" || data.status === \"unknown\") {\n          // A failed job is replaced by a new one under the same request id; an unknown job means\n          // the service restarted (or was still waking up when the first start was sent).\n          if (starts < MAX_STARTS) {\n            return startJob().catch(function () {}).then(function () { setTimeout(poll, POLL_MS); });\n          }\n          finish(\"failed\");\n          return;\n        }\n        setTimeout(poll, POLL_MS);\n      })\n      .catch(function () { setTimeout(poll, POLL_MS); });\n  }\n\n  startJob().catch(function () {}).then(function () { setTimeout(poll, POLL_MS); });\n});\n",
+        "QuestionJS": "// Waiting page: question JavaScript on the Text/Graphic question that shows \"Your review has\n// been sent\" and the extra facts. Starts the rejection job in the background, polls for the reply,\n// stores it in embedded data, and enables Next only when the reply has arrived AND the minimum\n// reading time has passed. After MAX_WAIT_MS (5 minutes) without a reply it records rejection_status = failed so\n// the survey flow can branch to the technical-problem end page.\n//\n// Embedded fields written here (declare them in the survey flow first): rejection_job,\n// rejection_status, rejection_wait_ms, rejection_msg1, rejection_msg2, rejection_compliance_code,\n// rejection_latency_ms. Fields read: ResponseID, condition, proposal, PROLIFIC_PID, STUDY_ID, SESSION_ID.\nQualtrics.SurveyEngine.addOnload(function () {\n  var SERVICE_URL = \"https://aetheria-gardens-messages.onrender.com\";\n  var MIN_READ_MS = 60000;   // minimum time on this page\n  var MAX_WAIT_MS = 300000;  // give up after this (two full server-side generations fit inside)\n  var POLL_MS = 3000;\n  var MAX_STARTS = 3;\n\n  var question = this;\n  var startedAt = Date.now();\n  // The hidden spans are filled by piped text when the page renders; the JS strings are the\n  // fallback. The request id is the ResponseID when Qualtrics provides one, otherwise a random\n  // id kept in sessionStorage so a reload reuses the same job.\n  // Qualtrics scans question JavaScript for piped text, so the literal \"$\" + \"{\" must never\n  // appear in the source; it is assembled at run time instead.\n  var PIPE_START = String.fromCharCode(36) + \"{\";\n  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : \"\"; }\n  function domValue(id, fallback) {\n    var el = document.getElementById(id);\n    return unpiped(el ? el.textContent.trim() : \"\") || unpiped(fallback || \"\");\n  }\n  var condition = domValue(\"vr-condition\", \"${e://Field/condition}\");\n  var requestId = domValue(\"vr-response-id\", \"${e://Field/ResponseID}\");\n  if (!/^[A-Za-z0-9_-]{8,128}$/.test(requestId)) {\n    try { requestId = sessionStorage.getItem(\"vr_request_id\") || \"\"; } catch (error) {}\n    if (!requestId) {\n      requestId = \"R_\" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);\n      try { sessionStorage.setItem(\"vr_request_id\", requestId); } catch (error) {}\n    }\n  }\n  var proposal = \"\";\n  try { proposal = sessionStorage.getItem(\"vr_proposal\") || \"\"; } catch (error) {}\n  if (!proposal) proposal = Qualtrics.SurveyEngine.getEmbeddedData(\"proposal\") || \"\";\n  var ids = {\n    prolific_pid: \"${e://Field/PROLIFIC_PID}\",\n    study_id: \"${e://Field/STUDY_ID}\",\n    session_id: \"${e://Field/SESSION_ID}\"\n  };\n\n  var status = document.createElement(\"p\");\n  status.id = \"manager-reply-status\";\n  status.style.cssText = \"margin-top:16px;color:#555;font-style:italic;\";\n  status.textContent = \"Your review is with the marketing manager\\u2026\";\n  question.getQuestionContainer().appendChild(status);\n  question.disableNextButton();\n\n  var finished = false;\n  var finalStatus = \"\";\n  var starts = 0;\n\n  // Results are written three ways: embedded data (both APIs), the hidden text questions on this\n  // page (question answers are always saved with the page and can drive branch logic and piped\n  // text), and sessionStorage (fallback for the message page).\n  var HIDDEN = { rejection_status: 0, rejection_msg1: 1, rejection_msg2: 2, rejection_compliance_code: 3, rejection_latency_ms: 4, rejection_wait_ms: 5 };\n  function setHidden(index, value) {\n    var inputs = document.querySelectorAll(\"input[type=text]\");\n    var input = inputs[index];\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value == null ? \"\" : String(value));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n  function setEd(name, value) {\n    var text = value == null ? \"\" : String(value);\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, text); } catch (error) {}\n    try { if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === \"function\") Qualtrics.SurveyEngine.setJSEmbeddedData(name, text); } catch (error) {}\n    if (HIDDEN[name] !== undefined) setHidden(HIDDEN[name], text);\n    try { sessionStorage.setItem(\"vr_\" + name, text); } catch (error) {}\n  }\n\n  function enableWhenRead() {\n    var remaining = MIN_READ_MS - (Date.now() - startedAt);\n    if (remaining > 0) { setTimeout(enableWhenRead, remaining); return; }\n    status.textContent = finalStatus === \"ok\"\n      ? \"The manager has replied. Click Next to read the reply.\"\n      : \"Click Next to continue.\";\n    question.enableNextButton();\n  }\n\n  function finish(newStatus) {\n    if (finished) return;\n    finished = true;\n    finalStatus = newStatus;\n    setEd(\"rejection_status\", newStatus);\n    setEd(\"rejection_wait_ms\", String(Date.now() - startedAt));\n    enableWhenRead();\n  }\n\n  function startJob() {\n    starts += 1;\n    return fetch(SERVICE_URL + \"/api/rejection/start\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({\n        request_id: requestId,\n        condition: condition,\n        language: \"en\",\n        proposal: proposal,\n        prolific_pid: ids.prolific_pid,\n        study_id: ids.study_id,\n        session_id: ids.session_id\n      })\n    }).then(function (response) { return response.json(); }).then(function (data) {\n      if (!data.ok) throw new Error(data.error || \"start_failed\");\n      setEd(\"rejection_job\", data.job);\n    });\n  }\n\n  function poll() {\n    if (finished) return;\n    if (Date.now() - startedAt > MAX_WAIT_MS) { finish(\"failed\"); return; }\n    fetch(SERVICE_URL + \"/api/rejection/result?job=\" + encodeURIComponent(requestId), { cache: \"no-store\" })\n      .then(function (response) { return response.json(); })\n      .then(function (data) {\n        if (data.status === \"ok\") {\n          var messages = data.messages || [];\n          setEd(\"rejection_msg1\", messages[0] ? messages[0].text : \"\");\n          setEd(\"rejection_msg2\", messages[1] ? messages[1].text : \"\");\n          setEd(\"rejection_compliance_code\", data.compliance_code == null ? \"\" : String(data.compliance_code));\n          setEd(\"rejection_latency_ms\", data.latency_ms == null ? \"\" : String(data.latency_ms));\n          finish(\"ok\");\n          return;\n        }\n        if (data.status === \"failed\" || data.status === \"unknown\") {\n          // A failed job is replaced by a new one under the same request id; an unknown job means\n          // the service restarted (or was still waking up when the first start was sent).\n          if (starts < MAX_STARTS) {\n            return startJob().catch(function () {}).then(function () { setTimeout(poll, POLL_MS); });\n          }\n          finish(\"failed\");\n          return;\n        }\n        setTimeout(poll, POLL_MS);\n      })\n      .catch(function () { setTimeout(poll, POLL_MS); });\n  }\n\n  startJob().catch(function () {}).then(function () { setTimeout(poll, POLL_MS); });\n});\n",
         "QuestionID": "QID11",
         "DataExportTag": "waiting",
         "QuestionDescription": "Waiting page",
@@ -1219,7 +1219,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID12",
       "SecondaryAttribute": "rejection status",
@@ -1250,7 +1250,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID13",
       "SecondaryAttribute": "rejection message 1",
@@ -1281,7 +1281,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID14",
       "SecondaryAttribute": "rejection message 2",
@@ -1312,7 +1312,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID15",
       "SecondaryAttribute": "rejection compliance code",
@@ -1343,7 +1343,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID16",
       "SecondaryAttribute": "rejection latency ms",
@@ -1374,7 +1374,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID17",
       "SecondaryAttribute": "waiting page wait ms",
@@ -1405,7 +1405,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID18",
       "SecondaryAttribute": "Timing",
@@ -1456,13 +1456,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID19",
       "SecondaryAttribute": "Manager message",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Reply from the operations manager</strong></p><div style=\"max-width:640px;margin:0 auto;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">\n  <div style=\"border:1px solid #d9dee5;border-radius:12px;overflow:hidden;background:#ffffff;\">\n    <div style=\"background:#f4f6f9;padding:12px 16px;border-bottom:1px solid #e3e7ec;font-size:14px;color:#556270;\">\n      Review session &middot; Client: Aetheria Gardens\n    </div>\n    <div style=\"padding:16px;\">\n      <div style=\"display:flex;justify-content:flex-end;margin-bottom:16px;\">\n        <div style=\"max-width:82%;background:#e8f0fe;border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;\">\n          <div style=\"font-size:12px;color:#66707a;margin-bottom:4px;\">You &middot; your review</div>\n          <span id=\"vr-proposal-echo\">${q://QID10/ChoiceTextEntryValue}</span>\n        </div>\n      </div>\n      <div style=\"display:flex;gap:10px;align-items:flex-start;\">\n        <div style=\"flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#2f5d8a;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;\">OM</div>\n        <div style=\"max-width:82%;\">\n          <div style=\"font-size:12px;color:#66707a;margin-bottom:4px;\">Operations Manager, Aetheria Gardens &middot; just now</div>\n          <div style=\"background:#f1f3f5;border-radius:4px 14px 14px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;margin-bottom:8px;\"><span id=\"vr-rejection-msg1\">${q://QID13/ChoiceTextEntryValue}</span></div>\n          <div style=\"background:#f1f3f5;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;\"><span id=\"vr-rejection-msg2\">${q://QID14/ChoiceTextEntryValue}</span></div>\n        </div>\n      </div>\n    </div>\n    <div style=\"padding:10px 16px;border-top:1px solid #e3e7ec;font-size:13px;color:#77818b;\">\n      Manager&rsquo;s decision on this review: not taken forward. Usefulness rating recorded.\n    </div>\n  </div>\n</div><p><span style=\"color:#667;\">Click Next when you have read the reply.</span></p>",
+        "QuestionText": "<p><strong>Reply from the marketing manager</strong></p><div style=\"max-width:640px;margin:0 auto;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">\n  <div style=\"border:1px solid #d9dee5;border-radius:12px;overflow:hidden;background:#ffffff;\">\n    <div style=\"background:#f4f6f9;padding:12px 16px;border-bottom:1px solid #e3e7ec;font-size:14px;color:#556270;\">\n      Consumer review panel &middot; Client: Aetheria Gardens\n    </div>\n    <div style=\"padding:16px;\">\n      <div style=\"display:flex;justify-content:flex-end;margin-bottom:16px;\">\n        <div style=\"max-width:82%;background:#e8f0fe;border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;\">\n          <div style=\"font-size:12px;color:#66707a;margin-bottom:4px;\">You &middot; your review</div>\n          <span id=\"vr-proposal-echo\">${q://QID10/ChoiceTextEntryValue}</span>\n        </div>\n      </div>\n      <div style=\"display:flex;gap:10px;align-items:flex-start;\">\n        <div style=\"flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#2f5d8a;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;\">MM</div>\n        <div style=\"max-width:82%;\">\n          <div style=\"font-size:12px;color:#66707a;margin-bottom:4px;\">Marketing Manager, Aetheria Gardens &middot; just now</div>\n          <div style=\"background:#f1f3f5;border-radius:4px 14px 14px 14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;margin-bottom:8px;\"><span id=\"vr-rejection-msg1\">${q://QID13/ChoiceTextEntryValue}</span></div>\n          <div style=\"background:#f1f3f5;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;color:#1f2933;\"><span id=\"vr-rejection-msg2\">${q://QID14/ChoiceTextEntryValue}</span></div>\n        </div>\n      </div>\n    </div>\n    <div style=\"padding:10px 16px;border-top:1px solid #e3e7ec;font-size:13px;color:#77818b;\">\n      Manager&rsquo;s decision on this review: not taken forward. Usefulness rating recorded.\n    </div>\n  </div>\n</div><p><span style=\"color:#667;\">Click Next when you have read the reply.</span></p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1487,7 +1487,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID20",
       "SecondaryAttribute": "Timing",
@@ -1538,13 +1538,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID21",
       "SecondaryAttribute": "Materials 1",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 1 of 3</p><h2 style=\"margin-top:4px;\">Off-Season Situation</h2><p>The park also supplied material about its <strong>off-season situation</strong>. Please read it before deciding whether to send a further note.</p><p>On a typical off-season weekday, the park receives <strong>around 500 visitors</strong>.</p><p>The entrance is quiet for long periods, and staff members at the gate have <strong>relatively little work to do</strong>.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 1 of 3</p><h2 style=\"margin-top:4px;\">Off-Season Situation</h2><p>The park also supplied material about its <strong>off-season situation</strong>. Please read it before deciding whether to send a further note.</p><p>On a typical off-season weekday, the park receives <strong>around 500 visitors</strong>.</p><p>The park is quiet for long stretches, and <strong>many weekday slots go unsold</strong>.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1568,7 +1568,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID22",
       "SecondaryAttribute": "Materials 2",
@@ -1598,13 +1598,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID23",
       "SecondaryAttribute": "Materials 3",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Nearby Visitors</h2><p>There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.</p><p>Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.</p><p>On the next page you can send the same manager a further note about this situation if you wish.</p>",
+        "QuestionText": "<p style=\"font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Materials 3 of 3</p><h2 style=\"margin-top:4px;\">Nearby Visitors</h2><p>There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.</p><p>Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.</p><p>On the next page you can send the same marketing manager a further note about this situation if you wish.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1628,13 +1628,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID24",
       "SecondaryAttribute": "A further note to the manager (optional)   If you have a suggestion about the off-season situation y",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>A further note to the manager (optional)</strong></p><p>If you have a suggestion about the off-season situation you have just read, you can send it to the same operations manager. It will be read and rated in the same way, and the rating affects your bonus in the same way. Write it below, or leave the box empty if you have nothing to add.</p>",
+        "QuestionText": "<p><strong>A further note to the manager (optional)</strong></p><p>If you have a suggestion about the off-season situation you have just read, you can send it to the same marketing manager. It will be read and rated in the same way, and the rating affects your bonus in the same way. Write it below, or leave the box empty if you have nothing to add.</p>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -1661,7 +1661,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID25",
       "SecondaryAttribute": "Survey intro",
@@ -1691,7 +1691,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID26",
       "SecondaryAttribute": "The following statements are about the second task, in which you could write a suggestion to the man",
@@ -1790,7 +1790,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID27",
       "SecondaryAttribute": "Preparing your suggestion",
@@ -1810,7 +1810,7 @@
         },
         "Choices": {
           "1": {
-            "Display": "Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details."
+            "Display": "Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the ticket sales records, visitor comments, or location details."
           },
           "2": {
             "Display": "Before writing my suggestion in the second task, I made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations."
@@ -1879,13 +1879,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID28",
       "SecondaryAttribute": "Perceived reasons for the manager’s response   Please indicate why you think the manager rejected yo",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Perceived reasons for the manager’s response</strong></p><p>Please indicate why you think the manager rejected your review of the staffing plan.</p><p><em>The manager rejected my review because...</em></p>",
+        "QuestionText": "<p><strong>Perceived reasons for the manager’s response</strong></p><p>Please indicate why you think the manager rejected your review of the ticket and promotion plan.</p><p><em>The manager rejected my review because...</em></p>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -1988,13 +1988,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID29",
       "SecondaryAttribute": "Perceived tone of the manager’s response   Please indicate how you perceived the manager’s attitude ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Perceived tone of the manager’s response</strong></p><p>Please indicate how you perceived the manager’s attitude when they rejected your review of the staffing plan.</p><p><em>The manager’s response was...</em></p>",
+        "QuestionText": "<p><strong>Perceived tone of the manager’s response</strong></p><p>Please indicate how you perceived the manager’s attitude when they rejected your review of the ticket and promotion plan.</p><p><em>The manager’s response was...</em></p>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -2097,13 +2097,13 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID30",
       "SecondaryAttribute": "Perceived usefulness of the manager’s response   Please indicate how you perceived the manager’s res",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><strong>Perceived usefulness of the manager’s response</strong></p><p>Please indicate how you perceived the manager’s response when they rejected your review of the staffing plan.</p><p><em>When rejecting my review, the manager...</em></p>",
+        "QuestionText": "<p><strong>Perceived usefulness of the manager’s response</strong></p><p>Please indicate how you perceived the manager’s response when they rejected your review of the ticket and promotion plan.</p><p><em>When rejecting my review, the manager...</em></p>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -2196,7 +2196,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID31",
       "SecondaryAttribute": "A few final questions   Did anything about the interaction feel unusual or unexpected? Please descri",
@@ -2229,7 +2229,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID32",
       "SecondaryAttribute": "A few final questions   Who do you think you were interacting with in the message exchange?",
@@ -2262,7 +2262,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID33",
       "SecondaryAttribute": "One more question   In Prolific recruitment, studies may sometimes include AI participants. To help ",
@@ -2312,7 +2312,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID34",
       "SecondaryAttribute": "Task feedback   If you have any suggestions about this online task, please share them with us.  You ",
@@ -2344,7 +2344,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "SQ",
       "PrimaryAttribute": "QID35",
       "SecondaryAttribute": "Debrief",
@@ -2374,7 +2374,7 @@
       }
     },
     {
-      "SurveyID": "SV_82351c2d3f0f497",
+      "SurveyID": "SV_99f13dd5fa6be8d",
       "Element": "STAT",
       "PrimaryAttribute": "Survey Statistics",
       "SecondaryAttribute": null,

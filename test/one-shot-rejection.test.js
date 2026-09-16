@@ -24,14 +24,14 @@ const {
   setRejectionGeneratorForTests,
 } = require("../server");
 
-const PROPOSAL = "Hire temporary workers for the summer peak instead of keeping everyone full time all year.";
+const PROPOSAL = "Charging the same price on an empty weekday as on a packed Saturday is the plan's basic mistake. Price quiet weekdays lower.";
 
 function stubReply(overrides = {}) {
   return {
     ok: true,
     messages: [
-      { speaker: "Manager", text: "I am not approving this version of the seasonal hiring idea." },
-      { speaker: "Manager", text: "The plan does not show how many temporary staff the entrance needs on a peak day." },
+      { speaker: "Manager", text: "I am not taking the weekday discount idea forward in this form." },
+      { speaker: "Manager", text: "The review does not show how many full-price visitors would simply move to the cheaper day." },
     ],
     intent: "",
     validation_warnings: [],
@@ -52,7 +52,7 @@ test("message delivery reframes the first rejection as a written reply without c
   assert.equal(chat.delivery, "chat");
   assert.equal(message.delivery, "message");
   assert.match(message.system, /review platform/);
-  assert.match(message.system, /drew up the park's current staffing plan/);
+  assert.match(message.system, /drew up the park's current ticket and promotion plan/);
   assert.match(message.system, /never mention other reviews/);
   assert.match(message.system, /do not greet them, do not ask them anything/);
   assert.doesNotMatch(message.system, /Leave room for the participant to respond/);
@@ -165,7 +165,7 @@ test("a job runs the message-delivery rejection in the background and is reused 
   assert.equal(calls[0].condition, "HP_LC");
   assert.equal(calls[0].alexMessage, PROPOSAL);
   assert.equal(calls[0].history[0].speaker, "Review platform");
-  assert.match(calls[0].history[0].text, /write a review for the operations manager who drew it up/);
+  assert.match(calls[0].history[0].text, /write a review for the marketing manager who drew it up/);
   assert.equal(calls[0].prolific_pid, "pid-1");
   assert.equal(rejectionJobs.get("R_jobreuse000001"), job);
 });

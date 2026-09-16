@@ -153,10 +153,10 @@ Before the second conversation with the manager, I made an effort to work out a 
 ### One-shot (Qualtrics) variant
 
 In the one-shot design there is no second conversation: after the manager's written rejection of
-the participant's review of the staffing plan and the second background materials, the participant
+the participant's review of the ticket and promotion plan and the second background materials, the participant
 may send the same manager one further note in a text box. In the one-shot survey the instructions
-of Sections 3 to 5 say "your review of the staffing plan" instead of "your suggestion about the
-labor plan", and the stems say "my review"; the items themselves are unchanged. The same
+of Sections 3 to 5 say "your review of the ticket and promotion plan" instead of "your suggestion
+about the labor plan", and the stems say "my review"; the items themselves are unchanged. The same
 items apply with the reference period changed. A participant who wrote nothing can answer every
 item; the frequency items then attract disagreement.
 
@@ -177,7 +177,7 @@ Frequency items (VF1 to VF6):
 
 Quality effort items (VQ1 to VQ4), each beginning with the reference period:
 
-- VQ1: Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details.
+- VQ1: Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the ticket sales records, visitor comments, or location details.
 - VQ2: Before writing my suggestion in the second task, I made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations.
 - VQ3: Before writing my suggestion in the second task, I tried to anticipate the questions or doubts the manager might raise, and how I would answer them.
 - VQ4: Before writing my suggestion in the second task, I made an effort to work out a clear, actionable course of action rather than a general idea.

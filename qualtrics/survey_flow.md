@@ -1,9 +1,10 @@
 # Qualtrics survey flow: one-shot rejection design
 
-The chat rooms are gone. Cover story: a market research company runs paid outside-review sessions
-for businesses; the park's owner wants the operations manager's staffing plan reviewed by outsiders
-before it goes ahead; the manager who drew up the plan answers each review in writing during the
-session and rates it for usefulness (the rating decides the bonus, which is in fact paid to everyone).
+The chat rooms are gone. Cover story: a market research company runs paid consumer review panels
+for businesses; the park's owner wants the marketing manager's ticket and promotion plan reviewed by
+consumers before it goes ahead; the manager who drew up the plan answers each review in writing
+during the session and rates it for usefulness (the rating decides the bonus, which is in fact paid
+to everyone).
 The participant writes one review, reads the notes supplied with the plan while "the manager
 replies", reads the rejection in a message box, reads the second background materials, and may send
 the same manager a further note. Qualtrics hosts every page and stores every variable. The only outside call is
@@ -32,27 +33,27 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
    these from the URL query string), `condition`, `proposal`, `rejection_job`, `rejection_status`,
    `rejection_wait_ms`, `rejection_msg1`, `rejection_msg2`, `rejection_compliance_code`,
    `rejection_latency_ms`, `voice_start`, `voice_submit`, `voice_text`, `briefing_wrong`.
-2. **Block: Consent.** The task description (a market research company collecting outside reviews
-   of a client's plan; the manager who drew up the plan answers and rates each review; useful reviews
-   earn a bonus) plus a willing / not willing question. `js_consent_warmup.js` on the text question. Branch: if not willing, End of
+2. **Block: Consent.** The task description (a market research company collecting consumer reviews
+   of a client's ticket and promotion plan; the manager who drew up the plan answers and rates each
+   review; useful reviews earn a bonus) plus a willing / not willing question. `js_consent_warmup.js` on the text question. Branch: if not willing, End of
    Survey (no completion code).
 3. **Randomizer**, "Evenly Present Elements", present 1 of 4. Each element is an Embedded Data
    element setting `condition` to `HP_HC`, `HP_LC`, `LP_HC` or `LP_LC`.
-4. **Block: Background.** Three Text/Graphic pages: the park and its entrance team (no job role for
-   the participant; the operations manager drew up the plan under review), the plan under review with
-   last year's figures, and "Your review" (the manager did not ask for the reviews, the owner did; the
+4. **Block: Background.** Three Text/Graphic pages: the park and how tickets are bought (no job role
+   for the participant; the marketing manager drew up the plan under review), the plan under review
+   with last year's figures, and "Your review" (the manager did not ask for the reviews, the owner did; the
    manager can decline, rates every review, the rating decides the bonus; the review carries the
    reviewer ID; the manager answers during today's session). Below each page a reading-check item (single answer, Request Response). Branch after the
    three checks: if any answer is wrong, set `briefing_wrong` = 1 and show a one-page "Please read
    the information again" block with the same material, then continue regardless.
 5. **Block: Proposal.** One Text Entry question, Essay box, Request Response, with
    `js_proposal_minwords.js`. Prompt:
-   "Your review of the staffing plan. Say what is wrong with the current plan, what the park should
-   do instead, and why. It goes to the operations manager who drew up the plan, who will read it,
-   rate it, and reply to you here." (Minimum 20 words, enforced by the script.)
+   "Your review of the ticket and promotion plan. Say what is wrong with the current plan, what the
+   park should do instead, and why. It goes to the marketing manager who drew up the plan, who will
+   read it, rate it, and reply to you here." (Minimum 20 words, enforced by the script.)
 6. **Block: Waiting page.** One Text/Graphic question whose HTML starts with a short notice
-   ("Your review has been sent to the operations manager. The manager is answering reviews during
-   this session; replies usually arrive within a few minutes. While you wait, here are the notes the
+   ("Your review has been sent to the marketing manager. The manager is answering reviews during
+   this panel session; replies usually arrive within a few minutes. While you wait, here are the notes the
    park supplied with the plan.") followed by the content of `extra_facts.md`.
    Attach `js_waiting_page.js`. Below it, on the same page, six hidden single-line Text Entry
    questions in this order: rejection_status_q, rejection_msg1_q, rejection_msg2_q,
@@ -67,7 +68,7 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
    below so you are paid for your time.") and the technical-issue completion code or redirect. These
    responses are excluded from analysis.
 8. **Block: Manager message.** One Text/Graphic question with `manager_message_card.html` (header
-   "Review session · Client: Aetheria Gardens", sender "Operations Manager, Aetheria Gardens", footer
+   "Consumer review panel · Client: Aetheria Gardens", sender "Marketing Manager, Aetheria Gardens", footer
    "Manager's decision on this review: not taken forward. Usefulness rating recorded."), plus a
    Timing question with "Enable submit after" 20 seconds. Optional short line under the card: "Click
    Next when you have read the reply."
@@ -77,7 +78,7 @@ In every JavaScript file replace `https://YOUR-SERVICE.onrender.com` with the se
 10. **Block: Second suggestion (voice DV).** One Text Entry question, Essay box, not forced, with
     `js_voice_timestamps.js`. Prompt: "A further note to the manager (optional). If you have a
     suggestion about the off-season situation you have just read, you can send it to the same
-    operations manager. It will be read and rated in the same way, and the rating affects your bonus
+    marketing manager. It will be read and rated in the same way, and the rating affects your bonus
     in the same way. Write it below, or leave the box empty if you have nothing to add." Do not
     mention the earlier rejection on this page.
 11. **Block: Scales.** The VF and VQ items in their one-shot wording (see `06_post_interaction_survey.md`,

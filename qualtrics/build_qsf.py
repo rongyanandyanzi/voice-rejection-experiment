@@ -429,16 +429,16 @@ def extra_facts_html():
 
 
 def build(args):
-    s = Survey("Plan Review Session", args.service_url, args.completion_url, args.tech_issue_url)
+    s = Survey("Consumer Review Panel", args.service_url, args.completion_url, args.tech_issue_url)
 
     # 1. Consent ---------------------------------------------------------------
     consent_text = s.text(
         "consent_text",
         paragraphs(
             "<strong>About this task</strong>",
-            "This task is run by a market research company. Businesses ask the company to collect outside reviews of their plans from people who are not part of the business.",
-            "Today’s client is Aetheria Gardens, a theme park. Its owner wants the park’s staffing plan reviewed by outsiders before the plan goes ahead. You will read the plan and the figures behind it and write a short review for the manager who drew it up.",
-            "The manager answers reviews in writing during today’s review session and rates each review for usefulness. Reviews the manager rates as useful earn a bonus on top of the base payment.",
+            "This task is run by a market research company. Businesses ask the company to have plans that affect customers reviewed by the people who buy from them.",
+            "Today’s client is Aetheria Gardens, a theme park. Its owner wants the park’s ticket and promotion plan for next season reviewed by consumers before it goes ahead. You will read the plan and the figures behind it and write a short review for the manager who drew it up.",
+            "The manager answers reviews in writing during today’s panel session and rates each review for usefulness. Reviews the manager rates as useful earn a bonus on top of the base payment.",
             "Are you willing to take part in this task?",
         ),
         js=survey_js("js_consent_warmup.js", s.service_url),
@@ -450,64 +450,65 @@ def build(args):
     # 2. Role materials ------------------------------------------------------------
     role1 = s.text("role_1", page_header("Background 1 of 3", "The Park") + paragraphs(
         "Thanks for taking part in this task.",
-        "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors.",
-        "The park is run by a management team. The operations manager is in charge of the entrance team and of how the park is staffed, and drew up the staffing plan you are asked to review.",
+        "The theme park is called Aetheria Gardens. Visitors buy tickets at the gate on the day or online in advance, and the park sells a standard adult ticket, a child ticket, and one family ticket.",
+        "The park is run by a management team. The marketing manager is in charge of ticket pricing and promotions, and drew up the ticket and promotion plan you are asked to review.",
     ), description="Background 1")
-    check1 = s.single_choice("check_park", "What does the entrance team at Aetheria Gardens do every day?", [
-        "Checking tickets, guiding visitors into the park and answering simple questions",
-        "Operating the rides",
-        "Cooking in the park restaurants",
+    check1 = s.single_choice("check_park", "How do visitors buy tickets for Aetheria Gardens?", [
+        "At the gate on the day, or online in advance",
+        "Only through travel agents",
+        "Only by monthly subscription",
     ])
     role2 = s.text("role_2", page_header("Background 2 of 3", "The Plan Under Review") + paragraphs(
-        "Aetheria Gardens employs a full-time, permanent workforce all year round. The operations manager drew up this staffing plan, the management team approved it this year, and the manager stands by it: in their view it keeps service consistent, avoids repeated retraining, and shows the park’s commitment to its permanent staff.",
+        "Aetheria Gardens charges one standard adult price and one child price, the same every day of the year. The family ticket, for two adults and two children, is the only discount the park offers: there is no weekday, off-peak, group, student or advance-booking price, and the online price is the same as the price at the gate. Nearly all of the park’s advertising spend goes to family-focused advertising in the nearby city.",
+        "The marketing manager drew up this plan, the management team approved it this year, and the manager stands by it: in their view one clear price is easy for visitors to understand and easy to sell, discounting would train visitors to wait for offers and cut into margin, and the family focus is what the park is known for.",
         "Some figures from the past year:",
     ) + bullets([
         "On a typical off-season weekday the park receives around 500 visitors; on a peak-season day, around 5,000.",
-        "The number of entrance staff on duty is the same in both seasons.",
-        "In the off-season, entrance staff spend long stretches with no visitors to serve.",
-        "On peak days, the queue at the entrance reaches 30 to 45 minutes at the busiest hour, and visitor complaints about waiting are highest in those weeks.",
-        "Staff costs are the park’s largest expense and have risen for three years in a row.",
+        "On peak days most visitors arrive between 10:00 and 11:00, and the queue at the entrance reaches 30 to 45 minutes at the busiest hour.",
+        "Ticket income is the park’s largest source of revenue and has been flat for three years in a row.",
+        "The commonest complaints from visitors are the queue at peak times, that a day out is too expensive, and that weekdays feel empty.",
+        "The park has never run a discount other than the family ticket.",
     ]), description="Background 2")
-    check2 = s.single_choice("check_plan", "According to the operations manager, why does the park keep a fully permanent workforce all year?", [
-        "It keeps service consistent, avoids retraining, and shows commitment to staff",
+    check2 = s.single_choice("check_plan", "According to the marketing manager, why does the park keep one price all year with the family ticket as its only discount?", [
+        "It is easy to understand, protects margin, and keeps the park focused on families",
         "Because visitor numbers are the same all year",
-        "Because temporary staff are not allowed by law",
+        "Because ticket prices are set by law",
     ])
     role3 = s.text("role_3", page_header("Background 3 of 3", "Your Review") + paragraphs(
-        "Your review goes to the operations manager who drew up the plan. Say what you think is wrong with the current plan and what the park should do instead.",
+        "Your review goes to the marketing manager who drew up the plan. Say what you think is wrong with the current ticket and promotion plan and what the park should do instead.",
         "The manager did not ask for these reviews; the park’s owner did, so the manager is answering reviews of their own plan. The manager can decline to take a review forward, rates every review for usefulness, and the rating decides whether you receive the bonus.",
         "Your review is sent with your reviewer ID: the manager sees it as coming from you, and the reply is addressed to you personally.",
         "The manager is answering reviews during today’s session, so you will receive the reply here.",
     ), description="Background 3")
     check3 = s.single_choice("check_task", "Who reads and rates your review?", [
-        "The operations manager who drew up the plan",
+        "The marketing manager who drew up the plan",
         "The market research company",
-        "Other participants in this session",
+        "Other people on the panel",
     ])
     s.block("Background", [role1, "PB", check1, "PB", role2, "PB", check2, "PB", role3, "PB", check3])
 
     reread = s.text("role_reread", paragraphs(
         "<strong>Please read the information again.</strong> One of your answers did not match the materials. The three pages are repeated below.",
     ) + page_header("Background 1 of 3", "The Park") + paragraphs(
-        "The theme park is called Aetheria Gardens. Its entrance team’s daily work includes checking tickets at the entrance, scanning QR codes, confirming visitor categories, guiding visitors into the park, and answering simple questions from visitors. The park is run by a management team; the operations manager is in charge of the entrance team and of how the park is staffed, and drew up the plan you are asked to review.",
+        "The theme park is called Aetheria Gardens. Visitors buy tickets at the gate on the day or online in advance, and the park sells a standard adult ticket, a child ticket, and one family ticket. The park is run by a management team; the marketing manager is in charge of ticket pricing and promotions, and drew up the plan you are asked to review.",
     ) + page_header("Background 2 of 3", "The Plan Under Review") + paragraphs(
-        "The park employs a full-time, permanent workforce all year round. The operations manager drew up this plan and the management team approved it this year; the manager stands by it (consistent service, no repeated retraining, commitment to permanent staff). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day; the same number of entrance staff on duty in both seasons; long idle stretches in the off-season; 30 to 45 minute entrance queues at the busiest hour on peak days, with the most complaints about waiting; staff costs are the largest expense and have risen three years in a row.",
+        "One standard adult price and one child price, the same every day of the year; the family ticket (two adults, two children) is the only discount, with no weekday, off-peak, group, student or advance-booking price, and the online price equals the gate price; nearly all advertising spend goes to family-focused advertising in the nearby city. The marketing manager drew up this plan and the management team approved it this year; the manager stands by it (one clear price is easy to understand and to sell, discounting would train visitors to wait for offers and cut margin, and the family focus is what the park is known for). Figures from the past year: around 500 visitors on an off-season weekday and around 5,000 on a peak day, most arriving between 10:00 and 11:00, when the entrance queue reaches 30 to 45 minutes; ticket income is the largest source of revenue and has been flat for three years; the commonest complaints are the peak queue, the cost of a day out, and weekdays that feel empty.",
     ) + page_header("Background 3 of 3", "Your Review") + paragraphs(
-        "Your review goes to the operations manager who drew up the plan: say what you think is wrong with the current plan and what the park should do instead. The manager did not ask for these reviews, the park’s owner did; the manager can decline to take a review forward, rates every review, and the rating decides whether you receive the bonus. Your review is sent with your reviewer ID and the reply is addressed to you personally. The manager is answering reviews during today’s session, so you will receive the reply here.",
+        "Your review goes to the marketing manager who drew up the plan: say what you think is wrong with the current ticket and promotion plan and what the park should do instead. The manager did not ask for these reviews, the park’s owner did; the manager can decline to take a review forward, rates every review, and the rating decides whether you receive the bonus. Your review is sent with your reviewer ID and the reply is addressed to you personally. The manager is answering reviews during today’s session, so you will receive the reply here.",
     ), description="Re-read materials")
     s.block("Background re-read", [reread])
 
     # 3. Proposal --------------------------------------------------------------
     proposal = s.essay("proposal", paragraphs(
-        "<strong>Your review of the staffing plan</strong>",
-        "Say what is wrong with the current plan, what the park should do instead, and why. It goes to the operations manager who drew up the plan, who will read it, rate it, and reply to you here.",
+        "<strong>Your review of the ticket and promotion plan</strong>",
+        "Say what is wrong with the current plan, what the park should do instead, and why. It goes to the marketing manager who drew up the plan, who will read it, rate it, and reply to you here.",
     ), force=True, js=survey_js("js_proposal_minwords.js", s.service_url), height=220)
     s.block("Proposal", [proposal])
 
     # 4. Waiting page --------------------------------------------------------
     waiting = s.text("waiting", "<span id=\"vr-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"vr-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>" + paragraphs(
-        "<strong>Your review has been sent to the operations manager.</strong>",
-        "The manager is answering reviews during this session; replies usually arrive within a few minutes. While you wait, here are the notes the park supplied with the plan.",
+        "<strong>Your review has been sent to the marketing manager.</strong>",
+        "The manager is answering reviews during this panel session; replies usually arrive within a few minutes. While you wait, here are the notes the park supplied with the plan.",
     ) + extra_facts_html(), js=survey_js("js_waiting_page.js", s.service_url), description="Waiting page")
     # Hidden carriers, in the order js_waiting_page.js expects (input[type=text] order on the page).
     h_status = s.hidden_text("rejection_status_q", "rejection status")
@@ -527,7 +528,7 @@ def build(args):
     card = card.replace("${e://Field/rejection_msg1}", "${q://" + h_msg1 + "/ChoiceTextEntryValue}")
     card = card.replace("${e://Field/rejection_msg2}", "${q://" + h_msg2 + "/ChoiceTextEntryValue}")
     card = card.replace("${e://Field/proposal}", "${q://" + proposal + "/ChoiceTextEntryValue}")
-    message = s.text("manager_message", paragraphs("<strong>Reply from the operations manager</strong>") + card + paragraphs(
+    message = s.text("manager_message", paragraphs("<strong>Reply from the marketing manager</strong>") + card + paragraphs(
         "<span style=\"color:#667;\">Click Next when you have read the reply.</span>",
     ), js=survey_js("js_manager_message.js", s.service_url), description="Manager message")
     t_message = s.timing("t_message", 20)
@@ -537,7 +538,7 @@ def build(args):
     m1 = s.text("materials_1", page_header("Materials 1 of 3", "Off-Season Situation") + paragraphs(
         "The park also supplied material about its <strong>off-season situation</strong>. Please read it before deciding whether to send a further note.",
         "On a typical off-season weekday, the park receives <strong>around 500 visitors</strong>.",
-        "The entrance is quiet for long periods, and staff members at the gate have <strong>relatively little work to do</strong>.",
+        "The park is quiet for long stretches, and <strong>many weekday slots go unsold</strong>.",
     ), description="Materials 1")
     m2 = s.text("materials_2", page_header("Materials 2 of 3", "Visitor Pattern") + paragraphs(
         "Most visitors are <strong>families with young children</strong>. Families with children under 10 account for <strong>around 70% to 75%</strong> of daily visitors, while other visitor groups make up a much smaller share.",
@@ -546,14 +547,14 @@ def build(args):
     m3 = s.text("materials_3", page_header("Materials 3 of 3", "Nearby Visitors") + paragraphs(
         "There are several universities and farms <strong>near the theme park</strong>, including <strong>4 universities within 10 to 18 km</strong> and <strong>around 38,000 nearby university students</strong>.",
         "Some university students say the park is cute, but it feels mainly <strong>designed for little kids</strong>. Others mention that <strong>student discounts</strong> or <strong>more photo-friendly spots</strong> might make the park more attractive to students.",
-        "On the next page you can send the same manager a further note about this situation if you wish.",
+        "On the next page you can send the same marketing manager a further note about this situation if you wish.",
     ), description="Materials 3")
     s.block("Second materials", [m1, "PB", m2, "PB", m3])
 
     # 7. Voice DV -------------------------------------------------------------
     voice = s.essay("voice_text_q", paragraphs(
         "<strong>A further note to the manager (optional)</strong>",
-        "If you have a suggestion about the off-season situation you have just read, you can send it to the same operations manager. It will be read and rated in the same way, and the rating affects your bonus in the same way. Write it below, or leave the box empty if you have nothing to add.",
+        "If you have a suggestion about the off-season situation you have just read, you can send it to the same marketing manager. It will be read and rated in the same way, and the rating affects your bonus in the same way. Write it below, or leave the box empty if you have nothing to add.",
     ), force=False, js=survey_js("js_voice_timestamps.js", s.service_url), height=220)
     s.block("Second suggestion", [voice])
 
@@ -573,14 +574,14 @@ def build(args):
         ("VF6", "I offered several suggestions and ideas of my own."),
     ])
     vq = s.likert("VQ", paragraphs("<strong>Preparing your suggestion</strong>"), [
-        ("VQ1", "Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the entrance records, visitor comments, or location details."),
+        ("VQ1", "Before writing my suggestion in the second task, I tried to back what I might suggest with the information available to me, such as the ticket sales records, visitor comments, or location details."),
         ("VQ2", "Before writing my suggestion in the second task, I made an effort to think through the practical concerns a manager would have, such as visitor demand, feasibility, or park operations."),
         ("VQ3", "Before writing my suggestion in the second task, I tried to anticipate the questions or doubts the manager might raise, and how I would answer them."),
         ("VQ4", "Before writing my suggestion in the second task, I made an effort to work out a clear, actionable course of action rather than a general idea."),
     ])
     reasons = s.likert("REASON", paragraphs(
         "<strong>Perceived reasons for the manager’s response</strong>",
-        "Please indicate why you think the manager rejected your review of the staffing plan.",
+        "Please indicate why you think the manager rejected your review of the ticket and promotion plan.",
         "<em>The manager rejected my review because...</em>",
     ), [
         ("MR1", "The manager was influenced by their emotions."),
@@ -594,7 +595,7 @@ def build(args):
     ])
     tone = s.likert("MA", paragraphs(
         "<strong>Perceived tone of the manager’s response</strong>",
-        "Please indicate how you perceived the manager’s attitude when they rejected your review of the staffing plan.",
+        "Please indicate how you perceived the manager’s attitude when they rejected your review of the ticket and promotion plan.",
         "<em>The manager’s response was...</em>",
     ), [
         ("MA1", "Polite"), ("MA2", "Courteous"), ("MA3", "Sensitive to my feelings"), ("MA4", "Respectful toward me"),
@@ -602,7 +603,7 @@ def build(args):
     ])
     useful = s.likert("MC", paragraphs(
         "<strong>Perceived usefulness of the manager’s response</strong>",
-        "Please indicate how you perceived the manager’s response when they rejected your review of the staffing plan.",
+        "Please indicate how you perceived the manager’s response when they rejected your review of the ticket and promotion plan.",
         "<em>When rejecting my review, the manager...</em>",
     ), [
         ("MC1", "Pointed to specific aspects of my proposal that I could actually work on."),

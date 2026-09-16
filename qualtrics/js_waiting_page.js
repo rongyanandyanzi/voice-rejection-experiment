@@ -48,7 +48,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var status = document.createElement("p");
   status.id = "manager-reply-status";
   status.style.cssText = "margin-top:16px;color:#555;font-style:italic;";
-  status.textContent = "Your review is with the operations manager\u2026";
+  status.textContent = "Your review is with the marketing manager\u2026";
   question.getQuestionContainer().appendChild(status);
   question.disableNextButton();
 

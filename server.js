@@ -917,7 +917,7 @@ const REJECTION_JOB_TTL_MS = 30 * 60 * 1000;
 // page's 300 s window (AI_PIPELINE_TIMEOUT_MS is 135 s).
 const REJECTION_JOB_MAX_ATTEMPTS = Math.max(1, Number(process.env.REJECTION_JOB_MAX_ATTEMPTS || 2));
 const REJECTION_OPENING_REQUEST = {
-  en: "Read the park's staffing plan and the figures behind it, then write a review for the operations manager who drew it up: what you think is wrong with the plan and what the park should do instead. The manager will reply in writing and rate your review.",
+  en: "Read the park's ticket and promotion plan and the figures behind it, then write a review for the marketing manager who drew it up: what you think is wrong with the plan and what the park should do instead. The manager will reply in writing and rate your review.",
   zh: "谢谢。请把你对乐园用工问题的建议发给我，我看完后会回复你。",
 };
 // The survey stores one integer per participant instead of the blind-score object, so nothing
@@ -2402,7 +2402,7 @@ function buildInitialManagerPrompt(payload) {
   const alexMessage = cleanPromptText(payload.alexMessage);
   const history = cleanHistory(payload.history);
   const language = normalizeLanguage(payload.language);
-  const rules = managerConditionRules();
+  const rules = managerConditionRules(payload.delivery);
   const conditionRule = rules[condition];
   if (!conditionRule) {
     // Should never happen because normalizeManagerCondition guarantees a valid
@@ -2526,7 +2526,12 @@ function buildInitialManagerPrompt(payload) {
     messageWordRanges = language === "zh"
       ? null
       : [{ min: 14, max: 22 }, { min: 36, max: 46 }];
-    totalWordRange = language === "zh" ? null : { min: 54, max: 68 };
+    // Floor raised from 54 to 58. On the ticket-and-promotion materials the low-constructiveness
+    // cells drifted down to the old floor (means 59.5 and 60.7, two replies at 54) while high
+    // constructiveness held at 63, a 6.5% spread that breaks the 5% matching gate. Raising only the
+    // floor lifts the vague cells; the ceiling is deliberately left at 68 because the earlier
+    // attempt to squeeze both ends (56-64) pushed high constructiveness into length failures.
+    totalWordRange = language === "zh" ? null : { min: 58, max: 68 };
     // Target moved up from 58-62: high constructiveness lands at 61-63 against the ceiling while low
     // constructiveness sat at 59-60 against the old target, a 5.5% spread. Raising the target lifts
     // the low-constructiveness cells without touching the ceiling; narrowing the band instead
@@ -2633,14 +2638,14 @@ function buildInitialManagerPrompt(payload) {
     maxOutputTokens,
     system: [
       messageDelivery
-        ? "You are the operations manager of Aetheria Gardens. You drew up the park's current staffing plan and stand by it. The park's owner has commissioned outside reviews of the plan before it goes ahead, and you are replying in writing, through the review platform, to one review submitted by an outside reviewer. Only this review was assigned to you: never mention other reviews, other reviewers, or a queue. Never name or describe the participant's job, role, or title; address them only as you."
+        ? "You are the marketing manager of Aetheria Gardens, responsible for ticket pricing and promotions. You drew up the park's current ticket and promotion plan and stand by it. The park's owner has commissioned consumer reviews of the plan before it goes ahead, and you are replying in writing, through the review platform, to one review submitted by a member of the consumer panel. Only this review was assigned to you: never mention other reviews, other reviewers, or a queue. Never name or describe the participant's job, role, or title; address them only as you."
         : "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
       outputLanguageInstruction(language),
       identityNonDisclosureRule(),
       "Do not address the participant by a personal name in message text.",
       messageDelivery
-        ? "Manager role context: as the operations manager you are in charge of the entrance team and staffing, you wrote the plan under review, and you decide whether a review is taken forward."
+        ? "Manager role context: as the marketing manager you are in charge of ticket pricing and promotions, you wrote the plan under review, and you decide whether a review is taken forward."
         : "Manager role context: you have direct supervisory authority over the operations team. The participant's responsibilities include ticket checking, visitor guidance, and basic visitor questions, but their assigned role label is Operations Team Member.",
       messageDelivery
         ? ""
@@ -2650,10 +2655,16 @@ function buildInitialManagerPrompt(payload) {
           ? "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and if this idea appears in Chinese, phrase it as: 这项评估可能会影响你这次线上任务结束后获得的报酬。 End by asking in Chinese: 根据你收到的信息，你认为主题乐园下一步应该怎么做？"
           : "Opening context: you have been assigned to the Park Manager role for this online task. You can evaluate the participant's performance as an Operations Team Member, and this evaluation may affect the compensation the participant receives for completing this online task. End by asking: Based on the information you receive, what do you think the theme park should do next?")
         : "",
-      phase !== "opening" ? "Park background: Aetheria Gardens relies almost exclusively on full-time permanent staff, creating a labor seesaw — surplus idle staff in the off-season (around 500 visitors per day) and staff shortages at peak times (around 5,000 visitors per day). The participant's review may criticise the staffing plan and propose an alternative, or raise any other change." : "",
+      phase !== "opening"
+        ? (messageDelivery
+          ? "Park background: Aetheria Gardens charges one price all year, with the family ticket (two adults, two children) as its only discount — no weekday, off-peak, group, student or advance-booking price, and the online price equals the gate price. Nearly all advertising is family-focused. Off-season weekdays are close to empty (around 500 visitors) while peak days are crowded (around 5,000, most arriving between 10:00 and 11:00, when the entrance queue reaches 30 to 45 minutes). Ticket income is the park's largest source of revenue and has been flat for three years. The participant's review may criticise the ticket and promotion plan and propose an alternative, or raise any other change."
+          : "Park background: Aetheria Gardens relies almost exclusively on full-time permanent staff, creating a labor seesaw — surplus idle staff in the off-season (around 500 visitors per day) and staff shortages at peak times (around 5,000 visitors per day). The participant may raise a suggestion about how the park is run — often about the staffing approach, but it could be any kind of change.")
+        : "",
       "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
       "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
-      "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
+      messageDelivery
+        ? "Margin, brand positioning, booking and ticketing systems, queue management and similar commercial concerns are only relevant when the proposal actually affects them. Do not raise them for proposals where they do not apply."
+        : "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
       // One statement of the register requirement. This had grown into three overlapping lines
       // ("sound natural, concise, and chat-like", "read as fluent, natural sentences", "write like
       // a real person typing to a coworker"), all saying the same thing. The concrete failure it
@@ -2661,7 +2672,7 @@ function buildInitialManagerPrompt(payload) {
       // phrases, producing lines like "Standard: 95% peak posts filled." that satisfy every content
       // requirement and are still hard to read.
       messageDelivery
-        ? "Write like a real manager replying in writing to a reviewer's message: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases."
+        ? "Write like a real manager replying in writing to a consumer reviewer's message: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases."
         : "Write like a real person typing to a coworker in chat: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases.",
       language === "zh"
         ? "使用自然、口语化的职场中文。每句话只表达一个主要意思，避免压缩式修饰语、抽象管理术语和像评分清单一样的并列堆砌。"
@@ -2756,7 +2767,7 @@ function normalizeManagerCondition(value) {
 // and any casualness would be read as carelessness and leak into the politeness manipulation.
 const NEUTRAL_CHAT_REGISTER_RULE = "This is a routine chat line, not a formal message. A short line may end without a full stop, the way people type in chat; a question still ends with a question mark. 'Complete sentence' means not stopping mid-thought, not that every line needs a period. Now and then, not every time, open with a plain acknowledgement such as ok, right, or got it before the question. Vary it, and skip it more often than you use it. These are receipt tokens, not thanks or praise, and the same wording must remain usable in every condition.";
 
-function managerConditionRules() {
+function managerConditionRules(delivery = "chat") {
   // The same refusal and revision content is redressed under high politeness and unredressed under
   // low politeness. Directness is judged at the speech-act level: explicit refusal words are not
   // automatically impolite when appreciation, apology, hedging, deference, or depersonalisation
@@ -2772,7 +2783,7 @@ function managerConditionRules() {
     // The participant can propose any kind of change. A fixed missing-data checklist makes the
     // manager sound responsive while actually ignoring the proposal's decision logic. The model
     // therefore diagnoses the proposal before selecting any feedback component.
-    "First infer the central decision uncertainty in this participant's actual proposal from the full conversation. Start from the decision the proposal asks the manager to make, not from a preset staffing, visitor-flow, workload, cost, or evidence checklist.",
+    "First infer the central decision uncertainty in this participant's actual proposal from the full conversation. Start from the decision the proposal asks the manager to make, not from a preset pricing, demand, margin, staffing, visitor-flow, workload, cost, or evidence checklist.",
     "Do not claim that something is missing if the participant has already supplied it. Use their latest explanation to identify what still remains unresolved.",
     "Every HC rejection must communicate that the current proposal is not yet supported by enough proposal-specific evidence for this decision. Do not rely on the generic phrase 'needs more data'; identify the exact unanswered question and the exact analysis that would answer it.",
     "1. Proposal-specific evidence gap. Name one unresolved assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim in this proposal for which the conversation has not supplied decision-relevant data. Explain the practical consequence of deciding without that evidence.",
@@ -2786,7 +2797,9 @@ function managerConditionRules() {
     "The evidence gap, consequence, decision analysis, and improvement path must form one logical chain. The requested data and analysis must test the exact assumption or tradeoff identified in the participant's proposal, not merely add detail or produce a generic report.",
     "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. Name what should be measured or observed, what should be compared or analyzed, and how that result bears on this particular decision.",
     "Do not reuse a stock analysis or a sentence from an earlier turn or another proposal. Generate the diagnosis and path fresh from the participant's actual idea each time.",
-    "Do not invent facts about the park that the participant has not been given. All they have at this point is roughly 500 visitors on an off-season day, 5,000 at peak, and that labour costs are hard to manage. You are asking for analysis that does not exist yet, not citing figures you already hold.",
+    String(delivery || "").trim().toLowerCase() === "message"
+      ? "Do not invent facts about the park that the participant has not been given. All they have at this point is the plan itself (one price all year, the family ticket as the only discount, family-focused advertising), roughly 500 visitors on an off-season weekday and 5,000 at peak with most arriving between 10:00 and 11:00, a 30 to 45 minute entrance queue at the busiest hour, and flat ticket income. You are asking for analysis that does not exist yet, not citing figures you already hold."
+      : "Do not invent facts about the park that the participant has not been given. All they have at this point is roughly 500 visitors on an off-season day, 5,000 at peak, and that labour costs are hard to manage. You are asking for analysis that does not exist yet, not citing figures you already hold.",
     "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
   ].filter(Boolean).join("\n");
   // The broad-judgment vocabulary is split by politeness: judgments like "not workable" read as

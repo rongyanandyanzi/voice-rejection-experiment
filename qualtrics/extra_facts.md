@@ -1,39 +1,38 @@
 # Waiting page content
 
-Shown while the reply is generated, under the notice that the review has been sent. The
-page has two jobs: fill the minimum wait with reading that deepens the participant's understanding
-of how the park runs, and give them the yardstick for the reply that follows. A reply that engages
-with the peak-hour pattern, the records the park keeps, or the cost side can be recognised as
+Shown while the reply is generated, under the notice that the review has been sent. The page has two
+jobs: fill the minimum wait with reading that deepens the participant's understanding of how the
+park sells its tickets, and give them the yardstick for the reply that follows. A reply that engages
+with the arrival pattern, the records the park keeps, or the margin side can be recognised as
 specific and useful; a reply that ignores all of it can be recognised as vague. The figures match
-Background 2; nothing here describes past trials or outcomes, so nothing can contradict the reply.
+Background 2; nothing here describes past promotions or their outcomes, so nothing can contradict
+the reply.
 
 ---
 
 **Notes supplied with the plan**
 
-**How the entrance works on a normal day.** The park opens at 9:00. Every visitor's ticket is
-scanned once at the gate, and families with young children and school groups usually need extra
-help with visitor categories and directions, which is why the entrance team is the park's largest
-single team. Staff work in shifts. A new member of the entrance team needs about two days of
-induction before working alone, and an experienced colleague has to stay on the gate with them
-during that time.
+**How tickets are sold on a normal day.** The park opens at 9:00. Visitors either buy at the gate on
+the day or book online in advance, and the price is the same either way. Most families buy the
+family ticket, which covers two adults and two children; everyone else buys single adult and child
+tickets. Online bookings are usually made in the last two days before a visit, so the park rarely
+knows more than a day ahead how busy it will be.
 
-**What the season does to the entrance.** On an off-season weekday around 500 visitors spread
-across the whole day, so gate staff often wait a long time between visitors. On a peak-season day
-around 5,000 visitors arrive, most of them between 10:00 and 11:00; that is when the queue reaches
-30 to 45 minutes and when most complaints about waiting come in. The same number of entrance staff
-is rostered on both kinds of day.
+**What the season does to sales.** On an off-season weekday around 500 visitors spread across the
+whole day, and much of the park's capacity goes unsold. On a peak-season day around 5,000 visitors
+arrive, most of them between 10:00 and 11:00; that is when the entrance queue reaches 30 to 45
+minutes and when most complaints about waiting come in. The price is the same on both kinds of day.
 
-**What the park records.** The park keeps a weekly visitor forecast built from bookings and
-previous years, a daily log of entrance queue times, and daily staffing rosters and payroll. The
-effect of any staffing change on queues and on costs can therefore be checked against records
-rather than guessed.
+**What the park records.** The park keeps daily ticket sales broken down by ticket type, the lead
+time between booking and visit, the number of visitors arriving in each hour, and comments collected
+from visitors as they leave. The effect of any change to prices or offers on visitor numbers, on
+when people arrive, and on income can therefore be checked against records rather than guessed.
 
-**What the manager weighs.** Staff costs are the park's largest expense and have risen three years
-in a row. The manager who drew up the plan points to consistent service, no repeated retraining,
-and the park's commitment to its permanent staff. Any change to the plan has to answer
-to both sides: queues and complaints at peak, and cost and idle time in the off-season.
+**What the manager weighs.** Ticket income is the park's largest source of revenue and has been flat
+for three years. The manager who drew up the plan points to a price that visitors understand at a
+glance, margin that discounting would erode, and the family positioning the park is known for. Any
+change to the plan has to answer to both sides: the empty weekdays and the complaints about cost, and
+the risk of selling at a discount to visitors who would have paid the full price anyway.
 
-**How your review is handled.** The manager reads it, decides whether the park will take it
-forward, rates it for usefulness, and replies on this platform. The reply is written for you
-personally.
+**How your review is handled.** The manager reads it, decides whether the park will take it forward,
+rates it for usefulness, and replies on this platform. The reply is written for you personally.

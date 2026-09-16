@@ -166,7 +166,7 @@ test("initial rejection uses a short decision followed by a longer structured ex
       { min: 14, max: 22 },
       { min: 36, max: 46 },
     ]);
-    assert.deepEqual(prompt.totalWordRange, { min: 54, max: 68 });
+    assert.deepEqual(prompt.totalWordRange, { min: 58, max: 68 });
     assert.deepEqual(prompt.totalWordTargetRange, { min: 60, max: 62 });
     assert.equal(prompt.constructivenessMetadataMode, "full");
     assert.equal(prompt.constructivenessAssessmentMode, "rejection");
@@ -701,7 +701,7 @@ test("English first rejection length normalization preserves the short-then-long
   const prompt = buildInitialManagerPrompt(managerPayload());
   const messages = [
     { speaker: "Manager", text: "At this point I really cannot approve this proposal currently because the flexible staffing idea still leaves a clearly unresolved risk to reliable entry service right now." },
-    { speaker: "Manager", text: "The plan needs to compare entry errors, queue times, and supervisor interventions during matched peak shifts before I could reconsider a version with role training that prepares temporary workers for the same visitor demand and duties." },
+    { speaker: "Manager", text: "The plan needs to compare entry errors, queue times, supervisor interventions, and handover delays during matched peak shifts before I could reconsider a version with role training that prepares temporary workers for the same visitor demand, duties, and busiest entry periods." },
   ];
   const normalized = normalizeInitialManagerLength(messages, prompt);
   assert.equal(managerWordCountProblem(normalized, prompt), "");
@@ -709,7 +709,7 @@ test("English first rejection length normalization preserves the short-then-long
   assert.match(normalized[1].text, /role training/i);
   assert.ok(wordCount(normalized[0].text) >= 14 && wordCount(normalized[0].text) <= 22);
   assert.ok(wordCount(normalized[1].text) >= 36 && wordCount(normalized[1].text) <= 46);
-  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 54);
+  assert.ok(normalized.reduce((sum, message) => sum + wordCount(message.text), 0) >= 58);
 });
 
 test("Chinese first rejection removes only optional wording to enter the matched total", () => {
