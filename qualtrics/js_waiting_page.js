@@ -1,4 +1,4 @@
-// Waiting page: question JavaScript on the Text/Graphic question that shows "Your suggestion has
+// Waiting page: question JavaScript on the Text/Graphic question that shows "Your review has
 // been sent" and the extra facts. Starts the rejection job in the background, polls for the reply,
 // stores it in embedded data, and enables Next only when the reply has arrived AND the minimum
 // reading time has passed. After MAX_WAIT_MS (5 minutes) without a reply it records rejection_status = failed so
@@ -48,7 +48,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var status = document.createElement("p");
   status.id = "manager-reply-status";
   status.style.cssText = "margin-top:16px;color:#555;font-style:italic;";
-  status.textContent = "Your suggestion is with one of the park\u2019s managers\u2026";
+  status.textContent = "Your review is with the operations manager\u2026";
   question.getQuestionContainer().appendChild(status);
   question.disableNextButton();
 

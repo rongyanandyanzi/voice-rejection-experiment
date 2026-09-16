@@ -51,12 +51,13 @@ test("message delivery reframes the first rejection as a written reply without c
   const message = buildInitialManagerPrompt({ ...base, delivery: "message" });
   assert.equal(chat.delivery, "chat");
   assert.equal(message.delivery, "message");
-  assert.match(message.system, /suggestion review platform/);
-  assert.match(message.system, /never mention other suggestions/);
+  assert.match(message.system, /review platform/);
+  assert.match(message.system, /drew up the park's current staffing plan/);
+  assert.match(message.system, /never mention other reviews/);
   assert.match(message.system, /do not greet them, do not ask them anything/);
   assert.doesNotMatch(message.system, /Leave room for the participant to respond/);
   assert.match(chat.system, /Leave room for the participant to respond/);
-  assert.match(message.user, /Suggestion submitted by the participant/);
+  assert.match(message.user, /Review submitted by the participant/);
   assert.doesNotMatch(message.user, /Conversation history/);
   assert.equal(message.minMessages, 2);
   assert.equal(message.maxMessages, 2);
@@ -163,7 +164,8 @@ test("a job runs the message-delivery rejection in the background and is reused 
   assert.equal(calls[0].delivery, "message");
   assert.equal(calls[0].condition, "HP_LC");
   assert.equal(calls[0].alexMessage, PROPOSAL);
-  assert.equal(calls[0].history[0].speaker, "Manager");
+  assert.equal(calls[0].history[0].speaker, "Review platform");
+  assert.match(calls[0].history[0].text, /write a review for the operations manager who drew it up/);
   assert.equal(calls[0].prolific_pid, "pid-1");
   assert.equal(rejectionJobs.get("R_jobreuse000001"), job);
 });

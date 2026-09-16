@@ -1,6 +1,6 @@
 # Waiting page content
 
-Shown while the reply is generated, under the notice that the suggestion has been submitted. The
+Shown while the reply is generated, under the notice that the review has been sent. The
 page has two jobs: fill the minimum wait with reading that deepens the participant's understanding
 of how the park runs, and give them the yardstick for the reply that follows. A reply that engages
 with the peak-hour pattern, the records the park keeps, or the cost side can be recognised as
@@ -9,7 +9,7 @@ Background 2; nothing here describes past trials or outcomes, so nothing can con
 
 ---
 
-**While the manager reads your suggestion**
+**Notes supplied with the plan**
 
 **How the entrance works on a normal day.** The park opens at 9:00. Every visitor's ticket is
 scanned once at the gate, and families with young children and school groups usually need extra
@@ -29,11 +29,11 @@ previous years, a daily log of entrance queue times, and daily staffing rosters 
 effect of any staffing change on queues and on costs can therefore be checked against records
 rather than guessed.
 
-**What the managers weigh.** Staff costs are the park's largest expense and have risen three years
-in a row. The managers who designed the current plan point to consistent service, no repeated
-retraining, and the park's commitment to its permanent staff. Any change to the plan has to answer
+**What the manager weighs.** Staff costs are the park's largest expense and have risen three years
+in a row. The manager who drew up the plan points to consistent service, no repeated retraining,
+and the park's commitment to its permanent staff. Any change to the plan has to answer
 to both sides: queues and complaints at peak, and cost and idle time in the off-season.
 
-**How your suggestion is handled.** The manager who receives it reads it, decides whether the park
-will take it forward, rates it, and replies on this platform. The reply is written for you
+**How your review is handled.** The manager reads it, decides whether the park will take it
+forward, rates it for usefulness, and replies on this platform. The reply is written for you
 personally.

@@ -152,8 +152,11 @@ Before the second conversation with the manager, I made an effort to work out a 
 
 ### One-shot (Qualtrics) variant
 
-In the one-shot design there is no second conversation: after the manager's written rejection and
-the second background materials, the participant may write one suggestion in a text box. The same
+In the one-shot design there is no second conversation: after the manager's written rejection of
+the participant's review of the staffing plan and the second background materials, the participant
+may send the same manager one further note in a text box. In the one-shot survey the instructions
+of Sections 3 to 5 say "your review of the staffing plan" instead of "your suggestion about the
+labor plan", and the stems say "my review"; the items themselves are unchanged. The same
 items apply with the reference period changed. A participant who wrote nothing can answer every
 item; the frequency items then attract disagreement.
 
