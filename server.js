@@ -443,7 +443,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/api/health") {
-    sendJson(res, { ok: true, data_dir: dataDir });
+    sendJson(res, { ok: true, data_dir: dataDir, commit: String(process.env.RENDER_GIT_COMMIT || "").slice(0, 12) });
     return;
   }
 
