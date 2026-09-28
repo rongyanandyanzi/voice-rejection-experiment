@@ -917,7 +917,7 @@ const REJECTION_JOB_TTL_MS = 30 * 60 * 1000;
 // page's 300 s window (AI_PIPELINE_TIMEOUT_MS is 135 s).
 const REJECTION_JOB_MAX_ATTEMPTS = Math.max(1, Number(process.env.REJECTION_JOB_MAX_ATTEMPTS || 2));
 const REJECTION_OPENING_REQUEST = {
-  en: "Read the park's ticket and promotion plan and the figures behind it, then write a review for the marketing manager who drew it up: what you think is wrong with the plan and what the park should do instead. The manager will reply in writing and rate your review.",
+  en: "Batch 1 complete. You can attach a note to the coding supervisor if you want to: say which part of how this batch is set up you would change, what it is doing to the data this batch produces, and what you would do instead. Notes are optional.",
   zh: "谢谢。请把你对乐园用工问题的建议发给我，我看完后会回复你。",
 };
 // The survey stores one integer per participant instead of the blind-score object, so nothing
@@ -1044,7 +1044,7 @@ function startRejectionJob(value, options = {}) {
     condition: value.condition,
     language: value.language,
     alexMessage: value.proposal,
-    history: [{ speaker: "Review platform", text: REJECTION_OPENING_REQUEST[value.language] || REJECTION_OPENING_REQUEST.en }],
+    history: [{ speaker: "Coding project", text: REJECTION_OPENING_REQUEST[value.language] || REJECTION_OPENING_REQUEST.en }],
     prolific_pid: value.prolificPid,
     study_id: value.studyId,
     session_id: value.sessionId,
@@ -2400,7 +2400,13 @@ function buildInitialManagerPrompt(payload) {
   const phase = String(payload.phase || "");
   const condition = normalizeManagerCondition(payload.condition);
   const alexMessage = cleanPromptText(payload.alexMessage);
-  const history = cleanHistory(payload.history);
+  // The written-reply path always shows the model the instruction the coder saw at the end of the
+  // batch. Supplying it here when no history is sent keeps the live job and the QA script on one text.
+  const writtenReply = String(payload.delivery || "").trim().toLowerCase() === "message";
+  const historyInput = writtenReply && !(Array.isArray(payload.history) && payload.history.length)
+    ? [{ speaker: "Coding project", text: REJECTION_OPENING_REQUEST[normalizeLanguage(payload.language)] || REJECTION_OPENING_REQUEST.en }]
+    : payload.history;
+  const history = cleanHistory(historyInput);
   const language = normalizeLanguage(payload.language);
   const rules = managerConditionRules(payload.delivery);
   const conditionRule = rules[condition];
@@ -2500,7 +2506,7 @@ function buildInitialManagerPrompt(payload) {
       "Both messages must strictly preserve the assigned politeness and constructiveness condition.",
       "Do not make one message neutral and only the other condition-specific.",
       messageDelivery
-        ? "This reply is not part of a live chat. The participant submitted the review in writing and will read your reply once, with no chance to answer, so do not greet them, do not ask them anything, and do not refer to earlier chat turns or to a conversation. Because the participant cannot reply, anything you say about what happens next must be complete in this message and must carry the assigned interpersonal style: with high politeness, attach genuine face work such as hedging, appreciation, an apology, or an invitation to that future path; with low politeness, state it flatly."
+        ? "This reply is not part of a live chat. The participant attached the note in writing and will read your reply once, while working on their next batch, with no chance to answer, so do not greet them, do not ask them anything, and do not refer to earlier chat turns or to a conversation. Because the participant cannot reply, anything you say about what happens next must be complete in this message and must carry the assigned interpersonal style: with high politeness, attach genuine face work such as hedging, appreciation, an apology, or an invitation to that future path; with low politeness, state it flatly."
         : "Leave room for the participant to respond.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       nextStepStyleRule,
@@ -2638,14 +2644,14 @@ function buildInitialManagerPrompt(payload) {
     maxOutputTokens,
     system: [
       messageDelivery
-        ? "You are the marketing manager of Aetheria Gardens, responsible for ticket pricing and promotions. You drew up the park's current ticket and promotion plan and stand by it. The park's owner has commissioned consumer reviews of the plan before it goes ahead, and you are replying in writing, through the review platform, to one review submitted by a member of the consumer panel. Only this review was assigned to you: never mention other reviews, other reviewers, or a queue. Never name or describe the participant's job, role, or title; address them only as you."
+        ? "You are the coding supervisor on a research group's comment-coding project. You set the coding rules the coders must follow, check their batches against the reference key, can overrule any label they give, and issue each new batch. You wrote the current rules and stand by them. A coder you supervise chose to attach a note to their first batch, and you are replying to it in writing through the project's coding platform while they carry on with their next batch. Only this note is in front of you: never mention other coders, other notes, or a queue. Never describe the coder's background, job outside this project, or title; address them only as you."
         : "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
       outputLanguageInstruction(language),
       identityNonDisclosureRule(),
       "Do not address the participant by a personal name in message text.",
       messageDelivery
-        ? "Manager role context: as the marketing manager you are in charge of ticket pricing and promotions, you wrote the plan under review, and you decide whether a review is taken forward."
+        ? "Supervisor role context: you decide whether a coding rule changes. A rule change means re-coding everything already coded, so you change a rule only on clear evidence that the change is worth it."
         : "Manager role context: you have direct supervisory authority over the operations team. The participant's responsibilities include ticket checking, visitor guidance, and basic visitor questions, but their assigned role label is Operations Team Member.",
       messageDelivery
         ? ""
@@ -2657,13 +2663,17 @@ function buildInitialManagerPrompt(payload) {
         : "",
       phase !== "opening"
         ? (messageDelivery
-          ? "Park background: Aetheria Gardens charges £34 an adult and £28 a child aged 3 to 15 all year round, the same online as at the gate, with under-3s and car parking free. The family ticket (two adults, two children) at £110, a £14 saving on the £124 of four separate tickets, is its only discount — no weekday, off-peak, group, student, senior or advance-booking price. Nearly all advertising is family-focused. Off-season weekdays are close to empty (around 500 visitors) while peak days are crowded (around 5,000, most arriving between 10:00 and 11:00, when the entrance queue reaches 30 to 45 minutes). Ticket income is the park's largest source of revenue and has been flat for three years. The participant's review may criticise the ticket and promotion plan and propose an alternative, or raise any other change."
+          ? "Project situation: coders sort short comments that people left at the end of earlier online studies into five categories: TECH (technical problem), WORDING (unclear instruction or question), LENGTH (length, pace or repetition), PAYMENT (payment or stated time) and CONTENT (reaction to the subject matter). Your rule: choose one category per comment; if a comment mentions more than one thing, choose the one it is mainly about; there is no 'other' option. Your reasons, which every coder has read: the frequency table and the coder-agreement statistic are built on one label per comment, so two labels would lower agreement and make the percentages add up to more than 100; a leftover 'other' category becomes a dumping ground; changing a rule means re-coding everything already coded. In the coder's first batch of twelve comments, four (comments 4, 7, 10 and 12) each raised two separate problems of similar weight, so only one of the two could be recorded. The note may address that, or anything else about how the coding is set up."
           : "Park background: Aetheria Gardens relies almost exclusively on full-time permanent staff, creating a labor seesaw — surplus idle staff in the off-season (around 500 visitors per day) and staff shortages at peak times (around 5,000 visitors per day). The participant may raise a suggestion about how the park is run — often about the staffing approach, but it could be any kind of change.")
         : "",
-      "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
-      "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
       messageDelivery
-        ? "Margin, brand positioning, booking and ticketing systems, queue management and similar commercial concerns are only relevant when the proposal actually affects them. Do not raise them for proposals where they do not apply."
+        ? "CRUCIAL: actually read and understand what the coder is proposing before you respond. Work out what their idea literally means and what it would concretely do to the coding and to the data it produces, then make your reply clearly engage THAT specific idea and its real consequences. The coder must be able to tell you understood exactly what they said."
+        : "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
+      messageDelivery
+        ? "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the coder proposes describing every comment in free text instead of using categories, objecting that it 'does not say which category would win' is incoherent, because there would be no categories. Object instead on grounds that genuinely fit, such as losing the counts and the agreement check the project reports."
+        : "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
+      messageDelivery
+        ? "Coder agreement, comparability with comments already coded, re-coding effort, the dumping-ground risk and similar methodological concerns are only relevant when the proposal actually affects them. Do not raise them for proposals where they do not apply."
         : "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
       // One statement of the register requirement. This had grown into three overlapping lines
       // ("sound natural, concise, and chat-like", "read as fluent, natural sentences", "write like
@@ -2672,7 +2682,7 @@ function buildInitialManagerPrompt(payload) {
       // phrases, producing lines like "Standard: 95% peak posts filled." that satisfy every content
       // requirement and are still hard to read.
       messageDelivery
-        ? "Write like a real manager replying in writing to a consumer reviewer's message: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases."
+        ? "Write like a real supervisor replying in writing to a note from someone on their team: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases."
         : "Write like a real person typing to a coworker in chat: concise, fluent, complete sentences. Not a policy memo, rubric, evaluation form, or HR/admin instruction, and never clipped keyword chains, headed fragments like 'Standard: ...', or stacked noun phrases.",
       language === "zh"
         ? "使用自然、口语化的职场中文。每句话只表达一个主要意思，避免压缩式修饰语、抽象管理术语和像评分清单一样的并列堆砌。"
@@ -2732,7 +2742,7 @@ function buildInitialManagerPrompt(payload) {
       "Return only JSON matching the required schema.",
     ].filter(Boolean).join("\n\n"),
     user: messageDelivery
-      ? `The brief the reviewer received:\n${history}\n\nReview submitted by the participant:\n${alexMessage}`
+      ? `What the coder was shown at the end of the batch:\n${history}\n\nNote the coder attached:\n${alexMessage}`
       : `Conversation history:\n${history}\n\nLatest participant message:\n${alexMessage}`,
     wordRange,
     messageWordRanges,
@@ -2768,6 +2778,7 @@ function normalizeManagerCondition(value) {
 const NEUTRAL_CHAT_REGISTER_RULE = "This is a routine chat line, not a formal message. A short line may end without a full stop, the way people type in chat; a question still ends with a question mark. 'Complete sentence' means not stopping mid-thought, not that every line needs a period. Now and then, not every time, open with a plain acknowledgement such as ok, right, or got it before the question. Vary it, and skip it more often than you use it. These are receipt tokens, not thanks or praise, and the same wording must remain usable in every condition.";
 
 function managerConditionRules(delivery = "chat") {
+  const writtenReply = String(delivery || "").trim().toLowerCase() === "message";
   // The same refusal and revision content is redressed under high politeness and unredressed under
   // low politeness. Directness is judged at the speech-act level: explicit refusal words are not
   // automatically impolite when appreciation, apology, hedging, deference, or depersonalisation
@@ -2797,8 +2808,8 @@ function managerConditionRules(delivery = "chat") {
     "The evidence gap, consequence, decision analysis, and improvement path must form one logical chain. The requested data and analysis must test the exact assumption or tradeoff identified in the participant's proposal, not merely add detail or produce a generic report.",
     "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. Name what should be measured or observed, what should be compared or analyzed, and how that result bears on this particular decision.",
     "Do not reuse a stock analysis or a sentence from an earlier turn or another proposal. Generate the diagnosis and path fresh from the participant's actual idea each time.",
-    String(delivery || "").trim().toLowerCase() === "message"
-      ? "Do not invent facts about the park that the participant has not been given. All they have at this point is the plan itself (£34 an adult and £28 a child aged 3 to 15, under-3s and parking free, the same all year and the same online as at the gate; the £110 family ticket for two adults and two children as the only discount; family-focused advertising), roughly 500 visitors on an off-season weekday and 5,000 at peak with most arriving between 10:00 and 11:00, a 30 to 45 minute entrance queue at the busiest hour, and flat ticket income. You are asking for analysis that does not exist yet, not citing figures you already hold."
+    writtenReply
+      ? "Do not invent facts about the project that the coder has not been given. All they have at this point is the rule, your reasons for it, the five categories and their own first batch of twelve comments, four of which raised two separate problems. Do not cite how many comments have been coded so far, any agreement rate, or any other figure. You are asking for analysis that does not exist yet, not citing figures you already hold."
       : "Do not invent facts about the park that the participant has not been given. All they have at this point is roughly 500 visitors on an off-season day, 5,000 at peak, and that labour costs are hard to manage. You are asking for analysis that does not exist yet, not citing figures you already hold.",
     "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
   ].filter(Boolean).join("\n");
@@ -2830,7 +2841,7 @@ function managerConditionRules(delivery = "chat") {
     // Low constructiveness needs enough non-diagnostic language to stay length-matched with HC.
     // Rotating several broad domains prevents that necessary filler from becoming a recognizable
     // stock sentence. None may be tied to a concrete feature of the proposal.
-    "Use one or two vague filler domains chosen from general timing, overall fit, competing attention, or the broader direction of the park. Rotate away from whichever domain the Manager already used in this conversation. Do not explain the domain or connect it to a concrete feature of the proposal.",
+    "Use one or two vague filler domains chosen from general timing, overall fit, competing attention, or the broader direction of the " + (writtenReply ? "project" : "park") + ". Rotate away from whichever domain the Manager already used in this conversation. Do not explain the domain or connect it to a concrete feature of the proposal.",
     // The examples throughout these rules are illustrations of a register, not a script. Reused
     // verbatim they would make the manipulation a handful of detectable canned sentences.
     "Every example phrase in these rules is an illustration of the register, never a line to copy. Write it fresh each time in your own words, shaped by what the participant actually said and by how the conversation has gone so far. Never reuse a formula you have already used in this conversation.",

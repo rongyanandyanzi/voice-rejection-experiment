@@ -24,14 +24,14 @@ const {
   setRejectionGeneratorForTests,
 } = require("../server");
 
-const PROPOSAL = "Charging the same price on an empty weekday as on a packed Saturday is the plan's basic mistake. Price quiet weekdays lower.";
+const PROPOSAL = "Comments 4, 7, 10 and 12 each raised two separate problems, so one of them is never counted. Allow an optional second category for those.";
 
 function stubReply(overrides = {}) {
   return {
     ok: true,
     messages: [
-      { speaker: "Manager", text: "I am not taking the weekday discount idea forward in this form." },
-      { speaker: "Manager", text: "The review does not show how many full-price visitors would simply move to the cheaper day." },
+      { speaker: "Manager", text: "I am not adding a second category in this form." },
+      { speaker: "Manager", text: "The note does not show how often a second problem is really separate, or whether two coders would agree on it." },
     ],
     intent: "",
     validation_warnings: [],
@@ -51,13 +51,17 @@ test("message delivery reframes the first rejection as a written reply without c
   const message = buildInitialManagerPrompt({ ...base, delivery: "message" });
   assert.equal(chat.delivery, "chat");
   assert.equal(message.delivery, "message");
-  assert.match(message.system, /review platform/);
-  assert.match(message.system, /drew up the park's current ticket and promotion plan/);
-  assert.match(message.system, /never mention other reviews/);
+  assert.match(message.system, /coding supervisor on a research group's comment-coding project/);
+  assert.match(message.system, /You wrote the current rules and stand by them/);
+  assert.match(message.system, /never mention other coders, other notes, or a queue/);
+  assert.match(message.system, /comments 4, 7, 10 and 12/);
+  assert.doesNotMatch(message.system, /Aetheria Gardens|ticket|marketing/);
+  assert.match(chat.system, /Aetheria Gardens/);
   assert.match(message.system, /do not greet them, do not ask them anything/);
   assert.doesNotMatch(message.system, /Leave room for the participant to respond/);
   assert.match(chat.system, /Leave room for the participant to respond/);
-  assert.match(message.user, /Review submitted by the participant/);
+  assert.match(message.user, /Note the coder attached/);
+  assert.match(message.user, /attach a note to the coding supervisor/);
   assert.doesNotMatch(message.user, /Conversation history/);
   assert.equal(message.minMessages, 2);
   assert.equal(message.maxMessages, 2);
@@ -164,8 +168,8 @@ test("a job runs the message-delivery rejection in the background and is reused 
   assert.equal(calls[0].delivery, "message");
   assert.equal(calls[0].condition, "HP_LC");
   assert.equal(calls[0].alexMessage, PROPOSAL);
-  assert.equal(calls[0].history[0].speaker, "Review platform");
-  assert.match(calls[0].history[0].text, /write a review for the marketing manager who drew it up/);
+  assert.equal(calls[0].history[0].speaker, "Coding project");
+  assert.match(calls[0].history[0].text, /attach a note to the coding supervisor/);
   assert.equal(calls[0].prolific_pid, "pid-1");
   assert.equal(rejectionJobs.get("R_jobreuse000001"), job);
 });
