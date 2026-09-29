@@ -24,7 +24,7 @@ const {
   setRejectionGeneratorForTests,
 } = require("../server");
 
-const PROPOSAL = "Comments 4, 7, 10 and 12 each raised two separate problems, so one of them is never counted. Allow an optional second category for those.";
+const PROPOSAL = "Comments 3, 6 and 8 each raised two separate problems, so one of them is never counted. Allow an optional second category for those.";
 
 function stubReply(overrides = {}) {
   return {
@@ -54,7 +54,7 @@ test("message delivery reframes the first rejection as a written reply without c
   assert.match(message.system, /coding supervisor on a research group's comment-coding project/);
   assert.match(message.system, /You wrote the current rules and stand by them/);
   assert.match(message.system, /never mention other coders, other notes, or a queue/);
-  assert.match(message.system, /comments 4, 7, 10 and 12/);
+  assert.match(message.system, /first batch of eight comments, three \(comments 3, 6 and 8\)/);
   assert.doesNotMatch(message.system, /Aetheria Gardens|ticket|marketing/);
   assert.match(chat.system, /Aetheria Gardens/);
   assert.match(message.system, /do not greet them, do not ask them anything/);

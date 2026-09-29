@@ -29,7 +29,7 @@ const proposals = [
   {
     id: "en_second_category",
     language: "en",
-    proposal: "Comments 4, 7, 10 and 12 each raised two separate problems, but only one can be recorded, so technical and payment problems will be undercounted. I'd allow an optional second category, used only when a comment raises two separate problems.",
+    proposal: "Comments 3, 6 and 8 each raised two separate problems, but only one can be recorded, so technical and payment problems will be undercounted. I'd allow an optional second category, used only when a comment raises two separate problems.",
     defense: "Most comments would still get one category, so the counts would barely change.",
     pushback: "It could be tried on one batch first to see whether agreement drops.",
   },
@@ -43,7 +43,7 @@ const proposals = [
   {
     id: "en_split_records",
     language: "en",
-    proposal: "Comments that mention two problems should be split into two records, one per problem, so every problem is counted once. Comment 7 is really a wording problem and a technical problem.",
+    proposal: "Comments that mention two problems should be split into two records, one per problem, so every problem is counted once. Comment 6 is really a wording problem and a technical problem.",
     defense: "Splitting keeps one label per record, so the agreement statistic still works.",
     pushback: "Only comments that clearly describe two problems would be split.",
   },
@@ -64,7 +64,7 @@ const proposals = [
   {
     id: "en_payment_boundary",
     language: "en",
-    proposal: "PAYMENT mixes two different things: being paid too little and the listing getting the time wrong. Comment 10 is about the advertised time, which is really about length. Those should be separate categories.",
+    proposal: "PAYMENT mixes two different things: being paid too little and the listing getting the time wrong. The advertised time is really about length, so it should move into LENGTH and PAYMENT should only cover money.",
     defense: "The two need different fixes, so counting them together hides both.",
     pushback: "The time part could move into LENGTH without adding a new category.",
   },
@@ -85,7 +85,7 @@ const proposals = [
   {
     id: "en_severity_field",
     language: "en",
-    proposal: "The categories say what a comment is about but not how serious it is. Comment 12 says someone was paid half of what was promised, which matters far more than comment 9. Add a severity rating next to the category.",
+    proposal: "The categories say what a comment is about but not how serious it is. Comment 8 says someone was paid half of what was promised, which matters far more than comment 5. Add a severity rating next to the category.",
     defense: "Severity would show which problems need fixing first.",
     pushback: "A simple minor or serious choice would be enough.",
   },
