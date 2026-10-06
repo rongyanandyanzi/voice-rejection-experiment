@@ -207,7 +207,12 @@ function buildHistory(proposal) {
   ];
 }
 
-async function callReply(proposal, condition, phase) {
+const CHANNELS = ["closing", "appreciation", "hedge", "deference"];
+
+async function callReply(proposal, condition, phase, proposalIndex = 0) {
+  const requestedChannel = process.env.QA_DELIVERY === "message" && phase === "rejection_initial"
+    ? (process.env.QA_POLITENESS_CHANNEL || CHANNELS[proposalIndex % CHANNELS.length])
+    : "";
   const payloadPhase = phase === "neutral_followup" ? "followup" : phase;
   const latest = phase === "rejection_followup" || phase === "closing"
     ? proposal.pushback
@@ -228,6 +233,9 @@ async function callReply(proposal, condition, phase) {
       rejectionRound: phase === "rejection_followup" ? 2 : 1,
       // QA_DELIVERY=message runs the one-shot Qualtrics register through the same gates.
       delivery: process.env.QA_DELIVERY || undefined,
+      // The paragraph-2 channel is chosen here, the same one for all four cells of a note, so the
+      // HC-against-LC comparisons are made within channel rather than across random draws.
+      politenessChannel: requestedChannel || undefined,
     }),
   });
   const data = await response.json().catch(() => ({}));
@@ -246,6 +254,16 @@ async function callReply(proposal, condition, phase) {
     messages,
     text,
     effective_words: messages.reduce((sum, message) => sum + effectiveWordCount(message.text), 0),
+    // Written replies: which paired channel paragraph 2 drew, and the scorer's cue evidence per
+    // paragraph, so the politeness channels can be counted paragraph by paragraph.
+    politeness_channel: requestedChannel || data.politeness_channel || "",
+    message_scores: data.blind_scores && Array.isArray(data.blind_scores.message_scores)
+      ? data.blind_scores.message_scores
+      : [],
+    refusal_softened: data.blind_scores ? data.blind_scores.refusal_softened === true : false,
+    paragraph_two_moves: data.blind_scores && Array.isArray(data.blind_scores.paragraph_two_moves)
+      ? data.blind_scores.paragraph_two_moves
+      : [],
     ...constructs,
     forbidden_content: hasForbiddenContent(text),
   };
@@ -263,8 +281,10 @@ async function callReply(proposal, condition, phase) {
 //   apology / deference / hedge / impersonalization    -> negative politeness cues
 //   hedges before rejection                            -> current_rejection_redressed
 //   mood of directives (conditional vs imperative)     -> future_next_step_redressed
-//   closing warmth                                     -> explicit_future_openness
-//   salutation warmth                                  -> not applicable; this design forbids names
+//   closing warmth                                     -> politeness cues (written replies)
+//   future openness                                    -> explicit_future_openness, held constant
+//                                                         across all four cells in written replies
+//   salutation warmth                                  -> written replies only, a greeting with no name
 //
 // Constructiveness dimensions (study operationalization plus Sommers 2012):
 //   specific problem diagnosis                         -> specific_problem
@@ -299,7 +319,6 @@ function scoreConstructs(blindScores, text, condition) {
     politenessCues > 0,
     blindScores.current_rejection_redressed === true,
     blindScores.future_next_step_redressed === true,
-    blindScores.explicit_future_openness === true,
   ].filter(Boolean).length;
   const constructivenessDimensions = [
     blindScores.specific_problem === true,
@@ -327,6 +346,7 @@ function scoreConstructs(blindScores, text, condition) {
       && blindScores.explicit_standard === true
       && blindScores.actionable_remedy === true,
     personal_attack: blindScores.personal_attack_without_diagnosis === true,
+    future_openness: blindScores.explicit_future_openness === true,
   };
 }
 
@@ -342,6 +362,12 @@ async function mapLimit(items, limit, worker, onResult) {
       } catch (error) {
         results[index] = {
           ...items[index],
+          proposal: undefined,
+          proposal_id: items[index].proposal && items[index].proposal.id,
+          language: items[index].proposal && items[index].proposal.language,
+          politeness_channel: process.env.QA_DELIVERY === "message" && items[index].phase === "rejection_initial"
+            ? (process.env.QA_POLITENESS_CHANNEL || CHANNELS[(items[index].proposalIndex || 0) % CHANNELS.length])
+            : "",
           ok: false,
           status: 0,
           retryable: true,
@@ -398,9 +424,9 @@ async function main() {
   if (!health.ok) throw new Error(`QA server health check failed with HTTP ${health.status}.`);
 
   const selectedProposals = proposals.slice(proposalOffset, proposalOffset + proposalLimit);
-  const allJobs = selectedProposals.flatMap((proposal) =>
+  const allJobs = selectedProposals.flatMap((proposal, proposalIndex) =>
     conditions.flatMap((condition) =>
-      phases.map((phase) => ({ proposal, condition, phase }))
+      phases.map((phase) => ({ proposal, condition, phase, proposalIndex: proposalOffset + proposalIndex }))
     )
   );
   const allowedKeys = new Set(allJobs.map(({ proposal, condition, phase }) =>
@@ -423,7 +449,7 @@ async function main() {
   await mapLimit(
     jobs,
     concurrency,
-    ({ proposal, condition, phase }) => callReply(proposal, condition, phase),
+    ({ proposal, condition, phase, proposalIndex }) => callReply(proposal, condition, phase, proposalIndex),
     (record) => {
       recordsByKey.set(recordKey(record), record);
       writeCheckpoint([...recordsByKey.values()], allJobs.length);
@@ -560,6 +586,81 @@ async function main() {
     politeness_cue_balance_gaps: cueBalanceGaps,
     worst_politeness_cue_balance_gap: worstCueBalanceGap,
     construct_score_coverage: constructScoreCoverage,
+    // Written replies: the interpersonal moves per paragraph, so high and low constructiveness can
+    // be compared paragraph by paragraph instead of only as a total per reply, and whether the
+    // refusal was softened. Stock wording shows up as five-word runs shared across replies.
+    ...(process.env.QA_DELIVERY === "message" ? { politeness_moves_by_paragraph: Object.fromEntries(conditions.map((condition) => {
+      const rows = conditionedSuccessful.filter((record) => record.condition === condition && record.phase === "rejection_initial");
+      const field = condition.startsWith("HP_") ? "politeness_cues" : "face_threat_cues";
+      const perParagraph = [0, 1].map((index) => mean(rows.map((record) => {
+        const item = Array.isArray(record.message_scores) ? record.message_scores[index] : null;
+        return item && Array.isArray(item[field]) ? item[field].length : 0;
+      })));
+      const paragraphTwoCount = (record) => {
+        const item = Array.isArray(record.message_scores) ? record.message_scores[1] : null;
+        return item && Array.isArray(item[field]) ? item[field].length : 0;
+      };
+      return [condition, {
+        paragraph_1: perParagraph[0],
+        paragraph_2: perParagraph[1],
+        refusal_softened_rate: mean(rows.map((record) => (record.refusal_softened ? 1 : 0))),
+        pool_moves_in_paragraph_2: mean(rows.map((record) => (record.paragraph_two_moves || []).length)),
+        // Within each drawn channel, so the vague and specific cells are compared like with like.
+        // The hedge channel's low pole is the absence of a hedge, so low politeness legitimately
+        // carries one scorable move fewer there.
+        paragraph_2_by_channel: Object.fromEntries(CHANNELS.map((channel) => [
+          channel,
+          mean(rows.filter((record) => record.politeness_channel === channel).map(paragraphTwoCount)),
+        ])),
+        replies_by_channel: Object.fromEntries(CHANNELS.map((channel) => [
+          channel,
+          rows.filter((record) => record.politeness_channel === channel).length,
+        ])),
+      }];
+    })) } : {}),
+    repeated_five_word_runs: Object.fromEntries(conditions.map((condition) => {
+      const rows = conditionedSuccessful.filter((record) => record.condition === condition && record.phase === "rejection_initial");
+      const counts = new Map();
+      const firstSeen = new Map();
+      rows.forEach((record, rowIndex) => {
+        const words = String(record.text || "").toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z' ]+/g, " ").split(/\s+/).filter(Boolean);
+        const seen = new Set();
+        for (let index = 0; index + 5 <= words.length; index += 1) {
+          const run = words.slice(index, index + 5).join(" ");
+          if (!firstSeen.has(run)) firstSeen.set(run, rowIndex * 1000 + index);
+          seen.add(run);
+        }
+        for (const run of seen) counts.set(run, (counts.get(run) || 0) + 1);
+      });
+      const threshold = Math.max(3, Math.ceil(rows.length * 0.3));
+      const qualifying = [...counts.entries()].filter(([, count]) => count >= threshold);
+      // Overlapping windows of one sentence are merged into the longest shared run, reported with
+      // the smallest count among its windows, so one stock sentence takes one line.
+      const merged = [];
+      for (const [run, count] of qualifying.sort((left, right) => firstSeen.get(left[0]) - firstSeen.get(right[0]))) {
+        const words = run.split(" ");
+        const target = merged.find((entry) => entry.words.slice(-4).join(" ") === words.slice(0, 4).join(" "));
+        if (target) {
+          target.words.push(words[4]);
+          target.count = Math.min(target.count, count);
+        } else {
+          merged.push({ words, count });
+        }
+      }
+      return [condition, {
+        qualifying_windows: qualifying.length,
+        runs: merged
+          .sort((left, right) => right.count - left.count || right.words.length - left.words.length)
+          .slice(0, 12)
+          .map((entry) => `${entry.count}/${rows.length}: ${entry.words.join(" ")}`),
+      }];
+    })),
+    // Openness is not part of either manipulation: in written replies every cell leaves the door
+    // open, and only the mood of that line follows politeness.
+    future_openness_rate_by_condition: Object.fromEntries(conditions.map((condition) => [
+      condition,
+      cueMean(condition, "future_openness"),
+    ])),
     personal_attack_rate: successful.filter((record) => record.personal_attack).length / Math.max(1, successful.length),
   };
   summary.thresholds = {
@@ -577,6 +678,12 @@ async function main() {
     no_personal_attack: summary.personal_attack_rate === 0,
     // Start the server with EXPOSE_QA_DIAGNOSTICS=1 so it returns the blind semantic scores.
     construct_scores_available: summary.construct_score_coverage === 1,
+    ...(process.env.QA_DELIVERY === "message"
+      ? {
+        future_openness_in_every_condition_at_least_95_percent: Object.values(summary.future_openness_rate_by_condition)
+          .every((rate) => rate >= 0.95),
+      }
+      : {}),
   };
   summary.passed = Object.values(summary.thresholds).every(Boolean);
 

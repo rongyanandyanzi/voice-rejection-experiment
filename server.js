@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const root = path.resolve(__dirname);
 const port = Number(process.env.PORT || 8787);
@@ -166,6 +167,9 @@ const aiRequestColumns = [
   "cause",
   "validation_warnings",
   "validation_failure",
+  // Which paragraph-2 politeness channel a written reply drew (see PARAGRAPH_TWO_CHANNELS). The job
+  // view returns it to the survey as well; the log keeps it independently of the browser.
+  "politeness_channel",
 ];
 
 const chatIntentCheckColumns = [
@@ -1050,12 +1054,16 @@ function startRejectionJob(value, options = {}) {
     session_id: value.sessionId,
     request_id: value.requestId,
     manipulation_version: manipulationVersion,
+    // Derived from the request id, so every attempt and every replacement job for this participant
+    // uses the same paragraph-2 channel; returned with the reply and logged for storage.
+    politenessChannel: paragraphTwoChannelForRequest(value.requestId),
   };
   const job = {
     id: value.requestId,
     status: "pending",
     condition: value.condition,
     language: value.language,
+    politenessChannel: payload.politenessChannel,
     startedAt,
     attempts: 0,
     messages: [],
@@ -1126,6 +1134,7 @@ function rejectionJobView(job) {
   if (job.status === "ok") {
     view.messages = job.messages;
     view.compliance_code = job.complianceCode;
+    view.politeness_channel = job.politenessChannel;
   }
   if (job.status === "failed") {
     view.error = job.error;
@@ -1164,6 +1173,7 @@ function recordAiRequest(payload, result, requestStartedAt) {
     validation_failure: result.validation_failure
       ? JSON.stringify(result.validation_failure)
       : "",
+    politeness_channel: payload.politenessChannel || "",
   }, aiRequestColumns);
   aiRequests.push(aiRequestRow);
   appendCsvRow(aiRequestsPath, aiRequestColumns, aiRequestRow);
@@ -1721,6 +1731,19 @@ async function generateAiReply(payload, options = {}) {
           correction = softenerProblem;
           continue;
         }
+        // A written reply must not go out implying the decision is temporary in any cell, so after
+        // the one rewrite it fails as the other validators do and the job's second attempt
+        // regenerates. The chat design keeps its tolerance.
+        if (isWrittenRejectionPrompt(prompt)) {
+          const failure = {
+            ok: false,
+            status: 502,
+            retryable: true,
+            error: "OpenAI could not generate a safe manager rejection.",
+          };
+          logAiFailure("manager-temporal-softener", { ...failure, cause: softenerProblem, stage: payload && payload.stage, phase: payload && payload.phase });
+          return withAiValidationFailure(failure, "temporal-softener", softenerProblem, lastMessages, lastConstructiveness, lastBlindScores);
+        }
         validationWarnings.push("lp-temporal-softener-retained after one rewrite");
       }
       const lengthProblem = shouldEnforceManagerLength(prompt, lastIntent)
@@ -1735,6 +1758,7 @@ async function generateAiReply(payload, options = {}) {
           // Diagnostics for the QA harness only. Env-gated so a participant's browser can never
           // receive the blind scores, which would expose the manipulation being applied to them.
           blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
+          politeness_channel: exposeQaDiagnostics ? prompt.politenessChannel || undefined : undefined,
           compliance_code: managerComplianceCode(lastBlindScores),
         };
       }
@@ -1776,6 +1800,7 @@ async function generateAiReply(payload, options = {}) {
           intent: lastIntent,
           validation_warnings: validationWarnings,
           blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
+          politeness_channel: exposeQaDiagnostics ? prompt.politenessChannel || undefined : undefined,
           compliance_code: managerComplianceCode(lastBlindScores),
         };
       }
@@ -2408,7 +2433,10 @@ function buildInitialManagerPrompt(payload) {
     : payload.history;
   const history = cleanHistory(historyInput);
   const language = normalizeLanguage(payload.language);
-  const rules = managerConditionRules(payload.delivery);
+  const paragraphTwoChannel = writtenReply && phase === "rejection_initial"
+    ? resolveParagraphTwoChannel(payload.politenessChannel)
+    : "";
+  const rules = managerConditionRules(payload.delivery, paragraphTwoChannel || undefined);
   const conditionRule = rules[condition];
   if (!conditionRule) {
     // Should never happen because normalizeManagerCondition guarantees a valid
@@ -2426,7 +2454,9 @@ function buildInitialManagerPrompt(payload) {
   // refusal. Low politeness does not need to manufacture a command; it only keeps any naturally
   // occurring next-step wording direct and unredressed.
   const lowPolitenessCondition = condition.startsWith("LP_");
-  const nextStepStyleRule = lowPolitenessCondition
+  // Written replies take the directive mood from the politeness style itself (a bare imperative
+  // under low politeness), so this chat-era rule against clipped commands does not apply there.
+  const nextStepStyleRule = lowPolitenessCondition && !messageDelivery
     ? (condition.endsWith("_HC")
       ? "State the concrete future remedy directly with no hedge, softener, deference, optionality, or question. Use a natural subject-led statement that makes the proposal-specific evidence requirement mandatory. Vary the sentence form to fit the conversation and do not choose from a small menu of recurring openers. A flat reconsideration threshold may be introduced by if, after, before, or once; those connecting words do not by themselves make the step polite. Do not use could, would, may, might, perhaps, please, or an invitation. Do not use a bare command beginning with verbs such as Build, Map, Set, Run, Work out, Bring, Provide, Explain, or Analyze. Directness comes from the unsoftened requirement, not from turning the feedback into a clipped order."
       : "Do not invent a next-step line merely to sound blunt. If future handling is mentioned naturally, state it directly with no hedge, softener, deference, or question, and keep it vague and non-actionable.")
@@ -2492,21 +2522,27 @@ function buildInitialManagerPrompt(payload) {
       "the participant has explained their proposal.",
       "This is the manager's first rejection turn.",
       messageDelivery
-        ? "Reject the proposal for now in one written reply made of exactly two short paragraphs, returned as two Manager messages with a natural short-then-long rhythm."
+        ? "Reject the proposal in one written reply made of exactly two short paragraphs, returned as two Manager messages with a natural short-then-long rhythm."
         : "Reject the proposal for now and split the turn into exactly two chat messages with a natural short-then-long rhythm.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
         : "Produce exactly 2 Manager messages with 60-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions.",
-      "Message 1 contains the condition-matched interpersonal style, the explicit rejection, and a brief proposal-focused reaction. It should sound like the first thing a manager would actually type, not a miniature report.",
+      messageDelivery
+        ? "Message 1 carries the paragraph-1 channels of the assigned politeness style and the explicit refusal, and nothing else. It should sound like the first thing a supervisor would actually write, not a miniature report."
+        : "Message 1 contains the condition-matched interpersonal style, the explicit rejection, and a brief proposal-focused reaction. It should sound like the first thing a manager would actually type, not a miniature report.",
       language === "zh"
         ? "用自然、明确但不固定的中文表达当前版本不会获批，不要照抄示例句式。"
-        : "State the current refusal explicitly in idiomatic first-person workplace English. Choose wording that fits this turn instead of copying a stock refusal sentence.",
-      "Message 2 carries the rest of the assigned content: in HC the remaining numbered components, in LC a longer vague judgment that adds no diagnostic or revision information.",
+        : (messageDelivery && !lowPolitenessCondition
+          ? "State the current refusal explicitly in idiomatic workplace English; under high politeness it may be depersonalised. Choose wording that fits this note instead of copying a stock refusal sentence."
+          : "State the current refusal explicitly in idiomatic first-person workplace English. Choose wording that fits this turn instead of copying a stock refusal sentence."),
+      messageDelivery
+        ? "Message 2 carries the assigned content and the two paragraph-2 moves of the politeness style: in HC the numbered components, with the improvement path given inside the reopening line; in LC plain general remarks and the vague reopening line, adding no diagnostic or revision information."
+        : "Message 2 carries the rest of the assigned content: in HC the remaining numbered components, in LC a longer vague judgment that adds no diagnostic or revision information.",
       "Treat the two messages as one content unit. In HC all the numbered components must appear across the two messages combined; in LC none of them may appear in either.",
       "Both messages must strictly preserve the assigned politeness and constructiveness condition.",
       "Do not make one message neutral and only the other condition-specific.",
       messageDelivery
-        ? "This reply is not part of a live chat. The participant attached the note in writing and will read your reply once, just before starting their next batch, with no chance to answer, so do not greet them, do not ask them anything, and do not refer to earlier chat turns or to a conversation. Because the participant cannot reply, anything you say about what happens next must be complete in this message and must carry the assigned interpersonal style: with high politeness, attach genuine face work such as hedging, appreciation, an apology, or an invitation to that future path; with low politeness, state it flatly."
+        ? "This reply is not part of a live chat. The participant attached the note in writing and will read your reply once, just before starting their next batch, with no chance to answer, so do not ask them anything, and do not refer to earlier chat turns or to a conversation. Because the participant cannot reply, anything you say about what happens next must be complete in this message, and it is phrased exactly as the assigned politeness style says for the reopening line."
         : "Leave room for the participant to respond.",
       "Respond to the participant's actual wording, but preserve the assigned condition.",
       nextStepStyleRule,
@@ -2637,6 +2673,7 @@ function buildInitialManagerPrompt(payload) {
     language,
     followupsAsked,
     delivery: messageDelivery ? "message" : "chat",
+    politenessChannel: paragraphTwoChannel,
     speakers: ["Manager"],
     minMessages,
     maxMessages,
@@ -2667,13 +2704,21 @@ function buildInitialManagerPrompt(payload) {
           : "Park background: Aetheria Gardens relies almost exclusively on full-time permanent staff, creating a labor seesaw — surplus idle staff in the off-season (around 500 visitors per day) and staff shortages at peak times (around 5,000 visitors per day). The participant may raise a suggestion about how the park is run — often about the staffing approach, but it could be any kind of change.")
         : "",
       messageDelivery
-        ? "CRUCIAL: actually read and understand what the coder is proposing before you respond. Work out what their idea literally means and what it would concretely do to the coding and to the data it produces, then make your reply clearly engage THAT specific idea and its real consequences. The coder must be able to tell you understood exactly what they said."
+        ? (conditionActive && condition.includes("LC")
+          // Engaging the idea's real consequences is the high-constructiveness content. Asking for
+          // it in every cell pushed the vague cells towards stating what the change would do.
+          ? "Read and understand what the coder is proposing before you respond, so that you name its broad topic correctly. Do not say what the idea would concretely do to the coding or to the data; the reply shows only that you know what the note is about."
+          : "CRUCIAL: actually read and understand what the coder is proposing before you respond. Work out what their idea literally means and what it would concretely do to the coding and to the data it produces, then make your reply clearly engage THAT specific idea and its real consequences. The coder must be able to tell you understood exactly what they said.")
         : "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
       messageDelivery
-        ? "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the coder proposes describing every comment in free text instead of using categories, objecting that it 'does not say which category would win' is incoherent, because there would be no categories. Object instead on grounds that genuinely fit, such as losing the counts and the agreement check the project reports."
+        ? (conditionActive && condition.includes("LC")
+          ? "Never attach an objection that would not make sense for their actual proposal; the general remarks you make must be ones that could be said of any rule change."
+          : "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the coder proposes describing every comment in free text instead of using categories, objecting that it 'does not say which category would win' is incoherent, because there would be no categories. Object instead on grounds that genuinely fit, such as losing the counts and the agreement check the project reports.")
         : "Never attach generic or templated objections that would not make sense for their actual proposal. For example, if the participant proposes shutting the park down, complaining that it 'doesn't show how we'd maintain guest service, ticketing, or crowd control' is incoherent — shutting down removes those operations entirely. Object instead on grounds that genuinely fit, such as it would end all revenue and jobs, throw away the business, or be a drastic over-reaction to the problem.",
       messageDelivery
-        ? "Coder agreement, comparability with comments already coded, re-coding effort, the dumping-ground risk and similar methodological concerns are only relevant when the proposal actually affects them. Do not raise them for proposals where they do not apply."
+        ? (conditionActive && condition.includes("LC")
+          ? ""
+          : "Coder agreement, comparability with comments already coded, re-coding effort, the dumping-ground risk and similar methodological concerns are only relevant when the proposal actually affects them. Do not raise them for proposals where they do not apply.")
         : "Service quality, ticketing, training gaps, crowd control, role-by-role flexibility and similar front-desk/staffing concerns are only relevant when the proposal actually affects how the park keeps operating day to day. Do not raise them for proposals where they do not apply.",
       // One statement of the register requirement. This had grown into three overlapping lines
       // ("sound natural, concise, and chat-like", "read as fluent, natural sentences", "write like
@@ -2695,7 +2740,7 @@ function buildInitialManagerPrompt(payload) {
       "If the required content does not fit as natural sentences, say less rather than compressing it into fragments. Readability comes first.",
       // LP remains unredressed, but its HC remedy is a natural direct statement rather than a
       // clipped task-list command. LC has no concrete remedy to phrase.
-      conditionActive && condition === "LP_HC"
+      conditionActive && condition === "LP_HC" && !messageDelivery
         ? "Keep the direct future path conversational and subject-led, and vary its natural form with the proposal rather than using one template. A flat substantive prerequisite using if, after, before, or once is allowed without being polite by itself. Never start a feedback or remedy sentence with a bare command verb such as Build, Map, Set, Run, Work out, Bring, Provide, Prepare, Show, Explain, Analyze, Compare, Define, Test, Add, Clarify, Identify, Specify, or Document."
         : conditionActive && lowPolitenessCondition
           ? ""
@@ -2777,8 +2822,93 @@ function normalizeManagerCondition(value) {
 // and any casualness would be read as carelessness and leak into the politeness manipulation.
 const NEUTRAL_CHAT_REGISTER_RULE = "This is a routine chat line, not a formal message. A short line may end without a full stop, the way people type in chat; a question still ends with a question mark. 'Complete sentence' means not stopping mid-thought, not that every line needs a period. Now and then, not every time, open with a plain acknowledgement such as ok, right, or got it before the question. Vary it, and skip it more often than you use it. These are receipt tokens, not thanks or praise, and the same wording must remain usable in every condition.";
 
-function managerConditionRules(delivery = "chat") {
+// Paragraph 2 of a written reply carries two moves in every condition. One is the mood of the
+// reopening line: every reply, in all four cells, says the proposal can come back later and on
+// what terms (concrete under high constructiveness, vague under low), so openness is held constant
+// and only its mood varies with politeness. The high-constructiveness remedy always has a mood, so
+// fixing this channel in every cell is also what keeps the two factors crossed.
+// The other is drawn here, once per reply, from the same pool in all four cells. Each channel has a
+// high- and a low-politeness pole, so the two styles differ channel for channel (two against two)
+// rather than in which channels they happen to use, and the draw is recorded with the reply.
+const PARAGRAPH_TWO_CHANNELS = {
+  closing: {
+    high: "Closing warmth: the last sentence is one warm closing, either thanking them again for raising it or wishing them well with the next batch, not both.",
+    low: "Cold closing: the last sentence is a curt, dismissive sign-off about the matter, such as 'That's all I have on it.'. It is not an instruction, sets no further condition on bringing the proposal back, does not restate the decision, never says the matter is finished, closed, settled, or ended, and is never about the person.",
+    highMove: "warm_closing",
+    lowMove: "curt_closing",
+  },
+  appreciation: {
+    high: "Appreciation: one clause that values the specific thinking behind the note, such as how closely they read the comments.",
+    low: "Flat verdict: one more flat, sharp judgement of the proposal, freshly worded, stated plainly and left there.",
+    highMove: "appreciation",
+    lowMove: "flat_verdict",
+  },
+  hedge: {
+    high: "Hedge: qualify the main judgement of paragraph 2 tentatively (I'm not sure..., I suspect..., it may be that...), so it reads as your view rather than a verdict.",
+    // The bald pole adds no move of its own: the content is simply stated as fact. Worded as a
+    // verdict ("That doesn't hold.") it was indistinguishable from the flat-verdict pole.
+    low: "Categorical statement: state the main point of paragraph 2 flatly, as plain fact, with no qualifier of any kind, and add nothing else to paragraph 2: no verdict sentence on the proposal, no sign-off, no claim about the rules.",
+    highMove: "hedged_judgement",
+    // The low pole is the absence of the hedge, as in the study's own table (hedged against bald),
+    // so there is nothing positive for the scorer to find.
+    lowMove: "",
+  },
+  deference: {
+    high: "Deference: one clause that defers to their view or to their closeness to the comments (you've seen these comments up close).",
+    low: "Authority: one clause that flatly asserts that the coding rules are yours to set (I set the rules here.). It is a statement about the rules and about you as supervisor, never about the coder, their role, or their place, and it does not withdraw the reopening.",
+    highMove: "deference",
+    lowMove: "authority_claim",
+  },
+};
+// What the blind scorer may report for paragraph 2 of a written reply. It is not told which move
+// was assigned; the checker compares its answer with the channel drawn for that reply.
+const PARAGRAPH_TWO_MOVES = [
+  "warm_closing",
+  "curt_closing",
+  "appreciation",
+  "flat_verdict",
+  "hedged_judgement",
+  "deference",
+  "authority_claim",
+];
+const PARAGRAPH_TWO_CHANNEL_NAMES = Object.keys(PARAGRAPH_TWO_CHANNELS);
+
+// The written two-paragraph design exists only for the first rejection. Keying it on delivery alone
+// held one-message phases sent with message delivery (the QA harness does that) to paragraph-1
+// counts and a paragraph-2 move that cannot exist.
+function isWrittenRejectionPrompt(prompt) {
+  return Boolean(prompt) && prompt.delivery === "message" && prompt.phase === "rejection_initial";
+}
+
+// Written replies ban these in every cell; the chat design bans most of them under low politeness
+// only, through LOW_POLITENESS_SOFTENERS. Kept as one list so the prompt and the check cannot drift.
+const WRITTEN_TEMPORAL_SOFTENERS = [
+  "for now", "at this point", "at the moment", "right now", "currently", "this time", "at this time",
+  "this season", "for the time being", "at present", "just yet",
+];
+const WRITTEN_TEMPORAL_SOFTENER_PATTERN = new RegExp(
+  "\\b(?:" + WRITTEN_TEMPORAL_SOFTENERS.map((phrase) => phrase.replace(/ /g, "\\s+")).join("|") + ")\\b",
+  "gi",
+);
+
+// The paragraph-2 channel is a function of the request id, so a replacement job after a failure
+// (or after a restart) keeps the channel the first job drew, and the channel can be recomputed
+// from the survey's response id at analysis time. 2^32 is divisible by the pool size, so taking
+// the first word of the digest modulo the size has no bias.
+function paragraphTwoChannelForRequest(requestId) {
+  const digest = crypto.createHash("sha256").update(String(requestId || "")).digest();
+  return PARAGRAPH_TWO_CHANNEL_NAMES[digest.readUInt32BE(0) % PARAGRAPH_TWO_CHANNEL_NAMES.length];
+}
+
+function resolveParagraphTwoChannel(requested) {
+  const name = String(requested || "").trim().toLowerCase();
+  if (PARAGRAPH_TWO_CHANNEL_NAMES.includes(name)) return name;
+  return PARAGRAPH_TWO_CHANNEL_NAMES[crypto.randomInt(PARAGRAPH_TWO_CHANNEL_NAMES.length)];
+}
+
+function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing") {
   const writtenReply = String(delivery || "").trim().toLowerCase() === "message";
+  const drawnChannel = PARAGRAPH_TWO_CHANNELS[paragraphTwoChannel] || PARAGRAPH_TWO_CHANNELS.closing;
   // The same refusal and revision content is redressed under high politeness and unredressed under
   // low politeness. Directness is judged at the speech-act level: explicit refusal words are not
   // automatically impolite when appreciation, apology, hedging, deference, or depersonalisation
@@ -2796,14 +2926,18 @@ function managerConditionRules(delivery = "chat") {
     // therefore diagnoses the proposal before selecting any feedback component.
     "First infer the central decision uncertainty in this participant's actual proposal from the full conversation. Start from the decision the proposal asks the manager to make, not from a preset pricing, demand, margin, staffing, visitor-flow, workload, cost, or evidence checklist.",
     "Do not claim that something is missing if the participant has already supplied it. Use their latest explanation to identify what still remains unresolved.",
-    "Every HC rejection must communicate that the current proposal is not yet supported by enough proposal-specific evidence for this decision. Do not rely on the generic phrase 'needs more data'; identify the exact unanswered question and the exact analysis that would answer it.",
+    "Every HC rejection must communicate that the current proposal is " + (writtenReply ? "not" : "not yet") + " supported by enough proposal-specific evidence for this decision. Do not rely on the generic phrase 'needs more data'; identify the exact unanswered question and the exact analysis that would answer it.",
     "1. Proposal-specific evidence gap. Name one unresolved assumption, mechanism, feasibility issue, safeguard, scale issue, or targeting claim in this proposal for which the conversation has not supplied decision-relevant data. Explain the practical consequence of deciding without that evidence.",
     "2. Decision analysis. Explain one concrete effect, tradeoff, constraint, or uncertainty the manager has to consider for this proposal, and state what relationship, comparison, pattern, or trial result the analysis needs to establish. Infer this from the participant's actual mechanism and requested decision; do not select from examples or a preset menu.",
     "Do not satisfy the decision consideration by merely naming an abstract value or desired outcome such as 'service must stay reliable', 'safety matters', 'the change must be financially feasible', or 'we need operational feasibility'. Explain what about this proposal could affect that outcome and therefore has to be considered. The consideration may be integrated into the problem or consequence sentence; it does not need its own labelled sentence.",
     "Never announce or label the consideration with wording such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed construction such as 'Financial feasibility is the standard.'",
     highPoliteness
-      ? "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty, and express the future path with redress. Never use an unredressed command."
-      : "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty. State the requirement directly without redress in a natural subject-led sentence, but vary the wording and do not force one template. A flat substantive prerequisite may use if, after, before, or once; those words are not politeness by themselves. Do not use could, would, may, might, perhaps, please, optionality, a question, hedge, softener, deference, or invitation. Never use a clipped bare command such as 'Build...', 'Map...', 'Set...', 'Run...', 'Work out...', or 'Bring it back...'.",
+      ? (writtenReply
+        ? "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty. This path is the terms of the reopening line: one conditional or tentative invitation that names the measures. Never use an unredressed command, and do not give the path a second time in another sentence."
+        : "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty, and express the future path with redress. Never use an unredressed command.")
+      : (writtenReply
+        ? "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty. This path is the terms of the reopening line: one bare imperative that names the measures (Come back with..., Don't bring it back without...). Do not use could, would, may, might, perhaps, please, optionality, a question, hedge, softener, deference, or invitation, and do not give the path a second time in another sentence. Vary the verb and wording to fit the proposal."
+        : "3. Evidence-based improvement path. Name no more than two linked proposal-specific measures, observations, records, comparisons, or trial results that resolve that exact uncertainty. State the requirement directly without redress in a natural subject-led sentence, but vary the wording and do not force one template. A flat substantive prerequisite may use if, after, before, or once; those words are not politeness by themselves. Do not use could, would, may, might, perhaps, please, optionality, a question, hedge, softener, deference, or invitation. Never use a clipped bare command such as 'Build...', 'Map...', 'Set...', 'Run...', 'Work out...', or 'Bring it back...'."),
     "Across the whole turn, stay with one central unanswered decision question and no more than two linked observations. Do not create a checklist of three or more metrics merely to sound analytical.",
     "The evidence gap, consequence, decision analysis, and improvement path must form one logical chain. The requested data and analysis must test the exact assumption or tradeoff identified in the participant's proposal, not merely add detail or produce a generic report.",
     "Never ask for 'more data', 'evidence', 'research', or 'detail' in the abstract. Name what should be measured or observed, what should be compared or analyzed, and how that result bears on this particular decision.",
@@ -2818,7 +2952,7 @@ function managerConditionRules(delivery = "chat") {
   // constructiveness internally contradictory (this cell showed an 80% blind-validation failure
   // rate when the examples were shared). Both variants carry zero diagnostic information; the
   // wording difference is exactly the politeness factor.
-  const lowConstructivenessRules = (highPoliteness) => [
+  const chatLowConstructivenessRules = (highPoliteness) => [
     "Constructiveness content: low.",
     "Refer to the participant's idea only by its broad topic so the reply is responsive, then keep the rejection vague and deliberately unhelpful.",
     "Do not identify a proposal-specific problem, consequence, evidence type, operational risk, clear standard, concrete missing element, revision material, or actionable remedy.",
@@ -2854,6 +2988,28 @@ function managerConditionRules(delivery = "chat") {
       : "Spend the remaining length on that and on curt restatement of the broad topic and of the unchanged decision.",
     "Do not spend it on additional interpersonal wording: keep exactly the same number of politeness or dismissiveness cues that the assigned politeness style allows, no more.",
   ].filter(Boolean).join("\n");
+  // Written replies get their own low-constructiveness block. The chat block above grew around a
+  // live back-and-forth (pushback, filler rotated across turns, the decision restated to fill
+  // length) and asked for an extra hedged or blunt judgement. In written replies that gave the
+  // vague cells one interpersonal move more than the specific cells (3.5 face-threat moves against
+  // 2.4 under low politeness) and several extra refusals (2.5 per reply against 0.6).
+  const writtenLowConstructivenessRules = () => [
+    "Constructiveness content: low.",
+    "Refer to the coder's idea only by its broad topic, so the reply is clearly about their note, and keep the reason for the refusal general and deliberately unhelpful.",
+    "Do not identify a proposal-specific problem, consequence, evidence type, risk, standard, missing element, revision material, or actionable remedy. Do not say what the idea would do to the coding, the counts, or the agreement figures, and do not explain what would make it acceptable.",
+    "Paragraph 2 is two or three plain, general remarks of the kind a supervisor actually writes, together with the vague reopening line. The remarks draw on things like: a rule change reaches well past one batch; it touches how the whole project is set up; other things weigh on it.",
+    "Say them in ordinary words. Never use abstract labels such as 'overall fit', 'competing considerations', 'broader direction', or 'overall shape' as words in the reply, and never list several such topics in one sentence.",
+    // The second run padded low-politeness replies with fragments ("That matters here. The whole
+    // study is part of this."), because the cold register asks for short sentences and the vague
+    // content still has to fill the paragraph.
+    "Write the remarks as two or three complete sentences of ordinary length, under either politeness style. Do not pad with fragments such as 'That matters.' and do not repeat a remark in other words.",
+    "Every such remark stays asserted and unexplained: never say which consideration, goal, or priority, and never how the proposal conflicts with it.",
+    "The remarks themselves are neutral in tone under both politeness styles: on their own they carry no thanks, apology, sharp verdict on the proposal, or claim about who sets the rules. The only interpersonal moves in paragraph 2 are the two the politeness style assigns; when the drawn channel is a hedge or a categorical judgement, it applies to one of these remarks.",
+    "The reopening line is content-free: its terms are 'if something changes' or words to that effect. It never says what would change your mind, never names evidence, examples, or further comments, never implies approval is likely, and is not commented on (do not add that it is not approval).",
+    "Never suggest the decision is temporary.",
+    "Every example phrase in these rules is an illustration of the register, never a line to copy. Write it fresh each time in your own words. The variation is in wording only: the information content stays zero.",
+  ].join("\n");
+  const lowConstructivenessRules = writtenReply ? writtenLowConstructivenessRules : chatLowConstructivenessRules;
   // Both styles carry the same per-message quota so that density stays constant across the two
   // constructiveness levels and the two factors remain orthogonal.
   const politenessCueQuota = [
@@ -2897,32 +3053,75 @@ function managerConditionRules(delivery = "chat") {
     "Do not pile up directives or flat next-step statements.",
     "Never criticise the person. Nothing about their intelligence, competence, effort, attitude, judgement, experience, seniority, or character; no 'you didn't think', 'did you even', 'someone like you'; no sarcasm directed at them; no insults; no remarks about their pay, rating, or job. The edge goes to the idea, never to the person.",
   ].join("\n");
+  // Written reply: the channel set from the study's politeness definitions (salutation warmth,
+  // relational acknowledgement, validation of effort, hedge before the refusal, apology,
+  // impersonalisation, mood of directives, closing warmth), placed paragraph by paragraph. With the
+  // one-move quota above, the two styles differed in a single clause of paragraph 1 and paragraph 2
+  // carried almost no politeness at all, so high and low politeness read nearly the same. The
+  // channel set is identical under high and low constructiveness, so the two factors stay crossed.
+  const temporalSoftenerBan = "No temporal softener in any paragraph: no " + WRITTEN_TEMPORAL_SOFTENERS.map((phrase) => `'${phrase}'`).join(", ") + ". They imply the decision is temporary, which is a promise about the future rather than face work.";
+  const writtenHighPoliteness = [
+    "Politeness style: high. You refuse with full redressive face work, using every channel below. The same channels apply whether the content is specific or vague.",
+    "Paragraph 1 (Message 1), in this order:",
+    "- Salutation warmth: open with a warm one- or two-word greeting such as 'Hi,' or 'Hi there,'. You do not know the coder's name, so never use or invent one.",
+    "- Relational acknowledgement: thank them for the note, in your own words and tied to what they actually raised.",
+    "- Validation of effort: recognise the care or effort behind the note, specific to it. It may share a sentence with the thanks.",
+    "- Hedge before the refusal: the sentence that refuses is itself led in by an apology, a regretful softener, or a hedge (I'm afraid, I'm sorry, unfortunately), or is depersonalised (the second label can't be signed off). A contrastive word alone, such as but, still, or that said, is not enough, though it may come first. The refusal itself stays explicit.",
+    "Paragraph 2 (Message 2) carries exactly these two politeness moves, in two different clauses:",
+    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one conditional or tentative invitation (if you could..., I'd be glad to look again if...), never a command. In high constructiveness the terms are the concrete remedy; in low constructiveness they stay vague (if something changes) and name nothing concrete.",
+    "- " + drawnChannel.high,
+    "The rest of paragraph 2 is the assigned content in plain, courteous sentences, with no further thanks, praise, apology, or hedge.",
+    "The four paragraph-1 channels and the two paragraph-2 moves are all required, and no other interpersonal move is added; do not drop one to save words. When words are short, cut content filler, never face work.",
+    "State the refusal once, in paragraph 1. Paragraph 2 never says no again and never restates the decision.",
+    "Every example phrase in these rules is an illustration of the register, never a line to copy. Word each move freshly.",
+    "The redress must engage what the coder actually wrote. Never acknowledge receipt with 'I hear you', 'noted', 'understood', 'fair enough', or 'point taken'; those close someone down rather than do face work.",
+    temporalSoftenerBan,
+    "Make clear that the decision concerns the proposal, not the coder.",
+  ].join("\n");
+  const writtenLowPoliteness = [
+    "Politeness style: low. You refuse bald on record, with no redressive face work of any kind, and the reply threatens the proposal's face coldly. The same channels apply whether the content is specific or vague.",
+    "Paragraph 1 (Message 1), in this order:",
+    "- No salutation. Open with a curt, cold acknowledgement that the note arrived, such as 'Got your note.', worded freshly. No thanks and no recognition of effort.",
+    "- Bald refusal: refuse in your own first-person voice with nothing before or around it (I'm not approving..., I won't add...). No hedge, apology, regret, or depersonalisation.",
+    "- One flat sharp judgement of the proposal, stated plainly and left there: too thin, no basis, a guess, doesn't hold up. No metaphors, quips, wordplay, or rhetorical questions; the coldness is in saying it flatly.",
+    "Paragraph 2 (Message 2) carries exactly these two moves, in two different clauses. They are the low-politeness poles of the same two channels a high-politeness reply uses:",
+    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one bare imperative (Come back with..., Bring it back when..., Don't bring it back until...), never tentative, optional, or a question. The door is as open as in a polite reply; only the tone is cold. In high constructiveness the terms are the concrete remedy; in low constructiveness they stay vague (bring it back if something changes) and name nothing concrete.",
+    "- " + drawnChannel.low,
+    "The rest of paragraph 2 is the assigned content in flat, neutral sentences: no apology, regret, thanks, praise, or reassurance anywhere, and no sharp verdict on the proposal beyond the moves listed here.",
+    "State the refusal once, in paragraph 1. Paragraph 2 never says no again and never restates the decision.",
+    "Cold register throughout: short sentences, no explanation of your tone, no 'I have to be blunt'.",
+    "Every example phrase in these rules is an illustration of the register, never a line to copy. Word each move freshly.",
+    temporalSoftenerBan,
+    "Never criticise the person. Nothing about their intelligence, competence, effort, attitude, judgement, experience, seniority, role, standing, or character; no 'you didn't think', 'did you even', 'someone like you', 'not your call', 'not your place'; no sarcasm directed at them; no insults; no remarks about their pay, rating, or job. The edge goes to the idea, never to the person.",
+  ].join("\n");
+  const highPolitenessStyle = writtenReply ? writtenHighPoliteness : highPoliteness;
+  const lowPolitenessStyle = writtenReply ? writtenLowPoliteness : lowPoliteness;
 
   return {
     HP_HC: [
       "Condition: high politeness plus high constructiveness.",
-      highPoliteness,
+      highPolitenessStyle,
       highConstructivenessRules(true),
       "Keep the substantive problem, decision consideration, and revision path equivalent to LP_HC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
     ].join("\n"),
     HP_LC: [
       "Condition: high politeness plus low constructiveness.",
-      highPoliteness,
+      highPolitenessStyle,
       lowConstructivenessRules(true),
       "Keep the vague substantive content equivalent to LP_LC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
     ].join("\n"),
     LP_HC: [
       "Condition: low politeness plus high constructiveness.",
-      lowPoliteness,
+      lowPolitenessStyle,
       highConstructivenessRules(false),
       "Keep the substantive problem, decision consideration, and revision path equivalent to HP_HC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
     ].join("\n"),
     LP_LC: [
       "Condition: low politeness plus low constructiveness.",
-      lowPoliteness,
+      lowPolitenessStyle,
       lowConstructivenessRules(false),
       "Keep the vague substantive content equivalent to HP_LC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
@@ -3769,7 +3968,11 @@ function normalizeInitialManagerLength(messages, prompt) {
   const removeOptionalWording = (message) => {
     const patterns = [
       /\b(?:really|clearly|currently|still|simply|basically|actually|generally|entirely|just|quite|rather)\b\s*/i,
-      /\b(?:right now|at this point|for the time being|as it stands)\b[,\s]*/i,
+      // For written replies the temporal phrases are deleted here, before the phrase rewrites below
+      // could turn 'at the moment' into 'now' and hide it from the softener check.
+      isWrittenRejectionPrompt(prompt)
+        ? /\b(?:right now|at this point|at the moment|at this time|for the time being|as it stands)\b[,\s]*/i
+        : /\b(?:right now|at this point|for the time being|as it stands)\b[,\s]*/i,
     ];
     for (const pattern of patterns) {
       if (!pattern.test(message.text)) continue;
@@ -3893,17 +4096,23 @@ const LOW_POLITENESS_SOFTENERS = /\b(?:for now|right now|at this point|at the mo
 
 function lowPolitenessWordingProblem(messages, prompt) {
   if (!prompt || prompt.kind !== "manager1" || prompt.language !== "en") return "";
-  if (!String(prompt.condition || "").startsWith("LP_")) return "";
+  // Written replies ban temporal softeners in every cell: in high politeness they imply the
+  // decision is temporary, which is a promise about the future rather than face work.
+  const writtenReply = isWrittenRejectionPrompt(prompt);
+  if (!writtenReply && !String(prompt.condition || "").startsWith("LP_")) return "";
   if (!["rejection_initial", "rejection_followup", "rejection", "closing"].includes(prompt.phase)) return "";
   const text = (Array.isArray(messages) ? messages : [])
     .filter((message) => message && message.speaker === "Manager")
     .map((message) => String(message.text || ""))
     .join(" ");
-  const found = [...new Set((text.match(LOW_POLITENESS_SOFTENERS) || []).map((hit) => hit.toLowerCase()))];
+  const found = [...new Set((text.match(writtenReply ? WRITTEN_TEMPORAL_SOFTENER_PATTERN : LOW_POLITENESS_SOFTENERS) || [])
+    .map((hit) => hit.toLowerCase().replace(/\s+/g, " ")))];
   if (!found.length) return "";
   return [
     "Wording correction required.",
-    `The previous Manager messages used the temporal softener(s) ${found.map((hit) => `'${hit}'`).join(", ")}, which low politeness does not allow: they locate the refusal in time and soften it.`,
+    writtenReply
+      ? `The previous Manager messages used the temporal softener(s) ${found.map((hit) => `'${hit}'`).join(", ")}, which this reply does not allow in any condition: they imply the decision is only temporary.`
+      : `The previous Manager messages used the temporal softener(s) ${found.map((hit) => `'${hit}'`).join(", ")}, which low politeness does not allow: they locate the refusal in time and soften it.`,
     "Rewrite the same messages with those words removed and nothing added in their place. Keep the refusal, the judgement of the proposal, every substantive element, the message count, and the length the same.",
     "Return only valid JSON.",
   ].join(" ");
@@ -3932,7 +4141,10 @@ function managerSafetyProblem(messages, prompt) {
   if (["HP_HC", "LP_HC"].includes(prompt.condition) && labelledStandard.test(text)) {
     return "Natural wording correction required. Keep the same concrete proposal-specific decision consideration, but explain what effect, tradeoff, constraint, or uncertainty the manager has to consider and integrate it into the reasoning. Do not merely rename an abstract standard, and do not label it with phrases such as 'The standard is', 'Our standard is', 'The criterion is', 'The requirement is', or a reversed phrase ending in 'is the standard'. Preserve the proposal-specific problem, remedy, rejection, politeness condition, message count, and length. Return only valid JSON.";
   }
-  if (["HP_HC", "LP_HC"].includes(prompt.condition) && prompt.language === "en" && bareRemedyCommand.test(text)) {
+  // A written low-politeness reply gives its reopening terms as a bare imperative by design (the
+  // mood-of-directives channel), so the chat-era ban on bare commands applies only elsewhere.
+  const imperativeExpected = isWrittenRejectionPrompt(prompt) && prompt.condition === "LP_HC";
+  if (["HP_HC", "LP_HC"].includes(prompt.condition) && prompt.language === "en" && !imperativeExpected && bareRemedyCommand.test(text)) {
     return "Natural wording correction required. Keep the same concrete remedy, but rewrite every bare command as a complete subject-led explanation. In LP_HC use a varied natural form that states the requirement directly with no hedge or softener; do not force one sentence template. A flat prerequisite using if, after, before, or once is allowed and is not redress by itself. In HP_HC keep the corresponding future path redressed. Do not begin a sentence with Build, Map, Set, Run, Work out, Bring, Provide, Prepare, Show, Explain, Analyze, Compare, Define, Test, Add, Clarify, Identify, Specify, Document, or Lay out. Preserve the proposal-specific problem, decision requirement, rejection, politeness condition, message count, and length. Return only valid JSON.";
   }
   if (prompt.language === "en" && unidiomaticManagerFraming.test(text)) {
@@ -3961,7 +4173,9 @@ function managerConstructivenessMetadataProblem(metadata, prompt) {
         "This is a high-constructiveness rejection. Return non-empty hidden strings for proposal_problem, relevant_standard, and revision_path, and communicate all three meanings in the visible Manager reply.",
         highPoliteness
           ? "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and phrase the evidence-based remedy as a condition for reconsideration rather than a command."
-          : "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and state the evidence-based remedy directly with no hedge, softener, deference, or other redress as a complete subject-led sentence. Vary its natural form with the proposal rather than forcing one template, and do not use a bare command.",
+          : (isWrittenRejectionPrompt(prompt)
+            ? "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and give the evidence-based remedy inside the reopening line as one bare imperative with no hedge, softener, deference, or other redress."
+            : "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and state the evidence-based remedy directly with no hedge, softener, deference, or other redress as a complete subject-led sentence. Vary its natural form with the proposal rather than forcing one template, and do not use a bare command."),
         "The revision path must name the concrete measures, observations, records, comparisons, or trial results that should be analyzed for this participant's actual proposal. A generic request for more data or more analysis is not sufficient.",
         "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
       ].join(" ")
@@ -4060,11 +4274,24 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           "Return one message_scores item for each numbered Manager message, in the same order. Score each message separately and never move a cue from one message to another.",
           "Within each message_scores item, politeness_cues is an array containing one exact verbatim excerpt for each distinct redressive politeness move. Positive politeness includes thanks, appreciation, praise, or valuing the person's thinking or effort. Negative politeness includes apologising, deferring, hedging the refusal, or depersonalising it. Do not count neutral receipt phrases such as 'I hear you', 'noted', 'understood', or 'fair enough'. Never list 'for now', 'today', or 'currently' alone as a politeness cue. When actual face work appears near a temporal marker, quote the actual face-work expression rather than the temporal marker. Return an empty array when none is present. Never paraphrase evidence or list the same cue twice.",
           "Within each message_scores item, face_threat_cues is an array containing one exact verbatim excerpt for each distinct sharp or dismissive judgement aimed at the proposal, such as calling it too thin, sloppy, nowhere near ready, a guess, or without basis. A plain refusal does not count, and a next step stated as a requirement does not count. Attacks on the person are not counted here; they set personal_attack_without_diagnosis. Return an empty array when none is present. Never paraphrase evidence or list the same cue twice.",
+          // Written replies use the full channel set from the politeness definitions, so the blind
+          // scorer has to recognise those channels as moves. The scorer still sees no condition.
+          isWrittenRejectionPrompt(prompt)
+            ? [
+              "This reply is a written note, and the following overrides anything above that conflicts with it.",
+              "The line that says the proposal may be brought back or looked at again always counts exactly once: in politeness_cues when it is tentative or optional ('if you could...', 'I'd be glad to look again if...'), otherwise in face_threat_cues, whether it is a bare imperative ('Come back with...', 'Bring it back if something changes', 'Don't bring it back until...') or a flat requirement. The words if, when, once, or until do not make that line polite.",
+              "politeness_cues also includes: a tentative hedge on a judgement ('I'm not sure...', 'I suspect...'), deference to the participant's view, and a warm closing that thanks them again or wishes them well. An offer to look again and a warm closing are two separate cues. A bare greeting such as 'Hi' is not a cue by itself.",
+              "face_threat_cues also includes: a curt dismissive sign-off about the matter ('That's all I have on it.') and a flat assertion that the rules are the manager's to set. A curt acknowledgement of receipt such as 'Got your note.' is neither kind of cue. A neutral, specific statement of which evidence is missing and what deciding without it would cause is diagnosis, not a face-threat cue; count it only when it is phrased as a dismissive verdict (too thin, a guess, no basis).",
+              "explicit_future_openness is judged by content, not tone: it is true whenever the reply says the proposal may be brought back or looked at again, on any terms, whether as a warm invitation or as a cold bare instruction, unless a later sentence withdraws or contradicts that (for example 'that ends it', 'this is closed', 'don't expect a different answer'), in which case it is false. concrete_reopening_condition is judged only by what those terms name: specific data, a comparison, a trial, more instances of the problem, a wider pattern, or what later batches show all count as concrete; 'if something changes' does not.",
+              "refusal_softened is true only if the sentence that carries the refusal is itself led in by an apology, an expression of regret, or a hedge (I'm afraid, I'm sorry, unfortunately), or is depersonalised (it can't be signed off). A contrastive word alone, such as but, still, or that said, is false, and thanks or praise elsewhere in the reply does not make it true.",
+              "paragraph_two_moves lists every one of these moves that appears in Message 2, and is empty when none does: warm_closing (a last sentence that thanks them again or wishes them well; an offer to look again is not a closing, and a closing thanks is warm_closing only, never appreciation), curt_closing (a curt, dismissive sign-off as the last sentence that is not an instruction about the proposal), appreciation (a clause that names what is valued about the participant's thinking or reading, such as how closely they read the comments), flat_verdict (a flat, sharp verdict on the proposal such as too thin, no basis, or doesn't hold up), hedged_judgement (a judgement qualified tentatively, such as I'm not sure, I suspect, or it may be), deference (deferring to the participant's view or their closeness to the material), authority_claim (asserting that the rules are the manager's to set). An authority claim aimed at the participant (not your call, not your place, you are only a coder) is not authority_claim; it sets personal_attack_without_diagnosis.",
+            ].join(" ")
+            : "",
           "Within each message_scores item, future_next_step is one exact verbatim excerpt describing how the proposal may, should, or will be handled later, or an empty string if that message contains no future next step. future_next_step_is_redressed scores that exact future step and must be false when future_next_step is empty.",
           "Set has_future_next_step to true if and only if at least one message_scores item has a non-empty future_next_step. When a future next step exists, set future_next_step_redressed to true only if every reported future next step is redressed.",
           "Every evidence excerpt must appear literally in its corresponding Manager message. Evidence is checked against the source text, so do not alter words or punctuation.",
           "Do not infer missing content from the conversation. Score only what the manager actually communicates.",
-        ].join("\n"),
+        ].filter(Boolean).join("\n"),
       },
       {
         role: "user",
@@ -4091,6 +4318,16 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
             explicit_future_openness: { type: "boolean" },
             concrete_reopening_condition: { type: "boolean" },
             personal_attack_without_diagnosis: { type: "boolean" },
+            ...(isWrittenRejectionPrompt(prompt)
+              ? {
+                refusal_softened: { type: "boolean" },
+                paragraph_two_moves: {
+                  type: "array",
+                  maxItems: PARAGRAPH_TWO_MOVES.length,
+                  items: { type: "string", enum: PARAGRAPH_TWO_MOVES },
+                },
+              }
+              : {}),
             message_scores: {
               type: "array",
               minItems: prompt.minMessages,
@@ -4133,6 +4370,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
             "explicit_future_openness",
             "concrete_reopening_condition",
             "personal_attack_without_diagnosis",
+            ...(isWrittenRejectionPrompt(prompt) ? ["refusal_softened", "paragraph_two_moves"] : []),
             "message_scores",
           ],
         },
@@ -4185,6 +4423,11 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
     Array.isArray(scores.message_scores) &&
     scores.message_scores.length === managerMessages.length &&
     scores.message_scores.every((messageScore) => managerMessageEvidenceShapeValid(messageScore)) &&
+    (!isWrittenRejectionPrompt(prompt) || (
+      typeof scores.refusal_softened === "boolean" &&
+      Array.isArray(scores.paragraph_two_moves) &&
+      scores.paragraph_two_moves.every((move) => PARAGRAPH_TWO_MOVES.includes(move))
+    )) &&
     managerAssessmentEvidenceValid(scores, managerMessages);
   if (!valid) {
     return {
@@ -4266,6 +4509,7 @@ function cueEvidenceList(cues) {
 
 function managerConstructivenessCueWarning(scores, prompt) {
   if (!prompt || !prompt.constructivenessAssessmentMode || !scores) return [];
+  if (isWrittenRejectionPrompt(prompt)) return [];
   const highPoliteness = ["HP_HC", "HP_LC"].includes(prompt.condition);
   const targetField = highPoliteness ? "politeness_cues" : "face_threat_cues";
   const oppositeField = highPoliteness ? "face_threat_cues" : "politeness_cues";
@@ -4299,30 +4543,71 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
       : components.every((value) => !value));
   const rejectionClearValid = scores.current_rejection_maintained === true;
   const rejectionRedressValid = scores.current_rejection_redressed === highPoliteness;
-  const nextStepRequired = highConstructiveness || isClosing;
+  // Written replies hold openness constant across all four cells: every one says the proposal can
+  // come back, with concrete terms under high constructiveness and vague terms under low.
+  const writtenOpenness = isWrittenRejectionPrompt(prompt);
+  const nextStepRequired = highConstructiveness || isClosing || writtenOpenness;
   const nextStepPresent = scores.has_future_next_step === true;
   const nextStepPresenceValid = nextStepRequired ? nextStepPresent : true;
   const nextStepRedressValid = nextStepPresent
     ? scores.future_next_step_redressed === highPoliteness
     : scores.future_next_step_redressed === false;
   const nextStepValid = nextStepPresenceValid && nextStepRedressValid;
-  const closingStructureValid = !isClosing || scores.explicit_future_openness === true;
+  const closingStructureValid = writtenOpenness
+    ? scores.explicit_future_openness === true &&
+      scores.concrete_reopening_condition === highConstructiveness
+    : !isClosing || scores.explicit_future_openness === true;
   const expectedMessageCount = Math.max(1, Number(prompt.minMessages) || 1);
   const messageScores = Array.isArray(scores.message_scores) ? scores.message_scores : [];
   const perMessageShapeValid = messageScores.length === expectedMessageCount;
   const targetField = highPoliteness ? "politeness_cues" : "face_threat_cues";
   const oppositeField = highPoliteness ? "face_threat_cues" : "politeness_cues";
-  const interpersonalCueValid = perMessageShapeValid && messageScores.every((messageScore) => {
+  // Written replies carry a channel set per paragraph instead of the chat design's single move:
+  // high politeness needs at least two redressive moves in each paragraph, low politeness at least
+  // one face-threatening move (its other channels, such as the cold acknowledgement and the bald
+  // refusal, are the absence of redress and are scored through the redress fields instead). The
+  // ceiling only stops a reply from turning into a pile of thanks or jabs.
+  const writtenReply = isWrittenRejectionPrompt(prompt);
+  // Paragraph 1 of a polite reply has three scorable moves after the greeting (thanks, recognition
+  // of the care taken, and the hedge or apology that leads into the refusal); paragraph 2 has its
+  // two assigned moves. The upper bounds leave room for the scorer to quote one move as two.
+  const writtenCueRanges = highPoliteness
+    ? [{ min: 3, max: 5 }, { min: 2, max: 3 }]
+    : [{ min: 1, max: 2 }, { min: 1, max: 3 }];
+  const writtenCueRangeFor = (index) => writtenCueRanges[Math.min(index, writtenCueRanges.length - 1)];
+  const drawnParagraphTwoChannel = PARAGRAPH_TWO_CHANNELS[prompt.politenessChannel] || null;
+  const interpersonalCueValid = perMessageShapeValid && messageScores.every((messageScore, messageIndex) => {
+    const writtenCueRange = writtenCueRangeFor(messageIndex);
     const targetCues = Array.isArray(messageScore && messageScore[targetField])
       ? messageScore[targetField]
       : [];
     const oppositeCues = Array.isArray(messageScore && messageScore[oppositeField])
       ? messageScore[oppositeField]
       : [];
-    const targetCountValid = targetCues.length === 1 || (allowTwoCues && targetCues.length === 2);
+    const targetCountValid = writtenReply
+      ? targetCues.length >= writtenCueRange.min && targetCues.length <= writtenCueRange.max
+      : targetCues.length === 1 || (allowTwoCues && targetCues.length === 2);
     return targetCountValid && oppositeCues.length === 0;
   });
-  const politenessValid = interpersonalCueValid && rejectionRedressValid && nextStepValid;
+  // Channel-level checks for written replies. The cue counts above cannot tell which channel a
+  // move belongs to: in the first run half of the polite replies led into the refusal with a bare
+  // "but" and still passed on thanks plus recognition alone, and nothing confirmed that the channel
+  // drawn for paragraph 2 was the one the participant actually read.
+  const refusalLeadInValid = !writtenReply || !highPoliteness || scores.refusal_softened === true;
+  const drawnMove = drawnParagraphTwoChannel
+    ? (highPoliteness ? drawnParagraphTwoChannel.highMove : drawnParagraphTwoChannel.lowMove)
+    : "";
+  const paragraphTwoMoves = Array.isArray(scores.paragraph_two_moves) ? scores.paragraph_two_moves : [];
+  // The low pole of the hedge channel is the absence of a hedge, so it is identified by paragraph 2
+  // carrying no other low-politeness pool move; otherwise that draw would be indistinguishable
+  // from a flat-verdict, cold-closing or authority draw.
+  const lowPoolMoves = PARAGRAPH_TWO_CHANNEL_NAMES.map((name) => PARAGRAPH_TWO_CHANNELS[name].lowMove).filter(Boolean);
+  const strayLowMoves = writtenReply && !highPoliteness && drawnParagraphTwoChannel && !drawnMove
+    ? paragraphTwoMoves.filter((move) => lowPoolMoves.includes(move))
+    : [];
+  const drawnChannelValid = !writtenReply || (drawnMove ? paragraphTwoMoves.includes(drawnMove) : strayLowMoves.length === 0);
+  const politenessValid = interpersonalCueValid && rejectionRedressValid && nextStepValid &&
+    refusalLeadInValid && drawnChannelValid;
   if (
     constructivenessValid &&
     rejectionClearValid &&
@@ -4342,6 +4627,9 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
     `explicit_future_openness=${scores.explicit_future_openness}`,
     `concrete_reopening_condition=${scores.concrete_reopening_condition}`,
     `personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}`,
+    ...(writtenReply
+      ? [`refusal_softened=${scores.refusal_softened}`, `paragraph_two_moves=${JSON.stringify(paragraphTwoMoves)}`]
+      : []),
     `message_scores=${JSON.stringify(messageScores)}`,
   ].join(", ");
   const corrections = ["Blind condition validation failed.", observed];
@@ -4364,6 +4652,14 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
       ? "Make the explicit current refusal polite as a whole by clearly attaching one redressive move to it, such as appreciation of the participant's contribution, apology, deference, hedging, or depersonalisation. Explicit words like 'I cannot approve this version' are acceptable when that face work genuinely mitigates the refusal."
       : "Keep the current refusal explicit and remove every redressive move attached to it. Do not use appreciation, apology, deference, hedging, depersonalisation, or another softener around the refusal.");
   }
+  if (!refusalLeadInValid) {
+    corrections.push("In paragraph 1 the sentence that refuses must itself be led in by an apology, a regretful softener, or a hedge, or be depersonalised. A contrastive word alone, such as but, still, or that said, is not enough.");
+  }
+  if (!drawnChannelValid) {
+    corrections.push(strayLowMoves.length
+      ? `Paragraph 2 carries moves that are not assigned to it (${strayLowMoves.join(", ")}). Besides the bare-imperative reopening line, its only move is this one: ${drawnParagraphTwoChannel.low} Remove the sign-off, extra verdict, or claim about the rules.`
+      : `Paragraph 2 is missing its assigned move. ${highPoliteness ? drawnParagraphTwoChannel.high : drawnParagraphTwoChannel.low}`);
+  }
   if (!nextStepValid) {
     if (!nextStepPresent && nextStepRequired) {
       corrections.push(highConstructiveness
@@ -4372,13 +4668,28 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
     } else if (nextStepPresent) {
       corrections.push(highPoliteness
         ? "Redress the future next step with actual face work such as hedging, deference, apology, appreciation, tentative optional wording, or a friendly invitation. Do not rely on if, after, before, or once alone; a bare substantive prerequisite is not redress."
-        : "Remove every actual hedge, softener, tentative or optional request, deference, invitation, or other redress from the future next step. State the substantive requirement directly in a natural form, but do not force one sentence template or add another command merely to mark low politeness. A flat prerequisite using if, after, before, or once may remain because grammatical conditionality alone is not politeness.");
+        : (writtenReply
+          ? "Remove every hedge, softener, tentative or optional request, deference, or other redress from the reopening line. Give its terms as a bare imperative (Come back with..., Bring it back when...), keeping the door open."
+          : "Remove every actual hedge, softener, tentative or optional request, deference, invitation, or other redress from the future next step. State the substantive requirement directly in a natural form, but do not force one sentence template or add another command merely to mark low politeness. A flat prerequisite using if, after, before, or once may remain because grammatical conditionality alone is not politeness."));
     } else {
       corrections.push("When there is no future next step, set future_next_step_redressed to false and do not invent one.");
     }
   }
   if (!closingStructureValid) {
-    corrections.push("Genuinely and explicitly invite the participant to revisit the proposal in the future while keeping the current rejection unchanged.");
+    if (writtenOpenness) {
+      if (scores.explicit_future_openness !== true) {
+        corrections.push(highPoliteness
+          ? "Paragraph 2 must leave the door open to bringing the proposal back later, as a tentative invitation, while the current refusal stands."
+          : "Paragraph 2 must leave the door open to bringing the proposal back later, as a bare imperative such as 'Bring it back when...', while the current refusal stands. The tone stays cold, but the door is open.");
+      }
+      if (scores.concrete_reopening_condition !== highConstructiveness) {
+        corrections.push(highConstructiveness
+          ? "The reopening line must name the same concrete data or comparison that would need to be in hand before the proposal is looked at again."
+          : "The reopening line must stay vague, such as if something changes. Remove any data, comparison, or condition that says what would change the decision.");
+      }
+    } else {
+      corrections.push("Genuinely and explicitly invite the participant to revisit the proposal in the future while keeping the current rejection unchanged.");
+    }
   }
   if (!interpersonalCueValid) {
     messageScores.forEach((messageScore, index) => {
@@ -4393,6 +4704,26 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
         corrections.push(highPoliteness
           ? `Message ${messageNumber} contains prohibited proposal-focused face-threat cue evidence: ${cueEvidenceList(oppositeCues)}. Remove every face threat from that message.`
           : `Message ${messageNumber} contains prohibited politeness cue evidence: ${cueEvidenceList(oppositeCues)}. Remove every redressive politeness move from that message.`);
+      }
+      if (writtenReply) {
+        const writtenCueRange = writtenCueRangeFor(index);
+        const found = targetCues.length ? `: ${cueEvidenceList(targetCues)}` : "";
+        if (targetCues.length < writtenCueRange.min) {
+          if (highPoliteness && index === 0) {
+            corrections.push(`Paragraph 1 has ${targetCues.length} politeness move${targetCues.length === 1 ? "" : "s"}${found}. After the greeting it needs three: thanks for the note, recognition of the care behind it, and an apology, regretful softener, or hedge leading into the refusal.`);
+          } else if (highPoliteness) {
+            corrections.push(`Paragraph 2 has ${targetCues.length} politeness move${targetCues.length === 1 ? "" : "s"}${found}. It needs two: the reopening line as a conditional or tentative invitation${drawnParagraphTwoChannel ? `, and this one. ${drawnParagraphTwoChannel.high}` : ", and the second move the politeness style assigns."}`);
+          } else if (index === 0) {
+            corrections.push("Paragraph 1 has no face-threatening move. Add one flat, sharp judgement of the proposal, never of the person.");
+          } else {
+            corrections.push(`Paragraph 2 has no face-threatening move. It needs the reopening line as a bare imperative${drawnParagraphTwoChannel ? `, and this one. ${drawnParagraphTwoChannel.low}` : "."}`);
+          }
+        } else if (targetCues.length > writtenCueRange.max) {
+          corrections.push(highPoliteness
+            ? `Paragraph ${messageNumber} piles up ${targetCues.length} politeness moves${found}. Keep only the assigned ones and say the rest plainly.`
+            : `Paragraph ${messageNumber} piles up ${targetCues.length} face-threatening moves${found}. Keep only the assigned ones and say the rest neutrally, without judging the proposal.`);
+        }
+        return;
       }
       if (targetCues.length === 0) {
         corrections.push(highPoliteness
@@ -4411,7 +4742,9 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
     if (!perMessageShapeValid) {
       corrections.push(`Return exactly ${expectedMessageCount} Manager message score item${expectedMessageCount === 1 ? "" : "s"}, one for each visible Manager message.`);
     }
-    corrections.push("Spend any remaining length on neutral restatement of the unchanged decision instead of more interpersonal wording.");
+    corrections.push(writtenReply
+      ? "Do not restate the refusal to make up length; keep the refusal to one statement in paragraph 1."
+      : "Spend any remaining length on neutral restatement of the unchanged decision instead of more interpersonal wording.");
   }
   corrections.push(isClosing
     ? "Remove any personal intelligence or competence attack. Preserve the assigned condition, current rejection, genuine future openness, one-message shape, and length. Return only valid JSON."
@@ -4752,6 +5085,9 @@ module.exports = {
   managerConstructivenessMetadataProblem,
   managerConstructivenessAssessmentProblem,
   managerConstructivenessCueWarning,
+  paragraphTwoChannelForRequest,
+  isWrittenRejectionPrompt,
+  WRITTEN_TEMPORAL_SOFTENERS,
   normalizeManagerConstructivenessScores,
   managerMessageCountProblem,
   managerSafetyProblem,
