@@ -30,7 +30,11 @@ const {
   rejectionJobView,
   rejectionJobs,
   setRejectionGeneratorForTests,
+  NOTE_RECEIVED_TEXT,
 } = require("../server");
+
+// The blind voice check is stubbed in every job test; its own behaviour is tested separately.
+const VOICE = async () => ({ voice: true, reason: "test", source: "test" });
 
 const PROPOSAL = "Comments 3, 6 and 8 each raised two separate problems, so one of them is never counted. Allow an optional second category for those.";
 
@@ -326,6 +330,31 @@ test("written low politeness may give its reopening terms as a bare imperative; 
   assert.ok(aiRequestColumns.includes("politeness_channel"));
 });
 
+test("a note the blind check calls non-voice completes with the neutral line and no generation", async () => {
+  const calls = [];
+  const value = validateRejectionStart({ condition: "LP_LC", proposal: "All fine, thanks!", request_id: "R_nonvoice000001" }).value;
+  const { job } = startRejectionJob(value, {
+    classify: async () => ({ voice: false, reason: "thanks only", source: "model" }),
+    generate: async (payload) => { calls.push(payload); return stubReply(); },
+  });
+  await job.promise;
+  const view = rejectionJobView(job);
+  assert.equal(view.status, "ok");
+  assert.equal(view.voice, false);
+  assert.equal(view.voice_source, "model");
+  assert.deepEqual(view.messages, [{ speaker: "Manager", text: NOTE_RECEIVED_TEXT }]);
+  assert.equal(view.compliance_code, 0);
+  assert.equal(calls.length, 0);
+  // A voice note is generated as before and says so in the view.
+  const voiced = startRejectionJob(validateRejectionStart({ condition: "LP_LC", proposal: "The one-label rule loses information.", request_id: "R_voice000000001" }).value, {
+    classify: async () => ({ voice: true, reason: "objects to a rule", source: "model" }),
+    generate: async () => stubReply(),
+  });
+  await voiced.job.promise;
+  assert.equal(rejectionJobView(voiced.job).voice, true);
+  assert.equal(rejectionJobView(voiced.job).messages.length, 2);
+});
+
 test("start payload validation rejects unknown conditions, short proposals and bad request ids", () => {
   const good = { condition: "lp_lc", language: "en", proposal: PROPOSAL, request_id: "R_1a2B3c4D5e6F7g8" };
   const ok = validateRejectionStart(good);
@@ -335,7 +364,8 @@ test("start payload validation rejects unknown conditions, short proposals and b
   assert.equal(validateRejectionStart({ ...good, condition: "HP_XX" }).error, "invalid_condition");
   assert.equal(validateRejectionStart({ ...good, condition: "" }).error, "invalid_condition");
   assert.equal(validateRejectionStart({ ...good, language: "fr" }).error, "invalid_language");
-  assert.equal(validateRejectionStart({ ...good, proposal: "too short" }).error, "invalid_proposal_length");
+  assert.equal(validateRejectionStart({ ...good, proposal: "   " }).error, "invalid_proposal_length");
+  assert.equal(validateRejectionStart({ ...good, proposal: "Confusing." }).ok, true);
   assert.equal(validateRejectionStart({ ...good, proposal: "x".repeat(2001) }).error, "invalid_proposal_length");
   assert.equal(validateRejectionStart({ ...good, request_id: "short" }).error, "invalid_request_id");
   assert.equal(validateRejectionStart({ ...good, request_id: "bad id with spaces" }).error, "invalid_request_id");
@@ -397,7 +427,7 @@ test("the compliance code round-trips the blind score flags without exposing cue
 test("a job runs the message-delivery rejection in the background and is reused on reload", async () => {
   const calls = [];
   const value = validateRejectionStart({ condition: "HP_LC", proposal: PROPOSAL, request_id: "R_jobreuse000001", prolific_pid: "pid-1" }).value;
-  const { job, reused } = startRejectionJob(value, {
+  const { job, reused } = startRejectionJob(value, { classify: VOICE,
     generate: async (payload) => {
       calls.push(payload);
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -408,7 +438,7 @@ test("a job runs the message-delivery rejection in the background and is reused 
   assert.equal(job.status, "pending");
   assert.equal(rejectionJobView(job).status, "pending");
   assert.equal("messages" in rejectionJobView(job), false);
-  const again = startRejectionJob(value, { generate: async () => stubReply() });
+  const again = startRejectionJob(value, { classify: VOICE, generate: async () => stubReply() });
   assert.equal(again.reused, true);
   assert.equal(again.job, job);
   await job.promise;
@@ -435,7 +465,7 @@ test("a job runs the message-delivery rejection in the background and is reused 
 
 test("a failed job reports the failure and is replaced by the next start", async () => {
   const value = validateRejectionStart({ condition: "LP_HC", proposal: PROPOSAL, request_id: "R_jobfail0000001" }).value;
-  const first = startRejectionJob(value, { generate: async () => { throw new Error("boom"); } });
+  const first = startRejectionJob(value, { classify: VOICE, generate: async () => { throw new Error("boom"); } });
   await first.job.promise;
   const failed = rejectionJobView(first.job);
   assert.equal(failed.ok, false);
@@ -443,7 +473,7 @@ test("a failed job reports the failure and is replaced by the next start", async
   assert.equal(failed.error, "boom");
   assert.equal(failed.retryable, true);
   assert.equal(failed.attempts, 2, "a retryable failure is re-run once before the job is reported failed");
-  const second = startRejectionJob(value, { generate: async () => stubReply() });
+  const second = startRejectionJob(value, { classify: VOICE, generate: async () => stubReply() });
   assert.equal(second.reused, false);
   assert.notEqual(second.job, first.job);
   await second.job.promise;
@@ -453,7 +483,7 @@ test("a failed job reports the failure and is replaced by the next start", async
 test("a retryable pipeline failure is re-run once inside the job; a non-retryable one is not", async () => {
   let calls = 0;
   const value = validateRejectionStart({ condition: "HP_HC", proposal: PROPOSAL, request_id: "R_jobrerun000001" }).value;
-  const { job } = startRejectionJob(value, {
+  const { job } = startRejectionJob(value, { classify: VOICE,
     generate: async () => {
       calls += 1;
       if (calls === 1) return { ok: false, status: 502, retryable: true, error: "validation failed" };

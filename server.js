@@ -1017,7 +1017,9 @@ function validateRejectionStart(payload) {
   const language = String(source.language || "en").trim().toLowerCase();
   if (!["en", "zh"].includes(language)) return { ok: false, error: "invalid_language" };
   const proposal = String(source.proposal || "").replace(/\s+/g, " ").trim();
-  if (proposal.length < 20 || proposal.length > 2000) return { ok: false, error: "invalid_proposal_length" };
+  // The loose note prompt invites short notes; whether a note is voice is decided by the blind
+  // classifier in the job, not by length. Only an empty note or an oversized one is refused.
+  if (proposal.length < 1 || proposal.length > 2000) return { ok: false, error: "invalid_proposal_length" };
   const requestId = normalizeAiRequestId(source.request_id);
   if (!requestId) return { ok: false, error: "invalid_request_id" };
   const short = (value) => cleanPromptText(value || "").slice(0, 64);
@@ -1035,10 +1037,67 @@ function validateRejectionStart(payload) {
   };
 }
 
+// Blind voice check on note 1, run before anything condition-specific happens. Voice is a note
+// that raises a problem, an objection, or a suggestion about the coding process (the rules, the
+// categories, the materials, the instructions, the comments). A blank note, thanks or praise only,
+// or a note only about pay, the rating, or the coder's own treatment is not voice: those get the
+// neutral "Note received." line and no rejection. The classifier sees the note text alone.
+async function classifyNoteVoice(note, signal) {
+  const text = String(note || "").replace(/\s+/g, " ").trim();
+  if (!text) return { voice: false, reason: "empty", source: "rule" };
+  const body = {
+    model: openaiEvaluatorModel,
+    input: [
+      {
+        role: "system",
+        content: [
+          "You classify one note that a coder attached to a batch of comment coding, addressed to the coding supervisor. The coder sorts short comments into five categories under rules the supervisor set (one category per comment; if a comment mentions more than one thing, choose the one it is mainly about; no 'other' option).",
+          "voice is true if the note raises anything about the coding process: a problem the coder ran into while coding, an objection to a rule or category, a question that asks for a rule or a change, or a suggestion for how the coding should be done. It counts however short, loosely put, or mistaken it is, and whether or not it proposes a change.",
+          "voice is false if the note raises nothing about the coding process: it is only thanks, praise, or small talk; it says everything was fine or that there is nothing to add; it is only about pay, the bonus, the rating, the time taken, or the coder's own performance or treatment; or it is unrelated to the coding work.",
+          "A note that mixes both counts as voice if any part of it is about the coding process.",
+          "Return JSON with voice (boolean) and reason (one short sentence quoting the decisive words).",
+        ].join("\n"),
+      },
+      { role: "user", content: `Note:\n${text}` },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "note_voice_classification",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: { voice: { type: "boolean" }, reason: { type: "string" } },
+          required: ["voice", "reason"],
+        },
+      },
+    },
+    max_output_tokens: supportsReasoningEffort(openaiEvaluatorModel) ? 600 : 200,
+  };
+  if (supportsReasoningEffort(openaiEvaluatorModel)) body.reasoning = { effort: "low" };
+  else body.temperature = 0;
+  try {
+    const response = await fetchOpenAiResponses(body, signal);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error && data.error.message ? data.error.message : `HTTP ${response.status}`);
+    const parsed = extractParsedObject(data) || parseOpenAiJson(extractResponseText(data));
+    if (!parsed || typeof parsed.voice !== "boolean") throw new Error("invalid classification");
+    return { voice: parsed.voice, reason: String(parsed.reason || "").slice(0, 300), source: "model" };
+  } catch (error) {
+    // Failing open keeps every real voicer in the study; the slip is recorded so the analysis can
+    // treat these notes separately.
+    return { voice: true, reason: `classifier_error: ${error && error.message ? error.message : error}`, source: "error" };
+  }
+}
+
+const NOTE_RECEIVED_TEXT = "Note received.";
+
 function startRejectionJob(value, options = {}) {
   const existing = rejectionJobs.get(value.requestId);
   if (existing && existing.status !== "failed") return { job: existing, reused: true };
   const generate = typeof options.generate === "function" ? options.generate : rejectionGenerator;
+  const classify = typeof options.classify === "function" ? options.classify : classifyNoteVoice;
   const maxAttempts = Math.max(1, Number(options.maxAttempts || REJECTION_JOB_MAX_ATTEMPTS));
   const startedAt = Date.now();
   const payload = {
@@ -1066,6 +1125,9 @@ function startRejectionJob(value, options = {}) {
     politenessChannel: payload.politenessChannel,
     startedAt,
     attempts: 0,
+    voice: null,
+    voiceReason: "",
+    voiceSource: "",
     messages: [],
     complianceCode: null,
     latencyMs: null,
@@ -1098,6 +1160,22 @@ function startRejectionJob(value, options = {}) {
       });
   };
   job.promise = (async () => {
+    const classification = await classify(value.proposal);
+    job.voice = classification.voice === true;
+    job.voiceReason = String(classification.reason || "");
+    job.voiceSource = String(classification.source || "");
+    if (!job.voice) {
+      // Nothing condition-specific is generated for a non-voice note. The survey shows the neutral
+      // line in every condition, and the assigned condition goes unused.
+      job.status = "ok";
+      job.latencyMs = Date.now() - startedAt;
+      job.messages = [{ speaker: "Manager", text: NOTE_RECEIVED_TEXT }];
+      job.complianceCode = 0;
+      setTimeout(() => {
+        if (rejectionJobs.get(job.id) === job) rejectionJobs.delete(job.id);
+      }, REJECTION_JOB_TTL_MS).unref();
+      return { ok: true, voice: false };
+    }
     let result = null;
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       job.attempts = attempt;
@@ -1135,6 +1213,8 @@ function rejectionJobView(job) {
     view.messages = job.messages;
     view.compliance_code = job.complianceCode;
     view.politeness_channel = job.politenessChannel;
+    view.voice = job.voice;
+    view.voice_source = job.voiceSource;
   }
   if (job.status === "failed") {
     view.error = job.error;
@@ -5090,6 +5170,8 @@ module.exports = {
   managerConstructivenessMetadataProblem,
   managerConstructivenessAssessmentProblem,
   managerConstructivenessCueWarning,
+  classifyNoteVoice,
+  NOTE_RECEIVED_TEXT,
   paragraphTwoChannelForRequest,
   isWrittenRejectionPrompt,
   WRITTEN_TEMPORAL_SOFTENERS,
