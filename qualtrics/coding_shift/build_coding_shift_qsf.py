@@ -197,7 +197,7 @@ def build(args):
     s.block("Batch 1", b1_elements)
 
     # 4. Note 1 -----------------------------------------------------------------------------
-    note1_choice = choice("note1_choice", paragraphs("<b>Batch 1 complete.</b>", "Both choices below lead to the next step and the same payment."),
+    note1_choice = choice("note1_choice", paragraphs("<b>Batch 1 complete.</b>", "Both choices below lead to the next step and the same payment.", "Batch 1: attach a note, or finish without one?"),
                           ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
     s.block("Note 1 choice", [note1_choice])
     note1 = s.essay("note1", paragraphs("<b>Note to the coding supervisor</b>", NOTE_PROMPT_1, "<span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span>"),
@@ -267,7 +267,7 @@ def build(args):
     note2_head = s.text("note2_tools_choice", paragraphs("<b>Batch 2 complete.</b>") + tools + paragraphs("Both choices below lead to the same last few questions and the same payment."),
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
-    note2_choice = choice("note2_choice", "Batch 2", ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
+    note2_choice = choice("note2_choice", "Batch 2: attach a note, or finish without one?", ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
     s.block("Note 2 choice", [note2_head] + n2_hidden_choice + [note2_choice, s.timing("t_note2_choice")])
     note2_tools = s.text("note2_tools_essay", tools, js=js("js_tools.js", s.service_url), description="Note 2 tools (essay)")
     n2_hidden_essay = [s.hidden_text(f"h_{name}_essay", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]

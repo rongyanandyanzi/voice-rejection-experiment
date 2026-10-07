@@ -128,7 +128,12 @@ Qualtrics.SurveyEngine.addOnload(function () {
       setEd("fallback_used", "0");
     }
     question.enableNextButton();
-    setTimeout(function () { try { question.clickNextButton(); } catch (error) { var next = document.getElementById("NextButton"); if (next) next.click(); } }, 400);
+    setTimeout(function () {
+      try { question.clickNextButton(); } catch (error) {
+        var next = document.getElementById("next-button") || document.getElementById("NextButton");
+        if (next) next.click();
+      }
+    }, 400);
   }
 
   function tick() {

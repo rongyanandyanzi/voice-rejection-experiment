@@ -25,8 +25,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
       lastLength = event.target.value.length;
     });
   }
-  // Soft check: intercept the first Next click when the note is short.
-  var nextButton = document.getElementById("NextButton");
+  // Soft check: intercept the first Next click when the note is short. The New Survey Taking
+  // Experience names the button next-button; the classic engine NextButton.
+  var nextButton = document.getElementById("next-button") || document.getElementById("NextButton");
   if (nextButton) {
     nextButton.addEventListener("click", function (event) {
       var text = textarea ? textarea.value : "";
