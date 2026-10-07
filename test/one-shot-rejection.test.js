@@ -71,7 +71,7 @@ test("message delivery reframes the first rejection as a written reply without c
   assert.doesNotMatch(message.system, /Leave room for the participant to respond/);
   assert.match(chat.system, /Leave room for the participant to respond/);
   assert.match(message.user, /Note the coder attached/);
-  assert.match(message.user, /attach a note to the coding supervisor/);
+  assert.match(message.user, /anything about the coding process you'd like to tell them/);
   assert.doesNotMatch(message.user, /Conversation history/);
   assert.equal(message.minMessages, 2);
   assert.equal(message.maxMessages, 2);
@@ -428,7 +428,7 @@ test("a job runs the message-delivery rejection in the background and is reused 
   assert.equal(calls[0].condition, "HP_LC");
   assert.equal(calls[0].alexMessage, PROPOSAL);
   assert.equal(calls[0].history[0].speaker, "Coding project");
-  assert.match(calls[0].history[0].text, /attach a note to the coding supervisor/);
+  assert.match(calls[0].history[0].text, /anything about the coding process you'd like to tell them/);
   assert.equal(calls[0].prolific_pid, "pid-1");
   assert.equal(rejectionJobs.get("R_jobreuse000001"), job);
 });

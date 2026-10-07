@@ -921,7 +921,7 @@ const REJECTION_JOB_TTL_MS = 30 * 60 * 1000;
 // page's 300 s window (AI_PIPELINE_TIMEOUT_MS is 135 s).
 const REJECTION_JOB_MAX_ATTEMPTS = Math.max(1, Number(process.env.REJECTION_JOB_MAX_ATTEMPTS || 2));
 const REJECTION_OPENING_REQUEST = {
-  en: "Batch 1 complete. You can attach a note to the coding supervisor if you want to: say which part of how this batch is set up you would change, what it is doing to the data this batch produces, and what you would do instead. Notes are optional.",
+  en: "Batch 1 is complete. Before it goes to the coding supervisor, is there anything about the coding process you'd like to tell them? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor. This is optional.",
   zh: "谢谢。请把你对乐园用工问题的建议发给我，我看完后会回复你。",
 };
 // The survey stores one integer per participant instead of the blind-score object, so nothing
@@ -2710,6 +2710,9 @@ function buildInitialManagerPrompt(payload) {
           ? "Read and understand what the coder is proposing before you respond, so that you name its broad topic correctly. Do not say what the idea would concretely do to the coding or to the data; the reply shows only that you know what the note is about."
           : "CRUCIAL: actually read and understand what the coder is proposing before you respond. Work out what their idea literally means and what it would concretely do to the coding and to the data it produces, then make your reply clearly engage THAT specific idea and its real consequences. The coder must be able to tell you understood exactly what they said.")
         : "CRUCIAL: actually read and understand what the participant is proposing before you respond. Work out what their idea literally means and what it would concretely do to the park, then make your reply clearly engage THAT specific idea and its real consequences. The participant must be able to tell you understood exactly what they said.",
+      messageDelivery
+        ? "The note may be a problem, an objection, or a question rather than a proposal. Then what you decline is the change it implies: say that the rule or category the coder bumped into is staying as it is, in your own words. Never refuse a proposal the coder did not make, such as 'I can't approve that change' when no change was asked for, and never reply as if the note were a request to re-check their answer."
+        : "",
       messageDelivery
         ? (conditionActive && condition.includes("LC")
           ? "Never attach an objection that would not make sense for their actual proposal; the general remarks you make must be ones that could be said of any rule change."

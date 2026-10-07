@@ -89,6 +89,29 @@ const proposals = [
     defense: "Severity would show which problems need fixing first.",
     pushback: "A simple minor or serious choice would be enough.",
   },
+  // Loosely worded notes, as the relaxed prompt invites: a problem, an objection and a question
+  // rather than a proposal. The supervisor still has to decline something in each.
+  {
+    id: "en_loose_problem",
+    language: "en",
+    proposal: "I kept hesitating between WORDING and TECH on comment 6. The instructions didn't make sense AND the page crashed, so picking the main one felt like a coin toss. Not sure my answer is right.",
+    defense: "It happened on more than one comment.",
+    pushback: "Other coders probably hesitate too.",
+  },
+  {
+    id: "en_loose_objection",
+    language: "en",
+    proposal: "Honestly the 'choose the main thing' rule doesn't seem reasonable to me. Comments 3 and 8 clearly say two different things and I had to throw one away.",
+    defense: "It just feels wrong to drop information.",
+    pushback: "Maybe there's a reason I'm not seeing.",
+  },
+  {
+    id: "en_loose_question",
+    language: "en",
+    proposal: "Quick question: when a comment is about payment but also mentions a technical glitch, is it always PAYMENT? If not, could there be a tie-breaking rule for these?",
+    defense: "A tie-breaker would make it faster.",
+    pushback: "Even a rough one would help.",
+  },
   {
     id: "en_short",
     language: "en",
