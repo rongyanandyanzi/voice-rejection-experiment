@@ -2858,9 +2858,11 @@ const PARAGRAPH_TWO_CHANNELS = {
   },
   deference: {
     high: "Deference: one clause that defers to their view or to their closeness to the comments (you've seen these comments up close).",
-    low: "Authority: one clause that flatly asserts that the coding rules are yours to set (I set the rules here.). It is a statement about the rules and about you as supervisor, never about the coder, their role, or their place, and it does not withdraw the reopening.",
+    // Raised standing by expertise, not by power: "I set the rules here" told the coder that speaking
+    // up was pointless, which is a different route to less voice than impoliteness.
+    low: "Expertise: one clause in which you flatly raise your own standing by experience (I've run this coding scheme across more studies than this one; I've seen this kind of case many times). It is about your experience, never about the coder, their role, or their place; it never says the decision is yours alone or that the coder cannot change anything, and it does not withdraw the reopening.",
     highMove: "deference",
-    lowMove: "authority_claim",
+    lowMove: "expertise_claim",
   },
 };
 // What the blind scorer may report for paragraph 2 of a written reply. It is not told which move
@@ -2872,7 +2874,7 @@ const PARAGRAPH_TWO_MOVES = [
   "flat_verdict",
   "hedged_judgement",
   "deference",
-  "authority_claim",
+  "expertise_claim",
 ];
 const PARAGRAPH_TWO_CHANNEL_NAMES = Object.keys(PARAGRAPH_TWO_CHANNELS);
 
@@ -4284,10 +4286,10 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
               "This reply is a written note, and the following overrides anything above that conflicts with it.",
               "The line that says the proposal may be brought back or looked at again always counts exactly once: in politeness_cues when it is tentative or optional ('if you could...', 'I'd be glad to look again if...'), otherwise in face_threat_cues, whether it is a bare imperative ('Come back with...', 'Bring it back if something changes', 'Don't bring it back until...') or a flat requirement. The words if, when, once, or until do not make that line polite.",
               "politeness_cues also includes: a tentative hedge on a judgement ('I'm not sure...', 'I suspect...'), deference to the participant's view, and a warm closing that thanks them again or wishes them well. An offer to look again and a warm closing are two separate cues. A bare greeting such as 'Hi' is not a cue by itself.",
-              "face_threat_cues also includes: a curt dismissive sign-off about the matter ('That's all I have on it.') and a flat assertion that the rules are the manager's to set. A curt acknowledgement of receipt such as 'Got your note.' is neither kind of cue. A neutral, specific statement of which evidence is missing and what deciding without it would cause is diagnosis, not a face-threat cue; count it only when it is phrased as a dismissive verdict (too thin, a guess, no basis).",
+              "face_threat_cues also includes: a curt dismissive sign-off about the matter ('That's all I have on it.') and a flat claim of the manager's own experience or expertise (I've run this scheme across many studies). A curt acknowledgement of receipt such as 'Got your note.' is neither kind of cue. A neutral, specific statement of which evidence is missing and what deciding without it would cause is diagnosis, not a face-threat cue; count it only when it is phrased as a dismissive verdict (too thin, a guess, no basis).",
               "explicit_future_openness is judged by content, not tone: it is true whenever the reply says the proposal may be brought back or looked at again, on any terms, whether as a warm invitation or as a cold bare instruction, unless a later sentence withdraws or contradicts that (for example 'that ends it', 'this is closed', 'don't expect a different answer'), in which case it is false. concrete_reopening_condition is judged only by what those terms name: specific data, a comparison, a trial, more instances of the problem, a wider pattern, or what later batches show all count as concrete; 'if something changes' does not.",
               "refusal_softened is true only if the sentence that carries the refusal is itself led in by an apology, an expression of regret, or a hedge (I'm afraid, I'm sorry, unfortunately), or is depersonalised (it can't be signed off). A contrastive word alone, such as but, still, or that said, is false, and thanks or praise elsewhere in the reply does not make it true.",
-              "paragraph_two_moves lists every one of these moves that appears in Message 2, and is empty when none does: warm_closing (a last sentence that thanks them again or wishes them well; an offer to look again is not a closing, and a closing thanks is warm_closing only, never appreciation), curt_closing (a curt, dismissive sign-off as the last sentence that is not an instruction about the proposal), appreciation (a clause that names what is valued about the participant's thinking or reading, such as how closely they read the comments), flat_verdict (a flat, sharp verdict on the proposal such as too thin, no basis, or doesn't hold up), hedged_judgement (a judgement qualified tentatively, such as I'm not sure, I suspect, or it may be), deference (deferring to the participant's view or their closeness to the material), authority_claim (asserting that the rules are the manager's to set). An authority claim aimed at the participant (not your call, not your place, you are only a coder) is not authority_claim; it sets personal_attack_without_diagnosis.",
+              "paragraph_two_moves lists every one of these moves that appears in Message 2, and is empty when none does: warm_closing (a last sentence that thanks them again or wishes them well; an offer to look again is not a closing, and a closing thanks is warm_closing only, never appreciation), curt_closing (a curt, dismissive sign-off as the last sentence that is not an instruction about the proposal), appreciation (a clause that names what is valued about the participant's thinking or reading, such as how closely they read the comments), flat_verdict (a flat, sharp verdict on the proposal such as too thin, no basis, or doesn't hold up), hedged_judgement (a judgement qualified tentatively, such as I'm not sure, I suspect, or it may be), deference (deferring to the participant's view or their closeness to the material), expertise_claim (the manager flatly raising their own standing by experience, such as having run this scheme across many studies). A claim aimed at the participant (not your call, not your place, you are only a coder) is not expertise_claim; it sets personal_attack_without_diagnosis.",
             ].join(" ")
             : "",
           "Within each message_scores item, future_next_step is one exact verbatim excerpt describing how the proposal may, should, or will be handled later, or an empty string if that message contains no future next step. future_next_step_is_redressed scores that exact future step and must be false when future_next_step is empty.",

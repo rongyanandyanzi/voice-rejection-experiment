@@ -144,7 +144,7 @@ test("paragraph 2 draws one paired channel, the same pool and pole pairs in all 
     closing: [/Closing warmth: the last sentence is one warm closing/, /Cold closing: the last sentence is a curt, dismissive sign-off about the matter.*It is not an instruction, sets no further condition on bringing the proposal back/],
     appreciation: [/Appreciation: one clause that values the specific thinking/, /Flat verdict: one more flat, sharp judgement of the proposal/],
     hedge: [/Hedge: qualify the main judgement of paragraph 2 tentatively/, /Categorical statement: state the main point of paragraph 2 flatly, as plain fact/],
-    deference: [/Deference: one clause that defers to their view/, /Authority: one clause that flatly asserts that the coding rules are yours/],
+    deference: [/Deference: one clause that defers to their view/, /Expertise: one clause in which you flatly raise your own standing by experience/],
   };
   for (const [channel, [high, low]] of Object.entries(poles)) {
     for (const condition of ["HP_HC", "HP_LC"]) {
@@ -247,8 +247,8 @@ test("the written-reply checker counts the assigned moves paragraph by paragraph
     "",
   );
   assert.match(
-    managerConstructivenessAssessmentProblem(scores("LP_HC", [[[], ["thin"]], [[], ["Come back with", "I set the rules"]]], { paragraph_two_moves: [] }), written("LP_HC", "deference")),
-    /Paragraph 2 is missing its assigned move\. Authority: one clause that flatly asserts/,
+    managerConstructivenessAssessmentProblem(scores("LP_HC", [[[], ["thin"]], [[], ["Come back with", "I've seen this many times"]]], { paragraph_two_moves: [] }), written("LP_HC", "deference")),
+    /Paragraph 2 is missing its assigned move\. Expertise: one clause in which you flatly raise/,
   );
   // The low pole of the hedge channel is the absence of a hedge: paragraph 2 then carries no other
   // low-politeness pool move, which is what tells that draw apart from the other three.
@@ -269,7 +269,7 @@ test("the written-reply checker counts the assigned moves paragraph by paragraph
   assert.equal(managerConstructivenessAssessmentProblem(scores("LP_LC", cold), written("LP_LC")), "");
   assert.match(
     managerConstructivenessAssessmentProblem(scores("LP_LC", [[[], ["doesn't hold up"]], [[], []]]), written("LP_LC", "deference")),
-    /Paragraph 2 has no face-threatening move.*bare imperative, and this one\. Authority: one clause that flatly asserts/,
+    /Paragraph 2 has no face-threatening move.*bare imperative, and this one\. Expertise: one clause in which you flatly raise/,
   );
   assert.match(
     managerConstructivenessAssessmentProblem(scores("LP_LC", [[[], ["thin", "a guess", "no basis"]], cold[1]]), written("LP_LC")),
