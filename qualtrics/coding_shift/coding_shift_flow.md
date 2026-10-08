@@ -15,9 +15,10 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 2. **Consent** (`js_consent.js`). Branch: not willing → end, no code.
 3. **Randomiser**: `condition` = HP_HC / HP_LC / LP_HC / LP_LC, evenly. Assigned before the note,
    used only if a note is attached and classed as voice.
-4. **Training**: one page with the five categories and "Choose one category for each comment."
-   (The rationale page, the practice items and the rule box were removed on 2026-10-08: the rule
-   is not explained before the reply; the form simply takes one category and offers no "other".)
+4. **Training**: one page with the five categories, then two practice comments. The rule box
+   ("choose one; if several things, the one it is mainly about; no other") appears only on the
+   practice pages, and each practice answer page explains the rule. The comment pages carry no
+   rule box, and the rationale page is gone.
 5. **Batch 1**: eight ordinary end-of-study comments, one per page, five categories each, forced.
    Comments 3, 6 and 8 raise two problems.
 6. **Note 1**: one page for everyone, straight after batch 1 (the separate attach/finish page was

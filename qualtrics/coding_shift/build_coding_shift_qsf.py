@@ -173,15 +173,24 @@ def build(args):
     # 2. Training ---------------------------------------------------------------------------
     rules_page = s.text("training_rules", paragraphs("<b>Your job and the coding rules</b>", "Each comment goes into one of five categories.")
                         + "".join(f"<p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">{code}</code> <b>{name}.</b> {definition}</p>" for code, name, definition in CATEGORIES)
-                        + paragraphs("Choose one category for each comment.", "At the end of every batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.", "Batch 1 starts on the next page.",
+                        + paragraphs("Choose one category for each comment.", "At the end of every batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.", "Two practice comments come first.",
                                      "<span style=\"color:#667;font-size:13px;\">Codebook v3.1 &middot; rules set by the coding supervisor</span>"),
                         description="Training: rules")
     # The "Why the rules are this way" training page was removed on 2026-10-07 (user decision); the
     # rationale is still available as a tool on the note 2 pages.
-    # The two practice items and their answer pages were removed on 2026-10-08 (user decision): no
-    # explanation of the rule beyond the rule box itself before the reply.
+    # The practice items carry the rule box and an answer page that explains the rule (user
+    # decision 2026-10-08: the rule is taught in the practice, and nowhere else before the reply).
+    practice_page = lambda number, text: (
+        f"<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Practice {number} of 2</p>"
+        + RULE_HTML
+        + f"<p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;\">{esc(text)}</p><p>Which category does this comment belong to?</p>"
+    )
+    practice1 = choice("practice_1", practice_page(1, PRACTICE[0][0]), CATEGORY_OPTIONS)
+    practice1_fb = s.text("practice_1_feedback", paragraphs("<b>Practice 1: answer</b>", f"<span style=\"color:#667\">{esc(PRACTICE[0][0])}</span>", PRACTICE[0][1]), description="Practice 1 feedback")
+    practice2 = choice("practice_2", practice_page(2, PRACTICE[1][0]), CATEGORY_OPTIONS)
+    practice2_fb = s.text("practice_2_feedback", paragraphs("<b>Practice 2: answer</b>", f"<span style=\"color:#667\">{esc(PRACTICE[1][0])}</span>", PRACTICE[1][1], "Batch 1 starts on the next page. Your labels there count."), description="Practice 2 feedback")
     t_train = s.timing("t_training")
-    s.block("Training", [rules_page, t_train])
+    s.block("Training", [rules_page, t_train, "PB", practice1, "PB", practice1_fb, practice2, "PB", practice2_fb])
 
     # 3. Batch 1 ----------------------------------------------------------------------------
     b1_elements = []
