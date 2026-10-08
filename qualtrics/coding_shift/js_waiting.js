@@ -69,10 +69,15 @@ Qualtrics.SurveyEngine.addOnload(function () {
     return fetch(SERVICE_URL + "/api/rejection/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: startBody })
       .then(function (response) { return response.json(); }).catch(function () {});
   }
+  var polls = 0;
   function poll() {
     if (done || reply) return;
-    fetch(SERVICE_URL + "/api/rejection/result?job=" + encodeURIComponent(requestId), { cache: "no-store" })
-      .then(function (response) { return response.json(); })
+    polls += 1;
+    var controller = typeof AbortController === "function" ? new AbortController() : null;
+    var timeout = controller ? setTimeout(function () { controller.abort(); }, 8000) : null;
+    fetch(SERVICE_URL + "/api/rejection/result?job=" + encodeURIComponent(requestId), { cache: "no-store", signal: controller ? controller.signal : undefined })
+      .then(function (response) { if (timeout) clearTimeout(timeout); return response.json(); })
+      .then(function (data) { try { sessionStorage.setItem("cs_last_poll", polls + ":" + (data && data.status) + ":" + Math.round((Date.now() - openedAt) / 1000)); } catch (error) {} return data; })
       .then(function (data) {
         if (data.status === "ok") {
           var messages = data.messages || [];
@@ -93,7 +98,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
         if (data.status === "failed") { reply = { status: "failed" }; return; }
         setTimeout(poll, POLL_MS);
       })
-      .catch(function () { setTimeout(poll, POLL_MS); });
+      .catch(function () { if (timeout) clearTimeout(timeout); setTimeout(poll, POLL_MS); });
   }
 
   function finish(useFallback) {
@@ -128,11 +133,14 @@ Qualtrics.SurveyEngine.addOnload(function () {
       setEd("fallback_used", "0");
     }
     question.enableNextButton();
+    var label = document.getElementById("cs-wait-status");
+    if (label) label.textContent = "Batch 2 is ready. Click Next to continue.";
+    // The button is clicked directly. question.clickNextButton() is not used: in the new survey
+    // engine it did nothing at once and then fired on the following page, skipping it. If the
+    // click does not work the participant can press the enabled button.
     setTimeout(function () {
-      try { question.clickNextButton(); } catch (error) {
-        var next = document.getElementById("next-button") || document.getElementById("NextButton");
-        if (next) next.click();
-      }
+      var next = document.getElementById("next-button") || document.getElementById("NextButton");
+      if (next && !next.disabled) next.click();
     }, 400);
   }
 
