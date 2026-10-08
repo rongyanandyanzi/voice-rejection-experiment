@@ -20,10 +20,11 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    available as a tool on the note 2 pages.)
 5. **Batch 1**: eight comments, one per page, five categories each, forced. Comments 3, 6 and 8
    raise two problems.
-6. **Note 1 choice**: "Attach a note to this batch" / "Finish this batch without a note", choice
-   order randomised by Qualtrics (`js_note_choice.js` records the order and the batch-1 submit
-   time, which anchors T). Branch: attach → **Note 1** essay (not forced; `js_note_essay.js`: one
-   soft check under 20 words, timing, keystrokes; the text is kept for the interim page).
+6. **Note 1**: one page for everyone, straight after batch 1 (the separate attach/finish page was
+   dropped on 2026-10-08). The essay box is not forced; an empty box means no note.
+   `js_note_essay.js`: one soft check under 20 words, timing, keystrokes; the text is kept for the
+   interim page. The last batch-1 page carries `js_batch1_anchor.js`, which records when batch 1
+   was submitted; that moment anchors T.
 7. **Interim tasks** (`js_interim.js`): starts the reply job at once if a note exists. Five
    study-link checks, device, coding experience, instruction clarity. All forced.
 8. **Waiting page** (`js_waiting.js`): "Batch 2 is waiting to be issued by the coding supervisor."
@@ -47,8 +48,8 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 | Field | Written by | Meaning |
 | --- | --- | --- |
 | `condition` | randomiser | assigned cell, used only for a voice note |
-| `batch1_submit_at`, `batch2_submit_at` | note choice pages | ISO time; batch 1's anchors T |
-| `n1_button_order`, `n2_button_order` | note choice pages | `attach_first` / `finish_first` |
+| `batch1_submit_at`, `batch2_submit_at` | last batch-1 page; note 2 choice page | ISO time; batch 1's anchors T |
+| `n2_button_order` | note 2 choice page | `attach_first` / `finish_first` |
 | `note1_text`, `note2_text` | note pages | the notes (also saved as the essay answers) |
 | `note*_opened_at`, `note*_submitted_at`, `note*_first_key_ms`, `note*_write_ms`, `note*_deletions`, `note*_words`, `note*_soft_check` | note pages | writing behaviour |
 | `rejection_status` | waiting page | `ok`, `fallback`, or `none` (no note) |

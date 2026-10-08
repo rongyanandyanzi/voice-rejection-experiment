@@ -190,7 +190,9 @@ def build(args):
     b1_elements = []
     b1_qids = []
     for index, text in enumerate(BATCH1, 1):
-        qid = choice(f"b1_{index}", comment_page(index, len(BATCH1), 1, text), CATEGORY_OPTIONS)
+        # The last comment's page records when batch 1 was submitted, which anchors T.
+        anchor_js = js("js_batch1_anchor.js", s.service_url) if index == len(BATCH1) else None
+        qid = choice(f"b1_{index}", comment_page(index, len(BATCH1), 1, text), CATEGORY_OPTIONS, js_code=anchor_js)
         b1_qids.append(qid)
         b1_elements += [qid, s.timing(f"t_b1_{index}")]
         if index < len(BATCH1):
@@ -198,10 +200,11 @@ def build(args):
     s.block("Batch 1", b1_elements)
 
     # 4. Note 1 -----------------------------------------------------------------------------
-    note1_choice = choice("note1_choice", paragraphs("<b>Batch 1 complete.</b>", "Both choices below lead to the next step and the same payment.", "Batch 1: attach a note, or finish without one?"),
-                          ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
-    s.block("Note 1 choice", [note1_choice])
-    note1 = s.essay("note1", paragraphs("<b>Note to the coding supervisor</b>", NOTE_PROMPT_1, "<span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span>"),
+    # One page, shown to everyone after batch 1 (the separate attach/finish choice page was dropped
+    # on 2026-10-08): an empty box means no note.
+    note1 = s.essay("note1", paragraphs("<b>Note to the coding supervisor</b>", NOTE_PROMPT_1,
+                                        "If there is nothing you want to tell them, leave the box empty and click Next. Either way leads to the next step and the same payment.",
+                                        "<span style=\"color:#667;font-size:13px;\">Anything you write goes to the coding supervisor with your batch.</span>"),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
     s.block("Note 1", [note1, s.timing("t_note1")])
 
@@ -336,7 +339,7 @@ def build(args):
     flow = [
         s.flow_embedded([
             "PROLIFIC_PID", "STUDY_ID", "SESSION_ID", "condition",
-            "batch1_submit_at", "batch2_submit_at", "n1_button_order", "n2_button_order",
+            "batch1_submit_at", "batch2_submit_at", "n2_button_order",
             "note1_text", "note1_opened_at", "note1_submitted_at", "note1_first_key_ms", "note1_write_ms", "note1_deletions", "note1_words", "note1_soft_check",
             "note2_text", "note2_opened_at", "note2_submitted_at", "note2_first_key_ms", "note2_write_ms", "note2_deletions", "note2_words", "note2_soft_check",
             "rejection_status", "rejection_msg1", "rejection_msg2", "rejection_compliance_code", "rejection_latency_ms",
@@ -348,8 +351,7 @@ def build(args):
         s.flow_randomizer([s.flow_embedded([("condition", value)]) for value in ["HP_HC", "HP_LC", "LP_HC", "LP_LC"]]),
         s.flow_block("Training"),
         s.flow_block("Batch 1"),
-        s.flow_block("Note 1 choice"),
-        s.flow_branch([s.expr_choice(note1_choice, 1, True, "Note 1: attach")], [s.flow_block("Note 1")], "Note 1 attached"),
+        s.flow_block("Note 1"),
         s.flow_block("Interim tasks"),
         s.flow_block("Waiting page"),
         s.flow_block("New messages"),
