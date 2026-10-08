@@ -28,7 +28,8 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 7. **Interim tasks** (`js_interim.js`): starts the reply job at once if a note exists. Five
    study-link checks, device, coding experience, instruction clarity. All forced.
 8. **Waiting page** (`js_waiting.js`): "Batch 2 is waiting to be issued by the coding supervisor."
-   Everyone stays until T = 120 s after batch 1 was submitted. A reply is polled meanwhile; if it
+   Everyone stays until T = 90 s after the note was sent (without a note, 90 s after batch 1 was
+   submitted). A reply is polled meanwhile; if it
    is not ready at T the page waits at most 60 s more, then the fallback for the cell is used and
    flagged. The page advances itself. Ten hidden text questions on the page carry the results.
    A note the service's blind check classes as non-voice gets `voice1 = 0` and the text
@@ -67,6 +68,6 @@ from the ResponseID (sha256, first 32-bit word mod 4 over closing, appreciation,
 
 - `ALLOWED_ORIGINS` on the service must include `https://*.qualtrics.com`.
 - Set T from the latency of the frozen wording (currently HP_HC slowest, median 40 s, max about
-  80 s in QA): 120 s covers it; measure in the pilot.
+  80 s in QA): 90 s from the note covers nearly all; measure in the pilot.
 - Replace `COMPLETION_CODE` in the end-of-survey redirect.
 - The sixteen comments are drafts; swap in the real corpus before the main run.

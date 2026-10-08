@@ -63,5 +63,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
     setEd("note" + tag + "_write_ms", submittedAt - openedAt);
     setEd("note" + tag + "_deletions", deletions);
     setEd("note" + tag + "_words", words(text));
+    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only
+    // starts being written then); without a note it stays anchored on the batch-1 submission.
+    if (tag === "1" && text) { try { sessionStorage.setItem("cs_note1_submit_ms", String(submittedAt)); } catch (error) {} }
   });
 });

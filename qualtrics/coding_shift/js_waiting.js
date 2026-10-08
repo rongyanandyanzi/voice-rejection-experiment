@@ -1,5 +1,6 @@
-// Waiting page ("Batch 2 is waiting to be issued"). Everyone stops here until a fixed time T after
-// batch 1 was submitted, the same T in every cell, whether or not a note was attached. For a note,
+// Waiting page ("Batch 2 is waiting to be issued"). Everyone stops here until a fixed time T: for a
+// note, T after the note was sent (when the reply starts being written); without a note, T after
+// batch 1 was submitted. The same T in every cell. For a note,
 // the supervisor's reply is polled meanwhile; if it is still not ready at T the page waits at most
 // GRACE_MS longer and then shows the pre-tested fallback for the assigned cell. Nothing is ever
 // shown sooner than T, and nobody is excluded for a slow or failed reply.
@@ -8,7 +9,7 @@
 // branch logic and piped text), into embedded data, and into sessionStorage for the next page.
 Qualtrics.SurveyEngine.addOnload(function () {
   var SERVICE_URL = "https://YOUR-SERVICE.onrender.com";
-  var T_MS = 120000;      // fixed delay after batch 1 was submitted
+  var T_MS = 90000;       // fixed delay after the note was sent (or after batch 1 without a note)
   var GRACE_MS = 60000;   // extra wait allowed after T for a reply that is still being written
   var POLL_MS = 3000;
   var MAX_STARTS = 3;
@@ -29,10 +30,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
   function stored(key) { try { return sessionStorage.getItem(key) || ""; } catch (error) { return ""; } }
 
   var openedAt = Date.now();
-  var anchor = Number(stored("cs_batch1_submit_ms")) || openedAt;
   var condition = domValue("cs-condition", "${e://Field/condition}") || "HP_HC";
   var note = stored("cs_note1_text") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData("note1_text") || "");
   var hasNote = Boolean(note.trim());
+  var anchor = (hasNote ? Number(stored("cs_note1_submit_ms")) : 0) || Number(stored("cs_batch1_submit_ms")) || openedAt;
   var requestId = stored("cs_request_id");
   var startBody = stored("cs_start_body");
 
