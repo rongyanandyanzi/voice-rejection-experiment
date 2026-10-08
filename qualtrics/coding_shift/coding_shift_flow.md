@@ -35,8 +35,9 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 9. **New messages** (`js_messages.js`): batch rating card for everyone; reply card only when a
    note was attached; "Batch 2 is ready" card. Next after 15 s.
 10. **Batch 2**: eight comments; 3, 6 and 8 fit no category.
-11. **Note 2 choice** with the two tools above it (`js_tools.js` counts opens into hidden
-    questions). Branch: attach → **Note 2** essay with the same tools.
+11. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
+    hidden questions; the "Why the rules are this way" tool was removed on 2026-10-08, so
+    `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool.
 12. **Questionnaire**: VQ1–VQ4, three voice items, three authority items, safety and futility.
 13. Branch `voice1 = 1` → **Manipulation checks** (politeness, constructiveness).
 14. **Closing**: AI check (open and direct), feedback, debrief. End of survey → Prolific.

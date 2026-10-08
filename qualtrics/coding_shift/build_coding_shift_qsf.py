@@ -138,9 +138,9 @@ def tools_html(review_items_html):
     return (
         "<div style=\"margin:0 0 12px;\">"
         "<button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button>"
-        "<button type=\"button\" id=\"cs-tool-why\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Why the rules are this way</button>"
+        # The "Why the rules are this way" tool was removed on 2026-10-08 (user decision). The
+        # why_opens carriers and the tools script stay as they are; why_opens is always 0.
         f"<div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\">{review_items_html}</ol></div>"
-        f"<div id=\"cs-panel-why\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\">{RATIONALE_HTML}</div>"
         "</div>"
     )
 
