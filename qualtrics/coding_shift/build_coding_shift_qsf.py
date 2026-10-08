@@ -78,15 +78,16 @@ PRACTICE = [
      "<b>WORDING.</b> The comment mentions two things and is mainly about the confusing question, so that is the category. The remark about length is not recorded."),
 ]
 
+# Ordinary end-of-study comments (replaced 2026-10-08). Comments 3, 6 and 8 raise two problems.
 BATCH1 = [
-    "The progress bar stuck at 40% for ages even though I kept answering.",
-    "I wasn't sure whether the slider meant how much I agreed or how often I did it.",
-    "The video on page 3 wouldn't load at all, and the payment was lower than the listing said.",
-    "Found some of the scenarios a bit upsetting, to be honest.",
-    "Some of the questions felt very repetitive towards the end.",
-    "The instructions for the ranking task didn't make sense to me, and the page crashed twice while I was doing it.",
-    "The bonus was mentioned at the start but I'm not sure how it's worked out.",
-    "I disagreed with how the question about my income was framed, and I only got paid half of what was promised.",
+    "Couldn't get past page 4 for ages, the next button didn't do anything.",
+    "Not sure what \"moderately often\" was supposed to mean.",
+    "The image in the first task never loaded, and honestly the whole thing felt way too long.",
+    "Interesting study, made me think about my own habits.",
+    "Lots of questions asking basically the same thing.",
+    "Some of the wording was confusing, and I think I got paid less than the advert said.",
+    "Will the bonus be paid separately?",
+    "Didn't like being asked about my weight, and the slider kept jumping back to the middle.",
 ]
 BATCH2 = [
     "The page kept freezing whenever I tried to go back.",
@@ -128,9 +129,10 @@ def card(head, body_html):
 def comment_page(number, total, batch, text):
     return (
         f"<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch {batch} &middot; comment {number} of {total}</p>"
-        + RULE_HTML
+        # No rule box (removed 2026-10-08, user decision): the coder sees the comment and the five
+        # categories only. The form allows one category and offers no "other".
         + f"<p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">{esc(text)}</p>"
-        + "<p>Which category is this comment mainly about?</p>"
+        + "<p>Which category does this comment belong to?</p>"
     )
 
 
@@ -171,20 +173,15 @@ def build(args):
     # 2. Training ---------------------------------------------------------------------------
     rules_page = s.text("training_rules", paragraphs("<b>Your job and the coding rules</b>", "Each comment goes into one of five categories.")
                         + "".join(f"<p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">{code}</code> <b>{name}.</b> {definition}</p>" for code, name, definition in CATEGORIES)
-                        + RULE_HTML
-                        + paragraphs("At the end of every batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.",
+                        + paragraphs("Choose one category for each comment.", "At the end of every batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.", "Batch 1 starts on the next page.",
                                      "<span style=\"color:#667;font-size:13px;\">Codebook v3.1 &middot; rules set by the coding supervisor</span>"),
                         description="Training: rules")
     # The "Why the rules are this way" training page was removed on 2026-10-07 (user decision); the
     # rationale is still available as a tool on the note 2 pages.
-    practice1 = choice("practice_1", "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Practice 1 of 2</p>" + RULE_HTML
-                       + f"<p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;\">{esc(PRACTICE[0][0])}</p><p>Which category is this comment mainly about?</p>", CATEGORY_OPTIONS)
-    practice1_fb = s.text("practice_1_feedback", paragraphs("<b>Practice 1: answer</b>", f"<span style=\"color:#667\">{esc(PRACTICE[0][0])}</span>", PRACTICE[0][1]), description="Practice 1 feedback")
-    practice2 = choice("practice_2", "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Practice 2 of 2</p>" + RULE_HTML
-                       + f"<p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;\">{esc(PRACTICE[1][0])}</p><p>Which category is this comment mainly about?</p>", CATEGORY_OPTIONS)
-    practice2_fb = s.text("practice_2_feedback", paragraphs("<b>Practice 2: answer</b>", f"<span style=\"color:#667\">{esc(PRACTICE[1][0])}</span>", PRACTICE[1][1], "Batch 1 starts on the next page. Your labels there count."), description="Practice 2 feedback")
+    # The two practice items and their answer pages were removed on 2026-10-08 (user decision): no
+    # explanation of the rule beyond the rule box itself before the reply.
     t_train = s.timing("t_training")
-    s.block("Training", [rules_page, t_train, "PB", practice1, "PB", practice1_fb, practice2, "PB", practice2_fb])
+    s.block("Training", [rules_page, t_train])
 
     # 3. Batch 1 ----------------------------------------------------------------------------
     b1_elements = []
