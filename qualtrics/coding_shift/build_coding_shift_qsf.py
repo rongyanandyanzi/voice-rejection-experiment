@@ -82,12 +82,12 @@ PRACTICE = [
 BATCH1 = [
     "Couldn't get past page 4 for ages, the next button didn't do anything.",
     "Not sure what \"moderately often\" was supposed to mean.",
-    "The image in the first task never loaded, and honestly the whole thing felt way too long.",
+    "Video on page 3 kept buffering so I couldn't hear it properly. Also took way longer than the 10 mins it said.",
     "Interesting study, made me think about my own habits.",
     "Lots of questions asking basically the same thing.",
-    "Some of the wording was confusing, and I think I got paid less than the advert said.",
+    "Some questions were a bit vague so I wasn't sure what to put, and it got really repetitive near the end.",
     "Will the bonus be paid separately?",
-    "Didn't like being asked about my weight, and the slider kept jumping back to the middle.",
+    "Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.",
 ]
 BATCH2 = [
     "The page kept freezing whenever I tried to go back.",
@@ -286,19 +286,23 @@ def build(args):
     s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2")])
 
     # 10. Questionnaire ---------------------------------------------------------------------
-    vq = s.likert("VQ", paragraphs(
-        "<b>A few questions about the second batch</b>",
-        "The following statements are about the end of batch 2, when you could attach a second note to the coding supervisor. Please indicate how much you agree with each statement about what you actually did.",
-    ), [
-        ("VQ1", "Before deciding whether to send a second note, I tried to back what I might suggest with the information available to me, such as the comments in the batch."),
-        ("VQ2", "Before deciding whether to send a second note, I made an effort to think through the practical concerns the supervisor would have, such as agreement between coders, comparability with earlier coding, or the extra work a change would create."),
-        ("VQ3", "Before deciding whether to send a second note, I tried to anticipate the questions or doubts the supervisor might raise, and how I would answer them."),
-        ("VQ4", "Before deciding whether to send a second note, I made an effort to work out a clear, actionable change rather than a general idea."),
+    # Voice intention scales from the study's off-survey scale document (2026-10-09), adapted to the
+    # coding context. Asked after note 2 and framed on the batches still to come, so they do not
+    # prompt the note 2 decision itself.
+    future_intro = "The coding project continues with further batches. Please indicate how you intend to proceed in the coming batches."
+    vf = s.likert("VF", paragraphs("<b>Your next steps</b>", future_intro), [
+        ("VF1", "I will take the initiative multiple times to propose specific improvements to the coding process."),
+        ("VF2", "I will make a point not only to suggest changes to the coding rules but also to seek other coders' support for them."),
+        ("VF3", "Even if the coding supervisor seems dismissive, I will persist in communicating my alternative views on the coding rules."),
+        ("VF4", "I will take every opportunity during the coding work to share proactive ideas for improving how comments are coded."),
+        ("VF5", "I will be a lead contributor to discussions about how the coding rules and categories should work."),
+        ("VF6", "I will repeatedly offer my own constructive suggestions and ideas to improve the current coding rules."),
     ])
-    vf = s.likert("VF", paragraphs("<b>About the second note</b>", "Please indicate how much you agree with each statement about what you actually did at the end of batch 2."), [
-        ("VF1", "I used the opportunity at the end of batch 2 to share my views on the coding process proactively."),
-        ("VF2", "I put forward my own ideas about the coding process in the second note, rather than keeping them to myself."),
-        ("VF3", "I raised a new point about the coding process with the supervisor at the end of batch 2."),
+    vq = s.likert("VQ", paragraphs("<b>Your next steps</b>", future_intro), [
+        ("VQ1", "When presenting my suggestions about the coding process, I will strive to show a well-researched proposal backed by evidence from the comments."),
+        ("VQ2", "When offering my opinions, I will make every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
+        ("VQ3", "When proposing a change to the coding rules, I will attempt to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."),
+        ("VQ4", "When pointing out flaws in the current coding rules, I will prepare a clear, actionable solution for the coding supervisor."),
     ])
     authority = s.likert("AUTH", paragraphs("<b>About the coding supervisor</b>", "Please indicate how much you agree with each statement."), [
         ("AUTH1", "The coding supervisor had the authority to decide how comments are coded."),
@@ -311,7 +315,7 @@ def build(args):
         ("FUT1", "Raising a concern with the supervisor would make no difference to how the coding is done."),
         ("FUT2", "The supervisor would act on a good suggestion about the coding process."),
     ])
-    s.block("Questionnaire", [vq, "PB", vf, "PB", authority, "PB", climate])
+    s.block("Questionnaire", [vf, "PB", vq, "PB", authority, "PB", climate])
 
     # 11. Manipulation checks, voicers only -------------------------------------------------
     polite = s.likert("MA", paragraphs("<b>The supervisor's reply to your note on batch 1</b>", "Please indicate how you perceived the reply.", "<em>The supervisor's reply was&hellip;</em>"), [
@@ -323,7 +327,21 @@ def build(args):
         ("MC3", "Made reference to specific parts of my note that were problematic."),
         ("MC4", "Provided clear enough guidance that I knew what to change."),
     ])
-    s.block("Manipulation checks", [polite, "PB", useful])
+    reasons = s.likert("REASON", paragraphs(
+        "<b>The supervisor's reply to your note on batch 1</b>",
+        "Please indicate why you think the coding supervisor turned down your note.",
+        "<em>The supervisor turned down my note&hellip;</em>",
+    ), [
+        ("MR1", "Because of the supervisor's emotions."),
+        ("MR2", "To demonstrate the supervisor's authority."),
+        ("MR3", "Because the supervisor dislikes me."),
+        ("PR1", "Because the ideas for improvement in my note were mediocre."),
+        ("PR2", "Because my suggestions don't really improve the coding methods or practices."),
+        ("PR3", "Because I suggested changes to the coding that don't really help much."),
+        ("PR4", "Because I made impractical recommendations about how to fix problems in the coding."),
+        ("PR5", "Because my suggestions are not very useful."),
+    ])
+    s.block("Manipulation checks", [reasons, "PB", polite, "PB", useful])
 
     # 12. AI check, feedback, debrief -------------------------------------------------------
     ai_unusual = s.essay("ai_check_unusual", paragraphs("<b>A few final questions</b>", "Did anything about the shift feel unusual or unexpected? Please describe briefly."), force=True, height=110)

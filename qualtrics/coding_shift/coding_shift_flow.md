@@ -41,8 +41,11 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 11. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
     hidden questions; the "Why the rules are this way" tool was removed on 2026-10-08, so
     `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool.
-12. **Questionnaire**: VQ1–VQ4, three voice items, three authority items, safety and futility.
-13. Branch `voice1 = 1` → **Manipulation checks** (politeness, constructiveness).
+12. **Questionnaire**: voice frequency intention (VF1–VF6) and voice quality improvement effort
+    intention (VQ1–VQ4) from the study's off-survey scale document, adapted to the coding project
+    and framed on the batches still to come; then authority (AUTH1–3) and safety/futility.
+13. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection (MR1–MR3
+    supervisor-related, PR1–PR5 proposal-quality), then politeness (MA) and constructiveness (MC).
 14. **Closing**: AI check (open and direct), feedback, debrief. End of survey → Prolific.
 
 ## Embedded data
