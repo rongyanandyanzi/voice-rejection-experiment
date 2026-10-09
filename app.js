@@ -82,7 +82,6 @@
     completed_ai_check: storedSession.completed_ai_check || "false",
     ai_check_start_time: storedSession.ai_check_start_time || "",
     ai_check_submit_time: storedSession.ai_check_submit_time || "",
-    manager_ai_suspicion: storedSession.manager_ai_suspicion || "",
     lisa_ai_suspicion: storedSession.lisa_ai_suspicion || "",
     john_ai_suspicion: storedSession.john_ai_suspicion || "",
     completion_status: storedSession.completion_status || "partial",
@@ -99,50 +98,40 @@
   const surveySections = [
     {
       title: "Future Communication Intentions",
-      instruction: "Before receiving the manager's feedback, please indicate your next steps and how you intend to proceed with your proposal.",
+      instruction: "Prior to receiving the manager's feedback, please indicate your next steps and how you intend to proceed with your proposal.",
       items: [
-        { id: "VF1", text: "I will take the initiative multiple times to propose specific improvements for attracting more visitors during off-season weekdays." },
-        { id: "VF2", text: "I will make a point to suggest new ways to attract nearby university students." },
-        { id: "VF3", text: "Even if the manager seems dismissive, I will persist in communicating my alternative views on how the park can improve off-season weekday attendance." },
-        { id: "VF4", text: "I will take every opportunity during the session to share proactive ideas on expanding the park's visitor base beyond families with young children." },
-        { id: "VF5", text: "I will be a lead contributor throughout the discussion regarding how to attract nearby university students and make better use of the park's surrounding environment." },
-        { id: "VF6", text: "I will repeatedly offer my own constructive suggestions and ideas to improve the park's visitor strategy during off-season weekdays." },
+        { id: "VF1", text: "I will take the initiative multiple times to propose specific improvements for our seasonal labor inefficiencies." },
+        { id: "VF2", text: "I will make a point to not only suggest staffing changes but also try to rally my colleagues' support for the transition." },
+        { id: "VF3", text: "Even if the manager seems dismissive, I will persist in communicating my alternative views on the staffing conversion." },
+        { id: "VF4", text: "I will take every opportunity during the session to share proactive ideas on optimizing our workforce for peak periods." },
+        { id: "VF5", text: "I will be a lead contributor throughout the discussion regarding labor restructuring and our staffing solutions." },
+        { id: "VF6", text: "I will repeatedly offer my own constructive suggestions and ideas to reform our current staffing model." },
       ],
     },
     {
       title: "Proposal Preparation Intentions",
-      instruction: "Before receiving the manager's feedback, please indicate how you intend to improve the quality of your proposal.",
+      instruction: "Prior to receiving the manager's feedback, please indicate how you intend to improve the quality of your proposal.",
       items: [
-        { id: "VQ1", text: "When presenting my suggestion, I will strive to showcase a well-researched proposal backed by entrance records, visitor comments, and location information." },
-        { id: "VQ2", text: "When offering my opinions, I will make every effort to address the manager's specific concerns regarding visitor demand, feasibility, and park operations." },
-        { id: "VQ3", text: "When proposing ways to attract nearby university students, I will attempt to clarify any doubts the manager might have about whether this visitor group is suitable for the park." },
-        { id: "VQ4", text: "When pointing out the limitations of relying mainly on families with young children, I will prepare a clear, actionable solution for the manager." },
+        { id: "VQ1", text: "When presenting my staffing suggestions, I will strive to showcase a well-researched proposal backed by solid data." },
+        { id: "VQ2", text: "When offering my opinions, I will make every effort to address the manager's specific concerns regarding brand safety and service." },
+        { id: "VQ3", text: "When proposing the flexible model, I will attempt to clarify any doubts the manager might have about liability or training." },
+        { id: "VQ4", text: "When pointing out the flaws in our current fixed-staffing model, I will prepare a clear, actionable solution for the manager." },
       ],
     },
     {
       title: "Perceived Reasons for Manager Response",
-      instruction: "Please indicate why you think the manager rejected your suggestion about the labor plan.",
+      instruction: "Thanks for interacting with the manager. Please indicate why the manager rejected your suggestions about the labor plan.",
       instructionRed: true,
-      stem: "The manager rejected my suggestion because...",
-      groups: [
-        {
-          label: "Manager-related reasons",
-          items: [
-            { id: "MR1", text: "The manager was influenced by their emotions." },
-            { id: "MR2", text: "The manager wanted to demonstrate their authority." },
-            { id: "MR3", text: "The manager personally disliked me." },
-          ],
-        },
-        {
-          label: "Proposal-related reasons",
-          items: [
-            { id: "PR1", text: "My proposal for improvement was mediocre." },
-            { id: "PR2", text: "My suggestion did not really improve the current methods or practices." },
-            { id: "PR3", text: "The changes I suggested for work arrangements did not really help much." },
-            { id: "PR4", text: "I made impractical recommendations about how to fix work-related problems." },
-            { id: "PR5", text: "My suggestion was not very useful." },
-          ],
-        },
+      stem: "The manager rejected my suggestions...",
+      items: [
+        { id: "MR1", text: "Due to their emotions." },
+        { id: "MR2", text: "To demonstrate their authority." },
+        { id: "MR3", text: "Because they dislike me." },
+        { id: "PR1", text: "Because my proposal's ideas for improvement were mediocre." },
+        { id: "PR2", text: "Because my suggestions don't really improve the methods or practices." },
+        { id: "PR3", text: "Because I suggested changes to work projects that don't really help much." },
+        { id: "PR4", text: "Because I made impractical recommendations about how to fix work-related problems." },
+        { id: "PR5", text: "Because my suggestions are not too useful." },
       ],
     },
     {
@@ -239,9 +228,10 @@
       speaker: "Participant 1",
       shuffleGroup: "prechatParticipantIntro",
       text: [
-        "Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks.",
-        "Hi all, I’ve done many Prolific tasks, mostly surveys and decision tasks.",
+        "Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks, but this group chat format is newer for me.",
+        "Hi all, I’ve done many Prolific tasks, mostly surveys. I’ve only done a few live chat ones though.",
         "Hello everyone, I’m an experienced Prolific participant, though this group chat format is less common.",
+        "Hi everyone. I’m quite used to Prolific studies, and I’ve done the odd interactive one, but not many like this.",
       ],
       delay: 3000,
     },
@@ -249,9 +239,10 @@
       speaker: "Participant 2",
       shuffleGroup: "prechatParticipantIntro",
       text: [
-        "Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones.",
-        "Hi everyone :) I’ve done many Prolific surveys before, mostly product feedback and short online tasks.",
+        "Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones. Group chats are a bit less common for me.",
+        "Hi everyone :) I’ve done many Prolific surveys before, and I’m pretty comfortable with online tasks, but this chat style is fairly new to me.",
         "Hey all, I’ve completed many Prolific tasks, though live group chat ones are less common.",
+        "Hi all :) Done loads of Prolific studies, mostly surveys. Only a couple of live chat ones so far though.",
       ],
       delay: 3200,
     },
@@ -259,9 +250,10 @@
       speaker: "Participant 3",
       shuffleGroup: "prechatParticipantIntro",
       text: [
-        "Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks.",
-        "Hi all, I’ve done many Prolific tasks, mostly surveys and decision tasks.",
+        "Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks. This live chat format is a bit different though.",
+        "Hi all, I’ve done many Prolific tasks, mostly surveys, and I’m used to attention checks and role play tasks.",
         "Hello everyone. I have extensive experience with online tasks. This format is a bit different.",
+        "Hello all. I’ve done a fair number of Prolific studies, and a few interactive ones, but most were regular surveys.",
       ],
       delay: 3200,
     },
@@ -1636,7 +1628,6 @@
     participant.completed_ai_check = "false";
     participant.ai_check_start_time = state.aiCheckStartTime;
     participant.ai_check_submit_time = "";
-    participant.manager_ai_suspicion = "";
     participant.lisa_ai_suspicion = "";
     participant.john_ai_suspicion = "";
     participant.completion_status = "partial";
@@ -1648,7 +1639,6 @@
         <h1>One More Question</h1>
         <p>In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.</p>
         <form id="ai-check-form" novalidate>
-          ${renderAiCheckQuestion("manager_ai_suspicion", "Do you think the manager you interacted with may have been AI?")}
           ${renderAiCheckQuestion("lisa_ai_suspicion", "Do you think Coworker 1 may have been AI?")}
           ${renderAiCheckQuestion("john_ai_suspicion", "Do you think Coworker 2 may have been AI?")}
           <p class="validation-message" id="ai-check-validation" aria-live="polite"></p>
@@ -1688,11 +1678,10 @@
     event.preventDefault();
     const form = event.currentTarget;
     const validation = document.getElementById("ai-check-validation");
-    const managerResponse = form.elements.manager_ai_suspicion.value;
     const lisaResponse = form.elements.lisa_ai_suspicion.value;
     const johnResponse = form.elements.john_ai_suspicion.value;
 
-    if (!managerResponse || !lisaResponse || !johnResponse) {
+    if (!lisaResponse || !johnResponse) {
       const message = "Please answer all questions before continuing.";
       validation.textContent = message;
       recordInteraction("ai_check", "system", message, "");
@@ -1703,7 +1692,6 @@
     participant.completed_ai_check = "true";
     participant.ai_check_start_time = state.aiCheckStartTime || participant.ai_check_start_time || submitTime;
     participant.ai_check_submit_time = submitTime;
-    participant.manager_ai_suspicion = managerResponse;
     participant.lisa_ai_suspicion = lisaResponse;
     participant.john_ai_suspicion = johnResponse;
     participant.experiment_end_time = submitTime;
@@ -1712,7 +1700,7 @@
     recordInteraction(
       "ai_check",
       "alex",
-      `manager=${managerResponse}; lisa=${lisaResponse}; john=${johnResponse}`,
+      `lisa=${lisaResponse}; john=${johnResponse}`,
       ""
     );
     renderCompletionPage("You have completed this part of the interaction. Please click “Next” to proceed to the next page.", participant.completed_neutral_manager_followup === "true");

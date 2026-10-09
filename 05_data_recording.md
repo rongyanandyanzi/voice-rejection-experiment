@@ -150,7 +150,6 @@ Use the following columns:
 - `completed_ai_check`
 - `ai_check_start_time`
 - `ai_check_submit_time`
-- `manager_ai_suspicion`
 - `lisa_ai_suspicion`
 - `john_ai_suspicion`
 - `completion_status`
@@ -310,20 +309,6 @@ The timestamp when the AI-check page was displayed.
 ### ai_check_submit_time
 
 The timestamp when the participant submitted the AI-check page.
-
-### manager_ai_suspicion
-
-Record the participant's answer to:
-
-```text
-Do you think the manager you interacted with may have been AI?
-```
-
-Allowed values:
-
-- `yes`
-- `no`
-- `not_sure`
 
 ### lisa_ai_suspicion
 

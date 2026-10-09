@@ -41,7 +41,7 @@ The sequence should be:
 7. If the participant chooses no, the system should skip the second manager interaction and go directly to the post-interaction survey page.
 8. The participant completes all survey items.
 9. The participant proceeds to the AI-check page.
-10. The participant answers whether the manager and coworkers may have been AI.
+10. The participant answers whether the two coworkers may have been AI. Do not ask whether the manager may have been AI.
 11. The participant proceeds to the completion page.
 
 The survey must be completed by all participants who reach the end of the coworker interaction.
@@ -91,39 +91,41 @@ For small screens, the layout should remain readable. If needed, use a mobile-fr
 
 ## Section 1: Future Communication Intentions
 
+The items in Sections 1-3 are adapted from the researcher's Word file `off-survey_scale.docx`. Keep this wording.
+
 ### Section Title
 
 Future Communication Intentions
 
 ### Instruction
 
-Before receiving the manager's feedback, please indicate your next steps and how you intend to proceed with your proposal.
+Prior to receiving the manager's feedback, please indicate your next steps and how you intend to proceed with your proposal.
 
 ### Items
 
 #### VF1
 
-I will take the initiative multiple times to propose specific improvements for attracting more visitors during off-season weekdays.
+I will take the initiative multiple times to propose specific improvements for our seasonal labor inefficiencies.
 
 #### VF2
 
-I will make a point to suggest new ways to attract nearby university students.
+I will make a point to not only suggest staffing changes but also try to rally my colleagues' support for the transition.
 
 #### VF3
 
-Even if the manager seems dismissive, I will persist in communicating my alternative views on how the park can improve off-season weekday attendance.
+Even if the manager seems dismissive, I will persist in communicating my alternative views on the staffing conversion.
 
 #### VF4
 
-I will take every opportunity during the session to share proactive ideas on expanding the park's visitor base beyond families with young children.
+I will take every opportunity during the session to share proactive ideas on optimizing our workforce for peak periods.
 
 #### VF5
 
-I will be a lead contributor throughout the discussion regarding how to attract nearby university students and make better use of the park's surrounding environment.
+I will be a lead contributor throughout the discussion regarding labor restructuring and our staffing solutions.
 
 #### VF6
 
-I will repeatedly offer my own constructive suggestions and ideas to improve the park's visitor strategy during off-season weekdays.
+I will repeatedly offer my own constructive suggestions and ideas to reform our current staffing model.
 
 ## Section 2: Proposal Preparation Intentions
 
@@ -133,25 +135,25 @@ Proposal Preparation Intentions
 
 ### Instruction
 
-Before receiving the manager's feedback, please indicate how you intend to improve the quality of your proposal.
+Prior to receiving the manager's feedback, please indicate how you intend to improve the quality of your proposal.
 
 ### Items
 
 #### VQ1
 
-When presenting my suggestion, I will strive to showcase a well-researched proposal backed by entrance records, visitor comments, and location information.
+When presenting my staffing suggestions, I will strive to showcase a well-researched proposal backed by solid data.
 
 #### VQ2
 
-When offering my opinions, I will make every effort to address the manager's specific concerns regarding visitor demand, feasibility, and park operations.
+When offering my opinions, I will make every effort to address the manager's specific concerns regarding brand safety and service.
 
 #### VQ3
 
-When proposing ways to attract nearby university students, I will attempt to clarify any doubts the manager might have about whether this visitor group is suitable for the park.
+When proposing the flexible model, I will attempt to clarify any doubts the manager might have about liability or training.
 
 #### VQ4
 
-When pointing out the limitations of relying mainly on families with young children, I will prepare a clear, actionable solution for the manager.
+When pointing out the flaws in our current fixed-staffing model, I will prepare a clear, actionable solution for the manager.
 
 ## Section 3: Perceived Reasons for Manager Response
 
@@ -161,47 +163,49 @@ Perceived Reasons for Manager Response
 
 ### Instruction
 
-Please indicate why you think the manager rejected your suggestion about the labor plan.
+Thanks for interacting with the manager. Please indicate why the manager rejected your suggestions about the labor plan.
 
 ### Stem
 
-The manager rejected my suggestion because...
+The manager rejected my suggestions...
 
-### Subsection 3A: Manager-Related Reasons
+Show all eight items as one list. Do not show subheadings such as "Manager-related reasons" or "Proposal-related reasons" to the participant. Use "their" / "they" for the manager instead of "his/her" / "he/she".
+
+### Manager-Related Reasons (internal grouping only)
 
 #### MR1
 
-The manager was influenced by their emotions.
+Due to their emotions.
 
 #### MR2
 
-The manager wanted to demonstrate their authority.
+To demonstrate their authority.
 
 #### MR3
 
-The manager personally disliked me.
+Because they dislike me.
 
-### Subsection 3B: Proposal-Related Reasons
+### Proposal-Related Reasons (internal grouping only)
 
 #### PR1
 
-My proposal for improvement was mediocre.
+Because my proposal's ideas for improvement were mediocre.
 
 #### PR2
 
-My suggestion did not really improve the current methods or practices.
+Because my suggestions don't really improve the methods or practices.
 
 #### PR3
 
-The changes I suggested for work arrangements did not really help much.
+Because I suggested changes to work projects that don't really help much.
 
 #### PR4
 
-I made impractical recommendations about how to fix work-related problems.
+Because I made impractical recommendations about how to fix work-related problems.
 
 #### PR5
 
-My suggestion was not very useful.
+Because my suggestions are not too useful.
 
 ## Section 4: Perceived Tone of Manager Response
 ### Section Title
@@ -316,11 +320,9 @@ Display the following text:
 In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the questions below.
 ```
 
-Then ask the following three required questions:
+Then ask the following two required questions. Do not ask whether the manager may have been AI:
 
 ```text
-Do you think the manager you interacted with may have been AI?
-
 Do you think Coworker 1 may have been AI?
 
 Do you think Coworker 2 may have been AI?
@@ -334,7 +336,7 @@ For each question, use required radio-button response options:
 
 Do not allow the participant to continue without answering.
 
-After the participant submits all three questions, move the participant to the completion page.
+After the participant submits both questions, move the participant to the completion page.
 
 ## Data Recording Requirements
 
@@ -361,7 +363,6 @@ Record the AI-check responses at the participant level:
 - `completed_ai_check`
 - `ai_check_start_time`
 - `ai_check_submit_time`
-- `manager_ai_suspicion`
 - `lisa_ai_suspicion`
 - `john_ai_suspicion`
 
@@ -659,7 +660,6 @@ After the survey, show the AI-check page and update participants.csv with:
 - completed_ai_check
 - ai_check_start_time
 - ai_check_submit_time
-- manager_ai_suspicion
 - lisa_ai_suspicion
 - john_ai_suspicion
 

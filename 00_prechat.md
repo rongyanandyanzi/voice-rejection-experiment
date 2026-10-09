@@ -80,6 +80,8 @@ Participants may mention only:
 * They are comfortable with online studies.
 * This live group chat format is a bit different from regular surveys.
 
+In the first batch of messages (the Participant 1/2/3 self-introductions), most introduction messages should combine two of these points in one message, for example Prolific experience plus how familiar they are with live group chats, rather than saying only one thing.
+
 They should not automatically mention:
 
 * Exact age
@@ -175,11 +177,11 @@ Coordinator: Before we start the main task, could everyone briefly introduce the
 
 Coordinator: Just whether you’ve done Prolific or online tasks before is enough. No need to share anything too personal.
 
-Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks.
+Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks, but this group chat format is newer for me.
 
-Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones.
+Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones. Group chats are a bit less common for me.
 
-Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks.
+Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks. This live chat format is a bit different though.
 
 Coordinator: Thanks everyone. Participant 4, could you also briefly introduce yourself?
 
@@ -309,11 +311,11 @@ Coordinator: Great, looks like everyone is here now. Welcome all, thanks for joi
 
 Coordinator: Before we start, could everyone briefly introduce themselves? Just whether you’ve done Prolific or online tasks before is enough. No need to share anything too personal.
 
-Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks.
+Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks, but this group chat format is newer for me.
 
-Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones.
+Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones. Group chats are a bit less common for me.
 
-Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks.
+Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks. This live chat format is a bit different though.
 
 Coordinator: Thanks everyone. Participant 4, could you also briefly introduce yourself?
 
@@ -655,7 +657,7 @@ Participant 1 should avoid:
 ## Visible Self-Introduction
 
 ```text
-Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks.
+Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks, but this group chat format is newer for me.
 ```
 
 ## Alternative Visible Introductions
@@ -776,7 +778,7 @@ Participant 2 should avoid:
 ## Visible Self-Introduction
 
 ```text
-Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones.
+Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones. Group chats are a bit less common for me.
 ```
 
 ## Alternative Visible Introductions
@@ -901,7 +903,7 @@ Participant 3 should avoid:
 ## Visible Self-Introduction
 
 ```text
-Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks.
+Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks. This live chat format is a bit different though.
 ```
 
 ## Alternative Visible Introductions
@@ -1024,11 +1026,11 @@ They may say:
 ```text
 Coordinator: Before we start the main task, could everyone briefly introduce themselves? Just whether you’ve done Prolific or online tasks before is enough. No need to share anything too personal.
 
-Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks.
+Participant 1: Hi everyone, I’ve completed many Prolific tasks before, mostly surveys and decision tasks, but this group chat format is newer for me.
 
-Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones.
+Participant 2: Hi all :) I’ve done a lot of Prolific tasks, mostly surveys and product feedback ones. Group chats are a bit less common for me.
 
-Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks.
+Participant 3: Hi everyone, I’ve completed many Prolific tasks before, mainly surveys and workplace tasks. This live chat format is a bit different though.
 
 Coordinator: Thanks everyone. Participant 4, could you also briefly introduce yourself?
 ```

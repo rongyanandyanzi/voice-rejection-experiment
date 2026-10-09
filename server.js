@@ -37,7 +37,6 @@ const participantColumns = [
   "completed_ai_check",
   "ai_check_start_time",
   "ai_check_submit_time",
-  "manager_ai_suspicion",
   "lisa_ai_suspicion",
   "john_ai_suspicion",
   "completion_status",
