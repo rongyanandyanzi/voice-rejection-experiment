@@ -292,7 +292,7 @@ def build(args):
     future_intro = "The coding project continues with further batches. Please indicate how you intend to proceed in the coming batches."
     vf = s.likert("VF", paragraphs("<b>Your next steps</b>", future_intro), [
         ("VF1", "I will take the initiative multiple times to propose specific improvements to the coding process."),
-        ("VF2", "I will make a point not only to suggest changes to the coding rules but also to seek other coders' support for them."),
+        ("VF2", "I will make a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."),
         ("VF3", "Even if the coding supervisor seems dismissive, I will persist in communicating my alternative views on the coding rules."),
         ("VF4", "I will take every opportunity during the coding work to share proactive ideas for improving how comments are coded."),
         ("VF5", "I will be a lead contributor to discussions about how the coding rules and categories should work."),

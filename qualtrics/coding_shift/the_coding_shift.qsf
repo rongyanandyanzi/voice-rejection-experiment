@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-09 18:21:46",
+    "SurveyCreationDate": "2026-10-09 18:22:44",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-09 18:21:46",
+    "LastModified": "2026-10-09 18:22:44",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -4828,7 +4828,7 @@
             "Display": "I will take the initiative multiple times to propose specific improvements to the coding process."
           },
           "2": {
-            "Display": "I will make a point not only to suggest changes to the coding rules but also to seek other coders' support for them."
+            "Display": "I will make a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."
           },
           "3": {
             "Display": "Even if the coding supervisor seems dismissive, I will persist in communicating my alternative views on the coding rules."
