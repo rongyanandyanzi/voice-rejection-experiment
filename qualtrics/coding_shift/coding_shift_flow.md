@@ -1,6 +1,7 @@
 # The Coding Shift: Qualtrics survey
 
-Built by `build_coding_shift_qsf.py` into `the_coding_shift.qsf`. Import as a **new** project
+Built by `build_coding_shift_qsf.py` into `the_coding_shift.qsf`. Live as "The Coding Shift v3"
+(SV_5cYdgJJIsz2WJBc, imported 2026-10-09); the earlier SV_9mKt30e7sUqfO50 has the two-batch flow. Import as a **new** project
 (Projects > Create a new project > Survey > Import a QSF file). The old consumer-panel surveys are
 not touched.
 
@@ -40,7 +41,8 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    A note the service's blind check classes as non-voice gets `voice1 = 0` and the text
    "Note received."
 10. **New messages** (`js_messages.js`): batch rating card for everyone; reply card only when a
-   note was attached; "Batch 3 is ready" card. Next after 15 s.
+   note was attached; "Batch 3 is ready" card. The reply is read from what the waiting page stored,
+   retried for up to 20 s if it is not there yet. Next opens 15 s after the reply is on screen.
 11. **Batch 3** (the former batch 2): eight comments; 3, 6 and 8 fit no category.
 12. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
     hidden questions; the "Why the rules are this way" tool was removed on 2026-10-08, so
