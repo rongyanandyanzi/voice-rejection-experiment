@@ -20,7 +20,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    practice pages, and each practice answer page explains the rule. The comment pages carry no
    rule box, and the rationale page is gone.
 5. **Batch 1**: eight ordinary end-of-study comments, one per page, five categories each, forced.
-   Comments 3, 6 and 8 raise two problems.
+   Comments 3, 5, 6 and 8 raise two problems.
 6. **Note 1**: one page for everyone, straight after batch 1 (the separate attach/finish page was
    dropped on 2026-10-08). The essay box is not forced; an empty box means no note.
    `js_note_essay.js`: one soft check under 20 words, timing, keystrokes; the text is kept for the

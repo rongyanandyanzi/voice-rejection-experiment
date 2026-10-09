@@ -66,7 +66,7 @@ test("message delivery reframes the first rejection as a written reply without c
   assert.match(message.system, /coding supervisor on a research group's comment-coding project/);
   assert.match(message.system, /You wrote the current rules and stand by them/);
   assert.match(message.system, /never mention other coders, other notes, or a queue/);
-  assert.match(message.system, /first batch of eight comments, three \(comments 3, 6 and 8\)/);
+  assert.match(message.system, /first batch of eight comments, four \(comments 3, 5, 6 and 8\)/);
   assert.doesNotMatch(message.system, /Aetheria Gardens|ticket|marketing/);
   assert.match(chat.system, /Aetheria Gardens/);
   assert.match(message.system, /so do not ask them anything/);

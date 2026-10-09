@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-09 15:46:21",
+    "SurveyCreationDate": "2026-10-09 18:21:46",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-09 15:46:21",
+    "LastModified": "2026-10-09 18:21:46",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -2002,10 +2002,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID17",
-      "SecondaryAttribute": "Batch 1 &middot; comment 5 of 8  Lots of questions asking basically the same thing.  Which category ",
+      "SecondaryAttribute": "Batch 1 &middot; comment 5 of 8  Lots of questions asking basically the same thing, and I'm still no",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Lots of questions asking basically the same thing.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Lots of questions asking basically the same thing, and I'm still not sure when I'll get paid.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2047,7 +2047,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID17",
         "DataExportTag": "b1_5",
-        "QuestionDescription": "Batch 1 &middot; comment 5 of 8  Lots of questions asking basically the same thing.  Which category ",
+        "QuestionDescription": "Batch 1 &middot; comment 5 of 8  Lots of questions asking basically the same thing, and I'm still no",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {

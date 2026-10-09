@@ -78,13 +78,13 @@ PRACTICE = [
      "<b>WORDING.</b> The comment mentions two things and is mainly about the confusing question, so that is the category. The remark about length is not recorded."),
 ]
 
-# Ordinary end-of-study comments (replaced 2026-10-08). Comments 3, 6 and 8 raise two problems.
+# Ordinary end-of-study comments. Comments 3, 5, 6 and 8 raise two problems (5 added 2026-10-09).
 BATCH1 = [
     "Couldn't get past page 4 for ages, the next button didn't do anything.",
     "Not sure what \"moderately often\" was supposed to mean.",
     "Video on page 3 kept buffering so I couldn't hear it properly. Also took way longer than the 10 mins it said.",
     "Interesting study, made me think about my own habits.",
-    "Lots of questions asking basically the same thing.",
+    "Lots of questions asking basically the same thing, and I'm still not sure when I'll get paid.",
     "Some questions were a bit vague so I wasn't sure what to put, and it got really repetitive near the end.",
     "Will the bonus be paid separately?",
     "Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.",
