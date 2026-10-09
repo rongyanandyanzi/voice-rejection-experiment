@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-09 18:22:44",
+    "SurveyCreationDate": "2026-10-09 18:32:15",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-09 18:22:44",
+    "LastModified": "2026-10-09 18:32:15",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -542,13 +542,6 @@
             {
               "Type": "Question",
               "QuestionID": "QID89"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID90"
             }
           ]
         },
@@ -1165,7 +1158,7 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "90",
+      "SecondaryAttribute": "89",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -5456,10 +5449,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID87",
-      "SecondaryAttribute": "A few final questions   Did anything about the shift feel unusual or unexpected? Please describe bri",
+      "SecondaryAttribute": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>A few final questions</b></p><p>Did anything about the shift feel unusual or unexpected? Please describe briefly.</p>",
+        "QuestionText": "<p><b>One final question</b></p><p>Did anything about the shift feel unusual or unexpected? Please describe briefly.</p>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -5476,7 +5469,7 @@
         },
         "QuestionID": "QID87",
         "DataExportTag": "ai_check_unusual",
-        "QuestionDescription": "A few final questions   Did anything about the shift feel unusual or unexpected? Please describe bri",
+        "QuestionDescription": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5489,60 +5482,6 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID88",
-      "SecondaryAttribute": "One more question   In Prolific recruitment, studies may sometimes include AI participants. To help ",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<p><b>One more question</b></p><p>In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the question below.</p><p>Do you think the coding supervisor who replied to you may have been AI?</p>",
-        "QuestionType": "MC",
-        "Selector": "SAVR",
-        "SubSelector": "TX",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText"
-        },
-        "Choices": {
-          "1": {
-            "Display": "Yes"
-          },
-          "2": {
-            "Display": "No"
-          },
-          "3": {
-            "Display": "Not sure"
-          },
-          "4": {
-            "Display": "I did not receive a reply"
-          }
-        },
-        "ChoiceOrder": [
-          "1",
-          "2",
-          "3",
-          "4"
-        ],
-        "Validation": {
-          "Settings": {
-            "ForceResponse": "ON",
-            "ForceResponseType": "ON",
-            "Type": "None"
-          }
-        },
-        "NextChoiceId": 5,
-        "NextAnswerId": 1,
-        "QuestionID": "QID88",
-        "DataExportTag": "supervisor_ai_suspicion",
-        "QuestionDescription": "One more question   In Prolific recruitment, studies may sometimes include AI participants. To help ",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID89",
       "SecondaryAttribute": "Task feedback   If you have any comments about this task, please share them with us. You may also su",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5560,7 +5499,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID89",
+        "QuestionID": "QID88",
         "DataExportTag": "task_feedback",
         "QuestionDescription": "Task feedback   If you have any comments about this task, please share them with us. You may also su",
         "Language": [],
@@ -5574,7 +5513,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID90",
+      "PrimaryAttribute": "QID89",
       "SecondaryAttribute": "Debrief",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5590,7 +5529,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID90",
+        "QuestionID": "QID89",
         "DataExportTag": "debrief",
         "QuestionDescription": "Debrief",
         "Language": [],

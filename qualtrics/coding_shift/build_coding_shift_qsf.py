@@ -343,13 +343,8 @@ def build(args):
     ])
     s.block("Manipulation checks", [reasons, "PB", polite, "PB", useful])
 
-    # 12. AI check, feedback, debrief -------------------------------------------------------
-    ai_unusual = s.essay("ai_check_unusual", paragraphs("<b>A few final questions</b>", "Did anything about the shift feel unusual or unexpected? Please describe briefly."), force=True, height=110)
-    ai_direct = choice("supervisor_ai_suspicion", paragraphs(
-        "<b>One more question</b>",
-        "In Prolific recruitment, studies may sometimes include AI participants. To help us protect data quality and reduce possible effects from AI participants, please answer the question below.",
-        "Do you think the coding supervisor who replied to you may have been AI?",
-    ), ["Yes", "No", "Not sure", "I did not receive a reply"])
+    # 12. Open check, feedback, debrief -------------------------------------------------------
+    ai_unusual = s.essay("ai_check_unusual", paragraphs("<b>One final question</b>", "Did anything about the shift feel unusual or unexpected? Please describe briefly."), force=True, height=110)
     feedback = s.essay("task_feedback", paragraphs("<b>Task feedback</b>", "If you have any comments about this task, please share them with us. You may also submit without adding anything. Please do not include your name or other personal information."), force=False, height=120)
     debrief = s.text("debrief", paragraphs(
         "<b>Thank you: what this study was about</b>",
@@ -357,7 +352,7 @@ def build(args):
         "The coding work was real, but the supervisor's written reply to a note was generated automatically, and the kind of reply was assigned at random. It did not depend on the quality of the note. Everyone receives the full quality bonus, whatever their rating.",
         "If you would like your data withdrawn, tell us through Prolific and it will be deleted. Click Next to complete the shift and return to Prolific.",
     ), description="Debrief")
-    s.block("Closing", [ai_unusual, "PB", ai_direct, "PB", feedback, "PB", debrief])
+    s.block("Closing", [ai_unusual, "PB", feedback, "PB", debrief])
 
     # Flow ------------------------------------------------------------------------------------
     flow = [

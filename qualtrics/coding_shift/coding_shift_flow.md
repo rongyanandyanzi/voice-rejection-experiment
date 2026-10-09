@@ -46,7 +46,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
     and framed on the batches still to come; then authority (AUTH1–3) and safety/futility.
 13. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection (MR1–MR3
     supervisor-related, PR1–PR5 proposal-quality), then politeness (MA) and constructiveness (MC).
-14. **Closing**: AI check (open and direct), feedback, debrief. End of survey → Prolific.
+14. **Closing**: one open question on whether anything felt unusual (the direct AI-suspicion question was removed), feedback, debrief. End of survey → Prolific.
 
 ## Embedded data
 
