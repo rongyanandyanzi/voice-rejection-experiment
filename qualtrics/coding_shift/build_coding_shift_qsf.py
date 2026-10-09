@@ -14,8 +14,10 @@ end-of-survey redirect. The flow is documented in coding_shift_flow.md next to t
 The participant is hired for one short shift as a Feedback Coder. Batch 1 (eight comments, three of
 which raise two problems), an optional note to the coding supervisor, two admin tasks while batch 1
 is checked, a fixed wait, the supervisor's messages (batch rating for everyone; for a note, the
-reply in the assigned cell), batch 2 (eight comments, three of which fit no category), the optional
-second note, and the questionnaire.
+reply in the assigned cell), batch 3 (eight comments, three of which fit no category), the optional
+second note, and the questionnaire. Batch 2 (eight comments that each raise one clear problem) is
+coded while the supervisor reviews batch 1 and the note, so the wait for the reply is filled with
+work (user decision 2026-10-09).
 """
 import argparse
 import html
@@ -89,7 +91,21 @@ BATCH1 = [
     "Will the bonus be paid separately?",
     "Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.",
 ]
+# Batch 2 is coded while the supervisor reviews batch 1 (added 2026-10-09). Comments 2, 4 and 7
+# raise two problems, like batch 1, so the one-category tension stays live up to the reply (user
+# decision 2026-10-09); the rest raise one clear problem.
 BATCH2 = [
+    "The sound on the second video didn't work at all.",
+    "The instructions for the sorting task were hard to follow, and the timer cut me off before I'd finished.",
+    "Really enjoyed the questions about music, it was a fun topic.",
+    "The pictures took ages to load, and the whole thing took twice as long as advertised.",
+    "The submit button was hidden behind the cookie banner on my laptop.",
+    "Way too many pages, I was getting tired by the end.",
+    "I didn't agree with how the article described young people, and some of the answer options didn't make sense.",
+    "When will the payment for this study come through?",
+]
+# Batch 3 (the former batch 2): comments 3, 6 and 8 fit no category.
+BATCH3 = [
     "The page kept freezing whenever I tried to go back.",
     "The rating scale labels were the wrong way round compared to the earlier pages.",
     "Could you tell me when the results will be published?",
@@ -161,10 +177,10 @@ def build(args):
 
     # 1. Consent -----------------------------------------------------------------------------
     consent_text = s.text("consent_text", paragraphs(
-        "<b>Paid coding work: two short batches</b>",
+        "<b>Paid coding work: three short batches</b>",
         "You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories.",
         "Your work is checked against a reference key by the coding supervisor, who sets the coding rules, may change any label you give, and issues each batch. Your quality bonus depends on how your batches are rated.",
-        "The shift takes about 15 minutes. Some steps are optional. Using or skipping them does not change your payment or bonus. The supervisor may reply to anything you send. Replies can be brief or critical, as workplace feedback sometimes is.",
+        "The shift takes about 18 minutes. Some steps are optional. Using or skipping them does not change your payment or bonus. The supervisor may reply to anything you send. Replies can be brief or critical, as workplace feedback sometimes is.",
         "Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page.",
     ), js=js("js_consent.js", s.service_url), description="Consent text")
     consent = choice("consent", "Are you willing to take part in this shift?", ["Yes, I agree, start the shift", "No, I do not want to take part"])
@@ -173,7 +189,7 @@ def build(args):
     # 2. Training ---------------------------------------------------------------------------
     rules_page = s.text("training_rules", paragraphs("<b>Your job and the coding rules</b>", "Each comment goes into one of five categories.")
                         + "".join(f"<p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">{code}</code> <b>{name}.</b> {definition}</p>" for code, name, definition in CATEGORIES)
-                        + paragraphs("Choose one category for each comment.", "At the end of every batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.", "Two practice comments come first.",
+                        + paragraphs("Choose one category for each comment.", "After batch 1 and after the last batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.", "Two practice comments come first.",
                                      "<span style=\"color:#667;font-size:13px;\">Codebook v3.1 &middot; rules set by the coding supervisor</span>"),
                         description="Training: rules")
     # The "Why the rules are this way" training page was removed on 2026-10-07 (user decision); the
@@ -230,10 +246,23 @@ def build(args):
     clarity = choice("instructions_clear", "How clear were the instructions for batch 1?", ["1 &middot; Not clear", "2", "3", "4", "5 &middot; Very clear"])
     s.block("Interim tasks", [interim_intro] + link_qids + [coder_head, device, experience, clarity, s.timing("t_interim")])
 
+    # 5b. Batch 2, coded while the supervisor reviews batch 1 and the note ------------------
+    b2_intro = s.text("batch2_intro", paragraphs(
+        "<b>Batch 2</b>",
+        "While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: eight comments from a different study. The coding rules are the same as for batch 1.",
+    ), description="Batch 2 intro")
+    b2_elements = [b2_intro]
+    for index, text in enumerate(BATCH2, 1):
+        qid = choice(f"b2_{index}", comment_page(index, len(BATCH2), 2, text), CATEGORY_OPTIONS)
+        b2_elements += [qid, s.timing(f"t_b2_{index}")]
+        if index < len(BATCH2):
+            b2_elements.append("PB")
+    s.block("Batch 2", b2_elements)
+
     # 6. Waiting page -----------------------------------------------------------------------
     waiting = s.text("waiting", paragraphs(
-        "<b>Waiting for batch 2</b>",
-        "Batch 2 is waiting to be issued by the coding supervisor. Please wait a moment.",
+        "<b>Waiting for batch 3</b>",
+        "Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment.",
         "<span id=\"cs-wait-status\" style=\"color:#667;font-style:italic;\">Waiting for the supervisor&hellip;</span>",
     ) + "<span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>", js=js("js_waiting.js", s.service_url), description="Waiting page")
     hidden = {}
@@ -252,36 +281,36 @@ def build(args):
                "<p style=\"margin:0 0 8px\"><span id=\"cs-msg1\">${e://Field/rejection_msg1}</span></p>"
                "<p style=\"margin:0\"><span id=\"cs-msg2\">${e://Field/rejection_msg2}</span></p>")
         + "</div>"
-        + card("Coding supervisor &middot; comment-coding project", "<p style=\"margin:0\">Batch 2 is ready: eight comments from a different study. The coding rules are the same as for batch 1. Click Next to start batch 2.</p>")
+        + card("Coding supervisor &middot; comment-coding project", "<p style=\"margin:0\">Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to start batch 3.</p>")
     )
     messages = s.text("messages", messages_html, js=js("js_messages.js", s.service_url), description="New messages")
     s.block("New messages", [messages, s.timing("t_messages")])
 
-    # 8. Batch 2 ----------------------------------------------------------------------------
-    b2_elements = []
-    b2_qids = []
-    for index, text in enumerate(BATCH2, 1):
-        qid = choice(f"b2_{index}", comment_page(index, len(BATCH2), 2, text), CATEGORY_OPTIONS)
-        b2_qids.append(qid)
-        b2_elements += [qid, s.timing(f"t_b2_{index}")]
-        if index < len(BATCH2):
-            b2_elements.append("PB")
-    s.block("Batch 2", b2_elements)
+    # 8. Batch 3 ----------------------------------------------------------------------------
+    b3_elements = []
+    b3_qids = []
+    for index, text in enumerate(BATCH3, 1):
+        qid = choice(f"b3_{index}", comment_page(index, len(BATCH3), 3, text), CATEGORY_OPTIONS)
+        b3_qids.append(qid)
+        b3_elements += [qid, s.timing(f"t_b3_{index}")]
+        if index < len(BATCH3):
+            b3_elements.append("PB")
+    s.block("Batch 3", b3_elements)
 
     # 9. Note 2 -----------------------------------------------------------------------------
     review_items = "".join(
         f"<li style=\"margin:0 0 4px\">{esc(text)} <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${{q://{qid}/ChoiceGroup/SelectedChoices}}</span></li>"
-        for text, qid in zip(BATCH2, b2_qids)
+        for text, qid in zip(BATCH3, b3_qids)
     )
     tools = tools_html(review_items)
-    note2_head = s.text("note2_tools_choice", paragraphs("<b>Batch 2 complete.</b>") + tools + paragraphs("Both choices below lead to the same last few questions and the same payment."),
+    note2_head = s.text("note2_tools_choice", paragraphs("<b>Batch 3 complete.</b>") + tools + paragraphs("Both choices below lead to the same last few questions and the same payment."),
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
-    note2_choice = choice("note2_choice", "Batch 2: attach a note, or finish without one?", ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
+    note2_choice = choice("note2_choice", "Batch 3: attach a note, or finish without one?", ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
     s.block("Note 2 choice", [note2_head] + n2_hidden_choice + [note2_choice, s.timing("t_note2_choice")])
     note2_tools = s.text("note2_tools_essay", tools, js=js("js_tools.js", s.service_url), description="Note 2 tools (essay)")
     n2_hidden_essay = [s.hidden_text(f"h_{name}_essay", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
-    note2 = s.essay("note2", paragraphs("<b>Note to the coding supervisor (batch 2)</b>", NOTE_PROMPT_2, "<span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span>"),
+    note2 = s.essay("note2", paragraphs("<b>Note to the coding supervisor (batch 3)</b>", NOTE_PROMPT_2, "<span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span>"),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
     s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2")])
 
@@ -358,7 +387,7 @@ def build(args):
     flow = [
         s.flow_embedded([
             "PROLIFIC_PID", "STUDY_ID", "SESSION_ID", "condition",
-            "batch1_submit_at", "batch2_submit_at", "n2_button_order",
+            "batch1_submit_at", "batch3_submit_at", "n2_button_order",
             "note1_text", "note1_opened_at", "note1_submitted_at", "note1_first_key_ms", "note1_write_ms", "note1_deletions", "note1_words", "note1_soft_check",
             "note2_text", "note2_opened_at", "note2_submitted_at", "note2_first_key_ms", "note2_write_ms", "note2_deletions", "note2_words", "note2_soft_check",
             "rejection_status", "rejection_msg1", "rejection_msg2", "rejection_compliance_code", "rejection_latency_ms",
@@ -372,9 +401,10 @@ def build(args):
         s.flow_block("Batch 1"),
         s.flow_block("Note 1"),
         s.flow_block("Interim tasks"),
+        s.flow_block("Batch 2"),
         s.flow_block("Waiting page"),
         s.flow_block("New messages"),
-        s.flow_block("Batch 2"),
+        s.flow_block("Batch 3"),
         s.flow_block("Note 2 choice"),
         s.flow_branch([s.expr_choice(note2_choice, 1, True, "Note 2: attach")], [s.flow_block("Note 2")], "Note 2 attached"),
         s.flow_block("Questionnaire"),

@@ -1,11 +1,11 @@
-// Note page (batch 1 or batch 2): the optional essay box. No counter and no hard minimum. Below
+// Note page (batch 1 or batch 3; the second note keeps the tag "2"): the optional essay box. No counter and no hard minimum. Below
 // about twenty words one soft check appears once, with two equal buttons. Records when the page
 // opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in
 // sessionStorage so the interim page can start the supervisor's reply at once.
 Qualtrics.SurveyEngine.addOnload(function () {
   var question = this;
-  var isBatch2 = question.getQuestionInfo().QuestionText.indexOf("batch 2") >= 0;
-  var tag = isBatch2 ? "2" : "1";
+  var isLastBatch = question.getQuestionInfo().QuestionText.indexOf("batch 3") >= 0;
+  var tag = isLastBatch ? "2" : "1";
   var textarea = question.getQuestionContainer().querySelector("textarea");
   var openedAt = Date.now();
   var firstKeyAt = 0;

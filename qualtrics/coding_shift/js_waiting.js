@@ -1,6 +1,7 @@
-// Waiting page ("Batch 2 is waiting to be issued"). Everyone stops here until a fixed time T: for a
-// note, T after the note was sent (when the reply starts being written); without a note, T after
-// batch 1 was submitted. The same T in every cell. For a note,
+// Waiting page ("Batch 3 is waiting to be issued"), reached after batch 2, which is coded while the
+// supervisor reviews. Everyone stops here until a fixed time T: for a note, T after the note was
+// sent (when the reply starts being written); without a note, T after batch 1 was submitted. The
+// same T in every cell; after batch 2 most people have already passed T and move on at once. For a note,
 // the supervisor's reply is polled meanwhile; if it is still not ready at T the page waits at most
 // GRACE_MS longer and then shows the pre-tested fallback for the assigned cell. Nothing is ever
 // shown sooner than T, and nobody is excluded for a slow or failed reply.
@@ -135,7 +136,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     }
     question.enableNextButton();
     var label = document.getElementById("cs-wait-status");
-    if (label) label.textContent = "Batch 2 is ready. Click Next to continue.";
+    if (label) label.textContent = "Batch 3 is ready. Click Next to continue.";
     // The button is clicked directly. question.clickNextButton() is not used: in the new survey
     // engine it did nothing at once and then fired on the following page, skipping it. If the
     // click does not work the participant can press the enabled button.

@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-09 18:32:15",
+    "SurveyCreationDate": "2026-10-09 22:59:21",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-09 18:32:15",
+    "LastModified": "2026-10-09 22:59:21",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -241,8 +241,8 @@
         },
         {
           "Type": "Standard",
-          "Description": "Waiting page",
-          "ID": "BL_999f2b8af2ea3ef",
+          "Description": "Batch 2",
+          "ID": "BL_1469a73378606a7",
           "BlockElements": [
             {
               "Type": "Question",
@@ -257,12 +257,18 @@
               "QuestionID": "QID40"
             },
             {
+              "Type": "Page Break"
+            },
+            {
               "Type": "Question",
               "QuestionID": "QID41"
             },
             {
               "Type": "Question",
               "QuestionID": "QID42"
+            },
+            {
+              "Type": "Page Break"
             },
             {
               "Type": "Question",
@@ -273,12 +279,18 @@
               "QuestionID": "QID44"
             },
             {
+              "Type": "Page Break"
+            },
+            {
               "Type": "Question",
               "QuestionID": "QID45"
             },
             {
               "Type": "Question",
               "QuestionID": "QID46"
+            },
+            {
+              "Type": "Page Break"
             },
             {
               "Type": "Question",
@@ -289,52 +301,48 @@
               "QuestionID": "QID48"
             },
             {
+              "Type": "Page Break"
+            },
+            {
               "Type": "Question",
               "QuestionID": "QID49"
-            }
-          ]
-        },
-        {
-          "Type": "Standard",
-          "Description": "New messages",
-          "ID": "BL_944444319f6b285",
-          "BlockElements": [
+            },
             {
               "Type": "Question",
               "QuestionID": "QID50"
             },
             {
+              "Type": "Page Break"
+            },
+            {
               "Type": "Question",
               "QuestionID": "QID51"
-            }
-          ]
-        },
-        {
-          "Type": "Standard",
-          "Description": "Batch 2",
-          "ID": "BL_1469a73378606a7",
-          "BlockElements": [
+            },
             {
               "Type": "Question",
               "QuestionID": "QID52"
+            },
+            {
+              "Type": "Page Break"
             },
             {
               "Type": "Question",
               "QuestionID": "QID53"
             },
             {
-              "Type": "Page Break"
-            },
-            {
               "Type": "Question",
               "QuestionID": "QID54"
-            },
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Waiting page",
+          "ID": "BL_999f2b8af2ea3ef",
+          "BlockElements": [
             {
               "Type": "Question",
               "QuestionID": "QID55"
-            },
-            {
-              "Type": "Page Break"
             },
             {
               "Type": "Question",
@@ -345,18 +353,12 @@
               "QuestionID": "QID57"
             },
             {
-              "Type": "Page Break"
-            },
-            {
               "Type": "Question",
               "QuestionID": "QID58"
             },
             {
               "Type": "Question",
               "QuestionID": "QID59"
-            },
-            {
-              "Type": "Page Break"
             },
             {
               "Type": "Question",
@@ -367,18 +369,12 @@
               "QuestionID": "QID61"
             },
             {
-              "Type": "Page Break"
-            },
-            {
               "Type": "Question",
               "QuestionID": "QID62"
             },
             {
               "Type": "Question",
               "QuestionID": "QID63"
-            },
-            {
-              "Type": "Page Break"
             },
             {
               "Type": "Question",
@@ -389,27 +385,31 @@
               "QuestionID": "QID65"
             },
             {
-              "Type": "Page Break"
-            },
-            {
               "Type": "Question",
               "QuestionID": "QID66"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID67"
             }
           ]
         },
         {
           "Type": "Standard",
-          "Description": "Note 2 choice",
-          "ID": "BL_ad0f3f202c23be6",
+          "Description": "New messages",
+          "ID": "BL_944444319f6b285",
           "BlockElements": [
             {
               "Type": "Question",
-              "QuestionID": "QID68"
+              "QuestionID": "QID67"
             },
+            {
+              "Type": "Question",
+              "QuestionID": "QID68"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Batch 3",
+          "ID": "BL_1fcdbe8de7a4b8f",
+          "BlockElements": [
             {
               "Type": "Question",
               "QuestionID": "QID69"
@@ -417,6 +417,9 @@
             {
               "Type": "Question",
               "QuestionID": "QID70"
+            },
+            {
+              "Type": "Page Break"
             },
             {
               "Type": "Question",
@@ -427,19 +430,18 @@
               "QuestionID": "QID72"
             },
             {
+              "Type": "Page Break"
+            },
+            {
               "Type": "Question",
               "QuestionID": "QID73"
-            }
-          ]
-        },
-        {
-          "Type": "Standard",
-          "Description": "Note 2",
-          "ID": "BL_f2724f359edbc7a",
-          "BlockElements": [
+            },
             {
               "Type": "Question",
               "QuestionID": "QID74"
+            },
+            {
+              "Type": "Page Break"
             },
             {
               "Type": "Question",
@@ -450,6 +452,9 @@
               "QuestionID": "QID76"
             },
             {
+              "Type": "Page Break"
+            },
+            {
               "Type": "Question",
               "QuestionID": "QID77"
             },
@@ -458,16 +463,12 @@
               "QuestionID": "QID78"
             },
             {
+              "Type": "Page Break"
+            },
+            {
               "Type": "Question",
               "QuestionID": "QID79"
-            }
-          ]
-        },
-        {
-          "Type": "Standard",
-          "Description": "Questionnaire",
-          "ID": "BL_dfeea13a896de41",
-          "BlockElements": [
+            },
             {
               "Type": "Question",
               "QuestionID": "QID80"
@@ -480,9 +481,6 @@
               "QuestionID": "QID81"
             },
             {
-              "Type": "Page Break"
-            },
-            {
               "Type": "Question",
               "QuestionID": "QID82"
             },
@@ -492,6 +490,104 @@
             {
               "Type": "Question",
               "QuestionID": "QID83"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID84"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Note 2 choice",
+          "ID": "BL_ad0f3f202c23be6",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID85"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID86"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID87"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID88"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID89"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID90"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Note 2",
+          "ID": "BL_f2724f359edbc7a",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID91"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID92"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID93"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID94"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID95"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID96"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Questionnaire",
+          "ID": "BL_dfeea13a896de41",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID97"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID98"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID99"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID100"
             }
           ]
         },
@@ -502,21 +598,21 @@
           "BlockElements": [
             {
               "Type": "Question",
-              "QuestionID": "QID86"
+              "QuestionID": "QID103"
             },
             {
               "Type": "Page Break"
             },
             {
               "Type": "Question",
-              "QuestionID": "QID84"
+              "QuestionID": "QID101"
             },
             {
               "Type": "Page Break"
             },
             {
               "Type": "Question",
-              "QuestionID": "QID85"
+              "QuestionID": "QID102"
             }
           ]
         },
@@ -527,21 +623,21 @@
           "BlockElements": [
             {
               "Type": "Question",
-              "QuestionID": "QID87"
+              "QuestionID": "QID104"
             },
             {
               "Type": "Page Break"
             },
             {
               "Type": "Question",
-              "QuestionID": "QID88"
+              "QuestionID": "QID105"
             },
             {
               "Type": "Page Break"
             },
             {
               "Type": "Question",
-              "QuestionID": "QID89"
+              "QuestionID": "QID106"
             }
           ]
         },
@@ -605,9 +701,9 @@
                 "AnalyzeText": false
               },
               {
-                "Description": "batch2_submit_at",
+                "Description": "batch3_submit_at",
                 "Type": "Recipient",
-                "Field": "batch2_submit_at",
+                "Field": "batch3_submit_at",
                 "VariableType": "String",
                 "DataVisibility": [],
                 "AnalyzeText": false
@@ -1019,42 +1115,48 @@
           },
           {
             "Type": "Standard",
-            "ID": "BL_999f2b8af2ea3ef",
+            "ID": "BL_1469a73378606a7",
             "FlowID": "FL_15",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_944444319f6b285",
+            "ID": "BL_999f2b8af2ea3ef",
             "FlowID": "FL_16",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_1469a73378606a7",
+            "ID": "BL_944444319f6b285",
             "FlowID": "FL_17",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_ad0f3f202c23be6",
+            "ID": "BL_1fcdbe8de7a4b8f",
             "FlowID": "FL_18",
             "Autofill": []
           },
           {
+            "Type": "Standard",
+            "ID": "BL_ad0f3f202c23be6",
+            "FlowID": "FL_19",
+            "Autofill": []
+          },
+          {
             "Type": "Branch",
-            "FlowID": "FL_20",
+            "FlowID": "FL_21",
             "Description": "Note 2 attached",
             "BranchLogic": {
               "0": {
                 "0": {
                   "LogicType": "Question",
-                  "QuestionID": "QID72",
+                  "QuestionID": "QID89",
                   "QuestionIsInLoop": "no",
-                  "ChoiceLocator": "q://QID72/SelectableChoice/1",
+                  "ChoiceLocator": "q://QID89/SelectableChoice/1",
                   "Operator": "Selected",
-                  "QuestionIDFromLocator": "QID72",
-                  "LeftOperand": "q://QID72/SelectableChoice/1",
+                  "QuestionIDFromLocator": "QID89",
+                  "LeftOperand": "q://QID89/SelectableChoice/1",
                   "Type": "Expression",
                   "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Note 2: attach</span> <span class=\"OpDesc\">Is Selected</span>"
                 },
@@ -1066,7 +1168,7 @@
               {
                 "Type": "Standard",
                 "ID": "BL_f2724f359edbc7a",
-                "FlowID": "FL_19",
+                "FlowID": "FL_20",
                 "Autofill": []
               }
             ]
@@ -1074,23 +1176,23 @@
           {
             "Type": "Standard",
             "ID": "BL_dfeea13a896de41",
-            "FlowID": "FL_21",
+            "FlowID": "FL_22",
             "Autofill": []
           },
           {
             "Type": "Branch",
-            "FlowID": "FL_23",
+            "FlowID": "FL_24",
             "Description": "Voicers: manipulation checks",
             "BranchLogic": {
               "0": {
                 "0": {
                   "LogicType": "Question",
-                  "QuestionID": "QID48",
+                  "QuestionID": "QID65",
                   "QuestionIsInLoop": "no",
-                  "ChoiceLocator": "q://QID48/ChoiceTextEntryValue",
+                  "ChoiceLocator": "q://QID65/ChoiceTextEntryValue",
                   "Operator": "EqualTo",
-                  "QuestionIDFromLocator": "QID48",
-                  "LeftOperand": "q://QID48/ChoiceTextEntryValue",
+                  "QuestionIDFromLocator": "QID65",
+                  "LeftOperand": "q://QID65/ChoiceTextEntryValue",
                   "RightOperand": "1",
                   "Type": "Expression",
                   "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">voice1</span> <span class=\"OpDesc\">EqualTo</span> <span class=\"RightOpDesc\">1</span>"
@@ -1103,7 +1205,7 @@
               {
                 "Type": "Standard",
                 "ID": "BL_b024cf1c9e5431e",
-                "FlowID": "FL_22",
+                "FlowID": "FL_23",
                 "Autofill": []
               }
             ]
@@ -1111,12 +1213,12 @@
           {
             "Type": "Standard",
             "ID": "BL_1144ae72ecab992",
-            "FlowID": "FL_24",
+            "FlowID": "FL_25",
             "Autofill": []
           },
           {
             "Type": "EndSurvey",
-            "FlowID": "FL_25",
+            "FlowID": "FL_26",
             "EndingType": "Advanced",
             "Options": {
               "Advanced": "true",
@@ -1126,7 +1228,7 @@
           }
         ],
         "Properties": {
-          "Count": 25
+          "Count": 26
         },
         "FlowID": "FL_1",
         "Type": "Root"
@@ -1158,7 +1260,7 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "89",
+      "SecondaryAttribute": "106",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -1228,7 +1330,7 @@
       "SecondaryAttribute": "Consent text",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Paid coding work: two short batches</b></p><p>You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories.</p><p>Your work is checked against a reference key by the coding supervisor, who sets the coding rules, may change any label you give, and issues each batch. Your quality bonus depends on how your batches are rated.</p><p>The shift takes about 15 minutes. Some steps are optional. Using or skipping them does not change your payment or bonus. The supervisor may reply to anything you send. Replies can be brief or critical, as workplace feedback sometimes is.</p><p>Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page.</p>",
+        "QuestionText": "<p><b>Paid coding work: three short batches</b></p><p>You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories.</p><p>Your work is checked against a reference key by the coding supervisor, who sets the coding rules, may change any label you give, and issues each batch. Your quality bonus depends on how your batches are rated.</p><p>The shift takes about 18 minutes. Some steps are optional. Using or skipping them does not change your payment or bonus. The supervisor may reply to anything you send. Replies can be brief or critical, as workplace feedback sometimes is.</p><p>Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1305,7 +1407,7 @@
       "SecondaryAttribute": "Training: rules",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Your job and the coding rules</b></p><p>Each comment goes into one of five categories.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">TECH</code> <b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">WORDING</code> <b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">LENGTH</code> <b>Length, pace or repetition.</b> How long, how fast, how repetitive or how demanding the study was.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">PAYMENT</code> <b>Payment or stated time.</b> The fee, the bonus, or whether the time in the listing was accurate.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">CONTENT</code> <b>Reaction to the subject matter.</b> Interest, discomfort, disagreement, or wanting to explain an answer.</p><p>Choose one category for each comment.</p><p>At the end of every batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.</p><p>Two practice comments come first.</p><p><span style=\"color:#667;font-size:13px;\">Codebook v3.1 &middot; rules set by the coding supervisor</span></p>",
+        "QuestionText": "<p><b>Your job and the coding rules</b></p><p>Each comment goes into one of five categories.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">TECH</code> <b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">WORDING</code> <b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">LENGTH</code> <b>Length, pace or repetition.</b> How long, how fast, how repetitive or how demanding the study was.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">PAYMENT</code> <b>Payment or stated time.</b> The fee, the bonus, or whether the time in the listing was accurate.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">CONTENT</code> <b>Reaction to the subject matter.</b> Interest, discomfort, disagreement, or wanting to explain an answer.</p><p>Choose one category for each comment.</p><p>After batch 1 and after the last batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.</p><p>Two practice comments come first.</p><p><span style=\"color:#667;font-size:13px;\">Codebook v3.1 &middot; rules set by the coding supervisor</span></p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -2449,7 +2551,7 @@
             "Type": "None"
           }
         },
-        "QuestionJS": "// Note page (batch 1 or batch 2): the optional essay box. No counter and no hard minimum. Below\n// about twenty words one soft check appears once, with two equal buttons. Records when the page\n// opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in\n// sessionStorage so the interim page can start the supervisor's reply at once.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var isBatch2 = question.getQuestionInfo().QuestionText.indexOf(\"batch 2\") >= 0;\n  var tag = isBatch2 ? \"2\" : \"1\";\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  var openedAt = Date.now();\n  var firstKeyAt = 0;\n  var deletions = 0;\n  var lastLength = textarea ? textarea.value.length : 0;\n  var softShown = false;\n  function words(text) { return (String(text).trim().match(/\\S+/g) || []).length; }\n  function setEd(name, value) {\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? \"\" : String(value)); } catch (error) {}\n    try { sessionStorage.setItem(\"cs_\" + name, value == null ? \"\" : String(value)); } catch (error) {}\n  }\n  setEd(\"note\" + tag + \"_opened_at\", new Date(openedAt).toISOString());\n  if (textarea) {\n    textarea.addEventListener(\"input\", function (event) {\n      if (!firstKeyAt) firstKeyAt = Date.now();\n      if (event.target.value.length < lastLength) deletions += 1;\n      lastLength = event.target.value.length;\n    });\n  }\n  // Soft check: intercept the first Next click when the note is short. The New Survey Taking\n  // Experience names the button next-button; the classic engine NextButton.\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) {\n    nextButton.addEventListener(\"click\", function (event) {\n      var text = textarea ? textarea.value : \"\";\n      if (softShown || !text.trim() || words(text) >= 20) return;\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      softShown = true;\n      var box = document.createElement(\"div\");\n      box.style.cssText = \"margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;\";\n      box.innerHTML = \"<p style=\\\"margin:0 0 10px\\\">The supervisor will see only what is written here. Would you like to add anything?</p>\";\n      var row = document.createElement(\"div\");\n      var buttons = [[\"Send as it is\", function () { box.remove(); nextButton.click(); }], [\"Add more\", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];\n      if (Math.random() < 0.5) buttons.reverse();\n      buttons.forEach(function (pair) {\n        var button = document.createElement(\"button\");\n        button.type = \"button\";\n        button.textContent = pair[0];\n        button.style.cssText = \"margin-right:10px;padding:8px 14px;font:inherit;border:1px solid #2f5d8a;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\";\n        button.addEventListener(\"click\", pair[1]);\n        row.appendChild(button);\n      });\n      box.appendChild(row);\n      question.getQuestionContainer().appendChild(box);\n      setEd(\"note\" + tag + \"_soft_check\", \"shown\");\n    }, true);\n  }\n  Qualtrics.SurveyEngine.addOnPageSubmit(function () {\n    var text = textarea ? textarea.value.trim() : \"\";\n    var submittedAt = Date.now();\n    setEd(\"note\" + tag + \"_text\", text);\n    setEd(\"note\" + tag + \"_submitted_at\", new Date(submittedAt).toISOString());\n    setEd(\"note\" + tag + \"_first_key_ms\", firstKeyAt ? firstKeyAt - openedAt : \"\");\n    setEd(\"note\" + tag + \"_write_ms\", submittedAt - openedAt);\n    setEd(\"note\" + tag + \"_deletions\", deletions);\n    setEd(\"note\" + tag + \"_words\", words(text));\n    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only\n    // starts being written then); without a note it stays anchored on the batch-1 submission.\n    if (tag === \"1\" && text) { try { sessionStorage.setItem(\"cs_note1_submit_ms\", String(submittedAt)); } catch (error) {} }\n  });\n});\n",
+        "QuestionJS": "// Note page (batch 1 or batch 3; the second note keeps the tag \"2\"): the optional essay box. No counter and no hard minimum. Below\n// about twenty words one soft check appears once, with two equal buttons. Records when the page\n// opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in\n// sessionStorage so the interim page can start the supervisor's reply at once.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var isLastBatch = question.getQuestionInfo().QuestionText.indexOf(\"batch 3\") >= 0;\n  var tag = isLastBatch ? \"2\" : \"1\";\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  var openedAt = Date.now();\n  var firstKeyAt = 0;\n  var deletions = 0;\n  var lastLength = textarea ? textarea.value.length : 0;\n  var softShown = false;\n  function words(text) { return (String(text).trim().match(/\\S+/g) || []).length; }\n  function setEd(name, value) {\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? \"\" : String(value)); } catch (error) {}\n    try { sessionStorage.setItem(\"cs_\" + name, value == null ? \"\" : String(value)); } catch (error) {}\n  }\n  setEd(\"note\" + tag + \"_opened_at\", new Date(openedAt).toISOString());\n  if (textarea) {\n    textarea.addEventListener(\"input\", function (event) {\n      if (!firstKeyAt) firstKeyAt = Date.now();\n      if (event.target.value.length < lastLength) deletions += 1;\n      lastLength = event.target.value.length;\n    });\n  }\n  // Soft check: intercept the first Next click when the note is short. The New Survey Taking\n  // Experience names the button next-button; the classic engine NextButton.\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) {\n    nextButton.addEventListener(\"click\", function (event) {\n      var text = textarea ? textarea.value : \"\";\n      if (softShown || !text.trim() || words(text) >= 20) return;\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      softShown = true;\n      var box = document.createElement(\"div\");\n      box.style.cssText = \"margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;\";\n      box.innerHTML = \"<p style=\\\"margin:0 0 10px\\\">The supervisor will see only what is written here. Would you like to add anything?</p>\";\n      var row = document.createElement(\"div\");\n      var buttons = [[\"Send as it is\", function () { box.remove(); nextButton.click(); }], [\"Add more\", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];\n      if (Math.random() < 0.5) buttons.reverse();\n      buttons.forEach(function (pair) {\n        var button = document.createElement(\"button\");\n        button.type = \"button\";\n        button.textContent = pair[0];\n        button.style.cssText = \"margin-right:10px;padding:8px 14px;font:inherit;border:1px solid #2f5d8a;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\";\n        button.addEventListener(\"click\", pair[1]);\n        row.appendChild(button);\n      });\n      box.appendChild(row);\n      question.getQuestionContainer().appendChild(box);\n      setEd(\"note\" + tag + \"_soft_check\", \"shown\");\n    }, true);\n  }\n  Qualtrics.SurveyEngine.addOnPageSubmit(function () {\n    var text = textarea ? textarea.value.trim() : \"\";\n    var submittedAt = Date.now();\n    setEd(\"note\" + tag + \"_text\", text);\n    setEd(\"note\" + tag + \"_submitted_at\", new Date(submittedAt).toISOString());\n    setEd(\"note\" + tag + \"_first_key_ms\", firstKeyAt ? firstKeyAt - openedAt : \"\");\n    setEd(\"note\" + tag + \"_write_ms\", submittedAt - openedAt);\n    setEd(\"note\" + tag + \"_deletions\", deletions);\n    setEd(\"note\" + tag + \"_words\", words(text));\n    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only\n    // starts being written then); without a note it stays anchored on the batch-1 submission.\n    if (tag === \"1\" && text) { try { sessionStorage.setItem(\"cs_note1_submit_ms\", String(submittedAt)); } catch (error) {} }\n  });\n});\n",
         "QuestionID": "QID25",
         "DataExportTag": "note1",
         "QuestionDescription": "Note to the coding supervisor   Batch 1 is complete. Before it goes to the coding supervisor, is the",
@@ -3020,10 +3122,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID38",
-      "SecondaryAttribute": "Waiting page",
+      "SecondaryAttribute": "Batch 2 intro",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Waiting for batch 2</b></p><p>Batch 2 is waiting to be issued by the coding supervisor. Please wait a moment.</p><p><span id=\"cs-wait-status\" style=\"color:#667;font-style:italic;\">Waiting for the supervisor&hellip;</span></p><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>",
+        "QuestionText": "<p><b>Batch 2</b></p><p>While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: eight comments from a different study. The coding rules are the same as for batch 1.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -3035,8 +3137,910 @@
             "Type": "None"
           }
         },
-        "QuestionJS": "// Waiting page (\"Batch 2 is waiting to be issued\"). Everyone stops here until a fixed time T: for a\n// note, T after the note was sent (when the reply starts being written); without a note, T after\n// batch 1 was submitted. The same T in every cell. For a note,\n// the supervisor's reply is polled meanwhile; if it is still not ready at T the page waits at most\n// GRACE_MS longer and then shows the pre-tested fallback for the assigned cell. Nothing is ever\n// shown sooner than T, and nobody is excluded for a slow or failed reply.\n//\n// Results are written into the hidden text questions on this page (saved with the page, drive the\n// branch logic and piped text), into embedded data, and into sessionStorage for the next page.\nQualtrics.SurveyEngine.addOnload(function () {\n  var SERVICE_URL = \"https://aetheria-gardens-messages.onrender.com\";\n  var T_MS = 90000;       // fixed delay after the note was sent (or after batch 1 without a note)\n  var GRACE_MS = 60000;   // extra wait allowed after T for a reply that is still being written\n  var POLL_MS = 3000;\n  var MAX_STARTS = 3;\n  var FALLBACK = {\n    HP_HC: [\"Hi, thanks for flagging comments 3, 6 and 8 so carefully. I'm afraid I can't add a second category.\", \"The note doesn't show how often a second problem is really separate, or whether coders would agree on it; without that, a second label may lower agreement. If you could code a hundred comments both ways, I'd gladly look again. Thanks again for raising it.\"],\n    HP_LC: [\"Hi, thank you for writing this up; I can see the care you took. I'm afraid the rule isn't changing.\", \"A rule change reaches well past one batch, and it touches how the whole project is set up; other things weigh on it too. If something changes, I'd be glad to look at this again. Thanks again for taking the time to raise it.\"],\n    LP_HC: [\"Got your note. I'm not adding a second category. Three comments from one batch don't make a case.\", \"The note doesn't show how often a second problem is really separate, or whether coders would agree on it; without that, a second label just lowers agreement. Code a hundred comments both ways and bring the comparison back. That's all I have on it.\"],\n    LP_LC: [\"Got your note. I'm not changing the one-category rule. The idea doesn't hold up for this project.\", \"A rule change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it.\"]\n  };\n\n  var question = this;\n  var PIPE_START = String.fromCharCode(36) + \"{\";\n  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : \"\"; }\n  function domValue(id, fallback) {\n    var el = document.getElementById(id);\n    return unpiped(el ? el.textContent.trim() : \"\") || unpiped(fallback || \"\");\n  }\n  function stored(key) { try { return sessionStorage.getItem(key) || \"\"; } catch (error) { return \"\"; } }\n\n  var openedAt = Date.now();\n  var condition = domValue(\"cs-condition\", \"${e://Field/condition}\") || \"HP_HC\";\n  var note = stored(\"cs_note1_text\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"note1_text\") || \"\");\n  var hasNote = Boolean(note.trim());\n  var anchor = (hasNote ? Number(stored(\"cs_note1_submit_ms\")) : 0) || Number(stored(\"cs_batch1_submit_ms\")) || openedAt;\n  var requestId = stored(\"cs_request_id\");\n  var startBody = stored(\"cs_start_body\");\n\n  // Hidden carrier questions on this page, in this order.\n  var HIDDEN = {\n    rejection_status: 0, rejection_msg1: 1, rejection_msg2: 2, rejection_compliance_code: 3, rejection_latency_ms: 4,\n    wait_before_t_ms: 5, wait_after_t_ms: 6, fallback_used: 7, politeness_channel: 8, voice1: 9\n  };\n  function setHidden(index, value) {\n    var inputs = document.querySelectorAll(\"input[type=text]\");\n    var input = inputs[index];\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value == null ? \"\" : String(value));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n  function setEd(name, value) {\n    var text = value == null ? \"\" : String(value);\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, text); } catch (error) {}\n    try { if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === \"function\") Qualtrics.SurveyEngine.setJSEmbeddedData(name, text); } catch (error) {}\n    if (HIDDEN[name] !== undefined) setHidden(HIDDEN[name], text);\n    try { sessionStorage.setItem(\"cs_\" + name, text); } catch (error) {}\n  }\n\n  question.disableNextButton();\n  var reply = null;      // {status, msg1, msg2, code, latency, channel, voice}\n  var starts = Number(stored(\"cs_job_started\") === \"1\" ? 1 : 0);\n  var done = false;\n\n  function startJob() {\n    if (!startBody) return Promise.resolve();\n    starts += 1;\n    return fetch(SERVICE_URL + \"/api/rejection/start\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: startBody })\n      .then(function (response) { return response.json(); }).catch(function () {});\n  }\n  var polls = 0;\n  function poll() {\n    if (done || reply) return;\n    polls += 1;\n    var controller = typeof AbortController === \"function\" ? new AbortController() : null;\n    var timeout = controller ? setTimeout(function () { controller.abort(); }, 8000) : null;\n    fetch(SERVICE_URL + \"/api/rejection/result?job=\" + encodeURIComponent(requestId), { cache: \"no-store\", signal: controller ? controller.signal : undefined })\n      .then(function (response) { if (timeout) clearTimeout(timeout); return response.json(); })\n      .then(function (data) { try { sessionStorage.setItem(\"cs_last_poll\", polls + \":\" + (data && data.status) + \":\" + Math.round((Date.now() - openedAt) / 1000)); } catch (error) {} return data; })\n      .then(function (data) {\n        if (data.status === \"ok\") {\n          var messages = data.messages || [];\n          reply = {\n            status: \"ok\",\n            msg1: messages[0] ? messages[0].text : \"\",\n            msg2: messages[1] ? messages[1].text : \"\",\n            code: data.compliance_code == null ? \"\" : String(data.compliance_code),\n            latency: data.latency_ms == null ? \"\" : String(data.latency_ms),\n            channel: data.politeness_channel || \"\",\n            voice: data.voice === false ? \"0\" : \"1\"\n          };\n          return;\n        }\n        if ((data.status === \"failed\" || data.status === \"unknown\") && starts < MAX_STARTS) {\n          return startJob().then(function () { setTimeout(poll, POLL_MS); });\n        }\n        if (data.status === \"failed\") { reply = { status: \"failed\" }; return; }\n        setTimeout(poll, POLL_MS);\n      })\n      .catch(function () { if (timeout) clearTimeout(timeout); setTimeout(poll, POLL_MS); });\n  }\n\n  function finish(useFallback) {\n    if (done) return;\n    done = true;\n    var now = Date.now();\n    var tAt = anchor + T_MS;\n    setEd(\"wait_before_t_ms\", String(Math.max(0, Math.min(now, tAt) - openedAt)));\n    setEd(\"wait_after_t_ms\", String(Math.max(0, now - Math.max(openedAt, tAt))));\n    if (!hasNote) {\n      setEd(\"rejection_status\", \"none\");\n      setEd(\"voice1\", \"\");\n      setEd(\"fallback_used\", \"0\");\n    } else if (useFallback || !reply || reply.status !== \"ok\") {\n      var pair = FALLBACK[condition] || FALLBACK.HP_HC;\n      setEd(\"rejection_status\", \"fallback\");\n      setEd(\"rejection_msg1\", pair[0]);\n      setEd(\"rejection_msg2\", pair[1]);\n      setEd(\"rejection_compliance_code\", \"\");\n      setEd(\"rejection_latency_ms\", \"\");\n      setEd(\"politeness_channel\", \"closing\");\n      setEd(\"voice1\", \"1\");\n      setEd(\"fallback_used\", \"1\");\n    } else {\n      setEd(\"rejection_status\", \"ok\");\n      setEd(\"rejection_msg1\", reply.msg1);\n      setEd(\"rejection_msg2\", reply.msg2);\n      setEd(\"rejection_compliance_code\", reply.code);\n      setEd(\"rejection_latency_ms\", reply.latency);\n      setEd(\"politeness_channel\", reply.channel);\n      setEd(\"voice1\", reply.voice);\n      setEd(\"fallback_used\", \"0\");\n    }\n    question.enableNextButton();\n    var label = document.getElementById(\"cs-wait-status\");\n    if (label) label.textContent = \"Batch 2 is ready. Click Next to continue.\";\n    // The button is clicked directly. question.clickNextButton() is not used: in the new survey\n    // engine it did nothing at once and then fired on the following page, skipping it. If the\n    // click does not work the participant can press the enabled button.\n    setTimeout(function () {\n      var next = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n      if (next && !next.disabled) next.click();\n    }, 400);\n  }\n\n  function tick() {\n    if (done) return;\n    var now = Date.now();\n    var tAt = anchor + T_MS;\n    if (now < tAt) { setTimeout(tick, Math.min(1000, tAt - now)); return; }\n    if (!hasNote || (reply && reply.status === \"ok\")) { finish(false); return; }\n    if (reply && reply.status === \"failed\") { finish(true); return; }\n    if (now >= tAt + GRACE_MS) { finish(true); return; }\n    setTimeout(tick, 1000);\n  }\n\n  if (hasNote) {\n    if (!requestId) { reply = { status: \"failed\" }; }\n    else if (starts === 0) { startJob().then(function () { setTimeout(poll, POLL_MS); }); }\n    else { setTimeout(poll, 500); }\n  }\n  tick();\n});\n",
         "QuestionID": "QID38",
+        "DataExportTag": "batch2_intro",
+        "QuestionDescription": "Batch 2 intro",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID39",
+      "SecondaryAttribute": "Batch 2 &middot; comment 1 of 8  The sound on the second video didn't work at all.  Which category d",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 1 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The sound on the second video didn't work at all.</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID39",
+        "DataExportTag": "b2_1",
+        "QuestionDescription": "Batch 2 &middot; comment 1 of 8  The sound on the second video didn't work at all.  Which category d",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID40",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID40",
+        "DataExportTag": "t_b2_1",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID41",
+      "SecondaryAttribute": "Batch 2 &middot; comment 2 of 8  The instructions for the sorting task were hard to follow, and the ",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 2 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The instructions for the sorting task were hard to follow, and the timer cut me off before I'd finished.</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID41",
+        "DataExportTag": "b2_2",
+        "QuestionDescription": "Batch 2 &middot; comment 2 of 8  The instructions for the sorting task were hard to follow, and the ",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID42",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID42",
+        "DataExportTag": "t_b2_2",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID43",
+      "SecondaryAttribute": "Batch 2 &middot; comment 3 of 8  Really enjoyed the questions about music, it was a fun topic.  Whic",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 3 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Really enjoyed the questions about music, it was a fun topic.</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID43",
+        "DataExportTag": "b2_3",
+        "QuestionDescription": "Batch 2 &middot; comment 3 of 8  Really enjoyed the questions about music, it was a fun topic.  Whic",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID44",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID44",
+        "DataExportTag": "t_b2_3",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID45",
+      "SecondaryAttribute": "Batch 2 &middot; comment 4 of 8  The pictures took ages to load, and the whole thing took twice as l",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 4 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The pictures took ages to load, and the whole thing took twice as long as advertised.</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID45",
+        "DataExportTag": "b2_4",
+        "QuestionDescription": "Batch 2 &middot; comment 4 of 8  The pictures took ages to load, and the whole thing took twice as l",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID46",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID46",
+        "DataExportTag": "t_b2_4",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID47",
+      "SecondaryAttribute": "Batch 2 &middot; comment 5 of 8  The submit button was hidden behind the cookie banner on my laptop.",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The submit button was hidden behind the cookie banner on my laptop.</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID47",
+        "DataExportTag": "b2_5",
+        "QuestionDescription": "Batch 2 &middot; comment 5 of 8  The submit button was hidden behind the cookie banner on my laptop.",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID48",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID48",
+        "DataExportTag": "t_b2_5",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID49",
+      "SecondaryAttribute": "Batch 2 &middot; comment 6 of 8  Way too many pages, I was getting tired by the end.  Which category",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Way too many pages, I was getting tired by the end.</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID49",
+        "DataExportTag": "b2_6",
+        "QuestionDescription": "Batch 2 &middot; comment 6 of 8  Way too many pages, I was getting tired by the end.  Which category",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID50",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID50",
+        "DataExportTag": "t_b2_6",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID51",
+      "SecondaryAttribute": "Batch 2 &middot; comment 7 of 8  I didn't agree with how the article described young people, and som",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 7 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">I didn't agree with how the article described young people, and some of the answer options didn't make sense.</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID51",
+        "DataExportTag": "b2_7",
+        "QuestionDescription": "Batch 2 &middot; comment 7 of 8  I didn't agree with how the article described young people, and som",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID52",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID52",
+        "DataExportTag": "t_b2_7",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID53",
+      "SecondaryAttribute": "Batch 2 &middot; comment 8 of 8  When will the payment for this study come through?  Which category ",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 8 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">When will the payment for this study come through?</p><p>Which category does this comment belong to?</p>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "<b>TECH</b> &middot; Technical problem"
+          },
+          "2": {
+            "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
+          },
+          "3": {
+            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+          },
+          "4": {
+            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+          },
+          "5": {
+            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 1,
+        "QuestionID": "QID53",
+        "DataExportTag": "b2_8",
+        "QuestionDescription": "Batch 2 &middot; comment 8 of 8  When will the payment for this study come through?  Which category ",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID54",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID54",
+        "DataExportTag": "t_b2_8",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID55",
+      "SecondaryAttribute": "Waiting page",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><b>Waiting for batch 3</b></p><p>Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment.</p><p><span id=\"cs-wait-status\" style=\"color:#667;font-style:italic;\">Waiting for the supervisor&hellip;</span></p><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionJS": "// Waiting page (\"Batch 3 is waiting to be issued\"), reached after batch 2, which is coded while the\n// supervisor reviews. Everyone stops here until a fixed time T: for a note, T after the note was\n// sent (when the reply starts being written); without a note, T after batch 1 was submitted. The\n// same T in every cell; after batch 2 most people have already passed T and move on at once. For a note,\n// the supervisor's reply is polled meanwhile; if it is still not ready at T the page waits at most\n// GRACE_MS longer and then shows the pre-tested fallback for the assigned cell. Nothing is ever\n// shown sooner than T, and nobody is excluded for a slow or failed reply.\n//\n// Results are written into the hidden text questions on this page (saved with the page, drive the\n// branch logic and piped text), into embedded data, and into sessionStorage for the next page.\nQualtrics.SurveyEngine.addOnload(function () {\n  var SERVICE_URL = \"https://aetheria-gardens-messages.onrender.com\";\n  var T_MS = 90000;       // fixed delay after the note was sent (or after batch 1 without a note)\n  var GRACE_MS = 60000;   // extra wait allowed after T for a reply that is still being written\n  var POLL_MS = 3000;\n  var MAX_STARTS = 3;\n  var FALLBACK = {\n    HP_HC: [\"Hi, thanks for flagging comments 3, 6 and 8 so carefully. I'm afraid I can't add a second category.\", \"The note doesn't show how often a second problem is really separate, or whether coders would agree on it; without that, a second label may lower agreement. If you could code a hundred comments both ways, I'd gladly look again. Thanks again for raising it.\"],\n    HP_LC: [\"Hi, thank you for writing this up; I can see the care you took. I'm afraid the rule isn't changing.\", \"A rule change reaches well past one batch, and it touches how the whole project is set up; other things weigh on it too. If something changes, I'd be glad to look at this again. Thanks again for taking the time to raise it.\"],\n    LP_HC: [\"Got your note. I'm not adding a second category. Three comments from one batch don't make a case.\", \"The note doesn't show how often a second problem is really separate, or whether coders would agree on it; without that, a second label just lowers agreement. Code a hundred comments both ways and bring the comparison back. That's all I have on it.\"],\n    LP_LC: [\"Got your note. I'm not changing the one-category rule. The idea doesn't hold up for this project.\", \"A rule change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it.\"]\n  };\n\n  var question = this;\n  var PIPE_START = String.fromCharCode(36) + \"{\";\n  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : \"\"; }\n  function domValue(id, fallback) {\n    var el = document.getElementById(id);\n    return unpiped(el ? el.textContent.trim() : \"\") || unpiped(fallback || \"\");\n  }\n  function stored(key) { try { return sessionStorage.getItem(key) || \"\"; } catch (error) { return \"\"; } }\n\n  var openedAt = Date.now();\n  var condition = domValue(\"cs-condition\", \"${e://Field/condition}\") || \"HP_HC\";\n  var note = stored(\"cs_note1_text\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"note1_text\") || \"\");\n  var hasNote = Boolean(note.trim());\n  var anchor = (hasNote ? Number(stored(\"cs_note1_submit_ms\")) : 0) || Number(stored(\"cs_batch1_submit_ms\")) || openedAt;\n  var requestId = stored(\"cs_request_id\");\n  var startBody = stored(\"cs_start_body\");\n\n  // Hidden carrier questions on this page, in this order.\n  var HIDDEN = {\n    rejection_status: 0, rejection_msg1: 1, rejection_msg2: 2, rejection_compliance_code: 3, rejection_latency_ms: 4,\n    wait_before_t_ms: 5, wait_after_t_ms: 6, fallback_used: 7, politeness_channel: 8, voice1: 9\n  };\n  function setHidden(index, value) {\n    var inputs = document.querySelectorAll(\"input[type=text]\");\n    var input = inputs[index];\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value == null ? \"\" : String(value));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n  function setEd(name, value) {\n    var text = value == null ? \"\" : String(value);\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, text); } catch (error) {}\n    try { if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === \"function\") Qualtrics.SurveyEngine.setJSEmbeddedData(name, text); } catch (error) {}\n    if (HIDDEN[name] !== undefined) setHidden(HIDDEN[name], text);\n    try { sessionStorage.setItem(\"cs_\" + name, text); } catch (error) {}\n  }\n\n  question.disableNextButton();\n  var reply = null;      // {status, msg1, msg2, code, latency, channel, voice}\n  var starts = Number(stored(\"cs_job_started\") === \"1\" ? 1 : 0);\n  var done = false;\n\n  function startJob() {\n    if (!startBody) return Promise.resolve();\n    starts += 1;\n    return fetch(SERVICE_URL + \"/api/rejection/start\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: startBody })\n      .then(function (response) { return response.json(); }).catch(function () {});\n  }\n  var polls = 0;\n  function poll() {\n    if (done || reply) return;\n    polls += 1;\n    var controller = typeof AbortController === \"function\" ? new AbortController() : null;\n    var timeout = controller ? setTimeout(function () { controller.abort(); }, 8000) : null;\n    fetch(SERVICE_URL + \"/api/rejection/result?job=\" + encodeURIComponent(requestId), { cache: \"no-store\", signal: controller ? controller.signal : undefined })\n      .then(function (response) { if (timeout) clearTimeout(timeout); return response.json(); })\n      .then(function (data) { try { sessionStorage.setItem(\"cs_last_poll\", polls + \":\" + (data && data.status) + \":\" + Math.round((Date.now() - openedAt) / 1000)); } catch (error) {} return data; })\n      .then(function (data) {\n        if (data.status === \"ok\") {\n          var messages = data.messages || [];\n          reply = {\n            status: \"ok\",\n            msg1: messages[0] ? messages[0].text : \"\",\n            msg2: messages[1] ? messages[1].text : \"\",\n            code: data.compliance_code == null ? \"\" : String(data.compliance_code),\n            latency: data.latency_ms == null ? \"\" : String(data.latency_ms),\n            channel: data.politeness_channel || \"\",\n            voice: data.voice === false ? \"0\" : \"1\"\n          };\n          return;\n        }\n        if ((data.status === \"failed\" || data.status === \"unknown\") && starts < MAX_STARTS) {\n          return startJob().then(function () { setTimeout(poll, POLL_MS); });\n        }\n        if (data.status === \"failed\") { reply = { status: \"failed\" }; return; }\n        setTimeout(poll, POLL_MS);\n      })\n      .catch(function () { if (timeout) clearTimeout(timeout); setTimeout(poll, POLL_MS); });\n  }\n\n  function finish(useFallback) {\n    if (done) return;\n    done = true;\n    var now = Date.now();\n    var tAt = anchor + T_MS;\n    setEd(\"wait_before_t_ms\", String(Math.max(0, Math.min(now, tAt) - openedAt)));\n    setEd(\"wait_after_t_ms\", String(Math.max(0, now - Math.max(openedAt, tAt))));\n    if (!hasNote) {\n      setEd(\"rejection_status\", \"none\");\n      setEd(\"voice1\", \"\");\n      setEd(\"fallback_used\", \"0\");\n    } else if (useFallback || !reply || reply.status !== \"ok\") {\n      var pair = FALLBACK[condition] || FALLBACK.HP_HC;\n      setEd(\"rejection_status\", \"fallback\");\n      setEd(\"rejection_msg1\", pair[0]);\n      setEd(\"rejection_msg2\", pair[1]);\n      setEd(\"rejection_compliance_code\", \"\");\n      setEd(\"rejection_latency_ms\", \"\");\n      setEd(\"politeness_channel\", \"closing\");\n      setEd(\"voice1\", \"1\");\n      setEd(\"fallback_used\", \"1\");\n    } else {\n      setEd(\"rejection_status\", \"ok\");\n      setEd(\"rejection_msg1\", reply.msg1);\n      setEd(\"rejection_msg2\", reply.msg2);\n      setEd(\"rejection_compliance_code\", reply.code);\n      setEd(\"rejection_latency_ms\", reply.latency);\n      setEd(\"politeness_channel\", reply.channel);\n      setEd(\"voice1\", reply.voice);\n      setEd(\"fallback_used\", \"0\");\n    }\n    question.enableNextButton();\n    var label = document.getElementById(\"cs-wait-status\");\n    if (label) label.textContent = \"Batch 3 is ready. Click Next to continue.\";\n    // The button is clicked directly. question.clickNextButton() is not used: in the new survey\n    // engine it did nothing at once and then fired on the following page, skipping it. If the\n    // click does not work the participant can press the enabled button.\n    setTimeout(function () {\n      var next = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n      if (next && !next.disabled) next.click();\n    }, 400);\n  }\n\n  function tick() {\n    if (done) return;\n    var now = Date.now();\n    var tAt = anchor + T_MS;\n    if (now < tAt) { setTimeout(tick, Math.min(1000, tAt - now)); return; }\n    if (!hasNote || (reply && reply.status === \"ok\")) { finish(false); return; }\n    if (reply && reply.status === \"failed\") { finish(true); return; }\n    if (now >= tAt + GRACE_MS) { finish(true); return; }\n    setTimeout(tick, 1000);\n  }\n\n  if (hasNote) {\n    if (!requestId) { reply = { status: \"failed\" }; }\n    else if (starts === 0) { startJob().then(function () { setTimeout(poll, POLL_MS); }); }\n    else { setTimeout(poll, 500); }\n  }\n  tick();\n});\n",
+        "QuestionID": "QID55",
         "DataExportTag": "waiting",
         "QuestionDescription": "Waiting page",
         "Language": [],
@@ -3050,7 +4054,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID39",
+      "PrimaryAttribute": "QID56",
       "SecondaryAttribute": "rejection_status",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3067,7 +4071,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID39",
+        "QuestionID": "QID56",
         "DataExportTag": "h_rejection_status",
         "QuestionDescription": "rejection_status",
         "Language": [],
@@ -3081,7 +4085,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID40",
+      "PrimaryAttribute": "QID57",
       "SecondaryAttribute": "rejection_msg1",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3098,7 +4102,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID40",
+        "QuestionID": "QID57",
         "DataExportTag": "h_rejection_msg1",
         "QuestionDescription": "rejection_msg1",
         "Language": [],
@@ -3112,7 +4116,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID41",
+      "PrimaryAttribute": "QID58",
       "SecondaryAttribute": "rejection_msg2",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3129,7 +4133,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID41",
+        "QuestionID": "QID58",
         "DataExportTag": "h_rejection_msg2",
         "QuestionDescription": "rejection_msg2",
         "Language": [],
@@ -3143,7 +4147,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID42",
+      "PrimaryAttribute": "QID59",
       "SecondaryAttribute": "rejection_compliance_code",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3160,7 +4164,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID42",
+        "QuestionID": "QID59",
         "DataExportTag": "h_rejection_compliance_code",
         "QuestionDescription": "rejection_compliance_code",
         "Language": [],
@@ -3174,7 +4178,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID43",
+      "PrimaryAttribute": "QID60",
       "SecondaryAttribute": "rejection_latency_ms",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3191,7 +4195,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID43",
+        "QuestionID": "QID60",
         "DataExportTag": "h_rejection_latency_ms",
         "QuestionDescription": "rejection_latency_ms",
         "Language": [],
@@ -3205,7 +4209,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID44",
+      "PrimaryAttribute": "QID61",
       "SecondaryAttribute": "wait_before_t_ms",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3222,7 +4226,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID44",
+        "QuestionID": "QID61",
         "DataExportTag": "h_wait_before_t_ms",
         "QuestionDescription": "wait_before_t_ms",
         "Language": [],
@@ -3236,7 +4240,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID45",
+      "PrimaryAttribute": "QID62",
       "SecondaryAttribute": "wait_after_t_ms",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3253,7 +4257,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID45",
+        "QuestionID": "QID62",
         "DataExportTag": "h_wait_after_t_ms",
         "QuestionDescription": "wait_after_t_ms",
         "Language": [],
@@ -3267,7 +4271,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID46",
+      "PrimaryAttribute": "QID63",
       "SecondaryAttribute": "fallback_used",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3284,7 +4288,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID46",
+        "QuestionID": "QID63",
         "DataExportTag": "h_fallback_used",
         "QuestionDescription": "fallback_used",
         "Language": [],
@@ -3298,7 +4302,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID47",
+      "PrimaryAttribute": "QID64",
       "SecondaryAttribute": "politeness_channel",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3315,7 +4319,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID47",
+        "QuestionID": "QID64",
         "DataExportTag": "h_politeness_channel",
         "QuestionDescription": "politeness_channel",
         "Language": [],
@@ -3329,7 +4333,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID48",
+      "PrimaryAttribute": "QID65",
       "SecondaryAttribute": "voice1",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3346,7 +4350,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID48",
+        "QuestionID": "QID65",
         "DataExportTag": "h_voice1",
         "QuestionDescription": "voice1",
         "Language": [],
@@ -3360,7 +4364,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID49",
+      "PrimaryAttribute": "QID66",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3397,7 +4401,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID49",
+        "QuestionID": "QID66",
         "DataExportTag": "t_waiting",
         "QuestionDescription": "Timing",
         "Language": [],
@@ -3411,11 +4415,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID50",
+      "PrimaryAttribute": "QID67",
       "SecondaryAttribute": "New messages",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\"><span id=\"cs-new-count\">New messages</span> from the coding supervisor</p><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Batch 1 &middot; quality check</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 6px\">Batch 1 has been checked against the reference key.</p><p style=\"margin:0\">Quality rating: <b style=\"color:#2f7a4a\">meets standard</b></p></div></div><div id=\"cs-reply-card\"><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; re: your note on batch 1</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 10px;padding:8px 12px;background:#f1f3f5;border-radius:6px;font-size:13px;color:#556270;\">Your note: <span id=\"cs-note-echo\">${e://Field/note1_text}</span></p><p style=\"margin:0 0 8px\"><span id=\"cs-msg1\">${e://Field/rejection_msg1}</span></p><p style=\"margin:0\"><span id=\"cs-msg2\">${e://Field/rejection_msg2}</span></p></div></div></div><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; comment-coding project</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0\">Batch 2 is ready: eight comments from a different study. The coding rules are the same as for batch 1. Click Next to start batch 2.</p></div></div>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\"><span id=\"cs-new-count\">New messages</span> from the coding supervisor</p><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Batch 1 &middot; quality check</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 6px\">Batch 1 has been checked against the reference key.</p><p style=\"margin:0\">Quality rating: <b style=\"color:#2f7a4a\">meets standard</b></p></div></div><div id=\"cs-reply-card\"><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; re: your note on batch 1</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 10px;padding:8px 12px;background:#f1f3f5;border-radius:6px;font-size:13px;color:#556270;\">Your note: <span id=\"cs-note-echo\">${e://Field/note1_text}</span></p><p style=\"margin:0 0 8px\"><span id=\"cs-msg1\">${e://Field/rejection_msg1}</span></p><p style=\"margin:0\"><span id=\"cs-msg2\">${e://Field/rejection_msg2}</span></p></div></div></div><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; comment-coding project</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0\">Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to start batch 3.</p></div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -3428,7 +4432,7 @@
           }
         },
         "QuestionJS": "// New-messages page: the batch rating card for everyone, the reply card only when a note was\n// attached. Piped text fills the reply; if a slot is empty the value kept in sessionStorage by the\n// waiting page is used. Next is enabled after a short reading time.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var MIN_READ_MS = 15000;\n  function stored(key) { try { return sessionStorage.getItem(key) || \"\"; } catch (error) { return \"\"; } }\n  var PIPE_START = String.fromCharCode(36) + \"{\";\n  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : \"\"; }\n  var note = stored(\"cs_note1_text\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"note1_text\") || \"\");\n  var status = stored(\"cs_rejection_status\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"rejection_status\") || \"\");\n  var card = document.getElementById(\"cs-reply-card\");\n  if (card) {\n    if (!note.trim() || status === \"none\") {\n      card.style.display = \"none\";\n    } else {\n      var slots = { \"cs-note-echo\": \"cs_note1_text\", \"cs-msg1\": \"cs_rejection_msg1\", \"cs-msg2\": \"cs_rejection_msg2\" };\n      Object.keys(slots).forEach(function (id) {\n        var el = document.getElementById(id);\n        if (!el) return;\n        var current = unpiped(el.textContent.trim());\n        if (!current) el.textContent = stored(slots[id]);\n      });\n      var msg2 = document.getElementById(\"cs-msg2\");\n      if (msg2 && !msg2.textContent.trim()) msg2.style.display = \"none\";\n    }\n  }\n  var count = document.getElementById(\"cs-new-count\");\n  if (count) count.textContent = (!note.trim() || status === \"none\") ? \"2 new messages\" : \"3 new messages\";\n  try { Qualtrics.SurveyEngine.setEmbeddedData(\"messages_opened_at\", new Date().toISOString()); } catch (error) {}\n  question.disableNextButton();\n  setTimeout(function () { question.enableNextButton(); }, MIN_READ_MS);\n});\n",
-        "QuestionID": "QID50",
+        "QuestionID": "QID67",
         "DataExportTag": "messages",
         "QuestionDescription": "New messages",
         "Language": [],
@@ -3442,7 +4446,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID51",
+      "PrimaryAttribute": "QID68",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3479,7 +4483,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID51",
+        "QuestionID": "QID68",
         "DataExportTag": "t_messages",
         "QuestionDescription": "Timing",
         "Language": [],
@@ -3493,11 +4497,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID52",
-      "SecondaryAttribute": "Batch 2 &middot; comment 1 of 8  The page kept freezing whenever I tried to go back.  Which category",
+      "PrimaryAttribute": "QID69",
+      "SecondaryAttribute": "Batch 3 &middot; comment 1 of 8  The page kept freezing whenever I tried to go back.  Which category",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 1 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The page kept freezing whenever I tried to go back.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 1 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The page kept freezing whenever I tried to go back.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3537,9 +4541,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID52",
-        "DataExportTag": "b2_1",
-        "QuestionDescription": "Batch 2 &middot; comment 1 of 8  The page kept freezing whenever I tried to go back.  Which category",
+        "QuestionID": "QID69",
+        "DataExportTag": "b3_1",
+        "QuestionDescription": "Batch 3 &middot; comment 1 of 8  The page kept freezing whenever I tried to go back.  Which category",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3551,7 +4555,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID53",
+      "PrimaryAttribute": "QID70",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3588,8 +4592,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID53",
-        "DataExportTag": "t_b2_1",
+        "QuestionID": "QID70",
+        "DataExportTag": "t_b3_1",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -3602,11 +4606,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID54",
-      "SecondaryAttribute": "Batch 2 &middot; comment 2 of 8  The rating scale labels were the wrong way round compared to the ea",
+      "PrimaryAttribute": "QID71",
+      "SecondaryAttribute": "Batch 3 &middot; comment 2 of 8  The rating scale labels were the wrong way round compared to the ea",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 2 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The rating scale labels were the wrong way round compared to the earlier pages.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 2 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The rating scale labels were the wrong way round compared to the earlier pages.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3646,9 +4650,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID54",
-        "DataExportTag": "b2_2",
-        "QuestionDescription": "Batch 2 &middot; comment 2 of 8  The rating scale labels were the wrong way round compared to the ea",
+        "QuestionID": "QID71",
+        "DataExportTag": "b3_2",
+        "QuestionDescription": "Batch 3 &middot; comment 2 of 8  The rating scale labels were the wrong way round compared to the ea",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3660,7 +4664,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID55",
+      "PrimaryAttribute": "QID72",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3697,8 +4701,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID55",
-        "DataExportTag": "t_b2_2",
+        "QuestionID": "QID72",
+        "DataExportTag": "t_b3_2",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -3711,11 +4715,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID56",
-      "SecondaryAttribute": "Batch 2 &middot; comment 3 of 8  Could you tell me when the results will be published?  Which catego",
+      "PrimaryAttribute": "QID73",
+      "SecondaryAttribute": "Batch 3 &middot; comment 3 of 8  Could you tell me when the results will be published?  Which catego",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 3 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Could you tell me when the results will be published?</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 3 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Could you tell me when the results will be published?</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3755,9 +4759,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID56",
-        "DataExportTag": "b2_3",
-        "QuestionDescription": "Batch 2 &middot; comment 3 of 8  Could you tell me when the results will be published?  Which catego",
+        "QuestionID": "QID73",
+        "DataExportTag": "b3_3",
+        "QuestionDescription": "Batch 3 &middot; comment 3 of 8  Could you tell me when the results will be published?  Which catego",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3769,7 +4773,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID57",
+      "PrimaryAttribute": "QID74",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3806,8 +4810,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID57",
-        "DataExportTag": "t_b2_3",
+        "QuestionID": "QID74",
+        "DataExportTag": "t_b3_3",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -3820,11 +4824,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID58",
-      "SecondaryAttribute": "Batch 2 &middot; comment 4 of 8  It was a bit longer than I'd have liked.  Which category does this ",
+      "PrimaryAttribute": "QID75",
+      "SecondaryAttribute": "Batch 3 &middot; comment 4 of 8  It was a bit longer than I'd have liked.  Which category does this ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 4 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">It was a bit longer than I'd have liked.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 4 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">It was a bit longer than I'd have liked.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3864,9 +4868,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID58",
-        "DataExportTag": "b2_4",
-        "QuestionDescription": "Batch 2 &middot; comment 4 of 8  It was a bit longer than I'd have liked.  Which category does this ",
+        "QuestionID": "QID75",
+        "DataExportTag": "b3_4",
+        "QuestionDescription": "Batch 3 &middot; comment 4 of 8  It was a bit longer than I'd have liked.  Which category does this ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3878,7 +4882,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID59",
+      "PrimaryAttribute": "QID76",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -3915,8 +4919,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID59",
-        "DataExportTag": "t_b2_4",
+        "QuestionID": "QID76",
+        "DataExportTag": "t_b3_4",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -3929,11 +4933,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID60",
-      "SecondaryAttribute": "Batch 2 &middot; comment 5 of 8  The questions about my family were quite personal.  Which category ",
+      "PrimaryAttribute": "QID77",
+      "SecondaryAttribute": "Batch 3 &middot; comment 5 of 8  The questions about my family were quite personal.  Which category ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The questions about my family were quite personal.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The questions about my family were quite personal.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3973,9 +4977,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID60",
-        "DataExportTag": "b2_5",
-        "QuestionDescription": "Batch 2 &middot; comment 5 of 8  The questions about my family were quite personal.  Which category ",
+        "QuestionID": "QID77",
+        "DataExportTag": "b3_5",
+        "QuestionDescription": "Batch 3 &middot; comment 5 of 8  The questions about my family were quite personal.  Which category ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3987,7 +4991,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID61",
+      "PrimaryAttribute": "QID78",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4024,8 +5028,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID61",
-        "DataExportTag": "t_b2_5",
+        "QuestionID": "QID78",
+        "DataExportTag": "t_b3_5",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -4038,11 +5042,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID62",
-      "SecondaryAttribute": "Batch 2 &middot; comment 6 of 8  Is there a follow-up study I can sign up for?  Which category does ",
+      "PrimaryAttribute": "QID79",
+      "SecondaryAttribute": "Batch 3 &middot; comment 6 of 8  Is there a follow-up study I can sign up for?  Which category does ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Is there a follow-up study I can sign up for?</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Is there a follow-up study I can sign up for?</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4082,9 +5086,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID62",
-        "DataExportTag": "b2_6",
-        "QuestionDescription": "Batch 2 &middot; comment 6 of 8  Is there a follow-up study I can sign up for?  Which category does ",
+        "QuestionID": "QID79",
+        "DataExportTag": "b3_6",
+        "QuestionDescription": "Batch 3 &middot; comment 6 of 8  Is there a follow-up study I can sign up for?  Which category does ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4096,7 +5100,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID63",
+      "PrimaryAttribute": "QID80",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4133,8 +5137,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID63",
-        "DataExportTag": "t_b2_6",
+        "QuestionID": "QID80",
+        "DataExportTag": "t_b3_6",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -4147,11 +5151,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID64",
-      "SecondaryAttribute": "Batch 2 &middot; comment 7 of 8  The payment arrived quicker than usual, thanks.  Which category doe",
+      "PrimaryAttribute": "QID81",
+      "SecondaryAttribute": "Batch 3 &middot; comment 7 of 8  The payment arrived quicker than usual, thanks.  Which category doe",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 7 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The payment arrived quicker than usual, thanks.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 7 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The payment arrived quicker than usual, thanks.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4191,9 +5195,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID64",
-        "DataExportTag": "b2_7",
-        "QuestionDescription": "Batch 2 &middot; comment 7 of 8  The payment arrived quicker than usual, thanks.  Which category doe",
+        "QuestionID": "QID81",
+        "DataExportTag": "b3_7",
+        "QuestionDescription": "Batch 3 &middot; comment 7 of 8  The payment arrived quicker than usual, thanks.  Which category doe",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4205,7 +5209,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID65",
+      "PrimaryAttribute": "QID82",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4242,8 +5246,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID65",
-        "DataExportTag": "t_b2_7",
+        "QuestionID": "QID82",
+        "DataExportTag": "t_b3_7",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -4256,11 +5260,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID66",
-      "SecondaryAttribute": "Batch 2 &middot; comment 8 of 8  Please could you send me a summary of what you found.  Which catego",
+      "PrimaryAttribute": "QID83",
+      "SecondaryAttribute": "Batch 3 &middot; comment 8 of 8  Please could you send me a summary of what you found.  Which catego",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 8 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Please could you send me a summary of what you found.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 8 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Please could you send me a summary of what you found.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4300,9 +5304,9 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 1,
-        "QuestionID": "QID66",
-        "DataExportTag": "b2_8",
-        "QuestionDescription": "Batch 2 &middot; comment 8 of 8  Please could you send me a summary of what you found.  Which catego",
+        "QuestionID": "QID83",
+        "DataExportTag": "b3_8",
+        "QuestionDescription": "Batch 3 &middot; comment 8 of 8  Please could you send me a summary of what you found.  Which catego",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4314,7 +5318,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID67",
+      "PrimaryAttribute": "QID84",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4351,8 +5355,8 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID67",
-        "DataExportTag": "t_b2_8",
+        "QuestionID": "QID84",
+        "DataExportTag": "t_b3_8",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
@@ -4365,11 +5369,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID68",
+      "PrimaryAttribute": "QID85",
       "SecondaryAttribute": "Note 2 tools",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Batch 2 complete.</b></p><div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID52/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID54/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID56/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID58/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID60/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID62/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID64/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID66/ChoiceGroup/SelectedChoices}</span></li></ol></div></div><p>Both choices below lead to the same last few questions and the same payment.</p>",
+        "QuestionText": "<p><b>Batch 3 complete.</b></p><div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID69/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID71/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID73/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID75/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID77/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID79/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID81/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID83/ChoiceGroup/SelectedChoices}</span></li></ol></div></div><p>Both choices below lead to the same last few questions and the same payment.</p>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -4382,7 +5386,7 @@
           }
         },
         "QuestionJS": "// Note 2 pages: the two tools, \"Review this batch\" and \"Why the rules are this way\", are collapsed\n// sections above the choice or the essay box. Each open is counted and the time of the first open\n// recorded, into the hidden carrier questions on the page (review_opens, why_opens,\n// first_tool_open_ms) and embedded data.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var openedAt = Date.now();\n  var counts = { review: 0, why: 0 };\n  var firstOpen = 0;\n  var HIDDEN = { review_opens: 0, why_opens: 1, first_tool_open_ms: 2 };\n  function setHidden(index, value) {\n    var inputs = document.querySelectorAll(\"input[type=text]\");\n    var input = inputs[index];\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value == null ? \"\" : String(value));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n  var isBatch2Essay = Boolean(question.getQuestionContainer().querySelector(\"textarea\"));\n  var suffix = isBatch2Essay ? \"_essay\" : \"_choice\";\n  function record() {\n    try {\n      Qualtrics.SurveyEngine.setEmbeddedData(\"review_opens\" + suffix, String(counts.review));\n      Qualtrics.SurveyEngine.setEmbeddedData(\"why_opens\" + suffix, String(counts.why));\n      Qualtrics.SurveyEngine.setEmbeddedData(\"first_tool_open_ms\" + suffix, firstOpen ? String(firstOpen - openedAt) : \"\");\n    } catch (error) {}\n    setHidden(HIDDEN.review_opens, counts.review);\n    setHidden(HIDDEN.why_opens, counts.why);\n    setHidden(HIDDEN.first_tool_open_ms, firstOpen ? firstOpen - openedAt : \"\");\n  }\n  [\"review\", \"why\"].forEach(function (name) {\n    var button = document.getElementById(\"cs-tool-\" + name);\n    var panel = document.getElementById(\"cs-panel-\" + name);\n    if (!button || !panel) return;\n    button.addEventListener(\"click\", function () {\n      var open = panel.style.display !== \"none\" && panel.style.display !== \"\";\n      if (!open) {\n        counts[name] += 1;\n        if (!firstOpen) firstOpen = Date.now();\n        panel.style.display = \"block\";\n        button.textContent = name === \"review\" ? \"Hide this batch\" : \"Hide the rules\";\n      } else {\n        panel.style.display = \"none\";\n        button.textContent = name === \"review\" ? \"Review this batch\" : \"Why the rules are this way\";\n      }\n      record();\n    });\n  });\n  record();\n});\n",
-        "QuestionID": "QID68",
+        "QuestionID": "QID85",
         "DataExportTag": "note2_tools_choice",
         "QuestionDescription": "Note 2 tools",
         "Language": [],
@@ -4396,7 +5400,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID69",
+      "PrimaryAttribute": "QID86",
       "SecondaryAttribute": "review_opens",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4413,7 +5417,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID69",
+        "QuestionID": "QID86",
         "DataExportTag": "h_review_opens_choice",
         "QuestionDescription": "review_opens",
         "Language": [],
@@ -4427,7 +5431,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID70",
+      "PrimaryAttribute": "QID87",
       "SecondaryAttribute": "why_opens",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4444,7 +5448,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID70",
+        "QuestionID": "QID87",
         "DataExportTag": "h_why_opens_choice",
         "QuestionDescription": "why_opens",
         "Language": [],
@@ -4458,7 +5462,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID71",
+      "PrimaryAttribute": "QID88",
       "SecondaryAttribute": "first_tool_open_ms",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4475,7 +5479,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID71",
+        "QuestionID": "QID88",
         "DataExportTag": "h_first_tool_open_ms_choice",
         "QuestionDescription": "first_tool_open_ms",
         "Language": [],
@@ -4489,11 +5493,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID72",
-      "SecondaryAttribute": "Batch 2: attach a note, or finish without one?",
+      "PrimaryAttribute": "QID89",
+      "SecondaryAttribute": "Batch 3: attach a note, or finish without one?",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "Batch 2: attach a note, or finish without one?",
+        "QuestionText": "Batch 3: attach a note, or finish without one?",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4521,10 +5525,10 @@
         },
         "NextChoiceId": 3,
         "NextAnswerId": 1,
-        "QuestionJS": "// Note choice page (batch 1 or batch 2): \"Attach a note\" / \"Finish without a note\", shown in a\n// random order by Qualtrics. Records the time the batch was submitted, which anchors the fixed\n// delay T before the supervisor's messages appear, and which button came first.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var tag = question.getQuestionInfo().QuestionText.indexOf(\"Batch 2\") >= 0 ? \"2\" : \"1\";\n  var first = question.getQuestionContainer().querySelector(\"label.SingleAnswer, .ChoiceStructure label\");\n  var order = first && /attach/i.test(first.textContent) ? \"attach_first\" : \"finish_first\";\n  try { Qualtrics.SurveyEngine.setEmbeddedData(\"n\" + tag + \"_button_order\", order); } catch (error) {}\n});\nQualtrics.SurveyEngine.addOnPageSubmit(function () {\n  var isBatch2 = this.getQuestionInfo().QuestionText.indexOf(\"Batch 2\") >= 0;\n  var now = Date.now();\n  var key = isBatch2 ? \"cs_batch2_submit_ms\" : \"cs_batch1_submit_ms\";\n  try { if (!sessionStorage.getItem(key)) sessionStorage.setItem(key, String(now)); } catch (error) {}\n  try { Qualtrics.SurveyEngine.setEmbeddedData(isBatch2 ? \"batch2_submit_at\" : \"batch1_submit_at\", new Date(now).toISOString()); } catch (error) {}\n});\n",
-        "QuestionID": "QID72",
+        "QuestionJS": "// Note choice page (batch 1 or batch 3): \"Attach a note\" / \"Finish without a note\", shown in a\n// random order by Qualtrics. Records the time the batch was submitted, which anchors the fixed\n// delay T before the supervisor's messages appear, and which button came first.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var tag = question.getQuestionInfo().QuestionText.indexOf(\"Batch 3\") >= 0 ? \"2\" : \"1\";\n  var first = question.getQuestionContainer().querySelector(\"label.SingleAnswer, .ChoiceStructure label\");\n  var order = first && /attach/i.test(first.textContent) ? \"attach_first\" : \"finish_first\";\n  try { Qualtrics.SurveyEngine.setEmbeddedData(\"n\" + tag + \"_button_order\", order); } catch (error) {}\n});\nQualtrics.SurveyEngine.addOnPageSubmit(function () {\n  var isBatch3 = this.getQuestionInfo().QuestionText.indexOf(\"Batch 3\") >= 0;\n  var now = Date.now();\n  var key = isBatch3 ? \"cs_batch3_submit_ms\" : \"cs_batch1_submit_ms\";\n  try { if (!sessionStorage.getItem(key)) sessionStorage.setItem(key, String(now)); } catch (error) {}\n  try { Qualtrics.SurveyEngine.setEmbeddedData(isBatch3 ? \"batch3_submit_at\" : \"batch1_submit_at\", new Date(now).toISOString()); } catch (error) {}\n});\n",
+        "QuestionID": "QID89",
         "DataExportTag": "note2_choice",
-        "QuestionDescription": "Batch 2: attach a note, or finish without one?",
+        "QuestionDescription": "Batch 3: attach a note, or finish without one?",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4541,7 +5545,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID73",
+      "PrimaryAttribute": "QID90",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4578,7 +5582,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID73",
+        "QuestionID": "QID90",
         "DataExportTag": "t_note2_choice",
         "QuestionDescription": "Timing",
         "Language": [],
@@ -4592,11 +5596,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID74",
+      "PrimaryAttribute": "QID91",
       "SecondaryAttribute": "Note 2 tools (essay)",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID52/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID54/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID56/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID58/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID60/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID62/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID64/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID66/ChoiceGroup/SelectedChoices}</span></li></ol></div></div>",
+        "QuestionText": "<div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID69/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID71/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID73/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID75/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID77/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID79/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID81/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID83/ChoiceGroup/SelectedChoices}</span></li></ol></div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -4609,7 +5613,7 @@
           }
         },
         "QuestionJS": "// Note 2 pages: the two tools, \"Review this batch\" and \"Why the rules are this way\", are collapsed\n// sections above the choice or the essay box. Each open is counted and the time of the first open\n// recorded, into the hidden carrier questions on the page (review_opens, why_opens,\n// first_tool_open_ms) and embedded data.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var openedAt = Date.now();\n  var counts = { review: 0, why: 0 };\n  var firstOpen = 0;\n  var HIDDEN = { review_opens: 0, why_opens: 1, first_tool_open_ms: 2 };\n  function setHidden(index, value) {\n    var inputs = document.querySelectorAll(\"input[type=text]\");\n    var input = inputs[index];\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value == null ? \"\" : String(value));\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n  var isBatch2Essay = Boolean(question.getQuestionContainer().querySelector(\"textarea\"));\n  var suffix = isBatch2Essay ? \"_essay\" : \"_choice\";\n  function record() {\n    try {\n      Qualtrics.SurveyEngine.setEmbeddedData(\"review_opens\" + suffix, String(counts.review));\n      Qualtrics.SurveyEngine.setEmbeddedData(\"why_opens\" + suffix, String(counts.why));\n      Qualtrics.SurveyEngine.setEmbeddedData(\"first_tool_open_ms\" + suffix, firstOpen ? String(firstOpen - openedAt) : \"\");\n    } catch (error) {}\n    setHidden(HIDDEN.review_opens, counts.review);\n    setHidden(HIDDEN.why_opens, counts.why);\n    setHidden(HIDDEN.first_tool_open_ms, firstOpen ? firstOpen - openedAt : \"\");\n  }\n  [\"review\", \"why\"].forEach(function (name) {\n    var button = document.getElementById(\"cs-tool-\" + name);\n    var panel = document.getElementById(\"cs-panel-\" + name);\n    if (!button || !panel) return;\n    button.addEventListener(\"click\", function () {\n      var open = panel.style.display !== \"none\" && panel.style.display !== \"\";\n      if (!open) {\n        counts[name] += 1;\n        if (!firstOpen) firstOpen = Date.now();\n        panel.style.display = \"block\";\n        button.textContent = name === \"review\" ? \"Hide this batch\" : \"Hide the rules\";\n      } else {\n        panel.style.display = \"none\";\n        button.textContent = name === \"review\" ? \"Review this batch\" : \"Why the rules are this way\";\n      }\n      record();\n    });\n  });\n  record();\n});\n",
-        "QuestionID": "QID74",
+        "QuestionID": "QID91",
         "DataExportTag": "note2_tools_essay",
         "QuestionDescription": "Note 2 tools (essay)",
         "Language": [],
@@ -4623,7 +5627,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID75",
+      "PrimaryAttribute": "QID92",
       "SecondaryAttribute": "review_opens",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4640,7 +5644,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID75",
+        "QuestionID": "QID92",
         "DataExportTag": "h_review_opens_essay",
         "QuestionDescription": "review_opens",
         "Language": [],
@@ -4654,7 +5658,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID76",
+      "PrimaryAttribute": "QID93",
       "SecondaryAttribute": "why_opens",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4671,7 +5675,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID76",
+        "QuestionID": "QID93",
         "DataExportTag": "h_why_opens_essay",
         "QuestionDescription": "why_opens",
         "Language": [],
@@ -4685,7 +5689,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID77",
+      "PrimaryAttribute": "QID94",
       "SecondaryAttribute": "first_tool_open_ms",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4702,7 +5706,7 @@
           }
         },
         "QuestionJS": "// Hidden carrier question (single-line Text Entry) on the waiting page. The waiting page script\n// writes the reply into these fields; they are saved with the page like any answer, drive the\n// branch logic and feed piped text on the message page. This script only hides the question.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (container) container.style.display = \"none\";\n});\n",
-        "QuestionID": "QID77",
+        "QuestionID": "QID94",
         "DataExportTag": "h_first_tool_open_ms_essay",
         "QuestionDescription": "first_tool_open_ms",
         "Language": [],
@@ -4716,11 +5720,11 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID78",
-      "SecondaryAttribute": "Note to the coding supervisor (batch 2)   Is there anything about the coding process you'd like to t",
+      "PrimaryAttribute": "QID95",
+      "SecondaryAttribute": "Note to the coding supervisor (batch 3)   Is there anything about the coding process you'd like to t",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Note to the coding supervisor (batch 2)</b></p><p>Is there anything about the coding process you'd like to tell the coding supervisor? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor.</p><p><span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span></p>",
+        "QuestionText": "<p><b>Note to the coding supervisor (batch 3)</b></p><p>Is there anything about the coding process you'd like to tell the coding supervisor? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor.</p><p><span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span></p>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -4734,10 +5738,10 @@
             "Type": "None"
           }
         },
-        "QuestionJS": "// Note page (batch 1 or batch 2): the optional essay box. No counter and no hard minimum. Below\n// about twenty words one soft check appears once, with two equal buttons. Records when the page\n// opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in\n// sessionStorage so the interim page can start the supervisor's reply at once.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var isBatch2 = question.getQuestionInfo().QuestionText.indexOf(\"batch 2\") >= 0;\n  var tag = isBatch2 ? \"2\" : \"1\";\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  var openedAt = Date.now();\n  var firstKeyAt = 0;\n  var deletions = 0;\n  var lastLength = textarea ? textarea.value.length : 0;\n  var softShown = false;\n  function words(text) { return (String(text).trim().match(/\\S+/g) || []).length; }\n  function setEd(name, value) {\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? \"\" : String(value)); } catch (error) {}\n    try { sessionStorage.setItem(\"cs_\" + name, value == null ? \"\" : String(value)); } catch (error) {}\n  }\n  setEd(\"note\" + tag + \"_opened_at\", new Date(openedAt).toISOString());\n  if (textarea) {\n    textarea.addEventListener(\"input\", function (event) {\n      if (!firstKeyAt) firstKeyAt = Date.now();\n      if (event.target.value.length < lastLength) deletions += 1;\n      lastLength = event.target.value.length;\n    });\n  }\n  // Soft check: intercept the first Next click when the note is short. The New Survey Taking\n  // Experience names the button next-button; the classic engine NextButton.\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) {\n    nextButton.addEventListener(\"click\", function (event) {\n      var text = textarea ? textarea.value : \"\";\n      if (softShown || !text.trim() || words(text) >= 20) return;\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      softShown = true;\n      var box = document.createElement(\"div\");\n      box.style.cssText = \"margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;\";\n      box.innerHTML = \"<p style=\\\"margin:0 0 10px\\\">The supervisor will see only what is written here. Would you like to add anything?</p>\";\n      var row = document.createElement(\"div\");\n      var buttons = [[\"Send as it is\", function () { box.remove(); nextButton.click(); }], [\"Add more\", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];\n      if (Math.random() < 0.5) buttons.reverse();\n      buttons.forEach(function (pair) {\n        var button = document.createElement(\"button\");\n        button.type = \"button\";\n        button.textContent = pair[0];\n        button.style.cssText = \"margin-right:10px;padding:8px 14px;font:inherit;border:1px solid #2f5d8a;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\";\n        button.addEventListener(\"click\", pair[1]);\n        row.appendChild(button);\n      });\n      box.appendChild(row);\n      question.getQuestionContainer().appendChild(box);\n      setEd(\"note\" + tag + \"_soft_check\", \"shown\");\n    }, true);\n  }\n  Qualtrics.SurveyEngine.addOnPageSubmit(function () {\n    var text = textarea ? textarea.value.trim() : \"\";\n    var submittedAt = Date.now();\n    setEd(\"note\" + tag + \"_text\", text);\n    setEd(\"note\" + tag + \"_submitted_at\", new Date(submittedAt).toISOString());\n    setEd(\"note\" + tag + \"_first_key_ms\", firstKeyAt ? firstKeyAt - openedAt : \"\");\n    setEd(\"note\" + tag + \"_write_ms\", submittedAt - openedAt);\n    setEd(\"note\" + tag + \"_deletions\", deletions);\n    setEd(\"note\" + tag + \"_words\", words(text));\n    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only\n    // starts being written then); without a note it stays anchored on the batch-1 submission.\n    if (tag === \"1\" && text) { try { sessionStorage.setItem(\"cs_note1_submit_ms\", String(submittedAt)); } catch (error) {} }\n  });\n});\n",
-        "QuestionID": "QID78",
+        "QuestionJS": "// Note page (batch 1 or batch 3; the second note keeps the tag \"2\"): the optional essay box. No counter and no hard minimum. Below\n// about twenty words one soft check appears once, with two equal buttons. Records when the page\n// opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in\n// sessionStorage so the interim page can start the supervisor's reply at once.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var isLastBatch = question.getQuestionInfo().QuestionText.indexOf(\"batch 3\") >= 0;\n  var tag = isLastBatch ? \"2\" : \"1\";\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  var openedAt = Date.now();\n  var firstKeyAt = 0;\n  var deletions = 0;\n  var lastLength = textarea ? textarea.value.length : 0;\n  var softShown = false;\n  function words(text) { return (String(text).trim().match(/\\S+/g) || []).length; }\n  function setEd(name, value) {\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? \"\" : String(value)); } catch (error) {}\n    try { sessionStorage.setItem(\"cs_\" + name, value == null ? \"\" : String(value)); } catch (error) {}\n  }\n  setEd(\"note\" + tag + \"_opened_at\", new Date(openedAt).toISOString());\n  if (textarea) {\n    textarea.addEventListener(\"input\", function (event) {\n      if (!firstKeyAt) firstKeyAt = Date.now();\n      if (event.target.value.length < lastLength) deletions += 1;\n      lastLength = event.target.value.length;\n    });\n  }\n  // Soft check: intercept the first Next click when the note is short. The New Survey Taking\n  // Experience names the button next-button; the classic engine NextButton.\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) {\n    nextButton.addEventListener(\"click\", function (event) {\n      var text = textarea ? textarea.value : \"\";\n      if (softShown || !text.trim() || words(text) >= 20) return;\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      softShown = true;\n      var box = document.createElement(\"div\");\n      box.style.cssText = \"margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;\";\n      box.innerHTML = \"<p style=\\\"margin:0 0 10px\\\">The supervisor will see only what is written here. Would you like to add anything?</p>\";\n      var row = document.createElement(\"div\");\n      var buttons = [[\"Send as it is\", function () { box.remove(); nextButton.click(); }], [\"Add more\", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];\n      if (Math.random() < 0.5) buttons.reverse();\n      buttons.forEach(function (pair) {\n        var button = document.createElement(\"button\");\n        button.type = \"button\";\n        button.textContent = pair[0];\n        button.style.cssText = \"margin-right:10px;padding:8px 14px;font:inherit;border:1px solid #2f5d8a;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\";\n        button.addEventListener(\"click\", pair[1]);\n        row.appendChild(button);\n      });\n      box.appendChild(row);\n      question.getQuestionContainer().appendChild(box);\n      setEd(\"note\" + tag + \"_soft_check\", \"shown\");\n    }, true);\n  }\n  Qualtrics.SurveyEngine.addOnPageSubmit(function () {\n    var text = textarea ? textarea.value.trim() : \"\";\n    var submittedAt = Date.now();\n    setEd(\"note\" + tag + \"_text\", text);\n    setEd(\"note\" + tag + \"_submitted_at\", new Date(submittedAt).toISOString());\n    setEd(\"note\" + tag + \"_first_key_ms\", firstKeyAt ? firstKeyAt - openedAt : \"\");\n    setEd(\"note\" + tag + \"_write_ms\", submittedAt - openedAt);\n    setEd(\"note\" + tag + \"_deletions\", deletions);\n    setEd(\"note\" + tag + \"_words\", words(text));\n    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only\n    // starts being written then); without a note it stays anchored on the batch-1 submission.\n    if (tag === \"1\" && text) { try { sessionStorage.setItem(\"cs_note1_submit_ms\", String(submittedAt)); } catch (error) {} }\n  });\n});\n",
+        "QuestionID": "QID95",
         "DataExportTag": "note2",
-        "QuestionDescription": "Note to the coding supervisor (batch 2)   Is there anything about the coding process you'd like to t",
+        "QuestionDescription": "Note to the coding supervisor (batch 3)   Is there anything about the coding process you'd like to t",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4749,7 +5753,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID79",
+      "PrimaryAttribute": "QID96",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4786,7 +5790,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID79",
+        "QuestionID": "QID96",
         "DataExportTag": "t_note2",
         "QuestionDescription": "Timing",
         "Language": [],
@@ -4800,7 +5804,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID80",
+      "PrimaryAttribute": "QID97",
       "SecondaryAttribute": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4885,7 +5889,7 @@
         },
         "NextChoiceId": 7,
         "NextAnswerId": 6,
-        "QuestionID": "QID80",
+        "QuestionID": "QID97",
         "DataExportTag": "VF",
         "QuestionDescription": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
         "Language": [],
@@ -4899,7 +5903,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID81",
+      "PrimaryAttribute": "QID98",
       "SecondaryAttribute": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
       "TertiaryAttribute": null,
       "Payload": {
@@ -4974,7 +5978,7 @@
         },
         "NextChoiceId": 5,
         "NextAnswerId": 6,
-        "QuestionID": "QID81",
+        "QuestionID": "QID98",
         "DataExportTag": "VQ",
         "QuestionDescription": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
         "Language": [],
@@ -4988,7 +5992,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID82",
+      "PrimaryAttribute": "QID99",
       "SecondaryAttribute": "About the coding supervisor   Please indicate how much you agree with each statement.",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5058,7 +6062,7 @@
         },
         "NextChoiceId": 4,
         "NextAnswerId": 6,
-        "QuestionID": "QID82",
+        "QuestionID": "QID99",
         "DataExportTag": "AUTH",
         "QuestionDescription": "About the coding supervisor   Please indicate how much you agree with each statement.",
         "Language": [],
@@ -5072,7 +6076,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID83",
+      "PrimaryAttribute": "QID100",
       "SecondaryAttribute": "Speaking up to the supervisor   Please indicate how much you agree with each statement.",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5147,7 +6151,7 @@
         },
         "NextChoiceId": 5,
         "NextAnswerId": 6,
-        "QuestionID": "QID83",
+        "QuestionID": "QID100",
         "DataExportTag": "CLIMATE",
         "QuestionDescription": "Speaking up to the supervisor   Please indicate how much you agree with each statement.",
         "Language": [],
@@ -5161,7 +6165,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID84",
+      "PrimaryAttribute": "QID101",
       "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate how you perceived the reply.   The ",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5236,7 +6240,7 @@
         },
         "NextChoiceId": 5,
         "NextAnswerId": 6,
-        "QuestionID": "QID84",
+        "QuestionID": "QID101",
         "DataExportTag": "MA",
         "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate how you perceived the reply.   The ",
         "Language": [],
@@ -5250,7 +6254,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID85",
+      "PrimaryAttribute": "QID102",
       "SecondaryAttribute": "The supervisor's reply to your note on batch 1    In the reply, the supervisor&hellip;",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5325,7 +6329,7 @@
         },
         "NextChoiceId": 5,
         "NextAnswerId": 6,
-        "QuestionID": "QID85",
+        "QuestionID": "QID102",
         "DataExportTag": "MC",
         "QuestionDescription": "The supervisor's reply to your note on batch 1    In the reply, the supervisor&hellip;",
         "Language": [],
@@ -5339,7 +6343,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID86",
+      "PrimaryAttribute": "QID103",
       "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5434,7 +6438,7 @@
         },
         "NextChoiceId": 9,
         "NextAnswerId": 6,
-        "QuestionID": "QID86",
+        "QuestionID": "QID103",
         "DataExportTag": "REASON",
         "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
         "Language": [],
@@ -5448,7 +6452,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID87",
+      "PrimaryAttribute": "QID104",
       "SecondaryAttribute": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5467,7 +6471,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID87",
+        "QuestionID": "QID104",
         "DataExportTag": "ai_check_unusual",
         "QuestionDescription": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
         "Language": [],
@@ -5481,7 +6485,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID88",
+      "PrimaryAttribute": "QID105",
       "SecondaryAttribute": "Task feedback   If you have any comments about this task, please share them with us. You may also su",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5499,7 +6503,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID88",
+        "QuestionID": "QID105",
         "DataExportTag": "task_feedback",
         "QuestionDescription": "Task feedback   If you have any comments about this task, please share them with us. You may also su",
         "Language": [],
@@ -5513,7 +6517,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID89",
+      "PrimaryAttribute": "QID106",
       "SecondaryAttribute": "Debrief",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5529,7 +6533,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID89",
+        "QuestionID": "QID106",
         "DataExportTag": "debrief",
         "QuestionDescription": "Debrief",
         "Language": [],

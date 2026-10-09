@@ -28,32 +28,36 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    was submitted; that moment anchors T.
 7. **Interim tasks** (`js_interim.js`): starts the reply job at once if a note exists. Five
    study-link checks, device, coding experience, instruction clarity. All forced.
-8. **Waiting page** (`js_waiting.js`): "Batch 2 is waiting to be issued by the coding supervisor."
+8. **Batch 2** (added 2026-10-09): eight comments coded "while the coding supervisor reviews batch 1".
+   Comments 2, 4 and 7 raise two problems, so the one-category tension stays live up to the reply.
+   This fills the wait with work instead of a blank page.
+9. **Waiting page** (`js_waiting.js`): "Batch 3 is waiting to be issued by the coding supervisor."
    Everyone stays until T = 90 s after the note was sent (without a note, 90 s after batch 1 was
-   submitted). A reply is polled meanwhile; if it
-   is not ready at T the page waits at most 60 s more, then the fallback for the cell is used and
-   flagged. The page advances itself. Ten hidden text questions on the page carry the results.
+   submitted). Batch 2 takes longer than that for nearly everyone, so the page usually advances at
+   once. A reply is polled meanwhile; if it is not ready at T the page waits at most 60 s more,
+   then the fallback for the cell is used and flagged. The page advances itself. Ten hidden text
+   questions on the page carry the results.
    A note the service's blind check classes as non-voice gets `voice1 = 0` and the text
    "Note received."
-9. **New messages** (`js_messages.js`): batch rating card for everyone; reply card only when a
-   note was attached; "Batch 2 is ready" card. Next after 15 s.
-10. **Batch 2**: eight comments; 3, 6 and 8 fit no category.
-11. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
+10. **New messages** (`js_messages.js`): batch rating card for everyone; reply card only when a
+   note was attached; "Batch 3 is ready" card. Next after 15 s.
+11. **Batch 3** (the former batch 2): eight comments; 3, 6 and 8 fit no category.
+12. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
     hidden questions; the "Why the rules are this way" tool was removed on 2026-10-08, so
     `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool.
-12. **Questionnaire**: voice frequency intention (VF1–VF6) and voice quality improvement effort
+13. **Questionnaire**: voice frequency intention (VF1–VF6) and voice quality improvement effort
     intention (VQ1–VQ4) from the study's off-survey scale document, adapted to the coding project
     and framed on the batches still to come; then authority (AUTH1–3) and safety/futility.
-13. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection (MR1–MR3
+14. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection (MR1–MR3
     supervisor-related, PR1–PR5 proposal-quality), then politeness (MA) and constructiveness (MC).
-14. **Closing**: one open question on whether anything felt unusual (the direct AI-suspicion question was removed), feedback, debrief. End of survey → Prolific.
+15. **Closing**: one open question on whether anything felt unusual (the direct AI-suspicion question was removed), feedback, debrief. End of survey → Prolific.
 
 ## Embedded data
 
 | Field | Written by | Meaning |
 | --- | --- | --- |
 | `condition` | randomiser | assigned cell, used only for a voice note |
-| `batch1_submit_at`, `batch2_submit_at` | last batch-1 page; note 2 choice page | ISO time; batch 1's anchors T |
+| `batch1_submit_at`, `batch3_submit_at` | last batch-1 page; note 2 choice page | ISO time; batch 1's anchors T |
 | `n2_button_order` | note 2 choice page | `attach_first` / `finish_first` |
 | `note1_text`, `note2_text` | note pages | the notes (also saved as the essay answers) |
 | `note*_opened_at`, `note*_submitted_at`, `note*_first_key_ms`, `note*_write_ms`, `note*_deletions`, `note*_words`, `note*_soft_check` | note pages | writing behaviour |
@@ -74,4 +78,4 @@ from the ResponseID (sha256, first 32-bit word mod 4 over closing, appreciation,
 - Set T from the latency of the frozen wording (currently HP_HC slowest, median 40 s, max about
   80 s in QA): 90 s from the note covers nearly all; measure in the pilot.
 - Replace `COMPLETION_CODE` in the end-of-survey redirect.
-- The sixteen comments are drafts; swap in the real corpus before the main run.
+- The twenty-four comments are drafts; swap in the real corpus before the main run.
