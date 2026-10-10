@@ -61,7 +61,6 @@ RULE_HTML = (
     "<div style=\"border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:10px 0 14px;background:#f6f8fa;font-size:14px;\">"
     "<b>How to label this comment</b>"
     "<p style=\"margin:6px 0 0\">Choose one category for each comment.</p>"
-    "<p style=\"margin:4px 0 0\">If a comment mentions more than one thing, choose the one it is mainly about.</p>"
     "<p style=\"margin:4px 0 0\">There is no &ldquo;other&rdquo; option. Every comment gets one of the five categories.</p>"
     "</div>"
 )
@@ -73,11 +72,13 @@ RATIONALE_HTML = paragraphs(
     "<b>Changing a rule.</b> Every comment already coded would have to be coded again, so rules change only when there is clear evidence the change is worth it.",
 )
 
+# Both practice comments raise one problem, and the practice never mentions what to do with two
+# (user decision 2026-10-10).
 PRACTICE = [
     ("The audio clip on page 2 wouldn't play, so I had to guess what it said.",
-     "<b>TECH.</b> The comment reports that part of the study did not work. It mentions only one thing."),
-    ("Question 7 was really confusing, I wasn't sure if it meant my current job or my last one. Also a bit long.",
-     "<b>WORDING.</b> The comment mentions two things and is mainly about the confusing question, so that is the category. The remark about length is not recorded."),
+     "<b>TECH.</b> The comment reports that part of the study did not work."),
+    ("Question 7 was really confusing, I wasn't sure if it meant my current job or my last one.",
+     "<b>WORDING.</b> The comment says a question was hard to interpret."),
 ]
 
 # Ordinary end-of-study comments. Comments 3, 5, 6 and 8 raise two problems (5 added 2026-10-09).
@@ -91,18 +92,15 @@ BATCH1 = [
     "Will the bonus be paid separately?",
     "Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.",
 ]
-# Batch 2 is coded while the supervisor reviews batch 1 (added 2026-10-09). Comments 2, 4 and 7
-# raise two problems, like batch 1, so the one-category tension stays live up to the reply (user
-# decision 2026-10-09); the rest raise one clear problem.
+# Batch 2 is coded while the supervisor reviews batch 1 (added 2026-10-09; cut to five comments on
+# 2026-10-10, user decision). Comments 2, 4 and 5 raise two problems, like batch 1, so the
+# one-category tension stays live up to the reply; 1 and 3 raise one clear problem.
 BATCH2 = [
     "The sound on the second video didn't work at all.",
     "The instructions for the sorting task were hard to follow, and the timer cut me off before I'd finished.",
     "Really enjoyed the questions about music, it was a fun topic.",
     "The pictures took ages to load, and the whole thing took twice as long as advertised.",
-    "The submit button was hidden behind the cookie banner on my laptop.",
-    "Way too many pages, I was getting tired by the end.",
     "I didn't agree with how the article described young people, and some of the answer options didn't make sense.",
-    "When will the payment for this study come through?",
 ]
 # Batch 3 (the former batch 2): comments 3, 6 and 8 fit no category.
 BATCH3 = [
@@ -342,8 +340,8 @@ def build(args):
     # 5b. Batch 2, coded while the supervisor reviews batch 1 and the note ------------------
     b2_intro = s.text("batch2_intro", page(
         eyebrow("Batch 2"),
-        title("Batch 2: eight new comments"),
-        box("While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: eight comments from a different study. <b>The coding rules are the same as for batch 1.</b>", "info"),
+        title("Batch 2: five new comments"),
+        box("While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: five comments from a different study. <b>The coding rules are the same as for batch 1.</b>", "info"),
     ), description="Batch 2 intro")
     b2_elements = [b2_intro]
     for index, text in enumerate(BATCH2, 1):
