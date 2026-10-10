@@ -46,12 +46,10 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 11. **Batch 3** (the former batch 2): eight comments; 3, 6 and 8 fit no category.
 12. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
     hidden questions; the "Why the rules are this way" tool was removed on 2026-10-08, so
-    `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool, then on the
-    next page voice quality improvement effort (VQ1–VQ4) in the past tense about the note just
-    written (2026-10-10). VQ is therefore answered only by those who attach note 2.
-13. **Questionnaire**: voice frequency intention (VF1–VF6) from the study's off-survey scale
-    document, adapted to the coding project and framed on the batches still to come; then
-    authority (AUTH1–3) and safety/futility.
+    `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool.
+13. **Questionnaire** (everyone): voice frequency (VF1–VF6) and voice quality improvement effort
+    (VQ1–VQ4) from the study's off-survey scale document, in the past tense about what the
+    participant did after batch 3 (2026-10-10); then authority (AUTH1–3) and safety/futility.
 14. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection (MR1–MR3
     supervisor-related, PR1–PR5 proposal-quality), then politeness (MA1–MA8: polite, courteous, sensitive to my feelings, respectful, considerate, appropriate, civil, tactful) and constructiveness (MC1–MC6, translated from the user's Chinese items).
 15. **Closing**: one open question on whether anything felt unusual (the direct AI-suspicion question was removed), feedback, debrief. End of survey → Prolific.

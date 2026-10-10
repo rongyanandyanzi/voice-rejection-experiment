@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-10 11:37:53",
+    "SurveyCreationDate": "2026-10-10 13:34:47",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-10 11:37:53",
+    "LastModified": "2026-10-10 13:34:47",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -555,13 +555,6 @@
             },
             {
               "Type": "Question",
-              "QuestionID": "QID97"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
               "QuestionID": "QID96"
             }
           ]
@@ -571,6 +564,13 @@
           "Description": "Questionnaire",
           "ID": "BL_dfeea13a896de41",
           "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID97"
+            },
+            {
+              "Type": "Page Break"
+            },
             {
               "Type": "Question",
               "QuestionID": "QID98"
@@ -5754,10 +5754,160 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID96",
-      "SecondaryAttribute": "Your note after batch 3   Please think about the note you just wrote to the coding supervisor.",
+      "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Your note after batch 3</b></p><p>Please think about the note you just wrote to the coding supervisor.</p>",
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID96",
+        "DataExportTag": "t_note2",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID97",
+      "SecondaryAttribute": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><b>After batch 3</b></p><p>Please think about what you did after batch 3, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement.</p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "I took the initiative to propose specific improvements to the coding process."
+          },
+          "2": {
+            "Display": "I made a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."
+          },
+          "3": {
+            "Display": "Even though the coding supervisor might seem dismissive, I persisted in communicating my alternative views on the coding rules."
+          },
+          "4": {
+            "Display": "I took the opportunity to share proactive ideas for improving how comments are coded."
+          },
+          "5": {
+            "Display": "I acted as a lead contributor in raising how the coding rules and categories should work."
+          },
+          "6": {
+            "Display": "I offered my own constructive suggestions and ideas to improve the current coding rules."
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "VF1",
+          "2": "VF2",
+          "3": "VF3",
+          "4": "VF4",
+          "5": "VF5",
+          "6": "VF6"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 7,
+        "NextAnswerId": 6,
+        "QuestionID": "QID97",
+        "DataExportTag": "VF",
+        "QuestionDescription": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID98",
+      "SecondaryAttribute": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><b>After batch 3</b></p><p>Please think about what you did after batch 3, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement.</p>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5828,159 +5978,9 @@
         },
         "NextChoiceId": 5,
         "NextAnswerId": 6,
-        "QuestionID": "QID96",
-        "DataExportTag": "VQ",
-        "QuestionDescription": "Your note after batch 3   Please think about the note you just wrote to the coding supervisor.",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID97",
-      "SecondaryAttribute": "Timing",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "Timing",
-        "QuestionType": "Timing",
-        "Selector": "PageTimer",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText",
-          "MinSeconds": "0",
-          "MaxSeconds": "0"
-        },
-        "Choices": {
-          "1": {
-            "Display": "First Click"
-          },
-          "2": {
-            "Display": "Last Click"
-          },
-          "3": {
-            "Display": "Page Submit"
-          },
-          "4": {
-            "Display": "Click Count"
-          }
-        },
-        "ChoiceOrder": [
-          "1",
-          "2",
-          "3",
-          "4"
-        ],
-        "Validation": {
-          "Settings": {
-            "Type": "None"
-          }
-        },
-        "QuestionID": "QID97",
-        "DataExportTag": "t_note2",
-        "QuestionDescription": "Timing",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID98",
-      "SecondaryAttribute": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<p><b>Your next steps</b></p><p>The coding project continues with further batches. Please indicate how you intend to proceed in the coming batches.</p>",
-        "QuestionType": "Matrix",
-        "Selector": "Likert",
-        "SubSelector": "SingleAnswer",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText",
-          "TextPosition": "inline",
-          "ChoiceColumnWidth": 30,
-          "RepeatHeaders": "none",
-          "WhiteSpace": "ON",
-          "MobileFirst": true
-        },
-        "Choices": {
-          "1": {
-            "Display": "I will take the initiative multiple times to propose specific improvements to the coding process."
-          },
-          "2": {
-            "Display": "I will make a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."
-          },
-          "3": {
-            "Display": "Even if the coding supervisor seems dismissive, I will persist in communicating my alternative views on the coding rules."
-          },
-          "4": {
-            "Display": "I will take every opportunity during the coding work to share proactive ideas for improving how comments are coded."
-          },
-          "5": {
-            "Display": "I will be a lead contributor to discussions about how the coding rules and categories should work."
-          },
-          "6": {
-            "Display": "I will repeatedly offer my own constructive suggestions and ideas to improve the current coding rules."
-          }
-        },
-        "ChoiceOrder": [
-          "1",
-          "2",
-          "3",
-          "4",
-          "5",
-          "6"
-        ],
-        "Answers": {
-          "1": {
-            "Display": "1<br>Strongly disagree"
-          },
-          "2": {
-            "Display": "2<br>Disagree"
-          },
-          "3": {
-            "Display": "3<br>Neither agree nor disagree"
-          },
-          "4": {
-            "Display": "4<br>Agree"
-          },
-          "5": {
-            "Display": "5<br>Strongly agree"
-          }
-        },
-        "AnswerOrder": [
-          "1",
-          "2",
-          "3",
-          "4",
-          "5"
-        ],
-        "ChoiceDataExportTags": {
-          "1": "VF1",
-          "2": "VF2",
-          "3": "VF3",
-          "4": "VF4",
-          "5": "VF5",
-          "6": "VF6"
-        },
-        "Validation": {
-          "Settings": {
-            "ForceResponse": "ON",
-            "ForceResponseType": "ON",
-            "Type": "None"
-          }
-        },
-        "NextChoiceId": 7,
-        "NextAnswerId": 6,
         "QuestionID": "QID98",
-        "DataExportTag": "VF",
-        "QuestionDescription": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
+        "DataExportTag": "VQ",
+        "QuestionDescription": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {

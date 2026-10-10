@@ -312,29 +312,31 @@ def build(args):
     n2_hidden_essay = [s.hidden_text(f"h_{name}_essay", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
     note2 = s.essay("note2", paragraphs("<b>Note to the coding supervisor (batch 3)</b>", NOTE_PROMPT_2, "<span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span>"),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
-    # Voice quality improvement effort, asked right after note 2 about the note just written (user
-    # decision 2026-10-10: past tense, the behaviour when speaking up after batch 3). Only
-    # participants who attach note 2 reach this page.
-    vq = s.likert("VQ", paragraphs("<b>Your note after batch 3</b>", "Please think about the note you just wrote to the coding supervisor."), [
-        ("VQ1", "When presenting my suggestions about the coding process, I strove to show a well-researched proposal backed by evidence from the comments."),
-        ("VQ2", "When offering my opinions, I made every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
-        ("VQ3", "When proposing a change to the coding rules, I attempted to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."),
-        ("VQ4", "When pointing out flaws in the current coding rules, I prepared a clear, actionable solution for the coding supervisor."),
-    ])
-    s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2"), "PB", vq])
+    s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2")])
 
     # 10. Questionnaire ---------------------------------------------------------------------
     # Voice intention scales from the study's off-survey scale document (2026-10-09), adapted to the
     # coding context. Asked after note 2 and framed on the batches still to come, so they do not
     # prompt the note 2 decision itself.
-    future_intro = "The coding project continues with further batches. Please indicate how you intend to proceed in the coming batches."
-    vf = s.likert("VF", paragraphs("<b>Your next steps</b>", future_intro), [
-        ("VF1", "I will take the initiative multiple times to propose specific improvements to the coding process."),
-        ("VF2", "I will make a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."),
-        ("VF3", "Even if the coding supervisor seems dismissive, I will persist in communicating my alternative views on the coding rules."),
-        ("VF4", "I will take every opportunity during the coding work to share proactive ideas for improving how comments are coded."),
-        ("VF5", "I will be a lead contributor to discussions about how the coding rules and categories should work."),
-        ("VF6", "I will repeatedly offer my own constructive suggestions and ideas to improve the current coding rules."),
+    # Voice frequency (VF) and voice quality improvement effort (VQ) from the study's off-survey
+    # scale document, adapted to the coding context. Since 2026-10-10 (user decision) both are past
+    # tense about what the participant did after batch 3, when a note could be sent, and everyone
+    # answers them: someone who sent nothing can disagree. They come after note 2, so they do not
+    # prompt the note 2 decision.
+    after_intro = "Please think about what you did after batch 3, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement."
+    vf = s.likert("VF", paragraphs("<b>After batch 3</b>", after_intro), [
+        ("VF1", "I took the initiative to propose specific improvements to the coding process."),
+        ("VF2", "I made a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."),
+        ("VF3", "Even though the coding supervisor might seem dismissive, I persisted in communicating my alternative views on the coding rules."),
+        ("VF4", "I took the opportunity to share proactive ideas for improving how comments are coded."),
+        ("VF5", "I acted as a lead contributor in raising how the coding rules and categories should work."),
+        ("VF6", "I offered my own constructive suggestions and ideas to improve the current coding rules."),
+    ])
+    vq = s.likert("VQ", paragraphs("<b>After batch 3</b>", after_intro), [
+        ("VQ1", "When presenting my suggestions about the coding process, I strove to show a well-researched proposal backed by evidence from the comments."),
+        ("VQ2", "When offering my opinions, I made every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
+        ("VQ3", "When proposing a change to the coding rules, I attempted to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."),
+        ("VQ4", "When pointing out flaws in the current coding rules, I prepared a clear, actionable solution for the coding supervisor."),
     ])
     authority = s.likert("AUTH", paragraphs("<b>About the coding supervisor</b>", "Please indicate how much you agree with each statement."), [
         ("AUTH1", "The coding supervisor had the authority to decide how comments are coded."),
@@ -347,7 +349,7 @@ def build(args):
         ("FUT1", "Raising a concern with the supervisor would make no difference to how the coding is done."),
         ("FUT2", "The supervisor would act on a good suggestion about the coding process."),
     ])
-    s.block("Questionnaire", [vf, "PB", authority, "PB", climate])
+    s.block("Questionnaire", [vf, "PB", vq, "PB", authority, "PB", climate])
 
     # 11. Manipulation checks, voicers only -------------------------------------------------
     polite = s.likert("MA", paragraphs("<b>The supervisor's reply to your note on batch 1</b>", "Please indicate how you perceived the reply.", "<em>The supervisor's reply was&hellip;</em>"), [
