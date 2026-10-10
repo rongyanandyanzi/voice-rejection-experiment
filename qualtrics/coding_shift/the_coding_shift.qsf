@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-10 13:34:47",
+    "SurveyCreationDate": "2026-10-10 13:45:42",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-10 13:34:47",
+    "LastModified": "2026-10-10 13:45:42",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -5921,16 +5921,16 @@
         },
         "Choices": {
           "1": {
-            "Display": "When presenting my suggestions about the coding process, I strove to show a well-researched proposal backed by evidence from the comments."
+            "Display": "When preparing what I might raise with the coding supervisor, I strove to present a well-researched proposal backed by evidence from the comments."
           },
           "2": {
-            "Display": "When offering my opinions, I made every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."
+            "Display": "When preparing what I might raise with the coding supervisor, I made every effort to address the supervisor's specific concerns about agreement between coders and comparability with earlier coding."
           },
           "3": {
-            "Display": "When proposing a change to the coding rules, I attempted to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."
+            "Display": "When preparing what I might raise with the coding supervisor, I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."
           },
           "4": {
-            "Display": "When pointing out flaws in the current coding rules, I prepared a clear, actionable solution for the coding supervisor."
+            "Display": "When preparing what I might raise with the coding supervisor, I worked out a clear, actionable solution to the flaws I saw in the current coding rules."
           }
         },
         "ChoiceOrder": [

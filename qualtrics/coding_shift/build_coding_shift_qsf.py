@@ -333,10 +333,10 @@ def build(args):
         ("VF6", "I offered my own constructive suggestions and ideas to improve the current coding rules."),
     ])
     vq = s.likert("VQ", paragraphs("<b>After batch 3</b>", after_intro), [
-        ("VQ1", "When presenting my suggestions about the coding process, I strove to show a well-researched proposal backed by evidence from the comments."),
-        ("VQ2", "When offering my opinions, I made every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
-        ("VQ3", "When proposing a change to the coding rules, I attempted to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."),
-        ("VQ4", "When pointing out flaws in the current coding rules, I prepared a clear, actionable solution for the coding supervisor."),
+        ("VQ1", "When preparing what I might raise with the coding supervisor, I strove to present a well-researched proposal backed by evidence from the comments."),
+        ("VQ2", "When preparing what I might raise with the coding supervisor, I made every effort to address the supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
+        ("VQ3", "When preparing what I might raise with the coding supervisor, I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."),
+        ("VQ4", "When preparing what I might raise with the coding supervisor, I worked out a clear, actionable solution to the flaws I saw in the current coding rules."),
     ])
     authority = s.likert("AUTH", paragraphs("<b>About the coding supervisor</b>", "Please indicate how much you agree with each statement."), [
         ("AUTH1", "The coding supervisor had the authority to decide how comments are coded."),
