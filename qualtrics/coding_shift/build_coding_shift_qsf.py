@@ -312,7 +312,16 @@ def build(args):
     n2_hidden_essay = [s.hidden_text(f"h_{name}_essay", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
     note2 = s.essay("note2", paragraphs("<b>Note to the coding supervisor (batch 3)</b>", NOTE_PROMPT_2, "<span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span>"),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
-    s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2")])
+    # Voice quality improvement effort, asked right after note 2 about the note just written (user
+    # decision 2026-10-10: past tense, the behaviour when speaking up after batch 3). Only
+    # participants who attach note 2 reach this page.
+    vq = s.likert("VQ", paragraphs("<b>Your note after batch 3</b>", "Please think about the note you just wrote to the coding supervisor."), [
+        ("VQ1", "When presenting my suggestions about the coding process, I strove to show a well-researched proposal backed by evidence from the comments."),
+        ("VQ2", "When offering my opinions, I made every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
+        ("VQ3", "When proposing a change to the coding rules, I attempted to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."),
+        ("VQ4", "When pointing out flaws in the current coding rules, I prepared a clear, actionable solution for the coding supervisor."),
+    ])
+    s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2"), "PB", vq])
 
     # 10. Questionnaire ---------------------------------------------------------------------
     # Voice intention scales from the study's off-survey scale document (2026-10-09), adapted to the
@@ -327,12 +336,6 @@ def build(args):
         ("VF5", "I will be a lead contributor to discussions about how the coding rules and categories should work."),
         ("VF6", "I will repeatedly offer my own constructive suggestions and ideas to improve the current coding rules."),
     ])
-    vq = s.likert("VQ", paragraphs("<b>Your next steps</b>", future_intro), [
-        ("VQ1", "When presenting my suggestions about the coding process, I will strive to show a well-researched proposal backed by evidence from the comments."),
-        ("VQ2", "When offering my opinions, I will make every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
-        ("VQ3", "When proposing a change to the coding rules, I will attempt to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."),
-        ("VQ4", "When pointing out flaws in the current coding rules, I will prepare a clear, actionable solution for the coding supervisor."),
-    ])
     authority = s.likert("AUTH", paragraphs("<b>About the coding supervisor</b>", "Please indicate how much you agree with each statement."), [
         ("AUTH1", "The coding supervisor had the authority to decide how comments are coded."),
         ("AUTH2", "The coding supervisor could overrule the labels I gave."),
@@ -344,17 +347,24 @@ def build(args):
         ("FUT1", "Raising a concern with the supervisor would make no difference to how the coding is done."),
         ("FUT2", "The supervisor would act on a good suggestion about the coding process."),
     ])
-    s.block("Questionnaire", [vf, "PB", vq, "PB", authority, "PB", climate])
+    s.block("Questionnaire", [vf, "PB", authority, "PB", climate])
 
     # 11. Manipulation checks, voicers only -------------------------------------------------
     polite = s.likert("MA", paragraphs("<b>The supervisor's reply to your note on batch 1</b>", "Please indicate how you perceived the reply.", "<em>The supervisor's reply was&hellip;</em>"), [
-        ("MA1", "Polite"), ("MA2", "Respectful toward me"), ("MA3", "Considerate toward me"), ("MA4", "Tactful"),
+        # Eight-item politeness scale (user's list, 2026-10-10).
+        ("MA1", "Polite"), ("MA2", "Courteous"), ("MA3", "Sensitive to my feelings"), ("MA4", "Respectful toward me"),
+        ("MA5", "Considerate toward me"), ("MA6", "Appropriate"), ("MA7", "Civil"), ("MA8", "Tactful"),
     ])
     useful = s.likert("MC", paragraphs("<b>The supervisor's reply to your note on batch 1</b>", "<em>In the reply, the supervisor&hellip;</em>"), [
-        ("MC1", "Pointed to specific aspects of my note that I could actually work on."),
-        ("MC2", "Made reference to clear, legitimate standards a change would have to meet."),
-        ("MC3", "Made reference to specific parts of my note that were problematic."),
-        ("MC4", "Provided clear enough guidance that I knew what to change."),
+        # Six-item constructiveness scale (user's Chinese list, 2026-10-10), turned from the
+        # supervisor's view to the participant's: 拒谏时，我…他/她想法（或方案） becomes "In the
+        # reply, the supervisor… my suggestion".
+        ("MC1", "Accurately pointed out which parts of my suggestion about the coding rules could be improved."),
+        ("MC2", "Made clear that the weaknesses in my suggestion could be fixed."),
+        ("MC3", "Gave me a clear and reasonable way to improve my suggestion."),
+        ("MC4", "Gave very specific feedback on my note."),
+        ("MC5", "Pointed out where exactly my suggestion fell short."),
+        ("MC6", "Made very clear what I could do to improve my suggestion."),
     ])
     reasons = s.likert("REASON", paragraphs(
         "<b>The supervisor's reply to your note on batch 1</b>",

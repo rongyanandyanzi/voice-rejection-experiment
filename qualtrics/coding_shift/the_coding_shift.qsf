@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-09 23:27:27",
+    "SurveyCreationDate": "2026-10-10 11:37:53",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-09 23:27:27",
+    "LastModified": "2026-10-10 11:37:53",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -555,6 +555,13 @@
             },
             {
               "Type": "Question",
+              "QuestionID": "QID97"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
               "QuestionID": "QID96"
             }
           ]
@@ -564,13 +571,6 @@
           "Description": "Questionnaire",
           "ID": "BL_dfeea13a896de41",
           "BlockElements": [
-            {
-              "Type": "Question",
-              "QuestionID": "QID97"
-            },
-            {
-              "Type": "Page Break"
-            },
             {
               "Type": "Question",
               "QuestionID": "QID98"
@@ -5754,6 +5754,95 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID96",
+      "SecondaryAttribute": "Your note after batch 3   Please think about the note you just wrote to the coding supervisor.",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><b>Your note after batch 3</b></p><p>Please think about the note you just wrote to the coding supervisor.</p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "When presenting my suggestions about the coding process, I strove to show a well-researched proposal backed by evidence from the comments."
+          },
+          "2": {
+            "Display": "When offering my opinions, I made every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."
+          },
+          "3": {
+            "Display": "When proposing a change to the coding rules, I attempted to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."
+          },
+          "4": {
+            "Display": "When pointing out flaws in the current coding rules, I prepared a clear, actionable solution for the coding supervisor."
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "VQ1",
+          "2": "VQ2",
+          "3": "VQ3",
+          "4": "VQ4"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 5,
+        "NextAnswerId": 6,
+        "QuestionID": "QID96",
+        "DataExportTag": "VQ",
+        "QuestionDescription": "Your note after batch 3   Please think about the note you just wrote to the coding supervisor.",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID97",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5790,7 +5879,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID96",
+        "QuestionID": "QID97",
         "DataExportTag": "t_note2",
         "QuestionDescription": "Timing",
         "Language": [],
@@ -5804,7 +5893,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID97",
+      "PrimaryAttribute": "QID98",
       "SecondaryAttribute": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5889,97 +5978,8 @@
         },
         "NextChoiceId": 7,
         "NextAnswerId": 6,
-        "QuestionID": "QID97",
-        "DataExportTag": "VF",
-        "QuestionDescription": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID98",
-      "SecondaryAttribute": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<p><b>Your next steps</b></p><p>The coding project continues with further batches. Please indicate how you intend to proceed in the coming batches.</p>",
-        "QuestionType": "Matrix",
-        "Selector": "Likert",
-        "SubSelector": "SingleAnswer",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText",
-          "TextPosition": "inline",
-          "ChoiceColumnWidth": 30,
-          "RepeatHeaders": "none",
-          "WhiteSpace": "ON",
-          "MobileFirst": true
-        },
-        "Choices": {
-          "1": {
-            "Display": "When presenting my suggestions about the coding process, I will strive to show a well-researched proposal backed by evidence from the comments."
-          },
-          "2": {
-            "Display": "When offering my opinions, I will make every effort to address the coding supervisor's specific concerns about agreement between coders and comparability with earlier coding."
-          },
-          "3": {
-            "Display": "When proposing a change to the coding rules, I will attempt to clarify any doubts the coding supervisor might have about re-coding work or how the change would be applied."
-          },
-          "4": {
-            "Display": "When pointing out flaws in the current coding rules, I will prepare a clear, actionable solution for the coding supervisor."
-          }
-        },
-        "ChoiceOrder": [
-          "1",
-          "2",
-          "3",
-          "4"
-        ],
-        "Answers": {
-          "1": {
-            "Display": "1<br>Strongly disagree"
-          },
-          "2": {
-            "Display": "2<br>Disagree"
-          },
-          "3": {
-            "Display": "3<br>Neither agree nor disagree"
-          },
-          "4": {
-            "Display": "4<br>Agree"
-          },
-          "5": {
-            "Display": "5<br>Strongly agree"
-          }
-        },
-        "AnswerOrder": [
-          "1",
-          "2",
-          "3",
-          "4",
-          "5"
-        ],
-        "ChoiceDataExportTags": {
-          "1": "VQ1",
-          "2": "VQ2",
-          "3": "VQ3",
-          "4": "VQ4"
-        },
-        "Validation": {
-          "Settings": {
-            "ForceResponse": "ON",
-            "ForceResponseType": "ON",
-            "Type": "None"
-          }
-        },
-        "NextChoiceId": 5,
-        "NextAnswerId": 6,
         "QuestionID": "QID98",
-        "DataExportTag": "VQ",
+        "DataExportTag": "VF",
         "QuestionDescription": "Your next steps   The coding project continues with further batches. Please indicate how you intend ",
         "Language": [],
         "DefaultChoices": false,
@@ -6186,12 +6186,24 @@
             "Display": "Polite"
           },
           "2": {
-            "Display": "Respectful toward me"
+            "Display": "Courteous"
           },
           "3": {
-            "Display": "Considerate toward me"
+            "Display": "Sensitive to my feelings"
           },
           "4": {
+            "Display": "Respectful toward me"
+          },
+          "5": {
+            "Display": "Considerate toward me"
+          },
+          "6": {
+            "Display": "Appropriate"
+          },
+          "7": {
+            "Display": "Civil"
+          },
+          "8": {
             "Display": "Tactful"
           }
         },
@@ -6199,7 +6211,11 @@
           "1",
           "2",
           "3",
-          "4"
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
         ],
         "Answers": {
           "1": {
@@ -6229,7 +6245,11 @@
           "1": "MA1",
           "2": "MA2",
           "3": "MA3",
-          "4": "MA4"
+          "4": "MA4",
+          "5": "MA5",
+          "6": "MA6",
+          "7": "MA7",
+          "8": "MA8"
         },
         "Validation": {
           "Settings": {
@@ -6238,7 +6258,7 @@
             "Type": "None"
           }
         },
-        "NextChoiceId": 5,
+        "NextChoiceId": 9,
         "NextAnswerId": 6,
         "QuestionID": "QID101",
         "DataExportTag": "MA",
@@ -6272,23 +6292,31 @@
         },
         "Choices": {
           "1": {
-            "Display": "Pointed to specific aspects of my note that I could actually work on."
+            "Display": "Accurately pointed out which parts of my suggestion about the coding rules could be improved."
           },
           "2": {
-            "Display": "Made reference to clear, legitimate standards a change would have to meet."
+            "Display": "Made clear that the weaknesses in my suggestion could be fixed."
           },
           "3": {
-            "Display": "Made reference to specific parts of my note that were problematic."
+            "Display": "Gave me a clear and reasonable way to improve my suggestion."
           },
           "4": {
-            "Display": "Provided clear enough guidance that I knew what to change."
+            "Display": "Gave very specific feedback on my note."
+          },
+          "5": {
+            "Display": "Pointed out where exactly my suggestion fell short."
+          },
+          "6": {
+            "Display": "Made very clear what I could do to improve my suggestion."
           }
         },
         "ChoiceOrder": [
           "1",
           "2",
           "3",
-          "4"
+          "4",
+          "5",
+          "6"
         ],
         "Answers": {
           "1": {
@@ -6318,7 +6346,9 @@
           "1": "MC1",
           "2": "MC2",
           "3": "MC3",
-          "4": "MC4"
+          "4": "MC4",
+          "5": "MC5",
+          "6": "MC6"
         },
         "Validation": {
           "Settings": {
@@ -6327,7 +6357,7 @@
             "Type": "None"
           }
         },
-        "NextChoiceId": 5,
+        "NextChoiceId": 7,
         "NextAnswerId": 6,
         "QuestionID": "QID102",
         "DataExportTag": "MC",
