@@ -238,7 +238,7 @@ def build(args):
         title("One short shift as a Feedback Coder"),
         para("You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories."),
         box(items(
-            "<b>Three short batches</b> of comments, about <b>18 minutes</b> in total.",
+            "<b>Three short batches</b> of comments, about <b>15 minutes</b> in total.",
             "The <b>coding supervisor</b> checks your work against a reference key, sets the coding rules, may change any label you give, and issues each batch.",
             "Your <b>quality bonus</b> depends on how your batches are rated.",
         ), "info", "How the shift works"),
