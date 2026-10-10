@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-10 13:45:42",
+    "SurveyCreationDate": "2026-10-10 14:00:59",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-10 13:45:42",
+    "LastModified": "2026-10-10 14:00:59",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -574,6 +574,21 @@
             {
               "Type": "Question",
               "QuestionID": "QID98"
+            }
+          ]
+        },
+        {
+          "Type": "Standard",
+          "Description": "Manipulation checks",
+          "ID": "BL_b024cf1c9e5431e",
+          "BlockElements": [
+            {
+              "Type": "Question",
+              "QuestionID": "QID101"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID102"
             },
             {
               "Type": "Page Break"
@@ -593,51 +608,12 @@
         },
         {
           "Type": "Standard",
-          "Description": "Manipulation checks",
-          "ID": "BL_b024cf1c9e5431e",
-          "BlockElements": [
-            {
-              "Type": "Question",
-              "QuestionID": "QID103"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID101"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID102"
-            }
-          ]
-        },
-        {
-          "Type": "Standard",
           "Description": "Closing",
           "ID": "BL_1144ae72ecab992",
           "BlockElements": [
             {
               "Type": "Question",
-              "QuestionID": "QID104"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID105"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID106"
+              "QuestionID": "QID103"
             }
           ]
         },
@@ -1260,7 +1236,7 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "106",
+      "SecondaryAttribute": "103",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -5993,179 +5969,6 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID99",
-      "SecondaryAttribute": "About the coding supervisor   Please indicate how much you agree with each statement.",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<p><b>About the coding supervisor</b></p><p>Please indicate how much you agree with each statement.</p>",
-        "QuestionType": "Matrix",
-        "Selector": "Likert",
-        "SubSelector": "SingleAnswer",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText",
-          "TextPosition": "inline",
-          "ChoiceColumnWidth": 30,
-          "RepeatHeaders": "none",
-          "WhiteSpace": "ON",
-          "MobileFirst": true
-        },
-        "Choices": {
-          "1": {
-            "Display": "The coding supervisor had the authority to decide how comments are coded."
-          },
-          "2": {
-            "Display": "The coding supervisor could overrule the labels I gave."
-          },
-          "3": {
-            "Display": "The coding supervisor's rating decided my quality bonus."
-          }
-        },
-        "ChoiceOrder": [
-          "1",
-          "2",
-          "3"
-        ],
-        "Answers": {
-          "1": {
-            "Display": "1<br>Strongly disagree"
-          },
-          "2": {
-            "Display": "2<br>Disagree"
-          },
-          "3": {
-            "Display": "3<br>Neither agree nor disagree"
-          },
-          "4": {
-            "Display": "4<br>Agree"
-          },
-          "5": {
-            "Display": "5<br>Strongly agree"
-          }
-        },
-        "AnswerOrder": [
-          "1",
-          "2",
-          "3",
-          "4",
-          "5"
-        ],
-        "ChoiceDataExportTags": {
-          "1": "AUTH1",
-          "2": "AUTH2",
-          "3": "AUTH3"
-        },
-        "Validation": {
-          "Settings": {
-            "ForceResponse": "ON",
-            "ForceResponseType": "ON",
-            "Type": "None"
-          }
-        },
-        "NextChoiceId": 4,
-        "NextAnswerId": 6,
-        "QuestionID": "QID99",
-        "DataExportTag": "AUTH",
-        "QuestionDescription": "About the coding supervisor   Please indicate how much you agree with each statement.",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID100",
-      "SecondaryAttribute": "Speaking up to the supervisor   Please indicate how much you agree with each statement.",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<p><b>Speaking up to the supervisor</b></p><p>Please indicate how much you agree with each statement.</p>",
-        "QuestionType": "Matrix",
-        "Selector": "Likert",
-        "SubSelector": "SingleAnswer",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText",
-          "TextPosition": "inline",
-          "ChoiceColumnWidth": 30,
-          "RepeatHeaders": "none",
-          "WhiteSpace": "ON",
-          "MobileFirst": true
-        },
-        "Choices": {
-          "1": {
-            "Display": "It felt safe to raise concerns about the coding process with the supervisor."
-          },
-          "2": {
-            "Display": "Raising a concern with the supervisor could have counted against me."
-          },
-          "3": {
-            "Display": "Raising a concern with the supervisor would make no difference to how the coding is done."
-          },
-          "4": {
-            "Display": "The supervisor would act on a good suggestion about the coding process."
-          }
-        },
-        "ChoiceOrder": [
-          "1",
-          "2",
-          "3",
-          "4"
-        ],
-        "Answers": {
-          "1": {
-            "Display": "1<br>Strongly disagree"
-          },
-          "2": {
-            "Display": "2<br>Disagree"
-          },
-          "3": {
-            "Display": "3<br>Neither agree nor disagree"
-          },
-          "4": {
-            "Display": "4<br>Agree"
-          },
-          "5": {
-            "Display": "5<br>Strongly agree"
-          }
-        },
-        "AnswerOrder": [
-          "1",
-          "2",
-          "3",
-          "4",
-          "5"
-        ],
-        "ChoiceDataExportTags": {
-          "1": "SAFE1",
-          "2": "SAFE2",
-          "3": "FUT1",
-          "4": "FUT2"
-        },
-        "Validation": {
-          "Settings": {
-            "ForceResponse": "ON",
-            "ForceResponseType": "ON",
-            "Type": "None"
-          }
-        },
-        "NextChoiceId": 5,
-        "NextAnswerId": 6,
-        "QuestionID": "QID100",
-        "DataExportTag": "CLIMATE",
-        "QuestionDescription": "Speaking up to the supervisor   Please indicate how much you agree with each statement.",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID101",
       "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate how you perceived the reply.   The ",
       "TertiaryAttribute": null,
       "Payload": {
@@ -6260,7 +6063,7 @@
         },
         "NextChoiceId": 9,
         "NextAnswerId": 6,
-        "QuestionID": "QID101",
+        "QuestionID": "QID99",
         "DataExportTag": "MA",
         "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate how you perceived the reply.   The ",
         "Language": [],
@@ -6274,7 +6077,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID102",
+      "PrimaryAttribute": "QID100",
       "SecondaryAttribute": "The supervisor's reply to your note on batch 1    In the reply, the supervisor&hellip;",
       "TertiaryAttribute": null,
       "Payload": {
@@ -6359,7 +6162,7 @@
         },
         "NextChoiceId": 7,
         "NextAnswerId": 6,
-        "QuestionID": "QID102",
+        "QuestionID": "QID100",
         "DataExportTag": "MC",
         "QuestionDescription": "The supervisor's reply to your note on batch 1    In the reply, the supervisor&hellip;",
         "Language": [],
@@ -6373,7 +6176,101 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID103",
+      "PrimaryAttribute": "QID101",
+      "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p><b>The supervisor's reply to your note on batch 1</b></p><p>Please indicate why you think the coding supervisor turned down your note.</p><p><em>The supervisor turned down my note&hellip;</em></p>",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "TextPosition": "inline",
+          "ChoiceColumnWidth": 30,
+          "RepeatHeaders": "none",
+          "WhiteSpace": "ON",
+          "MobileFirst": true
+        },
+        "Choices": {
+          "1": {
+            "Display": "Because the ideas for improvement in my note were mediocre."
+          },
+          "2": {
+            "Display": "Because my suggestions don't really improve the coding methods or practices."
+          },
+          "3": {
+            "Display": "Because I suggested changes to the coding that don't really help much."
+          },
+          "4": {
+            "Display": "Because I made impractical recommendations about how to fix problems in the coding."
+          },
+          "5": {
+            "Display": "Because my suggestions are not very useful."
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "Answers": {
+          "1": {
+            "Display": "1<br>Strongly disagree"
+          },
+          "2": {
+            "Display": "2<br>Disagree"
+          },
+          "3": {
+            "Display": "3<br>Neither agree nor disagree"
+          },
+          "4": {
+            "Display": "4<br>Agree"
+          },
+          "5": {
+            "Display": "5<br>Strongly agree"
+          }
+        },
+        "AnswerOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "ChoiceDataExportTags": {
+          "1": "PR1",
+          "2": "PR2",
+          "3": "PR3",
+          "4": "PR4",
+          "5": "PR5"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 6,
+        "NextAnswerId": 6,
+        "QuestionID": "QID101",
+        "DataExportTag": "REASON",
+        "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID102",
       "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
       "TertiaryAttribute": null,
       "Payload": {
@@ -6398,32 +6295,12 @@
           },
           "3": {
             "Display": "Because the supervisor dislikes me."
-          },
-          "4": {
-            "Display": "Because the ideas for improvement in my note were mediocre."
-          },
-          "5": {
-            "Display": "Because my suggestions don't really improve the coding methods or practices."
-          },
-          "6": {
-            "Display": "Because I suggested changes to the coding that don't really help much."
-          },
-          "7": {
-            "Display": "Because I made impractical recommendations about how to fix problems in the coding."
-          },
-          "8": {
-            "Display": "Because my suggestions are not very useful."
           }
         },
         "ChoiceOrder": [
           "1",
           "2",
-          "3",
-          "4",
-          "5",
-          "6",
-          "7",
-          "8"
+          "3"
         ],
         "Answers": {
           "1": {
@@ -6452,12 +6329,7 @@
         "ChoiceDataExportTags": {
           "1": "MR1",
           "2": "MR2",
-          "3": "MR3",
-          "4": "PR1",
-          "5": "PR2",
-          "6": "PR3",
-          "7": "PR4",
-          "8": "PR5"
+          "3": "MR3"
         },
         "Validation": {
           "Settings": {
@@ -6466,10 +6338,10 @@
             "Type": "None"
           }
         },
-        "NextChoiceId": 9,
+        "NextChoiceId": 4,
         "NextAnswerId": 6,
-        "QuestionID": "QID103",
-        "DataExportTag": "REASON",
+        "QuestionID": "QID102",
+        "DataExportTag": "Q107",
         "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
         "Language": [],
         "DefaultChoices": false,
@@ -6482,7 +6354,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID104",
+      "PrimaryAttribute": "QID103",
       "SecondaryAttribute": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
       "TertiaryAttribute": null,
       "Payload": {
@@ -6501,71 +6373,9 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID104",
+        "QuestionID": "QID103",
         "DataExportTag": "ai_check_unusual",
         "QuestionDescription": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID105",
-      "SecondaryAttribute": "Task feedback   If you have any comments about this task, please share them with us. You may also su",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<p><b>Task feedback</b></p><p>If you have any comments about this task, please share them with us. You may also submit without adding anything. Please do not include your name or other personal information.</p>",
-        "QuestionType": "TE",
-        "Selector": "ESTB",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText",
-          "InputWidth": 600,
-          "InputHeight": 120
-        },
-        "Validation": {
-          "Settings": {
-            "ForceResponse": "OFF",
-            "Type": "None"
-          }
-        },
-        "QuestionID": "QID105",
-        "DataExportTag": "task_feedback",
-        "QuestionDescription": "Task feedback   If you have any comments about this task, please share them with us. You may also su",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_51dc512c6f29ce9",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID106",
-      "SecondaryAttribute": "Debrief",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<p><b>Thank you: what this study was about</b></p><p>This study looks at how the way a supervisor turns down a suggestion affects whether people speak up again.</p><p>The coding work was real, but the supervisor's written reply to a note was generated automatically, and the kind of reply was assigned at random. It did not depend on the quality of the note. Everyone receives the full quality bonus, whatever their rating.</p><p>If you would like your data withdrawn, tell us through Prolific and it will be deleted. Click Next to complete the shift and return to Prolific.</p>",
-        "QuestionType": "DB",
-        "Selector": "TB",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText"
-        },
-        "ChoiceOrder": [],
-        "Validation": {
-          "Settings": {
-            "Type": "None"
-          }
-        },
-        "QuestionID": "QID106",
-        "DataExportTag": "debrief",
-        "QuestionDescription": "Debrief",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {

@@ -338,18 +338,8 @@ def build(args):
         ("VQ3", "When preparing what I might raise with the coding supervisor, I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."),
         ("VQ4", "When preparing what I might raise with the coding supervisor, I worked out a clear, actionable solution to the flaws I saw in the current coding rules."),
     ])
-    authority = s.likert("AUTH", paragraphs("<b>About the coding supervisor</b>", "Please indicate how much you agree with each statement."), [
-        ("AUTH1", "The coding supervisor had the authority to decide how comments are coded."),
-        ("AUTH2", "The coding supervisor could overrule the labels I gave."),
-        ("AUTH3", "The coding supervisor's rating decided my quality bonus."),
-    ])
-    climate = s.likert("CLIMATE", paragraphs("<b>Speaking up to the supervisor</b>", "Please indicate how much you agree with each statement."), [
-        ("SAFE1", "It felt safe to raise concerns about the coding process with the supervisor."),
-        ("SAFE2", "Raising a concern with the supervisor could have counted against me."),
-        ("FUT1", "Raising a concern with the supervisor would make no difference to how the coding is done."),
-        ("FUT2", "The supervisor would act on a good suggestion about the coding process."),
-    ])
-    s.block("Questionnaire", [vf, "PB", vq, "PB", authority, "PB", climate])
+    # Authority (AUTH) and safety/futility (CLIMATE) were removed on 2026-10-10 (user decision).
+    s.block("Questionnaire", [vf, "PB", vq])
 
     # 11. Manipulation checks, voicers only -------------------------------------------------
     polite = s.likert("MA", paragraphs("<b>The supervisor's reply to your note on batch 1</b>", "Please indicate how you perceived the reply.", "<em>The supervisor's reply was&hellip;</em>"), [
@@ -368,32 +358,31 @@ def build(args):
         ("MC5", "Pointed out where exactly my suggestion fell short."),
         ("MC6", "Made very clear what I could do to improve my suggestion."),
     ])
-    reasons = s.likert("REASON", paragraphs(
+    # Reasons for the rejection, split by the user on 2026-10-10 into two questions on one page:
+    # proposal-quality reasons (REASON: PR1-PR5) first, then supervisor-related reasons (Q107: MR1-MR3).
+    reason_intro = paragraphs(
         "<b>The supervisor's reply to your note on batch 1</b>",
         "Please indicate why you think the coding supervisor turned down your note.",
         "<em>The supervisor turned down my note&hellip;</em>",
-    ), [
-        ("MR1", "Because of the supervisor's emotions."),
-        ("MR2", "To demonstrate the supervisor's authority."),
-        ("MR3", "Because the supervisor dislikes me."),
+    )
+    reasons = s.likert("REASON", reason_intro, [
         ("PR1", "Because the ideas for improvement in my note were mediocre."),
         ("PR2", "Because my suggestions don't really improve the coding methods or practices."),
         ("PR3", "Because I suggested changes to the coding that don't really help much."),
         ("PR4", "Because I made impractical recommendations about how to fix problems in the coding."),
         ("PR5", "Because my suggestions are not very useful."),
     ])
-    s.block("Manipulation checks", [reasons, "PB", polite, "PB", useful])
+    reasons_sup = s.likert("Q107", reason_intro, [
+        ("MR1", "Because of the supervisor's emotions."),
+        ("MR2", "To demonstrate the supervisor's authority."),
+        ("MR3", "Because the supervisor dislikes me."),
+    ])
+    s.block("Manipulation checks", [reasons, reasons_sup, "PB", polite, "PB", useful])
 
-    # 12. Open check, feedback, debrief -------------------------------------------------------
+    # 12. Open check -------------------------------------------------------
     ai_unusual = s.essay("ai_check_unusual", paragraphs("<b>One final question</b>", "Did anything about the shift feel unusual or unexpected? Please describe briefly."), force=True, height=110)
-    feedback = s.essay("task_feedback", paragraphs("<b>Task feedback</b>", "If you have any comments about this task, please share them with us. You may also submit without adding anything. Please do not include your name or other personal information."), force=False, height=120)
-    debrief = s.text("debrief", paragraphs(
-        "<b>Thank you: what this study was about</b>",
-        "This study looks at how the way a supervisor turns down a suggestion affects whether people speak up again.",
-        "The coding work was real, but the supervisor's written reply to a note was generated automatically, and the kind of reply was assigned at random. It did not depend on the quality of the note. Everyone receives the full quality bonus, whatever their rating.",
-        "If you would like your data withdrawn, tell us through Prolific and it will be deleted. Click Next to complete the shift and return to Prolific.",
-    ), description="Debrief")
-    s.block("Closing", [ai_unusual, "PB", feedback, "PB", debrief])
+    # Task feedback and the debrief were removed on 2026-10-10 (user decision).
+    s.block("Closing", [ai_unusual])
 
     # Flow ------------------------------------------------------------------------------------
     flow = [

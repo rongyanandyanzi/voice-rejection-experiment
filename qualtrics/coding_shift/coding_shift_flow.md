@@ -49,10 +49,15 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
     `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool.
 13. **Questionnaire** (everyone): voice frequency (VF1–VF6) and voice quality improvement effort
     (VQ1–VQ4) from the study's off-survey scale document, in the past tense about what the
-    participant did after batch 3 (2026-10-10); then authority (AUTH1–3) and safety/futility.
-14. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection (MR1–MR3
-    supervisor-related, PR1–PR5 proposal-quality), then politeness (MA1–MA8: polite, courteous, sensitive to my feelings, respectful, considerate, appropriate, civil, tactful) and constructiveness (MC1–MC6, translated from the user's Chinese items).
-15. **Closing**: one open question on whether anything felt unusual (the direct AI-suspicion question was removed), feedback, debrief. End of survey → Prolific.
+    participant did after batch 3 (2026-10-10). Authority and safety/futility were removed on
+    2026-10-10.
+14. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection on one page, split
+    into two questions (REASON: PR1–PR5 proposal-quality; Q107: MR1–MR3 supervisor-related),
+    then politeness (MA1–MA8: polite, courteous, sensitive to my feelings, respectful,
+    considerate, appropriate, civil, tactful) and constructiveness (MC1–MC6, translated from the
+    user's Chinese items).
+15. **Closing**: one open question on whether anything felt unusual. Task feedback and the
+    debrief were removed on 2026-10-10. End of survey → Prolific.
 
 ## Embedded data
 
