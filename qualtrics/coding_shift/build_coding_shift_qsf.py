@@ -463,8 +463,6 @@ def build(args):
     reason_intro = scale_intro("The supervisor's reply to your note on batch 1",
                                "Please indicate <b>why you think</b> the coding supervisor turned down your note.",
                                "The supervisor turned down my note&hellip;", label="About the reply")
-    # Q107 sits on the same page right under REASON, so it carries only the sentence stem.
-    reason_stem = page(f"<p style=\"margin:0;font-style:italic;color:{MUTED};\">The supervisor turned down my note&hellip;</p>")
     reasons = s.likert("REASON", reason_intro, [
         ("PR1", "Because the ideas for improvement in my note were mediocre."),
         ("PR2", "Because my suggestions don't really improve the coding methods or practices."),
@@ -472,12 +470,13 @@ def build(args):
         ("PR4", "Because I made impractical recommendations about how to fix problems in the coding."),
         ("PR5", "Because my suggestions are not very useful."),
     ])
-    reasons_sup = s.likert("Q107", reason_stem, [
+    reasons_sup = s.likert("Q107", reason_intro, [
         ("MR1", "Because of the supervisor's emotions."),
         ("MR2", "To demonstrate the supervisor's authority."),
         ("MR3", "Because the supervisor dislikes me."),
     ])
-    s.block("Manipulation checks", [reasons, reasons_sup, "PB", polite, "PB", useful])
+    # The two reason questions are on separate pages since 2026-10-10 (user edit), each with the full header.
+    s.block("Manipulation checks", [reasons, "PB", reasons_sup, "PB", polite, "PB", useful])
 
     # 12. Open check -------------------------------------------------------
     ai_unusual = s.essay("ai_check_unusual", page(eyebrow("Almost done"), title("One final question"), para("Did anything about the shift feel unusual or unexpected? Please describe briefly.", last=True)), force=True, height=110)

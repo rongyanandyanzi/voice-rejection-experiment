@@ -51,7 +51,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
     (VQ1–VQ4) from the study's off-survey scale document, in the past tense about what the
     participant did after batch 3 (2026-10-10). Authority and safety/futility were removed on
     2026-10-10.
-14. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection on one page, split
+14. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection on two pages, split
     into two questions (REASON: PR1–PR5 proposal-quality; Q107: MR1–MR3 supervisor-related),
     then politeness (MA1–MA8: polite, courteous, sensitive to my feelings, respectful,
     considerate, appropriate, civil, tactful) and constructiveness (MC1–MC6, translated from the
