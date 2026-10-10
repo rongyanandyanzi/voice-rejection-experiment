@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-10 14:00:59",
+    "SurveyCreationDate": "2026-10-10 14:16:57",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-10 14:00:59",
+    "LastModified": "2026-10-10 14:16:57",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -1306,7 +1306,7 @@
       "SecondaryAttribute": "Consent text",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Paid coding work: three short batches</b></p><p>You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories.</p><p>Your work is checked against a reference key by the coding supervisor, who sets the coding rules, may change any label you give, and issues each batch. Your quality bonus depends on how your batches are rated.</p><p>The shift takes about 18 minutes. Some steps are optional. Using or skipping them does not change your payment or bonus. The supervisor may reply to anything you send. Replies can be brief or critical, as workplace feedback sometimes is.</p><p>Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Paid coding work</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">One short shift as a Feedback Coder</p><p style=\"margin:0 0 12px;line-height:1.6;\">You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories.</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><p style=\"margin:0 0 6px;font-weight:600;color:#2f5d8a;\">How the shift works</p><ul style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px;\"><b>Three short batches</b> of comments, about <b>18 minutes</b> in total.</li><li style=\"margin:0 0 4px;\">The <b>coding supervisor</b> checks your work against a reference key, sets the coding rules, may change any label you give, and issues each batch.</li><li style=\"margin:0 0 4px;\">Your <b>quality bonus</b> depends on how your batches are rated.</li></ul></div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><p style=\"margin:0 0 6px;font-weight:600;color:#c98a12;\">Please note</p><ul style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px;\">Some steps are optional. Using or skipping them <b>does not change your payment or bonus</b>.</li><li style=\"margin:0 0 4px;\">The supervisor may reply to anything you send. Replies can be <b>brief or critical</b>, as workplace feedback sometimes is.</li></ul></div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page.</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1383,7 +1383,7 @@
       "SecondaryAttribute": "Training: rules",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Your job and the coding rules</b></p><p>Each comment goes into one of five categories.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">TECH</code> <b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">WORDING</code> <b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">LENGTH</code> <b>Length, pace or repetition.</b> How long, how fast, how repetitive or how demanding the study was.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">PAYMENT</code> <b>Payment or stated time.</b> The fee, the bonus, or whether the time in the listing was accurate.</p><p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">CONTENT</code> <b>Reaction to the subject matter.</b> Interest, discomfort, disagreement, or wanting to explain an answer.</p><p>Choose one category for each comment.</p><p>After batch 1 and after the last batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.</p><p>Two practice comments come first.</p><p><span style=\"color:#667;font-size:13px;\">Codebook v3.1 &middot; rules set by the coding supervisor</span></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Training</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your job and the coding rules</p><p style=\"margin:0 0 12px;line-height:1.6;\">Each comment goes into one of five categories.</p><div style=\"margin:0 0 16px;\"><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">TECH</span><span><b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">WORDING</span><span><b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">LENGTH</span><span><b>Length, pace or repetition.</b> How long, how fast, how repetitive or how demanding the study was.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">PAYMENT</span><span><b>Payment or stated time.</b> The fee, the bonus, or whether the time in the listing was accurate.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">CONTENT</span><span><b>Reaction to the subject matter.</b> Interest, discomfort, disagreement, or wanting to explain an answer.</span></div></div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>Choose one category for each comment.</b></div><p style=\"margin:0 0 12px;line-height:1.6;\">After batch 1 and after the last batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.</p><p style=\"margin:0 0 12px;line-height:1.6;\">Two practice comments come first.</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Codebook v3.1 &middot; rules set by the coding supervisor</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1471,7 +1471,7 @@
       "SecondaryAttribute": "Practice 1 feedback",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Practice 1: answer</b></p><p><span style=\"color:#667\">The audio clip on page 2 wouldn't play, so I had to guess what it said.</span></p><p><b>TECH.</b> The comment reports that part of the study did not work. It mentions only one thing.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Practice 1 of 2</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Answer</p><p style=\"font-size:16px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;color:#5f6b7a;margin:0 0 12px;\">The audio clip on page 2 wouldn't play, so I had to guess what it said.</p><div style=\"border-left:4px solid #2f7a4a;background:#eef7f0;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>TECH.</b> The comment reports that part of the study did not work. It mentions only one thing.</div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1559,7 +1559,7 @@
       "SecondaryAttribute": "Practice 2 feedback",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Practice 2: answer</b></p><p><span style=\"color:#667\">Question 7 was really confusing, I wasn't sure if it meant my current job or my last one. Also a bit long.</span></p><p><b>WORDING.</b> The comment mentions two things and is mainly about the confusing question, so that is the category. The remark about length is not recorded.</p><p>Batch 1 starts on the next page. Your labels there count.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Practice 2 of 2</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Answer</p><p style=\"font-size:16px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;color:#5f6b7a;margin:0 0 12px;\">Question 7 was really confusing, I wasn't sure if it meant my current job or my last one. Also a bit long.</p><div style=\"border-left:4px solid #2f7a4a;background:#eef7f0;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>WORDING.</b> The comment mentions two things and is mainly about the confusing question, so that is the category. The remark about length is not recorded.</div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>Batch 1 starts on the next page.</b> Your labels there count.</div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -2510,10 +2510,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID25",
-      "SecondaryAttribute": "Note to the coding supervisor   Batch 1 is complete. Before it goes to the coding supervisor, is the",
+      "SecondaryAttribute": "Batch 1 complete  Note to the coding supervisor  Batch 1 is complete. Before it goes to the coding s",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Note to the coding supervisor</b></p><p>Batch 1 is complete. Before it goes to the coding supervisor, is there anything about the coding process you'd like to tell them? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor. This is optional.</p><p>If there is nothing you want to tell them, leave the box empty and click Next. Either way leads to the next step and the same payment.</p><p><span style=\"color:#667;font-size:13px;\">Anything you write goes to the coding supervisor with your batch.</span></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Note to the coding supervisor</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Batch 1 is complete. Before it goes to the coding supervisor, is there anything about the coding process you'd like to tell them? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor. This is optional.</div><p style=\"margin:0 0 12px;line-height:1.6;\">If there is nothing you want to tell them, leave the box empty and click Next. Either way leads to the next step and the <b>same payment</b>.</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Anything you write goes to the coding supervisor with your batch.</p></div>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -2530,7 +2530,7 @@
         "QuestionJS": "// Note page (batch 1 or batch 3; the second note keeps the tag \"2\"): the optional essay box. No counter and no hard minimum. Below\n// about twenty words one soft check appears once, with two equal buttons. Records when the page\n// opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in\n// sessionStorage so the interim page can start the supervisor's reply at once.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var isLastBatch = question.getQuestionInfo().QuestionText.indexOf(\"batch 3\") >= 0;\n  var tag = isLastBatch ? \"2\" : \"1\";\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  var openedAt = Date.now();\n  var firstKeyAt = 0;\n  var deletions = 0;\n  var lastLength = textarea ? textarea.value.length : 0;\n  var softShown = false;\n  function words(text) { return (String(text).trim().match(/\\S+/g) || []).length; }\n  function setEd(name, value) {\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? \"\" : String(value)); } catch (error) {}\n    try { sessionStorage.setItem(\"cs_\" + name, value == null ? \"\" : String(value)); } catch (error) {}\n  }\n  setEd(\"note\" + tag + \"_opened_at\", new Date(openedAt).toISOString());\n  if (textarea) {\n    textarea.addEventListener(\"input\", function (event) {\n      if (!firstKeyAt) firstKeyAt = Date.now();\n      if (event.target.value.length < lastLength) deletions += 1;\n      lastLength = event.target.value.length;\n    });\n  }\n  // Soft check: intercept the first Next click when the note is short. The New Survey Taking\n  // Experience names the button next-button; the classic engine NextButton.\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) {\n    nextButton.addEventListener(\"click\", function (event) {\n      var text = textarea ? textarea.value : \"\";\n      if (softShown || !text.trim() || words(text) >= 20) return;\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      softShown = true;\n      var box = document.createElement(\"div\");\n      box.style.cssText = \"margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;\";\n      box.innerHTML = \"<p style=\\\"margin:0 0 10px\\\">The supervisor will see only what is written here. Would you like to add anything?</p>\";\n      var row = document.createElement(\"div\");\n      var buttons = [[\"Send as it is\", function () { box.remove(); nextButton.click(); }], [\"Add more\", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];\n      if (Math.random() < 0.5) buttons.reverse();\n      buttons.forEach(function (pair) {\n        var button = document.createElement(\"button\");\n        button.type = \"button\";\n        button.textContent = pair[0];\n        button.style.cssText = \"margin-right:10px;padding:8px 14px;font:inherit;border:1px solid #2f5d8a;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\";\n        button.addEventListener(\"click\", pair[1]);\n        row.appendChild(button);\n      });\n      box.appendChild(row);\n      question.getQuestionContainer().appendChild(box);\n      setEd(\"note\" + tag + \"_soft_check\", \"shown\");\n    }, true);\n  }\n  Qualtrics.SurveyEngine.addOnPageSubmit(function () {\n    var text = textarea ? textarea.value.trim() : \"\";\n    var submittedAt = Date.now();\n    setEd(\"note\" + tag + \"_text\", text);\n    setEd(\"note\" + tag + \"_submitted_at\", new Date(submittedAt).toISOString());\n    setEd(\"note\" + tag + \"_first_key_ms\", firstKeyAt ? firstKeyAt - openedAt : \"\");\n    setEd(\"note\" + tag + \"_write_ms\", submittedAt - openedAt);\n    setEd(\"note\" + tag + \"_deletions\", deletions);\n    setEd(\"note\" + tag + \"_words\", words(text));\n    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only\n    // starts being written then); without a note it stays anchored on the batch-1 submission.\n    if (tag === \"1\" && text) { try { sessionStorage.setItem(\"cs_note1_submit_ms\", String(submittedAt)); } catch (error) {} }\n  });\n});\n",
         "QuestionID": "QID25",
         "DataExportTag": "note1",
-        "QuestionDescription": "Note to the coding supervisor   Batch 1 is complete. Before it goes to the coding supervisor, is the",
+        "QuestionDescription": "Batch 1 complete  Note to the coding supervisor  Batch 1 is complete. Before it goes to the coding s",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2597,7 +2597,7 @@
       "SecondaryAttribute": "Interim intro",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Batch 1 is being checked</b></p><p>Batch 1 has been submitted and is being checked against the reference key. While it is checked, please complete two short admin tasks.</p><p><b>1. Study link check.</b> Each comment below is filed under a study. Say whether the comment belongs to that study.</p><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 submitted</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1 is being checked</p><p style=\"margin:0 0 12px;line-height:1.6;\">Batch 1 has been submitted and is being checked against the reference key. While it is checked, please complete <b>two short admin tasks</b>.</p><p style=\"font-size:16px;font-weight:600;color:#1f2933;margin:18px 0 6px;padding-top:12px;border-top:1px solid #e3e7ec;\">1. Study link check</p><p style=\"margin:0 0 0px;line-height:1.6;\">Each comment below is filed under a study. Say whether the comment belongs to that study.</p></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -2858,7 +2858,7 @@
       "SecondaryAttribute": "Coder details",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>2. Coder details</b></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:16px;font-weight:600;color:#1f2933;margin:18px 0 6px;padding-top:12px;border-top:1px solid #e3e7ec;\">2. Coder details</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -3101,7 +3101,7 @@
       "SecondaryAttribute": "Batch 2 intro",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Batch 2</b></p><p>While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: eight comments from a different study. The coding rules are the same as for batch 1.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 2</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 2: eight new comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: eight comments from a different study. <b>The coding rules are the same as for batch 1.</b></div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -4003,7 +4003,7 @@
       "SecondaryAttribute": "Waiting page",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Waiting for batch 3</b></p><p>Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment.</p><p><span id=\"cs-wait-status\" style=\"color:#667;font-style:italic;\">Waiting for the supervisor&hellip;</span></p><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 2 submitted</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Waiting for batch 3</p><p style=\"margin:0 0 12px;line-height:1.6;\">Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment.</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><span id=\"cs-wait-status\" style=\"font-style:italic;\">Waiting for the supervisor&hellip;</span></div></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -5349,7 +5349,7 @@
       "SecondaryAttribute": "Note 2 tools",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Batch 3 complete.</b></p><div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID69/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID71/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID73/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID75/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID77/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID79/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID81/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID83/ChoiceGroup/SelectedChoices}</span></li></ol></div></div><p>Both choices below lead to the same last few questions and the same payment.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 3 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 3 complete.</p><div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID69/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID71/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID73/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID75/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID77/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID79/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID81/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID83/ChoiceGroup/SelectedChoices}</span></li></ol></div></div><div style=\"border-left:4px solid #2f7a4a;background:#eef7f0;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Both choices below lead to the same last few questions and the <b>same payment</b>.</div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -5697,10 +5697,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID95",
-      "SecondaryAttribute": "Note to the coding supervisor (batch 3)   Is there anything about the coding process you'd like to t",
+      "SecondaryAttribute": "Batch 3  Note to the coding supervisor (batch 3)  Is there anything about the coding process you'd l",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>Note to the coding supervisor (batch 3)</b></p><p>Is there anything about the coding process you'd like to tell the coding supervisor? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor.</p><p><span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 3</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Note to the coding supervisor (batch 3)</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Is there anything about the coding process you'd like to tell the coding supervisor? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor.</div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your note goes to the coding supervisor with your batch.</p></div>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -5717,7 +5717,7 @@
         "QuestionJS": "// Note page (batch 1 or batch 3; the second note keeps the tag \"2\"): the optional essay box. No counter and no hard minimum. Below\n// about twenty words one soft check appears once, with two equal buttons. Records when the page\n// opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in\n// sessionStorage so the interim page can start the supervisor's reply at once.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var isLastBatch = question.getQuestionInfo().QuestionText.indexOf(\"batch 3\") >= 0;\n  var tag = isLastBatch ? \"2\" : \"1\";\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  var openedAt = Date.now();\n  var firstKeyAt = 0;\n  var deletions = 0;\n  var lastLength = textarea ? textarea.value.length : 0;\n  var softShown = false;\n  function words(text) { return (String(text).trim().match(/\\S+/g) || []).length; }\n  function setEd(name, value) {\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? \"\" : String(value)); } catch (error) {}\n    try { sessionStorage.setItem(\"cs_\" + name, value == null ? \"\" : String(value)); } catch (error) {}\n  }\n  setEd(\"note\" + tag + \"_opened_at\", new Date(openedAt).toISOString());\n  if (textarea) {\n    textarea.addEventListener(\"input\", function (event) {\n      if (!firstKeyAt) firstKeyAt = Date.now();\n      if (event.target.value.length < lastLength) deletions += 1;\n      lastLength = event.target.value.length;\n    });\n  }\n  // Soft check: intercept the first Next click when the note is short. The New Survey Taking\n  // Experience names the button next-button; the classic engine NextButton.\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) {\n    nextButton.addEventListener(\"click\", function (event) {\n      var text = textarea ? textarea.value : \"\";\n      if (softShown || !text.trim() || words(text) >= 20) return;\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      softShown = true;\n      var box = document.createElement(\"div\");\n      box.style.cssText = \"margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;\";\n      box.innerHTML = \"<p style=\\\"margin:0 0 10px\\\">The supervisor will see only what is written here. Would you like to add anything?</p>\";\n      var row = document.createElement(\"div\");\n      var buttons = [[\"Send as it is\", function () { box.remove(); nextButton.click(); }], [\"Add more\", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];\n      if (Math.random() < 0.5) buttons.reverse();\n      buttons.forEach(function (pair) {\n        var button = document.createElement(\"button\");\n        button.type = \"button\";\n        button.textContent = pair[0];\n        button.style.cssText = \"margin-right:10px;padding:8px 14px;font:inherit;border:1px solid #2f5d8a;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\";\n        button.addEventListener(\"click\", pair[1]);\n        row.appendChild(button);\n      });\n      box.appendChild(row);\n      question.getQuestionContainer().appendChild(box);\n      setEd(\"note\" + tag + \"_soft_check\", \"shown\");\n    }, true);\n  }\n  Qualtrics.SurveyEngine.addOnPageSubmit(function () {\n    var text = textarea ? textarea.value.trim() : \"\";\n    var submittedAt = Date.now();\n    setEd(\"note\" + tag + \"_text\", text);\n    setEd(\"note\" + tag + \"_submitted_at\", new Date(submittedAt).toISOString());\n    setEd(\"note\" + tag + \"_first_key_ms\", firstKeyAt ? firstKeyAt - openedAt : \"\");\n    setEd(\"note\" + tag + \"_write_ms\", submittedAt - openedAt);\n    setEd(\"note\" + tag + \"_deletions\", deletions);\n    setEd(\"note\" + tag + \"_words\", words(text));\n    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only\n    // starts being written then); without a note it stays anchored on the batch-1 submission.\n    if (tag === \"1\" && text) { try { sessionStorage.setItem(\"cs_note1_submit_ms\", String(submittedAt)); } catch (error) {} }\n  });\n});\n",
         "QuestionID": "QID95",
         "DataExportTag": "note2",
-        "QuestionDescription": "Note to the coding supervisor (batch 3)   Is there anything about the coding process you'd like to t",
+        "QuestionDescription": "Batch 3  Note to the coding supervisor (batch 3)  Is there anything about the coding process you'd l",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5781,10 +5781,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID97",
-      "SecondaryAttribute": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
+      "SecondaryAttribute": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when you could send a",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>After batch 3</b></p><p>Please think about what you did after batch 3, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">After batch 3</p><p style=\"margin:0 0 0px;line-height:1.6;\">Please think about <b>what you did after batch 3</b>, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement.</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5867,7 +5867,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID97",
         "DataExportTag": "VF",
-        "QuestionDescription": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
+        "QuestionDescription": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when you could send a",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5880,10 +5880,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID98",
-      "SecondaryAttribute": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
+      "SecondaryAttribute": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when you could send a",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>After batch 3</b></p><p>Please think about what you did after batch 3, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">After batch 3</p><p style=\"margin:0 0 0px;line-height:1.6;\">Please think about <b>what you did after batch 3</b>, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement.</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5956,7 +5956,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID98",
         "DataExportTag": "VQ",
-        "QuestionDescription": "After batch 3   Please think about what you did after batch 3, when you could send a note to the cod",
+        "QuestionDescription": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when you could send a",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5969,10 +5969,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID99",
-      "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate how you perceived the reply.   The ",
+      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how you perceived t",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>The supervisor's reply to your note on batch 1</b></p><p>Please indicate how you perceived the reply.</p><p><em>The supervisor's reply was&hellip;</em></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on batch 1</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate how you perceived the reply.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor's reply was&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -6065,7 +6065,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID99",
         "DataExportTag": "MA",
-        "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate how you perceived the reply.   The ",
+        "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how you perceived t",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -6078,10 +6078,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID100",
-      "SecondaryAttribute": "The supervisor's reply to your note on batch 1    In the reply, the supervisor&hellip;",
+      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how much you agree ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>The supervisor's reply to your note on batch 1</b></p><p><em>In the reply, the supervisor&hellip;</em></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on batch 1</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate how much you agree with each statement.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">In the reply, the supervisor&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -6164,7 +6164,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID100",
         "DataExportTag": "MC",
-        "QuestionDescription": "The supervisor's reply to your note on batch 1    In the reply, the supervisor&hellip;",
+        "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how much you agree ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -6177,10 +6177,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID101",
-      "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
+      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>The supervisor's reply to your note on batch 1</b></p><p>Please indicate why you think the coding supervisor turned down your note.</p><p><em>The supervisor turned down my note&hellip;</em></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on batch 1</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate <b>why you think</b> the coding supervisor turned down your note.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor turned down my note&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -6258,7 +6258,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID101",
         "DataExportTag": "REASON",
-        "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
+        "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -6271,10 +6271,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID102",
-      "SecondaryAttribute": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
+      "SecondaryAttribute": "The supervisor turned down my note&hellip;",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>The supervisor's reply to your note on batch 1</b></p><p>Please indicate why you think the coding supervisor turned down your note.</p><p><em>The supervisor turned down my note&hellip;</em></p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor turned down my note&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -6342,7 +6342,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID102",
         "DataExportTag": "Q107",
-        "QuestionDescription": "The supervisor's reply to your note on batch 1   Please indicate why you think the coding supervisor",
+        "QuestionDescription": "The supervisor turned down my note&hellip;",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -6355,10 +6355,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID103",
-      "SecondaryAttribute": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
+      "SecondaryAttribute": "Almost done  One final question  Did anything about the shift feel unusual or unexpected? Please des",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p><b>One final question</b></p><p>Did anything about the shift feel unusual or unexpected? Please describe briefly.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Almost done</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">One final question</p><p style=\"margin:0 0 0px;line-height:1.6;\">Did anything about the shift feel unusual or unexpected? Please describe briefly.</p></div>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -6375,7 +6375,7 @@
         },
         "QuestionID": "QID103",
         "DataExportTag": "ai_check_unusual",
-        "QuestionDescription": "One final question   Did anything about the shift feel unusual or unexpected? Please describe briefl",
+        "QuestionDescription": "Almost done  One final question  Did anything about the shift feel unusual or unexpected? Please des",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {

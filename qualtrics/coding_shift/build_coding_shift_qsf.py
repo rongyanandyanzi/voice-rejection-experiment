@@ -133,6 +133,65 @@ NOTE_PROMPT_2 = ("Is there anything about the coding process you'd like to tell 
                  "reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by "
                  "the supervisor.")
 
+# ---------------------------------------------------------------------------------------------
+# Page styling (2026-10-10, user request: one professional look on every page, key facts
+# highlighted). Inline styles only, so they work in both survey engines.
+# ---------------------------------------------------------------------------------------------
+INK = "#1f2933"
+MUTED = "#5f6b7a"
+BLUE = "#2f5d8a"
+
+
+def eyebrow(text):
+    return f"<p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:{BLUE};margin:0 0 4px;\">{text}</p>"
+
+
+def title(text):
+    return f"<p style=\"font-size:21px;font-weight:600;line-height:1.35;color:{INK};margin:0 0 12px;\">{text}</p>"
+
+
+def para(text, last=False):
+    return f"<p style=\"margin:0 0 {0 if last else 12}px;line-height:1.6;\">{text}</p>"
+
+
+def small(text):
+    return f"<p style=\"font-size:13px;line-height:1.5;color:{MUTED};margin:0;\">{text}</p>"
+
+
+BOX_TONES = {
+    "info": ("#2f5d8a", "#f3f6fa"),   # neutral facts
+    "key": ("#c98a12", "#fff8e8"),    # something to keep in mind
+    "good": ("#2f7a4a", "#eef7f0"),   # reassurance: payment, answers
+}
+
+
+def box(html, tone="info", heading=None):
+    border, background = BOX_TONES[tone]
+    head = f"<p style=\"margin:0 0 6px;font-weight:600;color:{border};\">{heading}</p>" if heading else ""
+    return (f"<div style=\"border-left:4px solid {border};background:{background};border-radius:6px;"
+            f"padding:12px 16px;margin:0 0 14px;line-height:1.6;\">{head}{html}</div>")
+
+
+def items(*entries):
+    return "<ul style=\"margin:0;padding-left:20px;\">" + "".join(
+        f"<li style=\"margin:0 0 4px;\">{entry}</li>" for entry in entries) + "</ul>"
+
+
+def page(*parts):
+    return f"<div style=\"max-width:680px;font-size:16px;color:{INK};\">" + "".join(parts) + "</div>"
+
+
+def section(text):
+    return f"<p style=\"font-size:16px;font-weight:600;color:{INK};margin:18px 0 6px;padding-top:12px;border-top:1px solid #e3e7ec;\">{text}</p>"
+
+
+def scale_intro(heading, instruction, stem=None, label="Questionnaire"):
+    parts = [eyebrow(label), title(heading), para(instruction, last=stem is None)]
+    if stem:
+        parts.append(f"<p style=\"margin:0;font-style:italic;color:{MUTED};\">{stem}</p>")
+    return page(*parts)
+
+
 CARD_STYLE = "border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;"
 CARD_HEAD = "background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;"
 CARD_BODY = "padding:14px;font-size:15px;line-height:1.5;color:#1f2933;"
@@ -176,21 +235,40 @@ def build(args):
         return qid
 
     # 1. Consent -----------------------------------------------------------------------------
-    consent_text = s.text("consent_text", paragraphs(
-        "<b>Paid coding work: three short batches</b>",
-        "You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories.",
-        "Your work is checked against a reference key by the coding supervisor, who sets the coding rules, may change any label you give, and issues each batch. Your quality bonus depends on how your batches are rated.",
-        "The shift takes about 18 minutes. Some steps are optional. Using or skipping them does not change your payment or bonus. The supervisor may reply to anything you send. Replies can be brief or critical, as workplace feedback sometimes is.",
-        "Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page.",
+    consent_text = s.text("consent_text", page(
+        eyebrow("Paid coding work"),
+        title("One short shift as a Feedback Coder"),
+        para("You are being hired for one short shift as a Feedback Coder on our comment-coding project. You will sort short comments that people left at the end of earlier online studies into categories."),
+        box(items(
+            "<b>Three short batches</b> of comments, about <b>18 minutes</b> in total.",
+            "The <b>coding supervisor</b> checks your work against a reference key, sets the coding rules, may change any label you give, and issues each batch.",
+            "Your <b>quality bonus</b> depends on how your batches are rated.",
+        ), "info", "How the shift works"),
+        box(items(
+            "Some steps are optional. Using or skipping them <b>does not change your payment or bonus</b>.",
+            "The supervisor may reply to anything you send. Replies can be <b>brief or critical</b>, as workplace feedback sometimes is.",
+        ), "key", "Please note"),
+        small("Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page."),
     ), js=js("js_consent.js", s.service_url), description="Consent text")
     consent = choice("consent", "Are you willing to take part in this shift?", ["Yes, I agree, start the shift", "No, I do not want to take part"])
     s.block("Consent", [consent_text, consent], block_type="Default")
 
     # 2. Training ---------------------------------------------------------------------------
-    rules_page = s.text("training_rules", paragraphs("<b>Your job and the coding rules</b>", "Each comment goes into one of five categories.")
-                        + "".join(f"<p style=\"margin:0 0 8px;\"><code style=\"font-size:12px;color:#2f5d8a;\">{code}</code> <b>{name}.</b> {definition}</p>" for code, name, definition in CATEGORIES)
-                        + paragraphs("Choose one category for each comment.", "After batch 1 and after the last batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way.", "Two practice comments come first.",
-                                     "<span style=\"color:#667;font-size:13px;\">Codebook v3.1 &middot; rules set by the coding supervisor</span>"),
+    category_rows = "".join(
+        f"<div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\">"
+        f"<span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:{BLUE};\">{code}</span>"
+        f"<span><b>{name}.</b> {definition}</span></div>"
+        for code, name, definition in CATEGORIES)
+    rules_page = s.text("training_rules", page(
+        eyebrow("Training"),
+        title("Your job and the coding rules"),
+        para("Each comment goes into one of five categories."),
+        f"<div style=\"margin:0 0 16px;\">{category_rows}</div>",
+        box("<b>Choose one category for each comment.</b>", "key"),
+        para("After batch 1 and after the last batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way."),
+        para("Two practice comments come first."),
+        small("Codebook v3.1 &middot; rules set by the coding supervisor"),
+    ),
                         description="Training: rules")
     # The "Why the rules are this way" training page was removed on 2026-10-07 (user decision); the
     # rationale is still available as a tool on the note 2 pages.
@@ -202,9 +280,18 @@ def build(args):
         + f"<p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;\">{esc(text)}</p><p>Which category does this comment belong to?</p>"
     )
     practice1 = choice("practice_1", practice_page(1, PRACTICE[0][0]), CATEGORY_OPTIONS)
-    practice1_fb = s.text("practice_1_feedback", paragraphs("<b>Practice 1: answer</b>", f"<span style=\"color:#667\">{esc(PRACTICE[0][0])}</span>", PRACTICE[0][1]), description="Practice 1 feedback")
+    practice1_fb = s.text("practice_1_feedback", page(
+        eyebrow("Practice 1 of 2"), title("Answer"),
+        f"<p style=\"font-size:16px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;color:{MUTED};margin:0 0 12px;\">{esc(PRACTICE[0][0])}</p>",
+        box(PRACTICE[0][1], "good"),
+    ), description="Practice 1 feedback")
     practice2 = choice("practice_2", practice_page(2, PRACTICE[1][0]), CATEGORY_OPTIONS)
-    practice2_fb = s.text("practice_2_feedback", paragraphs("<b>Practice 2: answer</b>", f"<span style=\"color:#667\">{esc(PRACTICE[1][0])}</span>", PRACTICE[1][1], "Batch 1 starts on the next page. Your labels there count."), description="Practice 2 feedback")
+    practice2_fb = s.text("practice_2_feedback", page(
+        eyebrow("Practice 2 of 2"), title("Answer"),
+        f"<p style=\"font-size:16px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;color:{MUTED};margin:0 0 12px;\">{esc(PRACTICE[1][0])}</p>",
+        box(PRACTICE[1][1], "good"),
+        box("<b>Batch 1 starts on the next page.</b> Your labels there count.", "key"),
+    ), description="Practice 2 feedback")
     t_train = s.timing("t_training")
     s.block("Training", [rules_page, t_train, "PB", practice1, "PB", practice1_fb, practice2, "PB", practice2_fb])
 
@@ -224,32 +311,39 @@ def build(args):
     # 4. Note 1 -----------------------------------------------------------------------------
     # One page, shown to everyone after batch 1 (the separate attach/finish choice page was dropped
     # on 2026-10-08): an empty box means no note.
-    note1 = s.essay("note1", paragraphs("<b>Note to the coding supervisor</b>", NOTE_PROMPT_1,
-                                        "If there is nothing you want to tell them, leave the box empty and click Next. Either way leads to the next step and the same payment.",
-                                        "<span style=\"color:#667;font-size:13px;\">Anything you write goes to the coding supervisor with your batch.</span>"),
+    note1 = s.essay("note1", page(
+        eyebrow("Batch 1 complete"),
+        title("Note to the coding supervisor"),
+        box(NOTE_PROMPT_1, "info"),
+        para("If there is nothing you want to tell them, leave the box empty and click Next. Either way leads to the next step and the <b>same payment</b>."),
+        small("Anything you write goes to the coding supervisor with your batch."),
+    ),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
     s.block("Note 1", [note1, s.timing("t_note1")])
 
     # 5. Interim admin tasks --------------------------------------------------------------
-    interim_intro = s.text("interim_intro", paragraphs(
-        "<b>Batch 1 is being checked</b>",
-        "Batch 1 has been submitted and is being checked against the reference key. While it is checked, please complete two short admin tasks.",
-        "<b>1. Study link check.</b> Each comment below is filed under a study. Say whether the comment belongs to that study.",
+    interim_intro = s.text("interim_intro", page(
+        eyebrow("Batch 1 submitted"),
+        title("Batch 1 is being checked"),
+        para("Batch 1 has been submitted and is being checked against the reference key. While it is checked, please complete <b>two short admin tasks</b>."),
+        section("1. Study link check"),
+        para("Each comment below is filed under a study. Say whether the comment belongs to that study.", last=True),
     ) + "<span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
         js=js("js_interim.js", s.service_url), description="Interim intro")
     link_qids = []
     for index, (study, text) in enumerate(LINK_CHECK, 1):
         link_qids.append(choice(f"link_{index}", f"<p style=\"margin:0 0 2px;color:#667;font-size:13px;\">Filed under: <b>{esc(study)}</b></p><p style=\"font-size:16px;margin:0;\">{esc(text)}</p>", ["Belongs", "Doesn't belong"]))
-    coder_head = s.text("coder_details_head", paragraphs("<b>2. Coder details</b>"), description="Coder details")
+    coder_head = s.text("coder_details_head", page(section("2. Coder details")), description="Coder details")
     device = choice("device", "Which device are you using?", ["Phone", "Tablet", "Laptop", "Desktop computer"])
     experience = choice("coding_experience", "Have you done text-coding or annotation work before?", ["Never", "Once or twice", "Several times"])
     clarity = choice("instructions_clear", "How clear were the instructions for batch 1?", ["1 &middot; Not clear", "2", "3", "4", "5 &middot; Very clear"])
     s.block("Interim tasks", [interim_intro] + link_qids + [coder_head, device, experience, clarity, s.timing("t_interim")])
 
     # 5b. Batch 2, coded while the supervisor reviews batch 1 and the note ------------------
-    b2_intro = s.text("batch2_intro", paragraphs(
-        "<b>Batch 2</b>",
-        "While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: eight comments from a different study. The coding rules are the same as for batch 1.",
+    b2_intro = s.text("batch2_intro", page(
+        eyebrow("Batch 2"),
+        title("Batch 2: eight new comments"),
+        box("While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: eight comments from a different study. <b>The coding rules are the same as for batch 1.</b>", "info"),
     ), description="Batch 2 intro")
     b2_elements = [b2_intro]
     for index, text in enumerate(BATCH2, 1):
@@ -260,10 +354,11 @@ def build(args):
     s.block("Batch 2", b2_elements)
 
     # 6. Waiting page -----------------------------------------------------------------------
-    waiting = s.text("waiting", paragraphs(
-        "<b>Waiting for batch 3</b>",
-        "Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment.",
-        "<span id=\"cs-wait-status\" style=\"color:#667;font-style:italic;\">Waiting for the supervisor&hellip;</span>",
+    waiting = s.text("waiting", page(
+        eyebrow("Batch 2 submitted"),
+        title("Waiting for batch 3"),
+        para("Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment."),
+        box("<span id=\"cs-wait-status\" style=\"font-style:italic;\">Waiting for the supervisor&hellip;</span>", "info"),
     ) + "<span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>", js=js("js_waiting.js", s.service_url), description="Waiting page")
     hidden = {}
     for name in ["rejection_status", "rejection_msg1", "rejection_msg2", "rejection_compliance_code", "rejection_latency_ms",
@@ -303,14 +398,21 @@ def build(args):
         for text, qid in zip(BATCH3, b3_qids)
     )
     tools = tools_html(review_items)
-    note2_head = s.text("note2_tools_choice", paragraphs("<b>Batch 3 complete.</b>") + tools + paragraphs("Both choices below lead to the same last few questions and the same payment."),
+    note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."), tools,
+                                                    box("Both choices below lead to the same last few questions and the <b>same payment</b>.", "good")),
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
     note2_choice = choice("note2_choice", "Batch 3: attach a note, or finish without one?", ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
     s.block("Note 2 choice", [note2_head] + n2_hidden_choice + [note2_choice, s.timing("t_note2_choice")])
     note2_tools = s.text("note2_tools_essay", tools, js=js("js_tools.js", s.service_url), description="Note 2 tools (essay)")
     n2_hidden_essay = [s.hidden_text(f"h_{name}_essay", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
-    note2 = s.essay("note2", paragraphs("<b>Note to the coding supervisor (batch 3)</b>", NOTE_PROMPT_2, "<span style=\"color:#667;font-size:13px;\">Your note goes to the coding supervisor with your batch.</span>"),
+    # The title keeps the lowercase "(batch 3)": js_note_essay.js uses it to tell note 2 from note 1.
+    note2 = s.essay("note2", page(
+        eyebrow("Batch 3"),
+        title("Note to the coding supervisor (batch 3)"),
+        box(NOTE_PROMPT_2, "info"),
+        small("Your note goes to the coding supervisor with your batch."),
+    ),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
     s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2")])
 
@@ -323,8 +425,8 @@ def build(args):
     # tense about what the participant did after batch 3, when a note could be sent, and everyone
     # answers them: someone who sent nothing can disagree. They come after note 2, so they do not
     # prompt the note 2 decision.
-    after_intro = "Please think about what you did after batch 3, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement."
-    vf = s.likert("VF", paragraphs("<b>After batch 3</b>", after_intro), [
+    after_intro = "Please think about <b>what you did after batch 3</b>, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement."
+    vf = s.likert("VF", scale_intro("After batch 3", after_intro), [
         ("VF1", "I took the initiative to propose specific improvements to the coding process."),
         ("VF2", "I made a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."),
         ("VF3", "Even though the coding supervisor might seem dismissive, I persisted in communicating my alternative views on the coding rules."),
@@ -332,7 +434,7 @@ def build(args):
         ("VF5", "I acted as a lead contributor in raising how the coding rules and categories should work."),
         ("VF6", "I offered my own constructive suggestions and ideas to improve the current coding rules."),
     ])
-    vq = s.likert("VQ", paragraphs("<b>After batch 3</b>", after_intro), [
+    vq = s.likert("VQ", scale_intro("After batch 3", after_intro), [
         ("VQ1", "When preparing what I might raise with the coding supervisor, I strove to present a well-researched proposal backed by evidence from the comments."),
         ("VQ2", "When preparing what I might raise with the coding supervisor, I made every effort to address the supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
         ("VQ3", "When preparing what I might raise with the coding supervisor, I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."),
@@ -342,12 +444,12 @@ def build(args):
     s.block("Questionnaire", [vf, "PB", vq])
 
     # 11. Manipulation checks, voicers only -------------------------------------------------
-    polite = s.likert("MA", paragraphs("<b>The supervisor's reply to your note on batch 1</b>", "Please indicate how you perceived the reply.", "<em>The supervisor's reply was&hellip;</em>"), [
+    polite = s.likert("MA", scale_intro("The supervisor's reply to your note on batch 1", "Please indicate how you perceived the reply.", "The supervisor's reply was&hellip;", label="About the reply"), [
         # Eight-item politeness scale (user's list, 2026-10-10).
         ("MA1", "Polite"), ("MA2", "Courteous"), ("MA3", "Sensitive to my feelings"), ("MA4", "Respectful toward me"),
         ("MA5", "Considerate toward me"), ("MA6", "Appropriate"), ("MA7", "Civil"), ("MA8", "Tactful"),
     ])
-    useful = s.likert("MC", paragraphs("<b>The supervisor's reply to your note on batch 1</b>", "<em>In the reply, the supervisor&hellip;</em>"), [
+    useful = s.likert("MC", scale_intro("The supervisor's reply to your note on batch 1", "Please indicate how much you agree with each statement.", "In the reply, the supervisor&hellip;", label="About the reply"), [
         # Six-item constructiveness scale (user's Chinese list, 2026-10-10), turned from the
         # supervisor's view to the participant's: 拒谏时，我…他/她想法（或方案） becomes "In the
         # reply, the supervisor… my suggestion".
@@ -360,11 +462,11 @@ def build(args):
     ])
     # Reasons for the rejection, split by the user on 2026-10-10 into two questions on one page:
     # proposal-quality reasons (REASON: PR1-PR5) first, then supervisor-related reasons (Q107: MR1-MR3).
-    reason_intro = paragraphs(
-        "<b>The supervisor's reply to your note on batch 1</b>",
-        "Please indicate why you think the coding supervisor turned down your note.",
-        "<em>The supervisor turned down my note&hellip;</em>",
-    )
+    reason_intro = scale_intro("The supervisor's reply to your note on batch 1",
+                               "Please indicate <b>why you think</b> the coding supervisor turned down your note.",
+                               "The supervisor turned down my note&hellip;", label="About the reply")
+    # Q107 sits on the same page right under REASON, so it carries only the sentence stem.
+    reason_stem = page(f"<p style=\"margin:0;font-style:italic;color:{MUTED};\">The supervisor turned down my note&hellip;</p>")
     reasons = s.likert("REASON", reason_intro, [
         ("PR1", "Because the ideas for improvement in my note were mediocre."),
         ("PR2", "Because my suggestions don't really improve the coding methods or practices."),
@@ -372,7 +474,7 @@ def build(args):
         ("PR4", "Because I made impractical recommendations about how to fix problems in the coding."),
         ("PR5", "Because my suggestions are not very useful."),
     ])
-    reasons_sup = s.likert("Q107", reason_intro, [
+    reasons_sup = s.likert("Q107", reason_stem, [
         ("MR1", "Because of the supervisor's emotions."),
         ("MR2", "To demonstrate the supervisor's authority."),
         ("MR3", "Because the supervisor dislikes me."),
@@ -380,7 +482,7 @@ def build(args):
     s.block("Manipulation checks", [reasons, reasons_sup, "PB", polite, "PB", useful])
 
     # 12. Open check -------------------------------------------------------
-    ai_unusual = s.essay("ai_check_unusual", paragraphs("<b>One final question</b>", "Did anything about the shift feel unusual or unexpected? Please describe briefly."), force=True, height=110)
+    ai_unusual = s.essay("ai_check_unusual", page(eyebrow("Almost done"), title("One final question"), para("Did anything about the shift feel unusual or unexpected? Please describe briefly.", last=True)), force=True, height=110)
     # Task feedback and the debrief were removed on 2026-10-10 (user decision).
     s.block("Closing", [ai_unusual])
 
