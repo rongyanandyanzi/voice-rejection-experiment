@@ -1,4 +1,4 @@
-# Free-tier generation service for the Qualtrics one-shot design. No disk: Qualtrics stores all
+# Generation service (Starter plan since 2026-10-10; was free tier) for the Qualtrics one-shot design. No disk: Qualtrics stores all
 # study data, this service only generates and validates the manager's rejection.
 # Apply in Render with New + > Blueprint, pick this repository and this file. Render asks for the
 # OPENAI_API_KEY value while applying (sync: false); nothing else needs typing.
@@ -8,7 +8,7 @@ services:
     # fictional park and nothing about the method.
     name: aetheria-gardens-messages
     env: node
-    plan: free
+    plan: starter  # 0.5 CPU, 512 MB, no sleeping ($7/month); upgraded 2026-10-10 for data collection
     branch: qualtrics-one-shot
     autoDeploy: true
     buildCommand: npm install
