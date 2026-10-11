@@ -1,6 +1,9 @@
-// Interim page ("Batch 1 is being checked"): starts the supervisor's reply in the background as
-// soon as the page opens, if a note was attached. The condition was assigned by the randomiser
-// before the note; it is used only here, and only for a note.
+// Used on two pages: the "what happens next" page straight after note 1 (added 2026-10-11) and the
+// interim admin page after it. Starts the supervisor's reply in the background as soon as the
+// first of them opens, if a note was attached; the service reuses the job if it is asked twice.
+// On the "what happens next" page it also shows the note or the no-note version of the text.
+// The condition was assigned by the randomiser before the note; it is used only here, and only
+// for a note.
 Qualtrics.SurveyEngine.addOnload(function () {
   var SERVICE_URL = "https://YOUR-SERVICE.onrender.com";
   var PIPE_START = String.fromCharCode(36) + "{";
@@ -12,8 +15,18 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var note = "";
   try { note = sessionStorage.getItem("cs_note1_text") || ""; } catch (error) {}
   if (!note) note = unpiped(Qualtrics.SurveyEngine.getEmbeddedData("note1_text") || "");
-  try { sessionStorage.setItem("cs_interim_opened_ms", String(Date.now())); } catch (error) {}
+  var hasNoteBox = document.getElementById("cs-next-note");
+  var noNoteBox = document.getElementById("cs-next-no-note");
+  if (hasNoteBox && noNoteBox) {
+    hasNoteBox.style.display = note.trim() ? "" : "none";
+    noNoteBox.style.display = note.trim() ? "none" : "";
+  } else {
+    try { sessionStorage.setItem("cs_interim_opened_ms", String(Date.now())); } catch (error) {}
+  }
   if (!note.trim()) return;
+  var alreadyStarted = "";
+  try { alreadyStarted = sessionStorage.getItem("cs_job_started") || ""; } catch (error) {}
+  if (alreadyStarted === "1") return;
   var condition = domValue("cs-condition", "${e://Field/condition}");
   var requestId = domValue("cs-response-id", "${e://Field/ResponseID}");
   if (!/^[A-Za-z0-9_-]{8,128}$/.test(requestId)) {

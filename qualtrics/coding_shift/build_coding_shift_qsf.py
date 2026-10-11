@@ -304,7 +304,14 @@ def build(args):
         b1_elements += [qid, s.timing(f"t_b1_{index}")]
         if index < len(BATCH1):
             b1_elements.append("PB")
-    s.block("Batch 1", b1_elements)
+    # Batch 1 opens with its own page (added 2026-10-11, user request: make each batch clear).
+    b1_intro = s.text("batch1_intro", page(
+        eyebrow("Batch 1 of 3"),
+        title("Batch 1: eight comments"),
+        box("Practice is complete. Batch 1 has <b>eight comments</b>. Choose one category for each. <b>Your labels in this batch count.</b>", "info"),
+        small("After batch 1 you can send a note to the coding supervisor if you want to."),
+    ), description="Batch 1 intro")
+    s.block("Batch 1", [b1_intro, "PB"] + b1_elements)
 
     # 4. Note 1 -----------------------------------------------------------------------------
     # One page, shown to everyone after batch 1 (the separate attach/finish choice page was dropped
@@ -317,7 +324,30 @@ def build(args):
         small("Anything you write goes to the coding supervisor with your batch."),
     ),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
-    s.block("Note 1", [note1, s.timing("t_note1")])
+    # "What happens next" page straight after note 1 (added 2026-10-11, user request). With a note
+    # it says the note is with the supervisor and being reviewed; without one, that batch 1 is being
+    # checked. js_interim.js picks the version and starts the reply here, so the extra page does not
+    # delay it.
+    next_steps = items(
+        "Two short admin tasks.",
+        "Batch 2: five comments, while the supervisor reviews batch 1.",
+        "Messages from the coding supervisor, then batch 3, the last batch.",
+    )
+    note1_next = s.text("note1_next", page(
+        eyebrow("Batch 1 submitted"),
+        "<div id=\"cs-next-note\" style=\"display:none\">"
+        + title("Your note is with the coding supervisor")
+        + box("Your note has been sent to the coding supervisor together with batch 1 and <b>is being reviewed</b>. The supervisor&rsquo;s reply will come with the batch 1 results.", "info")
+        + "</div>"
+        + "<div id=\"cs-next-no-note\">"
+        + title("Batch 1 has been submitted")
+        + box("Batch 1 has been sent to the coding supervisor and <b>is being checked</b> against the reference key.", "info")
+        + "</div>",
+        f"<p style=\"margin:0 0 6px;font-weight:600;color:{INK};\">What happens next</p>",
+        next_steps,
+    ) + "<span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
+        js=js("js_interim.js", s.service_url), description="After note 1: what happens next")
+    s.block("Note 1", [note1, s.timing("t_note1"), "PB", note1_next])
 
     # 5. Interim admin tasks --------------------------------------------------------------
     interim_intro = s.text("interim_intro", page(
@@ -339,7 +369,7 @@ def build(args):
 
     # 5b. Batch 2, coded while the supervisor reviews batch 1 and the note ------------------
     b2_intro = s.text("batch2_intro", page(
-        eyebrow("Batch 2"),
+        eyebrow("Batch 2 of 3"),
         title("Batch 2: five new comments"),
         box("While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: five comments from a different study. <b>The coding rules are the same as for batch 1.</b>", "info"),
     ), description="Batch 2 intro")
@@ -380,7 +410,12 @@ def build(args):
     s.block("New messages", [messages, s.timing("t_messages")])
 
     # 8. Batch 3 ----------------------------------------------------------------------------
-    b3_elements = []
+    b3_intro = s.text("batch3_intro", page(
+        eyebrow("Batch 3 of 3"),
+        title("Batch 3: eight comments"),
+        box("This is the <b>last batch</b>: eight comments from a different study. The coding rules are the same as before.", "info"),
+    ), description="Batch 3 intro")
+    b3_elements = [b3_intro]
     b3_qids = []
     for index, text in enumerate(BATCH3, 1):
         qid = choice(f"b3_{index}", comment_page(index, len(BATCH3), 3, text), CATEGORY_OPTIONS)
@@ -439,7 +474,12 @@ def build(args):
         ("VQ4", "When preparing what I might raise with the coding supervisor, I worked out a clear, actionable solution to the flaws I saw in the current coding rules."),
     ])
     # Authority (AUTH) and safety/futility (CLIMATE) were removed on 2026-10-10 (user decision).
-    s.block("Questionnaire", [vf, "PB", vq])
+    q_intro = s.text("questionnaire_intro", page(
+        eyebrow("Coding complete"),
+        title("The coding shift is complete"),
+        para("Thank you. The last step is a few short questions about the shift. It takes about two minutes.", last=True),
+    ), description="Questionnaire intro")
+    s.block("Questionnaire", [q_intro, "PB", vf, "PB", vq])
 
     # 11. Manipulation checks, voicers only -------------------------------------------------
     polite = s.likert("MA", scale_intro("The supervisor's reply to your note on batch 1", "Please indicate how you perceived the reply.", "The supervisor's reply was&hellip;", label="About the reply"), [

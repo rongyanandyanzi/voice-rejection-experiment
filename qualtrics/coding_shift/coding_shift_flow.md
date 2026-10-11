@@ -20,14 +20,17 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    single problem. The rule box on the practice pages says only "choose one category" and "no
    other option"; since 2026-10-10 nothing in the survey tells coders what to do with a comment
    that raises two problems.
-5. **Batch 1**: eight ordinary end-of-study comments, one per page, five categories each, forced.
+5. **Batch 1**: opens with its own "Batch 1 of 3" page (2026-10-11); eight ordinary end-of-study comments, one per page, five categories each, forced.
    Comments 3, 5, 6 and 8 raise two problems.
 6. **Note 1**: one page for everyone, straight after batch 1 (the separate attach/finish page was
    dropped on 2026-10-08). The essay box is not forced; an empty box means no note.
    `js_note_essay.js`: one soft check under 20 words, timing, keystrokes; the text is kept for the
    interim page. The last batch-1 page carries `js_batch1_anchor.js`, which records when batch 1
    was submitted; that moment anchors T.
-7. **Interim tasks** (`js_interim.js`): starts the reply job at once if a note exists. Five
+6b. **What happens next** (added 2026-10-11, `js_interim.js`): with a note, "Your note is with the
+   coding supervisor ... is being reviewed"; without, "Batch 1 has been submitted ... is being
+   checked". Lists the next steps and starts the reply job here.
+7. **Interim tasks** (`js_interim.js`): starts the reply job if the previous page did not. Five
    study-link checks, device, coding experience, instruction clarity. All forced.
 8. **Batch 2** (added 2026-10-09; five comments since 2026-10-10): comments coded "while the coding supervisor reviews batch 1".
    Comments 2, 4 and 5 raise two problems, so the one-category tension stays live up to the reply.
@@ -43,11 +46,11 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 10. **New messages** (`js_messages.js`): batch rating card for everyone; reply card only when a
    note was attached; "Batch 3 is ready" card. The reply is read from what the waiting page stored,
    retried for up to 20 s if it is not there yet. Next opens 15 s after the reply is on screen.
-11. **Batch 3** (the former batch 2): eight comments; 3, 6 and 8 fit no category.
+11. **Batch 3** (the former batch 2; intro "Batch 3 of 3, the last batch" on the first page): eight comments; 3, 6 and 8 fit no category.
 12. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
     hidden questions; the "Why the rules are this way" tool was removed on 2026-10-08, so
     `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool.
-13. **Questionnaire** (everyone): voice frequency (VF1–VF6) and voice quality improvement effort
+13. **Questionnaire** (everyone; opens with a "The coding shift is complete" page): voice frequency (VF1–VF6) and voice quality improvement effort
     (VQ1–VQ4) from the study's off-survey scale document, in the past tense about what the
     participant did after batch 3 (2026-10-10). Authority and safety/futility were removed on
     2026-10-10.
