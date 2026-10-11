@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-11 22:57:31",
+    "SurveyCreationDate": "2026-10-11 23:13:01",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-11 22:57:31",
+    "LastModified": "2026-10-11 23:13:01",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -2653,7 +2653,7 @@
       "SecondaryAttribute": "Interim intro",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 submitted</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1 is being checked</p><p style=\"margin:0 0 12px;line-height:1.6;\">Batch 1 has been submitted and is being checked against the reference key. While it is checked, please complete <b>two short admin tasks</b>.</p><p style=\"font-size:16px;font-weight:600;color:#1f2933;margin:18px 0 6px;padding-top:12px;border-top:1px solid #e3e7ec;\">1. Study link check</p><p style=\"margin:0 0 0px;line-height:1.6;\">Each comment below is filed under a study. Say whether the comment belongs to that study.</p></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Before batch 2</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Admin tasks</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please complete <b>two short admin tasks</b>.</p><p style=\"font-size:16px;font-weight:600;color:#1f2933;margin:18px 0 6px;padding-top:12px;border-top:1px solid #e3e7ec;\">1. Study link check</p><p style=\"margin:0 0 0px;line-height:1.6;\">Each comment below is filed under a study. Say whether the comment belongs to that study.</p></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {

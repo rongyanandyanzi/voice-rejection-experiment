@@ -351,9 +351,9 @@ def build(args):
 
     # 5. Interim admin tasks --------------------------------------------------------------
     interim_intro = s.text("interim_intro", page(
-        eyebrow("Batch 1 submitted"),
-        title("Batch 1 is being checked"),
-        para("Batch 1 has been submitted and is being checked against the reference key. While it is checked, please complete <b>two short admin tasks</b>."),
+        eyebrow("Before batch 2"),
+        title("Admin tasks"),
+        para("Please complete <b>two short admin tasks</b>."),
         section("1. Study link check"),
         para("Each comment below is filed under a study. Say whether the comment belongs to that study.", last=True),
     ) + "<span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
