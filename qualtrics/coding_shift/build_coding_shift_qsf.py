@@ -523,7 +523,7 @@ def build(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--service-url", default="https://aetheria-gardens-messages.onrender.com")
-    parser.add_argument("--completion-url", default="https://app.prolific.com/submissions/complete?cc=COMPLETION_CODE")
+    parser.add_argument("--completion-url", default="https://app.prolific.com/submissions/complete?cc=C184ZVR9")
     parser.add_argument("--out", default=os.path.join(HERE, "the_coding_shift.qsf"))
     args = parser.parse_args()
     qsf, survey = build(args)

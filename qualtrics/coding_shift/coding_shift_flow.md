@@ -84,5 +84,5 @@ from the ResponseID (sha256, first 32-bit word mod 4 over closing, appreciation,
 - `ALLOWED_ORIGINS` on the service must include `https://*.qualtrics.com`.
 - Set T from the latency of the frozen wording (currently HP_HC slowest, median 40 s, max about
   80 s in QA): 90 s from the note covers nearly all; measure in the pilot.
-- Replace `COMPLETION_CODE` in the end-of-survey redirect.
+- Completion code C184ZVR9 is set in the end-of-survey redirect (2026-10-11).
 - The twenty-four comments are drafts; swap in the real corpus before the main run.
