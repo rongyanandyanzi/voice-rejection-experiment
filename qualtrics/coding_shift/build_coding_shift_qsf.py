@@ -243,7 +243,6 @@ def build(args):
             "Your <b>quality bonus</b> depends on how your batches are rated.",
         ), "info", "How the shift works"),
         box(items(
-            "Some steps are optional. Using or skipping them <b>does not change your payment or bonus</b>.",
             "The supervisor may reply to anything you send. Replies can be <b>brief or critical</b>, as workplace feedback sometimes is.",
         ), "key", "Please note"),
         small("Your answers are stored anonymously under your Prolific ID. You can stop at any time by closing the page."),
@@ -263,7 +262,7 @@ def build(args):
         para("Each comment goes into one of five categories."),
         f"<div style=\"margin:0 0 16px;\">{category_rows}</div>",
         box("<b>Choose one category for each comment.</b>", "key"),
-        para("After batch 1 the coding supervisor will ask for your comments on the batch. Your batches are rated the same whatever you write."),
+        para("After batch 1 the coding supervisor will ask for your comments on the batch."),
         para("Two practice comments come first."),
         small("Codebook v3.1 &middot; rules set by the coding supervisor"),
     ),
