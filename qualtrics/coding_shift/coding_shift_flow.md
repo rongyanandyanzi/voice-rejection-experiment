@@ -23,11 +23,13 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 5. **Batch 1**: opens with its own "Batch 1 of 3" page (2026-10-11); eight ordinary end-of-study comments, one per page, five categories each, forced.
    Comments 3, 5, 6 and 8 raise two problems.
 6. **Note 1** (required since 2026-10-12; in the pilot only 4 of 20 wrote the optional note): the
-   coding supervisor asks every coder for comments on batch 1 - how the coding went, whether anything
-   in the rules or categories does not work, problems met, suggestions. `js_note_essay.js` keeps the
+   coding supervisor asks every coder for comments on the coding of batch 1 - whether anything in the
+   rules or categories does not work, problems met while coding, suggestions - and to comment on the
+   coding rather than on the studies the comments describe (steered to the rules since 2026-10-12,
+   after pilot 2 notes drifted to the studies). `js_note_essay.js` keeps the
    soft check under 20 words and the timing. The text is kept for the next page. The last batch-1
    page carries `js_batch1_anchor.js`. A note the blind check classes as non-voice still gets
-   "Note received." Note 2 stays optional and is the voice measure.
+   "Note received." Note 2 is also required since 2026-10-12 (see step 12).
 6b. **What happens next** (added 2026-10-11, `js_interim.js`): with a note, "Your note is with the
    coding supervisor ... is being reviewed"; without, "Batch 1 has been submitted ... is being
    checked". Lists the next steps and starts the reply job here.
@@ -48,9 +50,13 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    note was attached; "Batch 3 is ready" card. The reply is read from what the waiting page stored,
    retried for up to 20 s if it is not there yet. Next opens 15 s after the reply is on screen.
 11. **Batch 3** (the former batch 2; intro "Batch 3 of 3, the last batch" on the first page): eight comments; 3, 6 and 8 fit no category.
-12. **Note 2 choice** with the "Review this batch" tool above it (`js_tools.js` counts opens into
-    hidden questions; the "Why the rules are this way" tool was removed on 2026-10-08, so
-    `why_opens_*` is always 0). Branch: attach → **Note 2** essay with the same tool.
+12. **Note 2 intro** (block still named "Note 2 choice") with the "Review this batch" tool above it
+    (`js_tools.js` counts opens into hidden questions; the "Why the rules are this way" tool was
+    removed on 2026-10-08, so `why_opens_*` is always 0). Since 2026-10-12 everyone goes on to
+    **Note 2**: the supervisor asks for comments on the coding of batch 3, the answer is required and
+    "nothing to add" is allowed; no soft check. The voice measure is the coded content of note 2
+    (silence = nothing to add). Live survey: the old attach/finish question is hidden, not deleted,
+    and its flow branch is left empty; Note 2 sits at top level before the Questionnaire.
 13. **Questionnaire** (everyone; opens with a "The coding shift is complete" page): voice frequency (VF1–VF6) and voice quality improvement effort
     (VQ1–VQ4) from the study's off-survey scale document, in the past tense about what the
     participant did after batch 3 (2026-10-10). Authority and safety/futility were removed on

@@ -119,6 +119,51 @@ const proposals = [
     defense: "It would be more accurate.",
     pushback: "Maybe just for some comments.",
   },
+  // Notes of the kinds a required batch-1 request produced in the 2026-10-12 pilot (written fresh,
+  // not copied from participants): about the studies the comments describe, about difficulties
+  // while coding, or about content, rather than about a second category.
+  {
+    id: "en_study_tech",
+    language: "en",
+    proposal: "A lot of the comments were about technical problems in the studies, pages freezing and videos not loading. Those studies should be checked and fixed.",
+    defense: "So many people had the same problem.",
+    pushback: "At least flag the studies with the most technical complaints.",
+  },
+  {
+    id: "en_study_length",
+    language: "en",
+    proposal: "Many people said the studies were too long and repetitive and took longer than advertised. The surveys need to be shortened.",
+    defense: "It came up again and again.",
+    pushback: "Even just the longest ones.",
+  },
+  {
+    id: "en_review_content",
+    language: "en",
+    proposal: "THE CONTENT OF THE COMMENTS NEEDS TO BE REVIEWED",
+    defense: "Some of it was confusing.",
+    pushback: "Someone should look at it.",
+  },
+  {
+    id: "en_unclear_definitions",
+    language: "en",
+    proposal: "Most of it was easy, but I wasn't sure where to draw the line between WORDING and CONTENT. Clearer definitions with an example for each category would help.",
+    defense: "Two coders could easily disagree on those.",
+    pushback: "Even one example per category.",
+  },
+  {
+    id: "en_slow_tiring",
+    language: "en",
+    proposal: "Coding one comment per page was slow and got tiring. It would be quicker to see the whole batch on one page.",
+    defense: "I'd make fewer mistakes if I could compare them.",
+    pushback: "Maybe two or three per page.",
+  },
+  {
+    id: "en_mixed_feedback",
+    language: "en",
+    proposal: "Went fine overall. Some comments could go in two categories so I picked the closest one, and a couple of the payment ones were really about time.",
+    defense: "Just mentioning it.",
+    pushback: "Not a big deal.",
+  },
   {
     id: "zh_flexible_pool",
     language: "zh",

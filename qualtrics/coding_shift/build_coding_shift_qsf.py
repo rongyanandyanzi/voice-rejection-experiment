@@ -125,11 +125,15 @@ LINK_CHECK = [
 # Note 1 is required since 2026-10-12 (user decision, after a pilot in which only 4 of 20 wrote an
 # optional note): the supervisor asks every coder for comments on batch 1, so everyone gets a reply.
 # Note 2 stays optional and is the voice measure.
-NOTE_PROMPT_1 = ("The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.")
-NOTE_PROMPT_2 = ("Is there anything about the coding process you'd like to tell the coding supervisor? For example: a "
-                 "problem you ran into while coding, something in the current rules or categories that doesn't seem "
-                 "reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by "
-                 "the supervisor.")
+NOTE_PROMPT_1 = ("The coding supervisor would like your comments on the coding of batch 1: whether anything in the current coding rules or categories doesn't work well, any problems you ran into while coding the comments, or suggestions for how the coding could be done. Please comment on the coding itself rather than on the studies the comments describe. The supervisor will read what you write.")
+# Note 2 is required since 2026-10-12 (user decision): only 1 of 30 pilot participants attached the
+# optional note, so it could not vary. Everyone is asked again; "nothing to add" stays possible, and
+# the answers are coded afterwards (voice or not, number and quality of issues raised).
+NOTE_PROMPT_2 = ("The coding supervisor would like your comments on the coding of batch 3: whether anything in the "
+                 "current coding rules or categories doesn't work well, any problems you ran into while coding the "
+                 "comments, or suggestions for how the coding could be done. Please comment on the coding itself rather "
+                 "than on the studies the comments describe. If you have nothing to add, you can say so. The supervisor "
+                 "will read what you write.")
 
 # ---------------------------------------------------------------------------------------------
 # Page styling (2026-10-10, user request: one professional look on every page, key facts
@@ -262,7 +266,7 @@ def build(args):
         para("Each comment goes into one of five categories."),
         f"<div style=\"margin:0 0 16px;\">{category_rows}</div>",
         box("<b>Choose one category for each comment.</b>", "key"),
-        para("After batch 1 the coding supervisor will ask for your comments on the batch."),
+        para("After batch 1 and after batch 3 the coding supervisor will ask for your comments on the batch."),
         para("Two practice comments come first."),
         small("Codebook v3.1 &middot; rules set by the coding supervisor"),
     ),
@@ -430,21 +434,23 @@ def build(args):
     )
     tools = tools_html(review_items)
     # The "both choices lead to the same payment" line was removed on 2026-10-12 (user request).
-    note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."), tools),
+    # The attach/finish choice was dropped on 2026-10-12 when note 2 became required; this page now
+    # closes batch 3 and keeps the review tool.
+    note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."), tools,
+                                                    para("On the next page the coding supervisor asks for your comments on batch 3.", last=True)),
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
-    note2_choice = choice("note2_choice", "Batch 3: attach a note, or finish without one?", ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
-    s.block("Note 2 choice", [note2_head] + n2_hidden_choice + [note2_choice, s.timing("t_note2_choice")])
+    s.block("Note 2 choice", [note2_head] + n2_hidden_choice + [s.timing("t_note2_choice")])
     note2_tools = s.text("note2_tools_essay", tools, js=js("js_tools.js", s.service_url), description="Note 2 tools (essay)")
     n2_hidden_essay = [s.hidden_text(f"h_{name}_essay", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
     # The title keeps the lowercase "(batch 3)": js_note_essay.js uses it to tell note 2 from note 1.
     note2 = s.essay("note2", page(
-        eyebrow("Batch 3"),
-        title("Note to the coding supervisor (batch 3)"),
+        eyebrow("Batch 3 complete"),
+        title("The coding supervisor asks for your comments (batch 3)"),
         box(NOTE_PROMPT_2, "info"),
-        small("Your note goes to the coding supervisor with your batch."),
+        small("Your answer goes to the coding supervisor with batch 3."),
     ),
-                    force=False, js=js("js_note_essay.js", s.service_url), height=180)
+                    force=True, js=js("js_note_essay.js", s.service_url), height=180)
     s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2")])
 
     # 10. Questionnaire ---------------------------------------------------------------------
@@ -456,7 +462,7 @@ def build(args):
     # tense about what the participant did after batch 3, when a note could be sent, and everyone
     # answers them: someone who sent nothing can disagree. They come after note 2, so they do not
     # prompt the note 2 decision.
-    after_intro = "Please think about <b>what you did after batch 3</b>, when you could send a note to the coding supervisor. Please indicate how much you agree with each statement."
+    after_intro = "Please think about <b>what you did after batch 3</b>, when the coding supervisor asked for your comments. Please indicate how much you agree with each statement."
     vf = s.likert("VF", scale_intro("After batch 3", after_intro), [
         ("VF1", "I took the initiative to propose specific improvements to the coding process."),
         ("VF2", "I made a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."),
@@ -544,7 +550,7 @@ def build(args):
         s.flow_block("New messages"),
         s.flow_block("Batch 3"),
         s.flow_block("Note 2 choice"),
-        s.flow_branch([s.expr_choice(note2_choice, 1, True, "Note 2: attach")], [s.flow_block("Note 2")], "Note 2 attached"),
+        s.flow_block("Note 2"),
         s.flow_block("Questionnaire"),
         s.flow_branch([s.expr_text(hidden["voice1"], "EqualTo", "1", "voice1")], [s.flow_block("Manipulation checks")], "Voicers: manipulation checks"),
         s.flow_block("Closing"),

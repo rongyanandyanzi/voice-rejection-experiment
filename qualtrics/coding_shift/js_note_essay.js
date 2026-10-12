@@ -31,7 +31,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
   if (nextButton) {
     nextButton.addEventListener("click", function (event) {
       var text = textarea ? textarea.value : "";
-      if (softShown || !text.trim() || words(text) >= 20) return;
+      // No soft check on note 2 (required since 2026-10-12, "nothing to add" allowed): a prompt to
+      // add more would push against the silence the note 2 answer is meant to measure.
+      if (tag === "2" || softShown || !text.trim() || words(text) >= 20) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       softShown = true;
