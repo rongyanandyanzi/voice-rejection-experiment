@@ -2,21 +2,20 @@
 // supervisor reviews. Everyone stops here until a fixed time T: for a note, T after the note was
 // sent (when the reply starts being written); without a note, T after batch 1 was submitted. The
 // same T in every cell; after batch 2 most people have already passed T and move on at once. For a note,
-// the supervisor's reply is polled meanwhile; if it is still not ready at T the page waits at most
-// GRACE_MS longer and then shows the pre-tested fallback for the assigned cell. Nothing is ever
-// shown sooner than T, and nobody is excluded for a slow or failed reply.
+// the supervisor's reply is polled meanwhile, and the page waits for it however late the participant
+// arrives or however long it takes (user decision 2026-10-12: everyone with a note gets the AI reply,
+// never the pre-written one because of time). A failed or lost generation is restarted. Only if the
+// service is down and nothing has come after MAX_WAIT_MS on this page is the pre-tested fallback
+// for the assigned cell shown, so nobody is stuck. Nothing is ever shown sooner than T.
 //
 // Results are written into the hidden text questions on this page (saved with the page, drive the
 // branch logic and piped text), into embedded data, and into sessionStorage for the next page.
 Qualtrics.SurveyEngine.addOnload(function () {
   var SERVICE_URL = "https://YOUR-SERVICE.onrender.com";
   var T_MS = 90000;       // fixed delay after the note was sent (or after batch 1 without a note)
-  var GRACE_MS = 60000;   // extra wait allowed after T for a reply that is still being written
-  // Whenever the page opens, the reply is always looked for for at least this long before a
-  // fallback is used. Without it, a participant who reached this page more than T + GRACE_MS after
-  // the note (slow on the admin tasks and batch 2) got the fallback at once, before a single poll,
-  // although the reply had long been ready (found in a test on 2026-10-12).
-  var MIN_LOOK_MS = 15000;
+  // Safety net only: if the reply service is down, give up after this long on the page and show the
+  // fallback rather than keep the participant here. Generations take 20-80 s, at most ~135 s.
+  var MAX_WAIT_MS = 240000;
   var POLL_MS = 3000;
   var MAX_STARTS = 3;
   // Pre-tested backups, one per cell, used only if the generated reply is not ready in time. They
@@ -164,7 +163,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
     if (now < tAt) { setTimeout(tick, Math.min(1000, tAt - now)); return; }
     if (!hasNote || (reply && reply.status === "ok")) { finish(false); return; }
     if (reply && reply.status === "failed") { finish(true); return; }
-    if (now >= Math.max(tAt + GRACE_MS, openedAt + MIN_LOOK_MS)) { finish(true); return; }
+    // While a slow reply is still being written, say so, so the wait does not look frozen.
+    var label = document.getElementById("cs-wait-status");
+    if (label && now - Math.max(openedAt, tAt) > 20000) label.textContent = "The supervisor is finishing a reply to your note\u2026";
+    if (now >= openedAt + MAX_WAIT_MS) { finish(true); return; }
     setTimeout(tick, 1000);
   }
 

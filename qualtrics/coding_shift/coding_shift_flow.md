@@ -38,8 +38,8 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 9. **Waiting page** (`js_waiting.js`): "Batch 3 is waiting to be issued by the coding supervisor."
    Everyone stays until T = 90 s after the note was sent (without a note, 90 s after batch 1 was
    submitted). Batch 2 takes longer than that for nearly everyone, so the page usually advances at
-   once. A reply is polled meanwhile; if it is not ready at T the page waits at most 60 s more,
-   then the fallback for the cell is used and flagged. The page advances itself. Ten hidden text
+   once. A reply is polled meanwhile, and the page waits for it however long it takes (since
+   2026-10-12: everyone with a note gets the AI reply). Only if the service is down and nothing has come after 4 minutes on the page is the fallback used and flagged. The page advances itself. Ten hidden text
    questions on the page carry the results.
    A note the service's blind check classes as non-voice gets `voice1 = 0` and the text
    "Note received."
