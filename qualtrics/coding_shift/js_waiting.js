@@ -12,13 +12,24 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var SERVICE_URL = "https://YOUR-SERVICE.onrender.com";
   var T_MS = 90000;       // fixed delay after the note was sent (or after batch 1 without a note)
   var GRACE_MS = 60000;   // extra wait allowed after T for a reply that is still being written
+  // Whenever the page opens, the reply is always looked for for at least this long before a
+  // fallback is used. Without it, a participant who reached this page more than T + GRACE_MS after
+  // the note (slow on the admin tasks and batch 2) got the fallback at once, before a single poll,
+  // although the reply had long been ready (found in a test on 2026-10-12).
+  var MIN_LOOK_MS = 15000;
   var POLL_MS = 3000;
   var MAX_STARTS = 3;
+  // Pre-tested backups, one per cell, used only if the generated reply is not ready in time. They
+  // name no comment numbers and assume nothing about what the note proposed, so they fit any note
+  // (rewritten 2026-10-12). Same structure as the generated replies: 14-22 + 36-46 words; HP opens
+  // with greeting, thanks and a hedged refusal, LP with "Got your note." and a bald refusal plus a
+  // flat judgement of the proposal (never the person); HC gives concrete standards and a concrete
+  // condition for looking again, LC vague ones; every cell stays open to the idea coming back.
   var FALLBACK = {
-    HP_HC: ["Hi, thanks for flagging comments 3, 6 and 8 so carefully. I'm afraid I can't add a second category.", "The note doesn't show how often a second problem is really separate, or whether coders would agree on it; without that, a second label may lower agreement. If you could code a hundred comments both ways, I'd gladly look again. Thanks again for raising it."],
-    HP_LC: ["Hi, thank you for writing this up; I can see the care you took. I'm afraid the rule isn't changing.", "A rule change reaches well past one batch, and it touches how the whole project is set up; other things weigh on it too. If something changes, I'd be glad to look at this again. Thanks again for taking the time to raise it."],
-    LP_HC: ["Got your note. I'm not adding a second category. Three comments from one batch don't make a case.", "The note doesn't show how often a second problem is really separate, or whether coders would agree on it; without that, a second label just lowers agreement. Code a hundred comments both ways and bring the comparison back. That's all I have on it."],
-    LP_LC: ["Got your note. I'm not changing the one-category rule. The idea doesn't hold up for this project.", "A rule change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it."]
+    HP_HC: ["Hi, thanks for raising this so carefully; I can see the thought behind it. I'm afraid I can't make this change.", "The note doesn't show how often the problem it describes comes up, or whether two coders would apply the change the same way; without that, it may lower agreement. If you could check it on a hundred comments, I'd gladly look again. Thanks for raising it."],
+    HP_LC: ["Hi, thank you for writing this up; I can see the care you took. I'm afraid I can't make this change.", "A change like this reaches well past one batch, and it touches how the whole project is set up; other things weigh on it too. If something changes, I'd be glad to look at this again. Thanks again for taking the time to raise it."],
+    LP_HC: ["Got your note. I'm not making this change. The case for it doesn't hold up.", "The note doesn't show how often the problem it describes comes up, or whether two coders would apply the change the same way; without that, it just lowers agreement. Check it on a hundred comments and bring the numbers back. That's all I have on it."],
+    LP_LC: ["Got your note. I'm not making this change. The idea doesn't hold up for this project.", "A change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it."]
   };
 
   var question = this;
@@ -153,7 +164,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     if (now < tAt) { setTimeout(tick, Math.min(1000, tAt - now)); return; }
     if (!hasNote || (reply && reply.status === "ok")) { finish(false); return; }
     if (reply && reply.status === "failed") { finish(true); return; }
-    if (now >= tAt + GRACE_MS) { finish(true); return; }
+    if (now >= Math.max(tAt + GRACE_MS, openedAt + MIN_LOOK_MS)) { finish(true); return; }
     setTimeout(tick, 1000);
   }
 
