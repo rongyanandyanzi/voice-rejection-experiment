@@ -263,7 +263,7 @@ def build(args):
         para("Each comment goes into one of five categories."),
         f"<div style=\"margin:0 0 16px;\">{category_rows}</div>",
         box("<b>Choose one category for each comment.</b>", "key"),
-        para("After batch 1 the coding supervisor will ask for your comments on the batch. After the last batch you can attach a note to the supervisor if you want to; that one is optional. Your batches are rated the same either way."),
+        para("After batch 1 the coding supervisor will ask for your comments on the batch. Your batches are rated the same whatever you write."),
         para("Two practice comments come first."),
         small("Codebook v3.1 &middot; rules set by the coding supervisor"),
     ),
