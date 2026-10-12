@@ -921,7 +921,7 @@ const REJECTION_JOB_TTL_MS = 30 * 60 * 1000;
 // page's 300 s window (AI_PIPELINE_TIMEOUT_MS is 135 s).
 const REJECTION_JOB_MAX_ATTEMPTS = Math.max(1, Number(process.env.REJECTION_JOB_MAX_ATTEMPTS || 2));
 const REJECTION_OPENING_REQUEST = {
-  en: "The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: how the coding went for you, whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.",
+  en: "The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.",
   zh: "谢谢。请把你对乐园用工问题的建议发给我，我看完后会回复你。",
 };
 // The survey stores one integer per participant instead of the blind-score object, so nothing

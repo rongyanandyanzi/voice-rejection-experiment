@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-12 15:58:18",
+    "SurveyCreationDate": "2026-10-12 16:30:22",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-12 15:58:18",
+    "LastModified": "2026-10-12 16:30:22",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -2538,7 +2538,7 @@
       "SecondaryAttribute": "Batch 1 complete  The coding supervisor asks for your comments  The coding supervisor would like to ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The coding supervisor asks for your comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: how the coding went for you, whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.</div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your answer goes to the coding supervisor with batch 1.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The coding supervisor asks for your comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.</div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your answer goes to the coding supervisor with batch 1.</p></div>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {

@@ -125,7 +125,7 @@ LINK_CHECK = [
 # Note 1 is required since 2026-10-12 (user decision, after a pilot in which only 4 of 20 wrote an
 # optional note): the supervisor asks every coder for comments on batch 1, so everyone gets a reply.
 # Note 2 stays optional and is the voice measure.
-NOTE_PROMPT_1 = ("The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: how the coding went for you, whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.")
+NOTE_PROMPT_1 = ("The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.")
 NOTE_PROMPT_2 = ("Is there anything about the coding process you'd like to tell the coding supervisor? For example: a "
                  "problem you ran into while coding, something in the current rules or categories that doesn't seem "
                  "reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by "
