@@ -431,8 +431,8 @@ def build(args):
         for text, qid in zip(BATCH3, b3_qids)
     )
     tools = tools_html(review_items)
-    note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."), tools,
-                                                    box("Both choices below lead to the same last few questions and the <b>same payment</b>.", "good")),
+    # The "both choices lead to the same payment" line was removed on 2026-10-12 (user request).
+    note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."), tools),
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
     note2_choice = choice("note2_choice", "Batch 3: attach a note, or finish without one?", ["Attach a note to this batch", "Finish this batch without a note"], js_code=js("js_note_choice.js", s.service_url), randomize=True)
