@@ -122,10 +122,10 @@ LINK_CHECK = [
     ("Reading habits", "The questions about my pension were confusing."),
 ]
 
-NOTE_PROMPT_1 = ("Batch 1 is complete. Before it goes to the coding supervisor, is there anything about the coding process "
-                 "you'd like to tell them? For example: a problem you ran into while coding, something in the current rules "
-                 "or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything "
-                 "you write will be read by the supervisor. This is optional.")
+# Note 1 is required since 2026-10-12 (user decision, after a pilot in which only 4 of 20 wrote an
+# optional note): the supervisor asks every coder for comments on batch 1, so everyone gets a reply.
+# Note 2 stays optional and is the voice measure.
+NOTE_PROMPT_1 = ("The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: how the coding went for you, whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.")
 NOTE_PROMPT_2 = ("Is there anything about the coding process you'd like to tell the coding supervisor? For example: a "
                  "problem you ran into while coding, something in the current rules or categories that doesn't seem "
                  "reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by "
@@ -263,7 +263,7 @@ def build(args):
         para("Each comment goes into one of five categories."),
         f"<div style=\"margin:0 0 16px;\">{category_rows}</div>",
         box("<b>Choose one category for each comment.</b>", "key"),
-        para("After batch 1 and after the last batch you can attach a note to the coding supervisor if you want to. It is optional, and your batch is rated the same either way."),
+        para("After batch 1 the coding supervisor will ask for your comments on the batch. After the last batch you can attach a note to the supervisor if you want to; that one is optional. Your batches are rated the same either way."),
         para("Two practice comments come first."),
         small("Codebook v3.1 &middot; rules set by the coding supervisor"),
     ),
@@ -309,7 +309,7 @@ def build(args):
         eyebrow("Batch 1 of 3"),
         title("Batch 1: eight comments"),
         box("Practice is complete. Batch 1 has <b>eight comments</b>. Choose one category for each. <b>Your labels in this batch count.</b>", "info"),
-        small("After batch 1 you can send a note to the coding supervisor if you want to."),
+        small("After batch 1 the coding supervisor will ask for your comments on the batch."),
     ), description="Batch 1 intro")
     s.block("Batch 1", [b1_intro, "PB"] + b1_elements)
 
@@ -318,12 +318,11 @@ def build(args):
     # on 2026-10-08): an empty box means no note.
     note1 = s.essay("note1", page(
         eyebrow("Batch 1 complete"),
-        title("Note to the coding supervisor"),
+        title("The coding supervisor asks for your comments"),
         box(NOTE_PROMPT_1, "info"),
-        para("If there is nothing you want to tell them, leave the box empty and click Next. Either way leads to the next step and the <b>same payment</b>."),
-        small("Anything you write goes to the coding supervisor with your batch."),
+        small("Your answer goes to the coding supervisor with batch 1."),
     ),
-                    force=False, js=js("js_note_essay.js", s.service_url), height=180)
+                    force=True, js=js("js_note_essay.js", s.service_url), height=180)
     # "What happens next" page straight after note 1 (added 2026-10-11, user request). With a note
     # it says the note is with the supervisor and being reviewed; without one, that batch 1 is being
     # checked. js_interim.js picks the version and starts the reply here, so the extra page does not

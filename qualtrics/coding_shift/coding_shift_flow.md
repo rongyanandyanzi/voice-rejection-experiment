@@ -22,11 +22,12 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    that raises two problems.
 5. **Batch 1**: opens with its own "Batch 1 of 3" page (2026-10-11); eight ordinary end-of-study comments, one per page, five categories each, forced.
    Comments 3, 5, 6 and 8 raise two problems.
-6. **Note 1**: one page for everyone, straight after batch 1 (the separate attach/finish page was
-   dropped on 2026-10-08). The essay box is not forced; an empty box means no note.
-   `js_note_essay.js`: one soft check under 20 words, timing, keystrokes; the text is kept for the
-   interim page. The last batch-1 page carries `js_batch1_anchor.js`, which records when batch 1
-   was submitted; that moment anchors T.
+6. **Note 1** (required since 2026-10-12; in the pilot only 4 of 20 wrote the optional note): the
+   coding supervisor asks every coder for comments on batch 1 - how the coding went, whether anything
+   in the rules or categories does not work, problems met, suggestions. `js_note_essay.js` keeps the
+   soft check under 20 words and the timing. The text is kept for the next page. The last batch-1
+   page carries `js_batch1_anchor.js`. A note the blind check classes as non-voice still gets
+   "Note received." Note 2 stays optional and is the voice measure.
 6b. **What happens next** (added 2026-10-11, `js_interim.js`): with a note, "Your note is with the
    coding supervisor ... is being reviewed"; without, "Batch 1 has been submitted ... is being
    checked". Lists the next steps and starts the reply job here.

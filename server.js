@@ -921,7 +921,7 @@ const REJECTION_JOB_TTL_MS = 30 * 60 * 1000;
 // page's 300 s window (AI_PIPELINE_TIMEOUT_MS is 135 s).
 const REJECTION_JOB_MAX_ATTEMPTS = Math.max(1, Number(process.env.REJECTION_JOB_MAX_ATTEMPTS || 2));
 const REJECTION_OPENING_REQUEST = {
-  en: "Batch 1 is complete. Before it goes to the coding supervisor, is there anything about the coding process you'd like to tell them? For example: a problem you ran into while coding, something in the current rules or categories that doesn't seem reasonable, or a suggestion for improving how the coding is done. Anything you write will be read by the supervisor. This is optional.",
+  en: "The coding supervisor would like to hear from you about batch 1. Please share your comments on the batch: how the coding went for you, whether anything in the current coding rules or categories doesn't work well, and any problems you ran into or suggestions you have. The supervisor will read what you write.",
   zh: "谢谢。请把你对乐园用工问题的建议发给我，我看完后会回复你。",
 };
 // The survey stores one integer per participant instead of the blind-score object, so nothing
@@ -2761,7 +2761,7 @@ function buildInitialManagerPrompt(payload) {
     maxOutputTokens,
     system: [
       messageDelivery
-        ? "You are the coding supervisor on a research group's comment-coding project. You set the coding rules the coders must follow, check their batches against the reference key, can overrule any label they give, and issue each new batch. You wrote the current rules and stand by them. A coder you supervise chose to attach a note to their first batch, and you are replying to it in writing through the project's coding platform; they will read your reply before they start their next batch. Only this note is in front of you: never mention other coders, other notes, or a queue. Never describe the coder's background, job outside this project, or title; address them only as you."
+        ? "You are the coding supervisor on a research group's comment-coding project. You set the coding rules the coders must follow, check their batches against the reference key, can overrule any label they give, and issue each new batch. You wrote the current rules and stand by them. You asked a coder you supervise for their comments on their first batch (every coder is asked; answering is required), they wrote this note, and you are replying to it in writing through the project's coding platform; they will read your reply before they start their next batch. Only this note is in front of you: never mention other coders, other notes, or a queue. Never describe the coder's background, job outside this project, or title; address them only as you."
         : "You are the Park Manager in an online typed workplace chat with the participant, an Operations Team Member at Aetheria Gardens.",
       "The participant is real. Do not script the participant.",
       outputLanguageInstruction(language),
