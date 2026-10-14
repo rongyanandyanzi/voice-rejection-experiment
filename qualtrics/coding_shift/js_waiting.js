@@ -14,8 +14,13 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var SERVICE_URL = "https://YOUR-SERVICE.onrender.com";
   var T_MS = 90000;       // fixed delay after the note was sent (or after batch 1 without a note)
   // Safety net only: if the reply service is down, give up after this long on the page and show the
-  // fallback rather than keep the participant here. Generations take 20-80 s, at most ~135 s.
-  var MAX_WAIT_MS = 240000;
+  // fallback rather than keep the participant here. Generations take 20-95 s; a job whose first attempt
+  // times out can take up to ~280 s.
+  var MAX_WAIT_MS = 300000;  // covers two full generation attempts (2 x 135 s) plus the note check
+  // If the browser cannot reach the service at all (every request fails at the network level, e.g.
+  // a blocked domain), waiting the full MAX_WAIT_MS helps nobody: one participant on 2026-10-13 sat
+  // 240 s on this page and the service logged nothing for them. Give up after this long instead.
+  var UNREACHABLE_MS = 60000;
   var POLL_MS = 3000;
   var MAX_STARTS = 3;
   // Pre-tested backups, one per cell, used only if the generated reply is not ready in time. They
@@ -45,8 +50,17 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var note = stored("cs_note1_text") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData("note1_text") || "");
   var hasNote = Boolean(note.trim());
   var anchor = (hasNote ? Number(stored("cs_note1_submit_ms")) : 0) || Number(stored("cs_batch1_submit_ms")) || openedAt;
-  var requestId = stored("cs_request_id");
+  var responseId = unpiped("${e://Field/ResponseID}");
+  var requestId = stored("cs_request_id") || (/^[A-Za-z0-9_-]{8,128}$/.test(responseId) ? responseId : "");
   var startBody = stored("cs_start_body");
+  // Rebuild the request from the note if the earlier page could not store it, so a lost job can
+  // still be started again from here.
+  if (!startBody && hasNote && requestId) {
+    startBody = JSON.stringify({
+      request_id: requestId, condition: condition, language: "en", proposal: note,
+      prolific_pid: unpiped("${e://Field/PROLIFIC_PID}"), study_id: unpiped("${e://Field/STUDY_ID}"), session_id: unpiped("${e://Field/SESSION_ID}")
+    });
+  }
 
   // Hidden carrier questions on this page, in this order.
   var HIDDEN = {
@@ -74,12 +88,15 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var reply = null;      // {status, msg1, msg2, code, latency, channel, voice}
   var starts = Number(stored("cs_job_started") === "1" ? 1 : 0);
   var done = false;
+  var reached = false;   // any HTTP answer from the service, whatever its status
+  var netErrors = 0;
+  var lastStatus = "";
 
   function startJob() {
     if (!startBody) return Promise.resolve();
     starts += 1;
     return fetch(SERVICE_URL + "/api/rejection/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: startBody })
-      .then(function (response) { return response.json(); }).catch(function () {});
+      .then(function (response) { reached = true; return response.json(); }).catch(function () { netErrors += 1; });
   }
   var polls = 0;
   function poll() {
@@ -88,9 +105,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
     var controller = typeof AbortController === "function" ? new AbortController() : null;
     var timeout = controller ? setTimeout(function () { controller.abort(); }, 8000) : null;
     fetch(SERVICE_URL + "/api/rejection/result?job=" + encodeURIComponent(requestId), { cache: "no-store", signal: controller ? controller.signal : undefined })
-      .then(function (response) { if (timeout) clearTimeout(timeout); return response.json(); })
+      .then(function (response) { if (timeout) clearTimeout(timeout); reached = true; return response.json(); })
       .then(function (data) { try { sessionStorage.setItem("cs_last_poll", polls + ":" + (data && data.status) + ":" + Math.round((Date.now() - openedAt) / 1000)); } catch (error) {} return data; })
       .then(function (data) {
+        lastStatus = String(data && data.status || "");
         if (data.status === "ok") {
           var messages = data.messages || [];
           reply = {
@@ -107,13 +125,13 @@ Qualtrics.SurveyEngine.addOnload(function () {
         if ((data.status === "failed" || data.status === "unknown") && starts < MAX_STARTS) {
           return startJob().then(function () { setTimeout(poll, POLL_MS); });
         }
-        if (data.status === "failed") { reply = { status: "failed" }; return; }
+        if (data.status === "failed") { reply = { status: "failed", reason: "generation_failed" }; return; }
         setTimeout(poll, POLL_MS);
       })
-      .catch(function () { if (timeout) clearTimeout(timeout); setTimeout(poll, POLL_MS); });
+      .catch(function () { if (timeout) clearTimeout(timeout); netErrors += 1; setTimeout(poll, POLL_MS); });
   }
 
-  function finish(useFallback) {
+  function finish(useFallback, reason) {
     if (done) return;
     done = true;
     var now = Date.now();
@@ -129,7 +147,11 @@ Qualtrics.SurveyEngine.addOnload(function () {
       setEd("rejection_status", "fallback");
       setEd("rejection_msg1", pair[0]);
       setEd("rejection_msg2", pair[1]);
-      setEd("rejection_compliance_code", "");
+      // The compliance code is empty for a fallback anyway; it carries why the fallback was used, so
+      // the next case can be traced from the data (embedded data is not being saved).
+      setEd("rejection_compliance_code", "fallback:" + (reason || "unknown") + ";reached=" + (reached ? 1 : 0) +
+        ";polls=" + polls + ";net_errors=" + netErrors + ";starts=" + starts + ";last=" + lastStatus +
+        ";stored_body=" + (stored("cs_start_body") ? 1 : 0) + ";job_started=" + stored("cs_job_started"));
       setEd("rejection_latency_ms", "");
       setEd("politeness_channel", "closing");
       setEd("voice1", "1");
@@ -162,16 +184,17 @@ Qualtrics.SurveyEngine.addOnload(function () {
     var tAt = anchor + T_MS;
     if (now < tAt) { setTimeout(tick, Math.min(1000, tAt - now)); return; }
     if (!hasNote || (reply && reply.status === "ok")) { finish(false); return; }
-    if (reply && reply.status === "failed") { finish(true); return; }
+    if (reply && reply.status === "failed") { finish(true, reply.reason || "failed"); return; }
+    if (!reached && now >= openedAt + UNREACHABLE_MS) { finish(true, "unreachable"); return; }
     // While a slow reply is still being written, say so, so the wait does not look frozen.
     var label = document.getElementById("cs-wait-status");
     if (label && now - Math.max(openedAt, tAt) > 20000) label.textContent = "The supervisor is finishing a reply to your note\u2026";
-    if (now >= openedAt + MAX_WAIT_MS) { finish(true); return; }
+    if (now >= openedAt + MAX_WAIT_MS) { finish(true, "timeout"); return; }
     setTimeout(tick, 1000);
   }
 
   if (hasNote) {
-    if (!requestId) { reply = { status: "failed" }; }
+    if (!requestId) { reply = { status: "failed", reason: "no_request_id" }; }
     else if (starts === 0) { startJob().then(function () { setTimeout(poll, POLL_MS); }); }
     else { setTimeout(poll, 500); }
   }
