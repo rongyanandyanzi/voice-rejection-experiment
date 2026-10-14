@@ -79,8 +79,11 @@ test("message delivery reframes the first rejection as a written reply without c
   assert.doesNotMatch(message.user, /Conversation history/);
   assert.equal(message.minMessages, 2);
   assert.equal(message.maxMessages, 2);
-  assert.deepEqual(message.messageWordRanges, chat.messageWordRanges);
-  assert.deepEqual(message.totalWordTargetRange, chat.totalWordTargetRange);
+  // Written replies get a longer paragraph 1 (18-26 words, 2026-10-14) so the polite opening is
+  // not crammed into one sentence; the chat design keeps 14-22.
+  assert.deepEqual(chat.messageWordRanges, [{ min: 14, max: 22 }, { min: 36, max: 46 }]);
+  assert.deepEqual(message.messageWordRanges, [{ min: 18, max: 26 }, { min: 36, max: 46 }]);
+  assert.deepEqual(message.totalWordTargetRange, { min: 64, max: 66 });
   assert.equal(message.constructivenessAssessmentMode, chat.constructivenessAssessmentMode);
 });
 
@@ -132,7 +135,13 @@ test("written replies carry the full politeness channel set in both paragraphs",
   for (const condition of ["HP_HC", "LP_HC"]) {
     const system = prompt(condition).system;
     assert.match(system, /engage THAT specific idea and its real consequences/);
-    assert.match(system, /This path is the terms of the reopening line/);
+    assert.match(system, /The improvement plan is the terms of the reopening line/);
+    // Since 2026-10-14 the written specific reply pinpoints the weak part of the suggestion and
+    // gives a concrete way to rework it, not a request for analyses.
+    assert.match(system, /Pinpoint the weak part/);
+    assert.match(system, /not a request to run analyses, trials, comparisons, counts, or statistics/);
+    assert.match(system, /Never cite comment numbers/);
+    assert.doesNotMatch(system, /Evidence-based improvement path/);
     assert.doesNotMatch(system, /not yet supported/);
   }
   // The chat design keeps its own low-constructiveness wording untouched.
@@ -228,8 +237,14 @@ test("the written-reply checker counts the assigned moves paragraph by paragraph
   );
   // A polite paragraph 1 without the hedge before the refusal is one move short.
   assert.match(
-    managerConstructivenessAssessmentProblem(scores("HP_LC", [[["thanks", "care"], []], twoAndTwo[1]]), written("HP_LC")),
+    managerConstructivenessAssessmentProblem(scores("HP_LC", [[["thanks", "care"], []], twoAndTwo[1]], { refusal_softened: false }), written("HP_LC")),
     /Paragraph 1 has 2 politeness moves.*hedge leading into the refusal/,
+  );
+  // When the scorer confirms the refusal sentence is softened but does not quote the hedge as a cue
+  // (common since the refusal became its own sentence), the softened refusal is the third move.
+  assert.equal(
+    managerConstructivenessAssessmentProblem(scores("HP_LC", [[["thanks", "care"], []], twoAndTwo[1]]), written("HP_LC")),
+    "",
   );
   // The correction for a thin paragraph 2 names the drawn channel's own pole, not a generic list.
   assert.match(

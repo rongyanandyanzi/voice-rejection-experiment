@@ -2387,8 +2387,11 @@ function supportsReasoningEffort(model) {
 function openAiMaxOutputTokens(prompt) {
   const requested = Number(prompt.maxOutputTokens || 450);
   if (!supportsReasoningEffort(openaiModel)) return requested;
+  // 2500 was raised to 4000 on 2026-10-14: the written high-constructiveness rules (pinpoint the weak
+  // part, plain-language fix) take longer reasoning, and 4 of 19 HP_HC replies came back
+  // "incomplete" at 2500. The ceiling costs nothing when it is not used.
   if (["medium", "high"].includes(String(openaiReasoningEffort).toLowerCase())) {
-    return Math.max(requested, 2500);
+    return Math.max(requested, 4000);
   }
   return Math.max(requested, 1500);
 }
@@ -2606,7 +2609,9 @@ function buildInitialManagerPrompt(payload) {
         : "Reject the proposal for now and split the turn into exactly two chat messages with a natural short-then-long rhythm.",
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
-        : "Produce exactly 2 Manager messages with 60-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions.",
+        : (messageDelivery
+          ? "Produce exactly 2 Manager messages with 64-66 words across the pair. Message 1 should be the opening and decision of 18-26 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions."
+          : "Produce exactly 2 Manager messages with 60-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions."),
       messageDelivery
         ? "Message 1 carries the paragraph-1 channels of the assigned politeness style and the explicit refusal, and nothing else. It should sound like the first thing a supervisor would actually write, not a miniature report."
         : "Message 1 contains the condition-matched interpersonal style, the explicit rejection, and a brief proposal-focused reaction. It should sound like the first thing a manager would actually type, not a miniature report.",
@@ -2645,20 +2650,25 @@ function buildInitialManagerPrompt(payload) {
     // polished paragraphs of identical size. Indexed ranges preserve that rhythm without changing
     // the total amount of condition-bearing content participants receive.
     wordRange = language === "zh" ? null : { min: 14, max: 46 };
+    // Written replies (2026-10-14): paragraph 1 widened from 14-22 to 18-26 words. Squeezed into 22
+    // words, the polite greeting, thanks, recognition and hedged refusal ran together in one
+    // semicolon sentence and read as a quick formula before the "no"; the two participants who
+    // called the supervisor abrupt or dismissive were both in the polite, specific cell. The same
+    // range applies in every cell so length stays matched.
     messageWordRanges = language === "zh"
       ? null
-      : [{ min: 14, max: 22 }, { min: 36, max: 46 }];
+      : (messageDelivery ? [{ min: 18, max: 26 }, { min: 36, max: 46 }] : [{ min: 14, max: 22 }, { min: 36, max: 46 }]);
     // Floor raised from 54 to 58. On the ticket-and-promotion materials the low-constructiveness
     // cells drifted down to the old floor (means 59.5 and 60.7, two replies at 54) while high
     // constructiveness held at 63, a 6.5% spread that breaks the 5% matching gate. Raising only the
     // floor lifts the vague cells; the ceiling is deliberately left at 68 because the earlier
     // attempt to squeeze both ends (56-64) pushed high constructiveness into length failures.
-    totalWordRange = language === "zh" ? null : { min: 58, max: 68 };
+    totalWordRange = language === "zh" ? null : (messageDelivery ? { min: 62, max: 72 } : { min: 58, max: 68 });
     // Target moved up from 58-62: high constructiveness lands at 61-63 against the ceiling while low
     // constructiveness sat at 59-60 against the old target, a 5.5% spread. Raising the target lifts
     // the low-constructiveness cells without touching the ceiling; narrowing the band instead
     // (measured at 56-64) only pushed high constructiveness into length failures.
-    totalWordTargetRange = language === "zh" ? null : { min: 60, max: 62 };
+    totalWordTargetRange = language === "zh" ? null : (messageDelivery ? { min: 64, max: 66 } : { min: 60, max: 62 });
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
   } else if (phase === "rejection_followup") {
@@ -2863,7 +2873,9 @@ function buildInitialManagerPrompt(payload) {
         : "",
       ["rejection_initial", "rejection_followup", "rejection"].includes(phase)
         ? (condition.includes("HC")
-          ? "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. proposal_problem records the proposal-specific evidence gap and consequence. For data compatibility the field remains named relevant_standard, but its value records the concrete proposal-specific relationship, comparison, effect, tradeoff, or uncertainty the analysis must assess, not a labelled or generic standard. revision_path records the specific data and analysis needed to resolve that gap. Do not mention this hidden object in the chat."
+          ? (messageDelivery
+            ? "Also return the hidden constructiveness object. Its three strings must briefly identify what the visible reply actually communicates: proposal_problem is the specific weak part of the coder's suggestion; relevant_standard (field name kept for data compatibility) is what that part would do to the coding; revision_path is the concrete change to the suggestion that would fix it. Do not mention this hidden object in the reply."
+            : "Also return the hidden constructiveness object. Its three strings must briefly identify the proposal_problem, relevant_standard, and revision_path that are actually communicated in the visible Manager text. proposal_problem records the proposal-specific evidence gap and consequence. For data compatibility the field remains named relevant_standard, but its value records the concrete proposal-specific relationship, comparison, effect, tradeoff, or uncertainty the analysis must assess, not a labelled or generic standard. revision_path records the specific data and analysis needed to resolve that gap. Do not mention this hidden object in the chat.")
           : "Also return the hidden constructiveness object with proposal_problem, relevant_standard, and revision_path set to empty strings. The visible LC reply must not communicate any of those elements. Do not mention this hidden object in the chat.")
         : "",
       task,
@@ -3032,6 +3044,30 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
       : "Do not invent facts about the park that the participant has not been given. All they have at this point is roughly 500 visitors on an off-season day, 5,000 at peak, and that labour costs are hard to manage. You are asking for analysis that does not exist yet, not citing figures you already hold.",
     "Focus criticism on the current proposal, not the participant's intelligence, competence, effort, identity, or personal worth.",
   ].filter(Boolean).join("\n");
+  // Written replies get their own high-constructiveness block (2026-10-14). The evidence-gap block
+  // above made specific replies read as homework ("Bring it back with a comparison of one-label
+  // versus dual-label counts and the agreement impact"): in pilots 3 and 4 coders rated them no more
+  // constructive than the vague replies (3.20 vs 3.29). The check items ask whether the reply pointed
+  // out exactly which part of the suggestion could be improved, where the problem lies, and gave a
+  // clear, reasonable improvement plan, so the written block delivers exactly that: one pinpointed
+  // weak part, why it fails in plain coding terms, and a concrete way to rework the suggestion that
+  // a coder could carry out themselves.
+  const writtenHighConstructivenessRules = (highPoliteness) => [
+    "Constructiveness content: high.",
+    "First work out what the coder actually proposed or asked for, and which single part of it is the real obstacle. Start from their note, not from a preset checklist.",
+    "1. Pinpoint the weak part. Name the specific part of their suggestion that does not work as it stands (for example: that the second label has no rule for when it applies; that 'the main one' is left to each coder's feeling; that an example would change what a category covers), so the coder can see exactly where the problem lies. Do not claim something is missing if the note already supplies it.",
+    "2. Say why, concretely. In one plain sentence, say what that part would do to the coding: for instance two coders labelling the same comment differently, percentages that no longer add up to 100, a category quietly changing meaning, or batches no longer being coded the same way. Use ordinary words a coder understands; never use statistical jargon such as 'agreement statistic', 'inter-rater', 'reliability coefficient', or 'label combination scoring'.",
+    "3. Give a clear, reasonable improvement plan: one or two concrete changes to the suggestion itself that would fix that weak part, which the coder could make on their own by rewriting the suggestion, for example narrowing it to a clearly defined kind of comment, adding a one-line rule for when it applies, or adding two worked examples of comments it would cover. It is a way to improve the suggestion, not a request to run analyses, trials, comparisons, counts, or statistics.",
+    highPoliteness
+      ? "The improvement plan is the terms of the reopening line: one conditional or tentative invitation that names the change (if you could narrow it to..., I'd gladly look again at a version that...). Never an unredressed command, and do not give the plan a second time in another sentence."
+      : "The improvement plan is the terms of the reopening line: one bare imperative that names the change (Come back with a version that..., Bring it back with...). No could, would, may, might, perhaps, please, optionality, question, hedge, softener, deference, or invitation, and do not give the plan a second time in another sentence.",
+    "Plain language (2026-10-14: 'recast it as a single label tie break rule for equal two problem comments' was unclear even to the researcher): write the weak part, the reason, and especially the improvement plan as normal sentences a coder with no training in research methods understands on first reading, e.g. 'a simple rule for which problem to choose when a comment raises two equally'. Never stack nouns into compressed jargon such as 'single-label tie-break rule', 'coding unit', 'recognition rule', 'anchors', 'trigger', 'boundary cases', 'equal-weight cases', or 'category-level problems'; say what you mean in everyday words.",
+    "The weak part, the reason, and the improvement plan form one chain: the plan fixes exactly the weak part you named. Stay with that one weak part; do not list several problems or several fixes.",
+    "Never cite comment numbers (comment 3, comments 3, 5, 6 and 8). Describe the kind of comment instead (comments that raise two problems at once).",
+    "Do not invent facts about the project that the coder has not been given. All they have at this point is the five categories, the one-category rule as shown on two practice comments that each raised a single problem (nobody has told them what to do with a comment that raises two), and their own first batch of eight comments, four of which raised two separate problems. Do not cite how many comments have been coded so far, any agreement rate, or any other figure.",
+    "Word all of this freshly from the coder's note each time; every example phrase here is an illustration, never a line to copy. Never announce the weak part with a label such as 'the weak part is', 'the weak point is', 'the weak spot is', or 'the sticking point is'; name it naturally inside the sentence. Fit the improvement plan to what this coder proposed instead of defaulting to the same 'one-line rule plus two examples' every time.",
+    "Focus criticism on the current suggestion, not the coder's intelligence, competence, effort, identity, or personal worth.",
+  ].join("\n");
   // The broad-judgment vocabulary is split by politeness: judgments like "not workable" read as
   // sharp, dismissive moves, so putting them in a warm reply makes high politeness plus low
   // constructiveness internally contradictory (this cell showed an 80% blind-validation failure
@@ -3147,13 +3183,13 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
   const temporalSoftenerBan = "No temporal softener in any paragraph: no " + WRITTEN_TEMPORAL_SOFTENERS.map((phrase) => `'${phrase}'`).join(", ") + ". They imply the decision is temporary, which is a promise about the future rather than face work.";
   const writtenHighPoliteness = [
     "Politeness style: high. You refuse with full redressive face work, using every channel below. The same channels apply whether the content is specific or vague.",
-    "Paragraph 1 (Message 1), in this order:",
+    "Paragraph 1 (Message 1), in this order, written as two or three short, separate sentences rather than one long sentence joined by semicolons: the greeting, thanks and recognition first, then the refusal in a sentence of its own. Never cram them together with a semicolon and 'but'; the reply must not read like a quick formula before the 'no'.",
     "- Salutation warmth: open with a warm one- or two-word greeting such as 'Hi,' or 'Hi there,'. You do not know the coder's name, so never use or invent one.",
     "- Relational acknowledgement: thank them for the note, in your own words and tied to what they actually raised.",
     "- Validation of effort: recognise the care or effort behind the note, specific to it. It may share a sentence with the thanks.",
-    "- Hedge before the refusal: the sentence that refuses is itself led in by an apology, a regretful softener, or a hedge (I'm afraid, I'm sorry, unfortunately), or is depersonalised (the second label can't be signed off). A contrastive word alone, such as but, still, or that said, is not enough, though it may come first. The refusal itself stays explicit.",
+    "- Hedge before the refusal: the refusal is its own sentence, opened by an apology, a regretful softener, or a hedge (I'm sorry, but..., I'm afraid..., unfortunately...), or depersonalised (the second label can't be signed off), and it says plainly and gently what is not going ahead. A contrastive word alone, such as but, still, or that said, is not enough, though it may come first. The refusal itself stays explicit.",
     "Paragraph 2 (Message 2) carries exactly these two politeness moves, in two different clauses:",
-    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one conditional or tentative invitation (if you could..., I'd be glad to look again if...), never a command. In high constructiveness the terms are the concrete remedy; in low constructiveness they stay vague (if something changes) and name nothing concrete.",
+    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one conditional or tentative invitation that sounds genuinely welcoming (if you could..., I'd be really glad to look at it again), never a command. In high constructiveness the terms are the concrete remedy; in low constructiveness they stay vague (if something changes) and name nothing concrete.",
     "- " + drawnChannel.high,
     "The rest of paragraph 2 is the assigned content in plain, courteous sentences, with no further thanks, praise, apology, or hedge.",
     "The four paragraph-1 channels and the two paragraph-2 moves are all required, and no other interpersonal move is added; do not drop one to save words. When words are short, cut content filler, never face work.",
@@ -3167,7 +3203,7 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
     "Politeness style: low. You refuse bald on record, with no redressive face work of any kind, and the reply threatens the proposal's face coldly. The same channels apply whether the content is specific or vague.",
     "Paragraph 1 (Message 1), in this order:",
     "- No salutation. Open with a curt, cold acknowledgement that the note arrived, such as 'Got your note.', worded freshly. No thanks and no recognition of effort.",
-    "- Bald refusal: refuse in your own first-person voice with nothing before or around it (I'm not approving..., I won't add...). No hedge, apology, regret, or depersonalisation.",
+    "- Bald refusal: refuse in your own first-person voice with nothing before or around it (I'm not approving..., I won't add...), naming flatly what the coder proposed so the paragraph has the same length as a polite one. No hedge, apology, regret, or depersonalisation.",
     "- One flat sharp judgement of the proposal, stated plainly and left there: too thin, no basis, a guess, doesn't hold up. No metaphors, quips, wordplay, or rhetorical questions; the coldness is in saying it flatly.",
     "Paragraph 2 (Message 2) carries exactly these two moves, in two different clauses. They are the low-politeness poles of the same two channels a high-politeness reply uses:",
     "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one bare imperative (Come back with..., Bring it back when..., Don't bring it back until...), never tentative, optional, or a question. The door is as open as in a polite reply; only the tone is cold. In high constructiveness the terms are the concrete remedy; in low constructiveness they stay vague (bring it back if something changes) and name nothing concrete.",
@@ -3186,7 +3222,7 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
     HP_HC: [
       "Condition: high politeness plus high constructiveness.",
       highPolitenessStyle,
-      highConstructivenessRules(true),
+      (writtenReply ? writtenHighConstructivenessRules : highConstructivenessRules)(true),
       "Keep the substantive problem, decision consideration, and revision path equivalent to LP_HC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
     ].join("\n"),
@@ -3200,7 +3236,7 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
     LP_HC: [
       "Condition: low politeness plus high constructiveness.",
       lowPolitenessStyle,
-      highConstructivenessRules(false),
+      (writtenReply ? writtenHighConstructivenessRules : highConstructivenessRules)(false),
       "Keep the substantive problem, decision consideration, and revision path equivalent to HP_HC; only the interpersonal wording should differ.",
       "Keep length comparable to every other condition.",
     ].join("\n"),
@@ -4256,12 +4292,16 @@ function managerConstructivenessMetadataProblem(metadata, prompt) {
     ? [
         "Constructiveness structure correction required.",
         "This is a high-constructiveness rejection. Return non-empty hidden strings for proposal_problem, relevant_standard, and revision_path, and communicate all three meanings in the visible Manager reply.",
-        highPoliteness
+        isWrittenRejectionPrompt(prompt)
+          ? `The visible reply must pinpoint the specific weak part of the coder's suggestion, say concretely what that part would do to the coding, and give one concrete change to the suggestion that would fix it inside the reopening line, ${highPoliteness ? "as a conditional or tentative invitation" : "as one bare imperative with no hedge, softener, deference, or other redress"}. No requests for analyses, comparisons, counts, or statistics, and no comment numbers.`
+          : highPoliteness
           ? "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and phrase the evidence-based remedy as a condition for reconsideration rather than a command."
           : (isWrittenRejectionPrompt(prompt)
             ? "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and give the evidence-based remedy inside the reopening line as one bare imperative with no hedge, softener, deference, or other redress."
             : "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and state the evidence-based remedy directly with no hedge, softener, deference, or other redress as a complete subject-led sentence. Vary its natural form with the proposal rather than forcing one template, and do not use a bare command."),
-        "The revision path must name the concrete measures, observations, records, comparisons, or trial results that should be analyzed for this participant's actual proposal. A generic request for more data or more analysis is not sufficient.",
+        isWrittenRejectionPrompt(prompt)
+          ? "The revision path must name a concrete change to this coder's actual suggestion (narrowing it, a one-line rule for when it applies, worked examples). 'Bring a stronger version' or 'think it through' is not sufficient."
+          : "The revision path must name the concrete measures, observations, records, comparisons, or trial results that should be analyzed for this participant's actual proposal. A generic request for more data or more analysis is not sufficient.",
         "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
       ].join(" ")
     : [
@@ -4364,6 +4404,10 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
           isWrittenRejectionPrompt(prompt)
             ? [
               "This reply is a written note, and the following overrides anything above that conflicts with it.",
+              "specific_problem (written note): true when the reply pinpoints a specific part of this coder's actual suggestion that does not work as it stands and says concretely what that part would do to the coding (for example coders labelling the same comment differently, percentages over 100, a category changing meaning, batches no longer coded the same way). It need not be framed as missing evidence. Naming only the topic, a generic objection, or 'it touches how the project is set up' is false.",
+              "explicit_standard (written note): true when the reply explains concretely why that effect on the coding matters for this decision. 'Other things weigh on it' or 'it reaches past one batch' is false.",
+              "actionable_remedy (written note): true when the reply names one or two concrete changes to the suggestion itself that would fix the weak part it identified (narrowing it to a defined kind of comment, a one-line rule for when it applies, worked examples of comments it would cover), or concrete records or comparisons that would address it. 'Bring it back if something changes', 'a stronger version', or 'think it through' is false.",
+              "concrete_reopening_condition (written note): true when the line about bringing the suggestion back names that concrete change, record, or comparison.",
               "The line that says the proposal may be brought back or looked at again always counts exactly once: in politeness_cues when it is tentative or optional ('if you could...', 'I'd be glad to look again if...'), otherwise in face_threat_cues, whether it is a bare imperative ('Come back with...', 'Bring it back if something changes', 'Don't bring it back until...') or a flat requirement. The words if, when, once, or until do not make that line polite.",
               "politeness_cues also includes: a tentative hedge on a judgement ('I'm not sure...', 'I suspect...'), deference to the participant's view, and a warm closing that thanks them again or wishes them well. An offer to look again and a warm closing are two separate cues. A bare greeting such as 'Hi' is not a cue by itself.",
               "face_threat_cues also includes: a curt dismissive sign-off about the matter ('That's all I have on it.') and a flat claim of the manager's own experience or expertise (I've run this scheme across many studies). A curt acknowledgement of receipt such as 'Got your note.' is neither kind of cue. A neutral, specific statement of which evidence is missing and what deciding without it would cause is diagnosis, not a face-threat cue; count it only when it is phrased as a dismissive verdict (too thin, a guess, no basis).",
@@ -4659,7 +4703,16 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
   const writtenCueRanges = highPoliteness
     ? [{ min: 3, max: 5 }, { min: 2, max: 3 }]
     : [{ min: 1, max: 2 }, { min: 1, max: 3 }];
-  const writtenCueRangeFor = (index) => writtenCueRanges[Math.min(index, writtenCueRanges.length - 1)];
+  // Since paragraph 1 became separate sentences (2026-10-14) the scorer often quotes the thanks and
+  // the recognition but not the "I'm afraid" that opens the refusal sentence, while confirming in
+  // refusal_softened that the refusal is softened (4 of 19 HP_HC replies failed on this). The
+  // softened refusal is checked on its own below, so it counts as the third paragraph-1 move.
+  const writtenCueRangeFor = (index) => {
+    const range = writtenCueRanges[Math.min(index, writtenCueRanges.length - 1)];
+    return highPoliteness && index === 0 && scores.refusal_softened === true
+      ? { min: range.min - 1, max: range.max }
+      : range;
+  };
   const drawnParagraphTwoChannel = PARAGRAPH_TWO_CHANNELS[prompt.politenessChannel] || null;
   const interpersonalCueValid = perMessageShapeValid && messageScores.every((messageScore, messageIndex) => {
     const writtenCueRange = writtenCueRangeFor(messageIndex);
@@ -4721,11 +4774,15 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
   if (!constructivenessValid) {
     if (isClosing) {
       corrections.push(highConstructiveness
-        ? "Make the future invitation name the same concrete proposal-specific data or analysis condition that would need to be met before reconsideration."
+        ? (isWrittenRejectionPrompt(prompt)
+          ? "Make the future invitation name the same concrete change to the coder's suggestion that would fix the weak part."
+          : "Make the future invitation name the same concrete proposal-specific data or analysis condition that would need to be met before reconsideration.")
         : "Keep the future invitation vague and general. Remove every specific problem, consequence, standard, evidence type, missing element, concrete change, and actionable remedy.");
     } else {
       corrections.push(highConstructiveness
-        ? `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific evidence gap and the consequence of deciding without it, the concrete relationship, comparison, effect, tradeoff, constraint, or trial result the analysis must assess, and one specific data-analysis path ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}. Do not merely say the proposal needs more data or label a generic standard.`
+        ? (isWrittenRejectionPrompt(prompt)
+          ? `Regenerate the visible reply so it clearly communicates all three required components: the specific weak part of the coder's suggestion, what that part would do to the coding in plain words, and one concrete change to the suggestion that would fix it ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}. No requests for analyses, comparisons, counts, or statistics, and no comment numbers.`
+          : `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific evidence gap and the consequence of deciding without it, the concrete relationship, comparison, effect, tradeoff, constraint, or trial result the analysis must assess, and one specific data-analysis path ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}. Do not merely say the proposal needs more data or label a generic standard.`)
         : "Regenerate the visible reply as deliberately vague and unhelpful. Remove all specific problems and consequences, standards, evidence or information requirements, concrete missing elements, and actionable remedies.");
     }
   }
