@@ -12,7 +12,9 @@
 // branch logic and piped text), into embedded data, and into sessionStorage for the next page.
 Qualtrics.SurveyEngine.addOnload(function () {
   var SERVICE_URL = "https://YOUR-SERVICE.onrender.com";
-  var T_MS = 90000;       // fixed delay after the note was sent (or after batch 1 without a note)
+  // 90 s until 2026-10-19; lowered to 60 s when the admin tasks were dropped from the flow, so that
+  // batch 2 alone (median 46 s) covers most of the hold and few people see this page for long.
+  var T_MS = 60000;       // fixed delay after the note was sent (or after batch 1 without a note)
   // Safety net only: if the reply service is down, give up after this long on the page and show the
   // fallback rather than keep the participant here. Generations take 20-95 s; a job whose first attempt
   // times out can take up to ~280 s.
