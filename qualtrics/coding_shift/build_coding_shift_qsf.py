@@ -331,7 +331,6 @@ def build(args):
     # checked. js_interim.js picks the version and starts the reply here, so the extra page does not
     # delay it.
     next_steps = items(
-        "Two short admin tasks.",
         "Batch 2: five comments, while the supervisor reviews batch 1.",
         "Messages from the coding supervisor, then batch 3, the last batch.",
     )
@@ -544,7 +543,9 @@ def build(args):
         s.flow_block("Training"),
         s.flow_block("Batch 1"),
         s.flow_block("Note 1"),
-        s.flow_block("Interim tasks"),
+        # Admin tasks dropped from the flow on 2026-10-19 (user decision): batch 2 alone covers the
+        # reply time. The block is kept; in the live survey it sits in the never-true old note-2
+        # branch, so it is hidden, not deleted.
         s.flow_block("Batch 2"),
         s.flow_block("Waiting page"),
         s.flow_block("New messages"),

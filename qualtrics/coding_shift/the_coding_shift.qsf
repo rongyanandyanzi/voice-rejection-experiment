@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-14 15:34:48",
+    "SurveyCreationDate": "2026-10-19 10:23:46",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-14 15:34:48",
+    "LastModified": "2026-10-19 10:23:46",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -1076,55 +1076,49 @@
           },
           {
             "Type": "Standard",
-            "ID": "BL_333e4a6d648554e",
+            "ID": "BL_1469a73378606a7",
             "FlowID": "FL_14",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_1469a73378606a7",
+            "ID": "BL_999f2b8af2ea3ef",
             "FlowID": "FL_15",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_999f2b8af2ea3ef",
+            "ID": "BL_944444319f6b285",
             "FlowID": "FL_16",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_944444319f6b285",
+            "ID": "BL_1fcdbe8de7a4b8f",
             "FlowID": "FL_17",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_1fcdbe8de7a4b8f",
+            "ID": "BL_ad0f3f202c23be6",
             "FlowID": "FL_18",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_ad0f3f202c23be6",
+            "ID": "BL_f2724f359edbc7a",
             "FlowID": "FL_19",
             "Autofill": []
           },
           {
             "Type": "Standard",
-            "ID": "BL_f2724f359edbc7a",
+            "ID": "BL_dfeea13a896de41",
             "FlowID": "FL_20",
             "Autofill": []
           },
           {
-            "Type": "Standard",
-            "ID": "BL_dfeea13a896de41",
-            "FlowID": "FL_21",
-            "Autofill": []
-          },
-          {
             "Type": "Branch",
-            "FlowID": "FL_23",
+            "FlowID": "FL_22",
             "Description": "Voicers: manipulation checks",
             "BranchLogic": {
               "0": {
@@ -1148,7 +1142,7 @@
               {
                 "Type": "Standard",
                 "ID": "BL_b024cf1c9e5431e",
-                "FlowID": "FL_22",
+                "FlowID": "FL_21",
                 "Autofill": []
               }
             ]
@@ -1156,12 +1150,12 @@
           {
             "Type": "Standard",
             "ID": "BL_1144ae72ecab992",
-            "FlowID": "FL_24",
+            "FlowID": "FL_23",
             "Autofill": []
           },
           {
             "Type": "EndSurvey",
-            "FlowID": "FL_25",
+            "FlowID": "FL_24",
             "EndingType": "Advanced",
             "Options": {
               "Advanced": "true",
@@ -1171,7 +1165,7 @@
           }
         ],
         "Properties": {
-          "Count": 25
+          "Count": 24
         },
         "FlowID": "FL_1",
         "Type": "Root"
@@ -2544,7 +2538,7 @@
       "SecondaryAttribute": "After note 1: what happens next",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 submitted</p><div id=\"cs-next-note\" style=\"display:none\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your note is with the coding supervisor</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Your note has been sent to the coding supervisor together with batch 1 and <b>is being reviewed</b>. The supervisor&rsquo;s reply will come with the batch 1 results.</div></div><div id=\"cs-next-no-note\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1 has been submitted</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Batch 1 has been sent to the coding supervisor and <b>is being checked</b> against the reference key.</div></div><p style=\"margin:0 0 6px;font-weight:600;color:#1f2933;\">What happens next</p><ul style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px;\">Two short admin tasks.</li><li style=\"margin:0 0 4px;\">Batch 2: five comments, while the supervisor reviews batch 1.</li><li style=\"margin:0 0 4px;\">Messages from the coding supervisor, then batch 3, the last batch.</li></ul></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 submitted</p><div id=\"cs-next-note\" style=\"display:none\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your note is with the coding supervisor</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Your note has been sent to the coding supervisor together with batch 1 and <b>is being reviewed</b>. The supervisor&rsquo;s reply will come with the batch 1 results.</div></div><div id=\"cs-next-no-note\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1 has been submitted</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Batch 1 has been sent to the coding supervisor and <b>is being checked</b> against the reference key.</div></div><p style=\"margin:0 0 6px;font-weight:600;color:#1f2933;\">What happens next</p><ul style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px;\">Batch 2: five comments, while the supervisor reviews batch 1.</li><li style=\"margin:0 0 4px;\">Messages from the coding supervisor, then batch 3, the last batch.</li></ul></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
