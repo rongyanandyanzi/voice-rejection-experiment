@@ -19,6 +19,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
   // fallback rather than keep the participant here. Generations take 20-95 s; a job whose first attempt
   // times out can take up to ~280 s.
   var MAX_WAIT_MS = 300000;  // covers two full generation attempts (2 x 135 s) plus the note check
+  // The page is shown for at least this long even when the reply is already there (user decision
+  // 2026-10-19): in the pilots it flashed past in 1-2 s, which made batch 3 look like just the next
+  // page rather than something issued by the supervisor.
+  var MIN_PAGE_MS = 10000;
   // If the browser cannot reach the service at all (every request fails at the network level, e.g.
   // a blocked domain), waiting the full MAX_WAIT_MS helps nobody: one participant on 2026-10-13 sat
   // 240 s on this page and the service logged nothing for them. Give up after this long instead.
@@ -185,6 +189,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     var now = Date.now();
     var tAt = anchor + T_MS;
     if (now < tAt) { setTimeout(tick, Math.min(1000, tAt - now)); return; }
+    if (now < openedAt + MIN_PAGE_MS) { setTimeout(tick, Math.min(1000, openedAt + MIN_PAGE_MS - now)); return; }
     if (!hasNote || (reply && reply.status === "ok")) { finish(false); return; }
     if (reply && reply.status === "failed") { finish(true, reply.reason || "failed"); return; }
     if (!reached && now >= openedAt + UNREACHABLE_MS) { finish(true, "unreachable"); return; }

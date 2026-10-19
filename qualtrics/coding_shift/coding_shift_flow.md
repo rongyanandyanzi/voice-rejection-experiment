@@ -39,7 +39,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    Comments 2, 4 and 5 raise two problems, so the one-category tension stays live up to the reply.
    This fills the wait with work instead of a blank page.
 9. **Waiting page** (`js_waiting.js`): "Batch 3 is waiting to be issued by the coding supervisor."
-   Everyone stays until T = 60 s after the note was sent (90 s until 2026-10-19; without a note, 60 s after batch 1 was
+   Everyone stays at least 10 s on this page (since 2026-10-19) and until T = 60 s after the note was sent (90 s until 2026-10-19; without a note, 60 s after batch 1 was
    submitted). Batch 2 takes longer than that for nearly everyone, so the page usually advances at
    once. A reply is polled meanwhile, and the page waits for it however long it takes (since
    2026-10-12: everyone with a note gets the AI reply). Only if the service is down and nothing has come after 4 minutes on the page is the fallback used and flagged. The page advances itself. Ten hidden text
