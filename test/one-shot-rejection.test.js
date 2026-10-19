@@ -135,11 +135,13 @@ test("written replies carry the full politeness channel set in both paragraphs",
   for (const condition of ["HP_HC", "LP_HC"]) {
     const system = prompt(condition).system;
     assert.match(system, /engage THAT specific idea and its real consequences/);
-    assert.match(system, /The improvement plan is the terms of the reopening line/);
-    // Since 2026-10-14 the written specific reply pinpoints the weak part of the suggestion and
-    // gives a concrete way to rework it, not a request for analyses.
+    assert.match(system, /The terms for looking again go in the reopening line/);
+    // Since 2026-10-19 the written specific reply pinpoints the weak part, says why the rule is
+    // kept (counts and coder agreement) and asks for a count of affected comments, not analyses.
     assert.match(system, /Pinpoint the weak part/);
-    assert.match(system, /not a request to run analyses, trials, comparisons, counts, or statistics/);
+    assert.match(system, /checks how often two coders give a comment the same label/);
+    assert.match(system, /come back with how many of the comments they coded were affected/);
+    assert.match(system, /never a request to run an analysis, trial, agreement comparison, or statistics/);
     assert.match(system, /Never cite comment numbers/);
     assert.doesNotMatch(system, /Evidence-based improvement path/);
     assert.doesNotMatch(system, /not yet supported/);
