@@ -110,7 +110,7 @@ test("written replies carry the full politeness channel set in both paragraphs",
     assert.match(system, /No salutation\. Open with a curt, cold acknowledgement/);
     assert.match(system, /Bald refusal: refuse in your own first-person voice/);
     assert.match(system, /low-politeness poles of the same two channels a high-politeness reply uses/);
-    assert.match(system, /Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one bare imperative \(Come back with\.\.\., Bring it back when\.\.\., Don't bring it back until\.\.\.\)/);
+    assert.match(system, /Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to looking at the proposal again and says on what terms, in one bare imperative or flat requirement/);
     assert.match(system, /State the refusal once, in paragraph 1\. Paragraph 2 never says no again/);
     assert.match(system, /The door is as open as in a polite reply; only the tone is cold/);
     assert.match(system, /The edge goes to the idea, never to the person/);
@@ -140,7 +140,8 @@ test("written replies carry the full politeness channel set in both paragraphs",
     // kept (counts and coder agreement) and asks for a count of affected comments, not analyses.
     assert.match(system, /Pinpoint the weak part/);
     assert.match(system, /checks how often two coders give a comment the same label/);
-    assert.match(system, /come back with how many of the comments they coded were affected/);
+    assert.match(system, /needs numbers behind it, how many of the comments they coded were affected/);
+    assert.match(system, /Never tell them to 'come back with'/);
     assert.match(system, /never a request to run an analysis, trial, agreement comparison, or statistics/);
     assert.match(system, /Never cite comment numbers/);
     assert.doesNotMatch(system, /Evidence-based improvement path/);
