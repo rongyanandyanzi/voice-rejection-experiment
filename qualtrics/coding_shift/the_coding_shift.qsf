@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-19 22:49:10",
+    "SurveyCreationDate": "2026-10-20 19:36:43",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-19 22:49:10",
+    "LastModified": "2026-10-20 19:36:43",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -1344,7 +1344,7 @@
       "SecondaryAttribute": "Training: rules",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Training</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your job and the coding rules</p><p style=\"margin:0 0 12px;line-height:1.6;\">Each comment goes into one of five categories.</p><div style=\"margin:0 0 16px;\"><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">TECH</span><span><b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">WORDING</span><span><b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">LENGTH</span><span><b>Length, pace or repetition.</b> How long, how fast, how repetitive or how demanding the study was.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">PAYMENT</span><span><b>Payment or stated time.</b> The fee, the bonus, or whether the time in the listing was accurate.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">CONTENT</span><span><b>Reaction to the subject matter.</b> Interest, discomfort, disagreement, or wanting to explain an answer.</span></div></div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>Choose one category for each comment.</b></div><p style=\"margin:0 0 12px;line-height:1.6;\">After batch 1 and after batch 3 the coding supervisor will ask for your comments on the batch.</p><p style=\"margin:0 0 12px;line-height:1.6;\">Two practice comments come first.</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Codebook v3.1 &middot; rules set by the coding supervisor</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Training</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your job and the coding rules</p><p style=\"margin:0 0 12px;line-height:1.6;\">Each comment goes into one of five categories.</p><div style=\"margin:0 0 16px;\"><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">TECH</span><span><b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">WORDING</span><span><b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">LENGTH</span><span><b>Length or pace.</b> How long the study took, including taking longer than the time advertised, or how slow or drawn-out it felt.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">PAYMENT</span><span><b>Payment or bonus.</b> The fee, the bonus, or when it is paid.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">CONTENT</span><span><b>Question content.</b> What the questions asked about: a topic or question that was too personal, inappropriate, one-sided, or did not apply to the person.</span></div></div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>Choose one category for each comment.</b></div><p style=\"margin:0 0 12px;line-height:1.6;\">After batch 1 and after batch 3 the coding supervisor will ask for your comments on the batch.</p><p style=\"margin:0 0 12px;line-height:1.6;\">Two practice comments come first.</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Codebook v3.1 &middot; rules set by the coding supervisor</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -1389,13 +1389,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -1477,13 +1477,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -1616,13 +1616,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -1725,13 +1725,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -1834,13 +1834,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -1925,10 +1925,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID15",
-      "SecondaryAttribute": "Batch 1 &middot; comment 4 of 8  Interesting study, made me think about my own habits.  Which catego",
+      "SecondaryAttribute": "Batch 1 &middot; comment 4 of 8  A couple of the questions assumed I have children, which I don't.  ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 4 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Interesting study, made me think about my own habits.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 4 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">A couple of the questions assumed I have children, which I don't.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1943,13 +1943,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -1970,7 +1970,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID15",
         "DataExportTag": "b1_4",
-        "QuestionDescription": "Batch 1 &middot; comment 4 of 8  Interesting study, made me think about my own habits.  Which catego",
+        "QuestionDescription": "Batch 1 &middot; comment 4 of 8  A couple of the questions assumed I have children, which I don't.  ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2034,10 +2034,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID17",
-      "SecondaryAttribute": "Batch 1 &middot; comment 5 of 8  Lots of questions asking basically the same thing, and I'm still no",
+      "SecondaryAttribute": "Batch 1 &middot; comment 5 of 8  It took far longer than it said it would, and I'm still not sure wh",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Lots of questions asking basically the same thing, and I'm still not sure when I'll get paid.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">It took far longer than it said it would, and I'm still not sure when I'll get paid.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2052,13 +2052,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -2079,7 +2079,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID17",
         "DataExportTag": "b1_5",
-        "QuestionDescription": "Batch 1 &middot; comment 5 of 8  Lots of questions asking basically the same thing, and I'm still no",
+        "QuestionDescription": "Batch 1 &middot; comment 5 of 8  It took far longer than it said it would, and I'm still not sure wh",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2143,10 +2143,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID19",
-      "SecondaryAttribute": "Batch 1 &middot; comment 6 of 8  Some questions were a bit vague so I wasn't sure what to put, and i",
+      "SecondaryAttribute": "Batch 1 &middot; comment 6 of 8  Some questions were a bit vague so I wasn't sure what to put, and t",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Some questions were a bit vague so I wasn't sure what to put, and it got really repetitive near the end.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Some questions were a bit vague so I wasn't sure what to put, and the second half felt endless.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2161,13 +2161,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -2188,7 +2188,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID19",
         "DataExportTag": "b1_6",
-        "QuestionDescription": "Batch 1 &middot; comment 6 of 8  Some questions were a bit vague so I wasn't sure what to put, and i",
+        "QuestionDescription": "Batch 1 &middot; comment 6 of 8  Some questions were a bit vague so I wasn't sure what to put, and t",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2270,13 +2270,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -2379,13 +2379,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -3169,13 +3169,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -3263,7 +3263,7 @@
       "SecondaryAttribute": "Batch 2 &middot; comment 2 of 5  The instructions for the sorting task were hard to follow, and the ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 2 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The instructions for the sorting task were hard to follow, and the timer cut me off before I'd finished.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 2 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The instructions for the sorting task were hard to follow, and the bonus is lower than the listing said.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3278,13 +3278,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -3369,10 +3369,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID45",
-      "SecondaryAttribute": "Batch 2 &middot; comment 3 of 5  Really enjoyed the questions about music, it was a fun topic.  Whic",
+      "SecondaryAttribute": "Batch 2 &middot; comment 3 of 5  The questions about drinking assumed everyone drinks, which doesn't",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 3 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Really enjoyed the questions about music, it was a fun topic.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 3 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The questions about drinking assumed everyone drinks, which doesn't apply to me.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3387,13 +3387,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -3414,7 +3414,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID45",
         "DataExportTag": "b2_3",
-        "QuestionDescription": "Batch 2 &middot; comment 3 of 5  Really enjoyed the questions about music, it was a fun topic.  Whic",
+        "QuestionDescription": "Batch 2 &middot; comment 3 of 5  The questions about drinking assumed everyone drinks, which doesn't",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3496,13 +3496,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -3605,13 +3605,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4218,13 +4218,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4309,10 +4309,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID68",
-      "SecondaryAttribute": "Batch 3 &middot; comment 2 of 8  The rating scale labels were the wrong way round compared to the ea",
+      "SecondaryAttribute": "Batch 3 &middot; comment 2 of 8  I couldn't tell whether \"often\" meant every day or every week, and ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 2 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The rating scale labels were the wrong way round compared to the earlier pages.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 2 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4327,13 +4327,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4354,7 +4354,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID68",
         "DataExportTag": "b3_2",
-        "QuestionDescription": "Batch 3 &middot; comment 2 of 8  The rating scale labels were the wrong way round compared to the ea",
+        "QuestionDescription": "Batch 3 &middot; comment 2 of 8  I couldn't tell whether \"often\" meant every day or every week, and ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4436,13 +4436,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4545,13 +4545,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4636,10 +4636,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID74",
-      "SecondaryAttribute": "Batch 3 &middot; comment 5 of 8  The questions about my family were quite personal.  Which category ",
+      "SecondaryAttribute": "Batch 3 &middot; comment 5 of 8  The questions about my family were quite personal, and the bonus st",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The questions about my family were quite personal.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The questions about my family were quite personal, and the bonus still hasn't shown up.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4654,13 +4654,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4681,7 +4681,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID74",
         "DataExportTag": "b3_5",
-        "QuestionDescription": "Batch 3 &middot; comment 5 of 8  The questions about my family were quite personal.  Which category ",
+        "QuestionDescription": "Batch 3 &middot; comment 5 of 8  The questions about my family were quite personal, and the bonus st",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4745,10 +4745,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID76",
-      "SecondaryAttribute": "Batch 3 &middot; comment 6 of 8  Is there a follow-up study I can sign up for?  Which category does ",
+      "SecondaryAttribute": "Batch 3 &middot; comment 6 of 8  The video wouldn't play at all, and one of the questions had two \"a",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Is there a follow-up study I can sign up for?</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4763,13 +4763,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4790,7 +4790,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID76",
         "DataExportTag": "b3_6",
-        "QuestionDescription": "Batch 3 &middot; comment 6 of 8  Is there a follow-up study I can sign up for?  Which category does ",
+        "QuestionDescription": "Batch 3 &middot; comment 6 of 8  The video wouldn't play at all, and one of the questions had two \"a",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4854,10 +4854,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID78",
-      "SecondaryAttribute": "Batch 3 &middot; comment 7 of 8  The payment arrived quicker than usual, thanks.  Which category doe",
+      "SecondaryAttribute": "Batch 3 &middot; comment 7 of 8  Fascinating topic, I'd never thought about it before.  Which catego",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 7 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The payment arrived quicker than usual, thanks.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 7 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Fascinating topic, I'd never thought about it before.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4872,13 +4872,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -4899,7 +4899,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID78",
         "DataExportTag": "b3_7",
-        "QuestionDescription": "Batch 3 &middot; comment 7 of 8  The payment arrived quicker than usual, thanks.  Which category doe",
+        "QuestionDescription": "Batch 3 &middot; comment 7 of 8  Fascinating topic, I'd never thought about it before.  Which catego",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4963,10 +4963,10 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID80",
-      "SecondaryAttribute": "Batch 3 &middot; comment 8 of 8  Please could you send me a summary of what you found.  Which catego",
+      "SecondaryAttribute": "Batch 3 &middot; comment 8 of 8  Some of the questions felt a bit judgemental about how I spend my m",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 8 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Please could you send me a summary of what you found.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 8 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.</p><p>Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4981,13 +4981,13 @@
             "Display": "<b>WORDING</b> &middot; Unclear instruction or question"
           },
           "3": {
-            "Display": "<b>LENGTH</b> &middot; Length, pace or repetition"
+            "Display": "<b>LENGTH</b> &middot; Length or pace"
           },
           "4": {
-            "Display": "<b>PAYMENT</b> &middot; Payment or stated time"
+            "Display": "<b>PAYMENT</b> &middot; Payment or bonus"
           },
           "5": {
-            "Display": "<b>CONTENT</b> &middot; Reaction to the subject matter"
+            "Display": "<b>CONTENT</b> &middot; Question content"
           }
         },
         "ChoiceOrder": [
@@ -5008,7 +5008,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID80",
         "DataExportTag": "b3_8",
-        "QuestionDescription": "Batch 3 &middot; comment 8 of 8  Please could you send me a summary of what you found.  Which catego",
+        "QuestionDescription": "Batch 3 &middot; comment 8 of 8  Some of the questions felt a bit judgemental about how I spend my m",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5075,7 +5075,7 @@
       "SecondaryAttribute": "Note 2 tools",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 3 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 3 complete.</p><div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID66/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID68/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID70/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID72/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID74/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID76/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID78/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID80/ChoiceGroup/SelectedChoices}</span></li></ol></div></div><p style=\"margin:0 0 0px;line-height:1.6;\">On the next page the coding supervisor asks for your comments on batch 3.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 3 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 3 complete.</p><div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID66/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID68/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID70/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID72/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal, and the bonus still hasn't shown up. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID74/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID76/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Fascinating topic, I'd never thought about it before. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID78/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID80/ChoiceGroup/SelectedChoices}</span></li></ol></div></div><p style=\"margin:0 0 0px;line-height:1.6;\">On the next page the coding supervisor asks for your comments on batch 3.</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -5250,7 +5250,7 @@
       "SecondaryAttribute": "Note 2 tools (essay)",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID66/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The rating scale labels were the wrong way round compared to the earlier pages. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID68/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID70/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID72/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID74/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID76/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The payment arrived quicker than usual, thanks. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID78/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Please could you send me a summary of what you found. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID80/ChoiceGroup/SelectedChoices}</span></li></ol></div></div>",
+        "QuestionText": "<div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID66/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID68/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID70/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID72/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal, and the bonus still hasn't shown up. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID74/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID76/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Fascinating topic, I'd never thought about it before. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID78/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID80/ChoiceGroup/SelectedChoices}</span></li></ol></div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {

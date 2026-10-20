@@ -49,7 +49,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
 10. **New messages** (`js_messages.js`): batch rating card for everyone; reply card only when a
    note was attached; "Batch 3 is ready" card. The reply is read from what the waiting page stored,
    retried for up to 20 s if it is not there yet. Next opens 15 s after the reply is on screen.
-11. **Batch 3** (the former batch 2; intro "Batch 3 of 3, the last batch" on the first page): eight comments; 3, 6 and 8 fit no category.
+11. **Batch 3** (the former batch 2; intro "Batch 3 of 3, the last batch" on the first page): eight comments; since 2026-10-20 comments 2, 5, 6 and 8 raise two problems (like batch 1, so the rejected issue can be raised again with a count) and 3 (a request) and 7 (praise) fit no category. Definitions tightened the same day: LENGTH = duration/pace incl. advertised time, PAYMENT = money only, CONTENT = question content (reactions such as interest fit nowhere).
 12. **Note 2 intro** (block still named "Note 2 choice") with the "Review this batch" tool above it
     (`js_tools.js` counts opens into hidden questions; the "Why the rules are this way" tool was
     removed on 2026-10-08, so `why_opens_*` is always 0). Since 2026-10-12 everyone goes on to

@@ -51,9 +51,9 @@ def esc(text):
 CATEGORIES = [
     ("TECH", "Technical problem", "Something in the study did not work: a page, a clip, a button, the timing, or how it displayed."),
     ("WORDING", "Unclear instruction or question", "An instruction, question or answer option was confusing or hard to interpret."),
-    ("LENGTH", "Length, pace or repetition", "How long, how fast, how repetitive or how demanding the study was."),
-    ("PAYMENT", "Payment or stated time", "The fee, the bonus, or whether the time in the listing was accurate."),
-    ("CONTENT", "Reaction to the subject matter", "Interest, discomfort, disagreement, or wanting to explain an answer."),
+    ("LENGTH", "Length or pace", "How long the study took, including taking longer than the time advertised, or how slow or drawn-out it felt."),
+    ("PAYMENT", "Payment or bonus", "The fee, the bonus, or when it is paid."),
+    ("CONTENT", "Question content", "What the questions asked about: a topic or question that was too personal, inappropriate, one-sided, or did not apply to the person."),
 ]
 CATEGORY_OPTIONS = [f"<b>{code}</b> &middot; {name}" for code, name, _ in CATEGORIES]
 
@@ -81,14 +81,15 @@ PRACTICE = [
      "<b>WORDING.</b> The comment says a question was hard to interpret."),
 ]
 
-# Ordinary end-of-study comments. Comments 3, 5, 6 and 8 raise two problems (5 added 2026-10-09).
+# Ordinary end-of-study comments. Comments 3, 5, 6 and 8 raise two problems in two non-overlapping
+# categories (definitions tightened and reactions removed on 2026-10-20, user decision).
 BATCH1 = [
     "Couldn't get past page 4 for ages, the next button didn't do anything.",
     "Not sure what \"moderately often\" was supposed to mean.",
     "Video on page 3 kept buffering so I couldn't hear it properly. Also took way longer than the 10 mins it said.",
-    "Interesting study, made me think about my own habits.",
-    "Lots of questions asking basically the same thing, and I'm still not sure when I'll get paid.",
-    "Some questions were a bit vague so I wasn't sure what to put, and it got really repetitive near the end.",
+    "A couple of the questions assumed I have children, which I don't.",
+    "It took far longer than it said it would, and I'm still not sure when I'll get paid.",
+    "Some questions were a bit vague so I wasn't sure what to put, and the second half felt endless.",
     "Will the bonus be paid separately?",
     "Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.",
 ]
@@ -97,21 +98,23 @@ BATCH1 = [
 # one-category tension stays live up to the reply; 1 and 3 raise one clear problem.
 BATCH2 = [
     "The sound on the second video didn't work at all.",
-    "The instructions for the sorting task were hard to follow, and the timer cut me off before I'd finished.",
-    "Really enjoyed the questions about music, it was a fun topic.",
+    "The instructions for the sorting task were hard to follow, and the bonus is lower than the listing said.",
+    "The questions about drinking assumed everyone drinks, which doesn't apply to me.",
     "The pictures took ages to load, and the whole thing took twice as long as advertised.",
     "I didn't agree with how the article described young people, and some of the answer options didn't make sense.",
 ]
-# Batch 3 (the former batch 2): comments 3, 6 and 8 fit no category.
+# Batch 3 (the former batch 2). Since 2026-10-20 it mirrors batch 1: comments 2, 5, 6 and 8 raise two
+# problems, so the rejected issue can be raised again with a count; comments 3 (a request) and 7
+# (praise) fit no category.
 BATCH3 = [
     "The page kept freezing whenever I tried to go back.",
-    "The rating scale labels were the wrong way round compared to the earlier pages.",
+    "I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to.",
     "Could you tell me when the results will be published?",
     "It was a bit longer than I'd have liked.",
-    "The questions about my family were quite personal.",
-    "Is there a follow-up study I can sign up for?",
-    "The payment arrived quicker than usual, thanks.",
-    "Please could you send me a summary of what you found.",
+    "The questions about my family were quite personal, and the bonus still hasn't shown up.",
+    "The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick.",
+    "Fascinating topic, I'd never thought about it before.",
+    "Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.",
 ]
 
 LINK_CHECK = [
