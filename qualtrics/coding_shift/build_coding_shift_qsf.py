@@ -53,7 +53,7 @@ CATEGORIES = [
     ("WORDING", "Unclear instruction or question", "An instruction, question or answer option was confusing or hard to interpret."),
     ("LENGTH", "Length or pace", "How long the study took, including taking longer than the time advertised, or how slow or drawn-out it felt."),
     ("PAYMENT", "Payment or bonus", "The fee, the bonus, or when it is paid."),
-    ("CONTENT", "Question content", "What the questions asked about: a topic or question that was too personal, inappropriate, one-sided, or did not apply to the person."),
+    ("CONTENT", "Unsuitable question", "A question or topic that was too personal, inappropriate, one-sided, or did not apply to the person."),
 ]
 CATEGORY_OPTIONS = [f"<b>{code}</b> &middot; {name}" for code, name, _ in CATEGORIES]
 
@@ -104,8 +104,9 @@ BATCH2 = [
     "I didn't agree with how the article described young people, and some of the answer options didn't make sense.",
 ]
 # Batch 3 (the former batch 2). Since 2026-10-20 it mirrors batch 1: comments 2, 5, 6 and 8 raise two
-# problems, so the rejected issue can be raised again with a count; comments 3 (a request) and 7
-# (praise) fit no category.
+# problems, so the rejected issue can be raised again with a count; comments 3 and 7 (requests) fit
+# no category. (7 was praise until 2026-10-21; 18 of 19 coded it CONTENT once CONTENT was named
+# "Question content", so CONTENT became "Unsuitable question" and 7 became a request.)
 BATCH3 = [
     "The page kept freezing whenever I tried to go back.",
     "I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to.",
@@ -113,7 +114,7 @@ BATCH3 = [
     "It was a bit longer than I'd have liked.",
     "The questions about my family were quite personal, and the bonus still hasn't shown up.",
     "The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick.",
-    "Fascinating topic, I'd never thought about it before.",
+    "Is there a follow-up study I can sign up for?",
     "Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.",
 ]
 
@@ -438,7 +439,12 @@ def build(args):
     # The "both choices lead to the same payment" line was removed on 2026-10-12 (user request).
     # The attach/finish choice was dropped on 2026-10-12 when note 2 became required; this page now
     # closes batch 3 and keeps the review tool.
-    note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."), tools,
+    # Since 2026-10-21 (user decision) the batch 3 coding is shown in full here instead of behind the
+    # "Review this batch" button: in pilot 6 only 2 of 19 opened the button, and nobody who was asked
+    # for numbers came back with any. The participant's own note and the supervisor's reply are
+    # shown again on the note page itself, so the request is in view while they write.
+    note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."),
+                                                    card("Your batch 3 coding", f"<ol style=\"margin:0;padding-left:20px;\">{review_items}</ol>"),
                                                     para("On the next page the coding supervisor asks for your comments on batch 3.", last=True)),
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
@@ -449,6 +455,10 @@ def build(args):
     note2 = s.essay("note2", page(
         eyebrow("Batch 3 complete"),
         title("The coding supervisor asks for your comments (batch 3)"),
+        card("Your note on batch 1", f"${{q://{note1}/ChoiceTextEntryValue}}"),
+        card("The coding supervisor's reply to your note",
+             f"<p style=\"margin:0 0 8px\">${{q://{hidden['rejection_msg1']}/ChoiceTextEntryValue}}</p>"
+             f"<p style=\"margin:0\">${{q://{hidden['rejection_msg2']}/ChoiceTextEntryValue}}</p>"),
         box(NOTE_PROMPT_2, "info"),
         small("Your answer goes to the coding supervisor with batch 3."),
     ),
