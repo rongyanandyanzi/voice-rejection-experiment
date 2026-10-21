@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-21 13:41:49",
+    "SurveyCreationDate": "2026-10-21 15:40:58",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-21 13:41:49",
+    "LastModified": "2026-10-21 15:40:58",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -5558,7 +5558,7 @@
       "SecondaryAttribute": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when the coding super",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">After batch 3</p><p style=\"margin:0 0 0px;line-height:1.6;\">Please think about <b>what you did after batch 3</b>, when the coding supervisor asked for your comments. Please indicate how much you agree with each statement.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">After batch 3</p><p style=\"margin:0 0 0px;line-height:1.6;\">Please think about <b>what you did after batch 3</b>, when the coding supervisor asked for your comments, and in particular about <b>when you were preparing what you might raise with the coding supervisor</b>. Please indicate how much you agree with each statement.</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5572,16 +5572,16 @@
         },
         "Choices": {
           "1": {
-            "Display": "When preparing what I might raise with the coding supervisor, I strove to present a well-researched proposal backed by evidence from the comments."
+            "Display": "I strove to present a well-researched proposal backed by evidence from the comments."
           },
           "2": {
-            "Display": "When preparing what I might raise with the coding supervisor, I made every effort to address the supervisor's specific concerns about agreement between coders and comparability with earlier coding."
+            "Display": "I made every effort to address the supervisor's specific concerns about agreement between coders and comparability with earlier coding."
           },
           "3": {
-            "Display": "When preparing what I might raise with the coding supervisor, I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."
+            "Display": "I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."
           },
           "4": {
-            "Display": "When preparing what I might raise with the coding supervisor, I worked out a clear, actionable solution to the flaws I saw in the current coding rules."
+            "Display": "I worked out a clear, actionable solution to the flaws I saw in the current coding rules."
           }
         },
         "ChoiceOrder": [

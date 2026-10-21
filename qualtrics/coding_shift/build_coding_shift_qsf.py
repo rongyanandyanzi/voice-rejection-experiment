@@ -487,11 +487,16 @@ def build(args):
         ("VF5", "I acted as a lead contributor in raising how the coding rules and categories should work."),
         ("VF6", "I offered my own constructive suggestions and ideas to improve the current coding rules."),
     ])
-    vq = s.likert("VQ", scale_intro("After batch 3", after_intro), [
-        ("VQ1", "When preparing what I might raise with the coding supervisor, I strove to present a well-researched proposal backed by evidence from the comments."),
-        ("VQ2", "When preparing what I might raise with the coding supervisor, I made every effort to address the supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
-        ("VQ3", "When preparing what I might raise with the coding supervisor, I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."),
-        ("VQ4", "When preparing what I might raise with the coding supervisor, I worked out a clear, actionable solution to the flaws I saw in the current coding rules."),
+    # The stem "When preparing what I might raise with the coding supervisor" moved from the items
+    # into the instruction on 2026-10-21 (user decision).
+    vq_intro = ("Please think about <b>what you did after batch 3</b>, when the coding supervisor asked for your comments, "
+                "and in particular about <b>when you were preparing what you might raise with the coding supervisor</b>. "
+                "Please indicate how much you agree with each statement.")
+    vq = s.likert("VQ", scale_intro("After batch 3", vq_intro), [
+        ("VQ1", "I strove to present a well-researched proposal backed by evidence from the comments."),
+        ("VQ2", "I made every effort to address the supervisor's specific concerns about agreement between coders and comparability with earlier coding."),
+        ("VQ3", "I attempted to clarify any doubts the supervisor might have about re-coding work or how a change would be applied."),
+        ("VQ4", "I worked out a clear, actionable solution to the flaws I saw in the current coding rules."),
     ])
     # Authority (AUTH) and safety/futility (CLIMATE) were removed on 2026-10-10 (user decision).
     q_intro = s.text("questionnaire_intro", page(
