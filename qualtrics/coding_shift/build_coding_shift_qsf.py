@@ -443,8 +443,11 @@ def build(args):
     # "Review this batch" button: in pilot 6 only 2 of 19 opened the button, and nobody who was asked
     # for numbers came back with any. The participant's own note and the supervisor's reply are
     # shown again on the note page itself, so the request is in view while they write.
+    # The batch 3 coding, the note and the reply are all on the note page itself (user request
+    # 2026-10-21, after seeing them split over two pages); this page is a short transition.
+    batch3_card = card("Your batch 3 coding", f"<ol style=\"margin:0;padding-left:20px;\">{review_items}</ol>")
     note2_head = s.text("note2_tools_choice", page(eyebrow("Batch 3 complete"), title("Batch 3 complete."),
-                                                    card("Your batch 3 coding", f"<ol style=\"margin:0;padding-left:20px;\">{review_items}</ol>"),
+                                                    box("Batch 3 has been sent to the coding supervisor.", "info"),
                                                     para("On the next page the coding supervisor asks for your comments on batch 3.", last=True)),
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
@@ -455,6 +458,7 @@ def build(args):
     note2 = s.essay("note2", page(
         eyebrow("Batch 3 complete"),
         title("The coding supervisor asks for your comments (batch 3)"),
+        batch3_card,
         card("Your note on batch 1", f"${{q://{note1}/ChoiceTextEntryValue}}"),
         card("The coding supervisor's reply to your note",
              f"<p style=\"margin:0 0 8px\">${{q://{hidden['rejection_msg1']}/ChoiceTextEntryValue}}</p>"
