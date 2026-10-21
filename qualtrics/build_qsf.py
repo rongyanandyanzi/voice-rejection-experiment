@@ -115,6 +115,32 @@ class Survey:
             payload["QuestionJS"] = js
         return self.add_question(tag, payload, strip_html(question_text))
 
+    def multi_choice(self, tag, question_text, options, force=True, exclusive_last=False, randomize_except_last=False):
+        """Multiple-answer question. With exclusive_last the final option deselects the others; with
+        randomize_except_last the other options are shown in random order and the last stays last."""
+        choices = {str(i + 1): {"Display": label} for i, label in enumerate(options)}
+        if exclusive_last:
+            choices[str(len(options))]["Exclusive"] = True
+        payload = {
+            "QuestionText": question_text,
+            "QuestionType": "MC",
+            "Selector": "MAVR",
+            "SubSelector": "TX",
+            "Configuration": {"QuestionDescriptionOption": "UseText"},
+            "Choices": choices,
+            "ChoiceOrder": [str(i + 1) for i in range(len(options))],
+            "Validation": force_validation(force),
+            "NextChoiceId": len(options) + 1,
+            "NextAnswerId": 1,
+        }
+        if randomize_except_last:
+            fixed = ["{~Randomized~}"] * (len(options) - 1) + [str(len(options))]
+            payload["Randomization"] = {
+                "Advanced": {"FixedOrder": fixed, "RandomSubSet": [], "TotalRandSubset": 0, "Type": "Advanced", "Undisplayed": []},
+                "EvenPresentation": False, "TotalRandSubset": "", "Type": "Advanced",
+            }
+        return self.add_question(tag, payload, strip_html(question_text))
+
     def essay(self, tag, question_text, force=True, js=None, height=200):
         payload = {
             "QuestionText": question_text,

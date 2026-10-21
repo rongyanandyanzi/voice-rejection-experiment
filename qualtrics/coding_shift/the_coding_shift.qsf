@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-21 15:40:58",
+    "SurveyCreationDate": "2026-10-21 15:51:25",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-21 15:40:58",
+    "LastModified": "2026-10-21 15:51:25",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -536,7 +536,7 @@
             },
             {
               "Type": "Question",
-              "QuestionID": "QID92"
+              "QuestionID": "QID93"
             }
           ]
         },
@@ -547,14 +547,7 @@
           "BlockElements": [
             {
               "Type": "Question",
-              "QuestionID": "QID95"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID93"
+              "QuestionID": "QID96"
             },
             {
               "Type": "Page Break"
@@ -562,6 +555,24 @@
             {
               "Type": "Question",
               "QuestionID": "QID94"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID95"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID92"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID97"
             }
           ]
         },
@@ -572,6 +583,20 @@
           "BlockElements": [
             {
               "Type": "Question",
+              "QuestionID": "QID100"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID101"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
               "QuestionID": "QID98"
             },
             {
@@ -580,20 +605,6 @@
             {
               "Type": "Question",
               "QuestionID": "QID99"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID96"
-            },
-            {
-              "Type": "Page Break"
-            },
-            {
-              "Type": "Question",
-              "QuestionID": "QID97"
             }
           ]
         },
@@ -604,7 +615,7 @@
           "BlockElements": [
             {
               "Type": "Question",
-              "QuestionID": "QID100"
+              "QuestionID": "QID102"
             }
           ]
         },
@@ -1197,7 +1208,7 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "100",
+      "SecondaryAttribute": "102",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -5405,6 +5416,98 @@
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
       "PrimaryAttribute": "QID92",
+      "SecondaryAttribute": "Batch 3 complete  Anything else to report?  Looking back over all three batches, which of the follow",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 3 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Anything else to report?</p><p style=\"margin:0 0 0px;line-height:1.6;\">Looking back over all three batches, which of the following would you want to report to the coding supervisor? <b>Select all that apply.</b></p></div>",
+        "QuestionType": "MC",
+        "Selector": "MAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "Some comments raise two problems, but only one category can be chosen."
+          },
+          "2": {
+            "Display": "Some comments fit none of the five categories."
+          },
+          "3": {
+            "Display": "The same comment appeared more than once within a batch."
+          },
+          "4": {
+            "Display": "Some comments were not in English."
+          },
+          "5": {
+            "Display": "The list of categories changed from one batch to the next."
+          },
+          "6": {
+            "Display": "Some comments included the person's name or email address."
+          },
+          "7": {
+            "Display": "The comments were too long to read in the time given."
+          },
+          "8": {
+            "Display": "None of these.",
+            "Exclusive": true
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 9,
+        "NextAnswerId": 1,
+        "Randomization": {
+          "Advanced": {
+            "FixedOrder": [
+              "{~Randomized~}",
+              "{~Randomized~}",
+              "{~Randomized~}",
+              "{~Randomized~}",
+              "{~Randomized~}",
+              "{~Randomized~}",
+              "{~Randomized~}",
+              "8"
+            ],
+            "RandomSubSet": [],
+            "TotalRandSubset": 0,
+            "Type": "Advanced",
+            "Undisplayed": []
+          },
+          "EvenPresentation": false,
+          "TotalRandSubset": "",
+          "Type": "Advanced"
+        },
+        "QuestionID": "QID92",
+        "DataExportTag": "report_list",
+        "QuestionDescription": "Batch 3 complete  Anything else to report?  Looking back over all three batches, which of the follow",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID93",
       "SecondaryAttribute": "Timing",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5441,7 +5544,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID92",
+        "QuestionID": "QID93",
         "DataExportTag": "t_note2",
         "QuestionDescription": "Timing",
         "Language": [],
@@ -5455,7 +5558,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID93",
+      "PrimaryAttribute": "QID94",
       "SecondaryAttribute": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when the coding super",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5540,7 +5643,7 @@
         },
         "NextChoiceId": 7,
         "NextAnswerId": 6,
-        "QuestionID": "QID93",
+        "QuestionID": "QID94",
         "DataExportTag": "VF",
         "QuestionDescription": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when the coding super",
         "Language": [],
@@ -5554,7 +5657,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID94",
+      "PrimaryAttribute": "QID95",
       "SecondaryAttribute": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when the coding super",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5629,7 +5732,7 @@
         },
         "NextChoiceId": 5,
         "NextAnswerId": 6,
-        "QuestionID": "QID94",
+        "QuestionID": "QID95",
         "DataExportTag": "VQ",
         "QuestionDescription": "Questionnaire  After batch 3  Please think about  what you did after batch 3 , when the coding super",
         "Language": [],
@@ -5643,7 +5746,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID95",
+      "PrimaryAttribute": "QID96",
       "SecondaryAttribute": "Questionnaire intro",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5659,7 +5762,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID95",
+        "QuestionID": "QID96",
         "DataExportTag": "questionnaire_intro",
         "QuestionDescription": "Questionnaire intro",
         "Language": [],
@@ -5673,7 +5776,58 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID96",
+      "PrimaryAttribute": "QID97",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID97",
+        "DataExportTag": "t_report_list",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_51dc512c6f29ce9",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID98",
       "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how you perceived t",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5768,7 +5922,7 @@
         },
         "NextChoiceId": 9,
         "NextAnswerId": 6,
-        "QuestionID": "QID96",
+        "QuestionID": "QID98",
         "DataExportTag": "MA",
         "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how you perceived t",
         "Language": [],
@@ -5782,7 +5936,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID97",
+      "PrimaryAttribute": "QID99",
       "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how much you agree ",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5867,7 +6021,7 @@
         },
         "NextChoiceId": 7,
         "NextAnswerId": 6,
-        "QuestionID": "QID97",
+        "QuestionID": "QID99",
         "DataExportTag": "MC",
         "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how much you agree ",
         "Language": [],
@@ -5881,7 +6035,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID98",
+      "PrimaryAttribute": "QID100",
       "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
       "TertiaryAttribute": null,
       "Payload": {
@@ -5961,7 +6115,7 @@
         },
         "NextChoiceId": 6,
         "NextAnswerId": 6,
-        "QuestionID": "QID98",
+        "QuestionID": "QID100",
         "DataExportTag": "REASON",
         "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
         "Language": [],
@@ -5975,7 +6129,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID99",
+      "PrimaryAttribute": "QID101",
       "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
       "TertiaryAttribute": null,
       "Payload": {
@@ -6045,7 +6199,7 @@
         },
         "NextChoiceId": 4,
         "NextAnswerId": 6,
-        "QuestionID": "QID99",
+        "QuestionID": "QID101",
         "DataExportTag": "Q107",
         "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
         "Language": [],
@@ -6059,7 +6213,7 @@
     {
       "SurveyID": "SV_51dc512c6f29ce9",
       "Element": "SQ",
-      "PrimaryAttribute": "QID100",
+      "PrimaryAttribute": "QID102",
       "SecondaryAttribute": "Almost done  One final question  Did anything about the shift feel unusual or unexpected? Please des",
       "TertiaryAttribute": null,
       "Payload": {
@@ -6078,7 +6232,7 @@
             "Type": "None"
           }
         },
-        "QuestionID": "QID100",
+        "QuestionID": "QID102",
         "DataExportTag": "ai_check_unusual",
         "QuestionDescription": "Almost done  One final question  Did anything about the shift feel unusual or unexpected? Please des",
         "Language": [],

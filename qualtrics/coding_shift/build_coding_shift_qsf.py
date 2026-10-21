@@ -467,6 +467,26 @@ def build(args):
         small("Your answer goes to the coding supervisor with batch 3."),
     ),
                     force=True, js=js("js_note_essay.js", s.service_url), height=180)
+    # Report list (added 2026-10-21, user decision): after the VF/VQ questionnaire (so it does not prime
+    # those self-reports), a multiple-answer list of
+    # problems the coder might report to the supervisor. Two are real (the one-category rule and the
+    # no-fit comments), five are distractors, "None of these" is exclusive and always last; the
+    # others appear in random order. Voice = number selected; quality = real ones selected.
+    REPORT_ITEMS = [
+        "Some comments raise two problems, but only one category can be chosen.",
+        "Some comments fit none of the five categories.",
+        "The same comment appeared more than once within a batch.",
+        "Some comments were not in English.",
+        "The list of categories changed from one batch to the next.",
+        "Some comments included the person's name or email address.",
+        "The comments were too long to read in the time given.",
+        "None of these.",
+    ]
+    report_list = s.multi_choice("report_list", page(
+        eyebrow("Batch 3 complete"),
+        title("Anything else to report?"),
+        para("Looking back over all three batches, which of the following would you want to report to the coding supervisor? <b>Select all that apply.</b>", last=True),
+    ), REPORT_ITEMS, force=True, exclusive_last=True, randomize_except_last=True)
     s.block("Note 2", [note2_tools] + n2_hidden_essay + [note2, s.timing("t_note2")])
 
     # 10. Questionnaire ---------------------------------------------------------------------
@@ -504,7 +524,7 @@ def build(args):
         title("The coding shift is complete"),
         para("Thank you. The last step is a few short questions about the shift. It takes about two minutes.", last=True),
     ), description="Questionnaire intro")
-    s.block("Questionnaire", [q_intro, "PB", vf, "PB", vq])
+    s.block("Questionnaire", [q_intro, "PB", vf, "PB", vq, "PB", report_list, s.timing("t_report_list")])
 
     # 11. Manipulation checks, voicers only -------------------------------------------------
     polite = s.likert("MA", scale_intro("The supervisor's reply to your note on batch 1", "Please indicate how you perceived the reply.", "The supervisor's reply was&hellip;", label="About the reply"), [
