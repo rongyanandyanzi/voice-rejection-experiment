@@ -118,9 +118,11 @@ class Survey:
     def multi_choice(self, tag, question_text, options, force=True, exclusive_last=False, randomize_except_last=False):
         """Multiple-answer question. With exclusive_last the final option deselects the others; with
         randomize_except_last the other options are shown in random order and the last stays last."""
+        # Neither an "Exclusive" flag on a choice nor an advanced "Randomization" block survives the
+        # Qualtrics import (the project is not created, 2026-10-21), so these two settings are
+        # applied in the editor after import: choice menu > "Make answer exclusive" on the last
+        # option, and Randomize choices > advanced, with the last option fixed in place.
         choices = {str(i + 1): {"Display": label} for i, label in enumerate(options)}
-        if exclusive_last:
-            choices[str(len(options))]["Exclusive"] = True
         payload = {
             "QuestionText": question_text,
             "QuestionType": "MC",
@@ -133,12 +135,7 @@ class Survey:
             "NextChoiceId": len(options) + 1,
             "NextAnswerId": 1,
         }
-        if randomize_except_last:
-            fixed = ["{~Randomized~}"] * (len(options) - 1) + [str(len(options))]
-            payload["Randomization"] = {
-                "Advanced": {"FixedOrder": fixed, "RandomSubSet": [], "TotalRandSubset": 0, "Type": "Advanced", "Undisplayed": []},
-                "EvenPresentation": False, "TotalRandSubset": "", "Type": "Advanced",
-            }
+        del exclusive_last, randomize_except_last  # set in the editor, see above
         return self.add_question(tag, payload, strip_html(question_text))
 
     def essay(self, tag, question_text, force=True, js=None, height=200):

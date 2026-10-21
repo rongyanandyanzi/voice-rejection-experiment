@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-21 15:51:25",
+    "SurveyCreationDate": "2026-10-21 15:56:41",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-21 15:51:25",
+    "LastModified": "2026-10-21 15:56:41",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -5449,8 +5449,7 @@
             "Display": "The comments were too long to read in the time given."
           },
           "8": {
-            "Display": "None of these.",
-            "Exclusive": true
+            "Display": "None of these."
           }
         },
         "ChoiceOrder": [
@@ -5472,27 +5471,6 @@
         },
         "NextChoiceId": 9,
         "NextAnswerId": 1,
-        "Randomization": {
-          "Advanced": {
-            "FixedOrder": [
-              "{~Randomized~}",
-              "{~Randomized~}",
-              "{~Randomized~}",
-              "{~Randomized~}",
-              "{~Randomized~}",
-              "{~Randomized~}",
-              "{~Randomized~}",
-              "8"
-            ],
-            "RandomSubSet": [],
-            "TotalRandSubset": 0,
-            "Type": "Advanced",
-            "Undisplayed": []
-          },
-          "EvenPresentation": false,
-          "TotalRandSubset": "",
-          "Type": "Advanced"
-        },
         "QuestionID": "QID92",
         "DataExportTag": "report_list",
         "QuestionDescription": "Batch 3 complete  Anything else to report?  Looking back over all three batches, which of the follow",
