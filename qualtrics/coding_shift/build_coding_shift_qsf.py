@@ -129,14 +129,15 @@ LINK_CHECK = [
 # Note 1 is required since 2026-10-12 (user decision, after a pilot in which only 4 of 20 wrote an
 # optional note): the supervisor asks every coder for comments on batch 1, so everyone gets a reply.
 # Note 2 stays optional and is the voice measure.
-NOTE_PROMPT_1 = ("The coding supervisor would like your comments on the coding of batch 1: whether anything in the current coding rules or categories doesn't work well, any problems you ran into while coding the comments, or suggestions for how the coding could be done. Please comment on the coding itself rather than on the studies the comments describe. The supervisor will read what you write.")
+NOTE_PROMPT_1 = ("The coding supervisor would like your comments on the coding of batch 1: whether anything in the current coding rules or categories doesn't work well, any problems you ran into while coding the comments, or suggestions for how the coding could be done. <span style='color:#e74c3c;'><b>Please comment on the coding itself rather than on the studies the comments describe.</b></span> The supervisor will read what you write.")
 # Note 2 is required since 2026-10-12 (user decision): only 1 of 30 pilot participants attached the
 # optional note, so it could not vary. Everyone is asked again; "nothing to add" stays possible, and
 # the answers are coded afterwards (voice or not, number and quality of issues raised).
 NOTE_PROMPT_2 = ("The coding supervisor would like your comments on the coding of batch 3: whether anything in the "
                  "current coding rules or categories doesn't work well, any problems you ran into while coding the "
-                 "comments, or suggestions for how the coding could be done. Please comment on the coding itself rather "
-                 "than on the studies the comments describe. If you have nothing to add, you can say so. The supervisor "
+                 "comments, or suggestions for how the coding could be done. "
+                 "<span style='color:#e74c3c;'><b>Please comment on the coding itself rather than on the studies the comments describe.</b></span>"
+                 " If you have nothing to add, you can say so. The supervisor "
                  "will read what you write.")
 
 # ---------------------------------------------------------------------------------------------
