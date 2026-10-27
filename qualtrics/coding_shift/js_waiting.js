@@ -16,9 +16,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
   // batch 2 alone (median 46 s) covers most of the hold and few people see this page for long.
   var T_MS = 60000;       // fixed delay after the note was sent (or after batch 1 without a note)
   // Safety net only: if the reply service is down, give up after this long on the page and show the
-  // fallback rather than keep the participant here. Generations take 20-95 s; a job whose first attempt
-  // times out can take up to ~280 s.
-  var MAX_WAIT_MS = 300000;  // covers two full generation attempts (2 x 135 s) plus the note check
+  // fallback rather than keep the participant here. Generations take 15-90 s and start when the note
+  // is sent, so batch 2 plus this window covers two full generation attempts (2 x 200 s) for all but
+  // the fastest coders.
+  var MAX_WAIT_MS = 300000;
   // The page is shown for at least this long even when the reply is already there (user decision
   // 2026-10-19): in the pilots it flashed past in 1-2 s, which made batch 3 look like just the next
   // page rather than something issued by the supervisor.

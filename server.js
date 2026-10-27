@@ -11,14 +11,19 @@ const openaiApiKey = process.env.OPENAI_API_KEY || "";
 const openaiModel = process.env.OPENAI_MODEL || "gpt-5";
 const openaiEvaluatorModel = process.env.OPENAI_EVALUATOR_MODEL || openaiModel;
 const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT || "low";
-const openaiRequestTimeoutMs = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 45000));
+// 45 s until 2026-10-27. A written high-constructiveness reply at medium effort takes 45-90 s in a
+// single call; at 45 s the call was aborted just before it finished and silently started over, so
+// HC replies took ~100 s and three LP_HC jobs in the 26 Oct batch hit the pipeline cap and fell back.
+const openaiRequestTimeoutMs = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 110000));
 // Blind semantic scores are internal. They are returned to the caller only when this is explicitly
 // enabled, which the QA harness does and the pilot deployment never does.
 const exposeQaDiagnostics = process.env.EXPOSE_QA_DIAGNOSTICS === "1";
 
 const aiPipelineTimeoutMs = Math.max(
   openaiRequestTimeoutMs,
-  Number(process.env.AI_PIPELINE_TIMEOUT_MS || 135000)
+  // 135 s until 2026-10-27; raised with the per-call timeout so one slow generation plus the
+  // scorer and checker calls fit inside it.
+  Number(process.env.AI_PIPELINE_TIMEOUT_MS || 200000)
 );
 const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || "";
 const turnstileSecretKey = process.env.TURNSTILE_SECRET_KEY || "";
@@ -918,7 +923,9 @@ function normalizeAiRequestId(value) {
 const REJECTION_JOB_TTL_MS = 30 * 60 * 1000;
 // A pipeline that fails validation after its own five attempts is run again from scratch once, so
 // the survey only sees "failed" after two full generations. Two pipelines fit inside the waiting
-// page's 300 s window (AI_PIPELINE_TIMEOUT_MS is 135 s).
+// the survey only sees "failed" after two full generations. The reply is requested when the note is
+// sent, so batch 2 (median 46 s) plus the waiting page's 300 s window cover two pipelines
+// (AI_PIPELINE_TIMEOUT_MS is 200 s) for all but the fastest coders.
 const REJECTION_JOB_MAX_ATTEMPTS = Math.max(1, Number(process.env.REJECTION_JOB_MAX_ATTEMPTS || 2));
 const REJECTION_OPENING_REQUEST = {
   en: "The coding supervisor would like your comments on the coding of batch 1: whether anything in the current coding rules or categories doesn't work well, any problems you ran into while coding the comments, or suggestions for how the coding could be done. Please comment on the coding itself rather than on the studies the comments describe. The supervisor will read what you write.",
@@ -1360,8 +1367,9 @@ async function fetchOpenAiResponsesOnce(body, externalSignal) {
       externalSignal.addEventListener("abort", abortFromCaller, { once: true });
     }
   }
+  const startedAt = Date.now();
   try {
-    return await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${openaiApiKey}`,
@@ -1370,8 +1378,12 @@ async function fetchOpenAiResponsesOnce(body, externalSignal) {
       body: JSON.stringify(body),
       signal: controller.signal,
     });
+    // One line per call so the Render logs show where a slow reply spends its time.
+    console.log(`[openai-call] ${Date.now() - startedAt}ms status=${response.status} effort=${body.reasoning ? body.reasoning.effort : "none"} max_output_tokens=${body.max_output_tokens || ""}`);
+    return response;
   } catch (error) {
     if (error && error.name === "AbortError") {
+      console.warn(`[openai-call] ${Date.now() - startedAt}ms aborted (${externalSignal && externalSignal.aborted ? "pipeline" : "request timeout"})`);
       if (externalSignal && externalSignal.aborted) {
         const pipelineError = new Error(
           externalSignal.reason && externalSignal.reason.message
@@ -1463,6 +1475,10 @@ async function generateAiReply(payload, options = {}) {
     // only for the permitted cue trim, closing semantic rewrite, and rejection or closing length rewrite.
     for (let attempt = 0; attempt < 5; attempt += 1) {
       if (signal && signal.aborted) return aiPipelineAbortResult(signal);
+      if (attempt > 0) {
+        // One line per regeneration so the Render logs show which rule sent a reply back.
+        console.log(`[ai-pipeline] ${String(payload && payload.condition || payload && payload.managerCondition || "")} regeneration ${attempt}: ${String(correction || "").replace(/\s+/g, " ").slice(0, 400)}`);
+      }
       const result = await requestOpenAiMessages(prompt, correction, signal);
       if (!result.ok) {
         if (signal && signal.aborted) return aiPipelineAbortResult(signal);
@@ -1837,6 +1853,24 @@ async function generateAiReply(payload, options = {}) {
           validation_warnings: validationWarnings,
           // Diagnostics for the QA harness only. Env-gated so a participant's browser can never
           // receive the blind scores, which would expose the manipulation being applied to them.
+          blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
+          politeness_channel: exposeQaDiagnostics ? prompt.politenessChannel || undefined : undefined,
+          compliance_code: managerComplianceCode(lastBlindScores),
+        };
+      }
+      // A message a few words over its own cap while the pair sits inside the total band is a rhythm
+      // miss, not a manipulation miss: the experimental control is the matched total, which the
+      // per-condition QA gate measures. Until 2026-10-27 such a reply got two shortening passes first
+      // (each a ~20 s model call plus scoring), and the rewrite usually landed on the same count
+      // again. It now goes out at once and the miss is recorded as a validation warning.
+      const earlySmallOvershoot = managerSmallLengthOvershoot(lastMessages, prompt);
+      if (earlySmallOvershoot) {
+        validationWarnings.push(`length-overshoot-accepted: ${earlySmallOvershoot}`);
+        return {
+          ok: true,
+          messages: lastMessages,
+          intent: lastIntent,
+          validation_warnings: validationWarnings,
           blind_scores: exposeQaDiagnostics ? lastBlindScores : undefined,
           politeness_channel: exposeQaDiagnostics ? prompt.politenessChannel || undefined : undefined,
           compliance_code: managerComplianceCode(lastBlindScores),
@@ -2359,6 +2393,9 @@ async function requestOpenAiMessages(prompt, correction, signal) {
 
   const parsed = parseOpenAiJson(text);
   if (!parsed || !Array.isArray(parsed.messages)) {
+    // Says whether the model ran out of its output budget (reasoning counts against it) or
+    // returned something unparseable, so the Render logs show which it was.
+    console.warn(`[openai-incomplete] status=${data.status || ""} reason=${data.incomplete_details && data.incomplete_details.reason || ""} output_tokens=${data.usage && data.usage.output_tokens || ""} reasoning_tokens=${data.usage && data.usage.output_tokens_details && data.usage.output_tokens_details.reasoning_tokens || ""} max_output_tokens=${body.max_output_tokens || ""} text_chars=${String(text || "").length}`);
     return {
       ok: false,
       status: 502,
@@ -2389,9 +2426,11 @@ function openAiMaxOutputTokens(prompt) {
   if (!supportsReasoningEffort(openaiModel)) return requested;
   // 2500 was raised to 4000 on 2026-10-14: the written high-constructiveness rules (pinpoint the weak
   // part, plain-language fix) take longer reasoning, and 4 of 19 HP_HC replies came back
-  // "incomplete" at 2500. The ceiling costs nothing when it is not used.
+  // "incomplete" at 2500. Raised again to 8000 on 2026-10-27: with the "why the rule is kept" and
+  // "needs numbers" rules, 3 of 10 HC generations spent all 4000 tokens on reasoning and returned no
+  // text, and each such miss cost a ~40 s regeneration. The ceiling costs nothing when it is not used.
   if (["medium", "high"].includes(String(openaiReasoningEffort).toLowerCase())) {
-    return Math.max(requested, 4000);
+    return Math.max(requested, 8000);
   }
   return Math.max(requested, 1500);
 }

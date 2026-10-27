@@ -907,7 +907,7 @@ test("validated manager requests use a longer non-retrying client timeout and se
   assert.match(appSource, /validatedManagerPhase \? 150000 : apiRequestTimeoutMs/);
   assert.match(appSource, /request_id: requestId/);
   assert.match(appSource, /error && error\.name === "AbortError"/);
-  assert.match(serverSource, /AI_PIPELINE_TIMEOUT_MS \|\| 135000/);
+  assert.match(serverSource, /AI_PIPELINE_TIMEOUT_MS \|\| 200000/);
   assert.match(serverSource, /const aiReplyRequests = new Map\(\)/);
   assert.match(serverSource, /res\.once\("close", abortDisconnectedRequest\)/);
 
