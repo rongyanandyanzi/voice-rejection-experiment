@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-27 11:05:26",
+    "SurveyCreationDate": "2026-10-27 17:29:41",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-27 11:05:26",
+    "LastModified": "2026-10-27 17:29:41",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -5261,7 +5261,7 @@
       "SecondaryAttribute": "Note 2 tools (essay)",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"margin:0 0 12px;\"><button type=\"button\" id=\"cs-tool-review\" style=\"margin:0 8px 8px 0;padding:6px 12px;font:inherit;font-size:13px;border:1px solid #bcc6cf;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\">Review this batch</button><div id=\"cs-panel-review\" style=\"display:none;border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:4px 0 10px;background:#f6f8fa;font-size:14px;\"><ol style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px\">The page kept freezing whenever I tried to go back. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID66/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID68/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Could you tell me when the results will be published? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID70/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">It was a bit longer than I'd have liked. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID72/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The questions about my family were quite personal, and the bonus still hasn't shown up. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID74/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID76/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Is there a follow-up study I can sign up for? <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID78/ChoiceGroup/SelectedChoices}</span></li><li style=\"margin:0 0 4px\">Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised. <span style=\"font-size:12px;color:#2f5d8a;\">&mdash; ${q://QID80/ChoiceGroup/SelectedChoices}</span></li></ol></div></div>",
+        "QuestionText": "<div id=\"cs-tools-removed\" style=\"display:none;\"></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {

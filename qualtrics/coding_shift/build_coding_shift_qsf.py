@@ -453,7 +453,11 @@ def build(args):
                         js=js("js_tools.js", s.service_url), description="Note 2 tools")
     n2_hidden_choice = [s.hidden_text(f"h_{name}_choice", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
     s.block("Note 2 choice", [note2_head] + n2_hidden_choice + [s.timing("t_note2_choice")])
-    note2_tools = s.text("note2_tools_essay", tools, js=js("js_tools.js", s.service_url), description="Note 2 tools (essay)")
+    # The "Review this batch" button was removed from the note 2 page on 2026-10-27 (user request):
+    # the batch 3 coding is shown in full in the card below, so the button only duplicated it. The
+    # question, its script and the review_opens carriers stay so the QIDs and export columns do not
+    # move; review_opens is always 0 from here on.
+    note2_tools = s.text("note2_tools_essay", "<div id=\"cs-tools-removed\" style=\"display:none;\"></div>", js=js("js_tools.js", s.service_url), description="Note 2 tools (essay)")
     n2_hidden_essay = [s.hidden_text(f"h_{name}_essay", name) for name in ["review_opens", "why_opens", "first_tool_open_ms"]]
     # The title keeps the lowercase "(batch 3)": js_note_essay.js uses it to tell note 2 from note 1.
     note2 = s.essay("note2", page(
