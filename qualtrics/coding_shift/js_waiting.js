@@ -31,15 +31,16 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var MAX_STARTS = 3;
   // Pre-tested backups, one per cell, used only if the generated reply is not ready in time. They
   // name no comment numbers and assume nothing about what the note proposed, so they fit any note
-  // (rewritten 2026-10-12). Same structure as the generated replies: 14-22 + 36-46 words; HP opens
-  // with greeting, thanks and a hedged refusal, LP with "Got your note." and a bald refusal plus a
-  // flat judgement of the proposal (never the person); HC gives concrete standards and a concrete
-  // condition for looking again, LC vague ones; every cell stays open to the idea coming back.
+  // (rewritten 2026-10-12, matched to the current reply style on 2026-10-27). Same structure as the
+  // generated replies: 18-26 + 36-46 words; HP opens with greeting, thanks and a hedged refusal, LP
+  // with "Got your note." and a bald refusal plus a flat judgement of the proposal (never the
+  // person); HC says why the rule is kept (each comment counted once; coders checked for the same
+  // label) and that the decision needs numbers, LC stays vague; every cell stays open.
   var FALLBACK = {
-    HP_HC: ["Hi, thanks for raising this so carefully; I can see the thought behind it. I'm afraid I can't make this change.", "The note doesn't show how often the problem it describes comes up, or whether two coders would apply the change the same way; without that, it may lower agreement. If you could check it on a hundred comments, I'd gladly look again. Thanks for raising it."],
-    HP_LC: ["Hi, thank you for writing this up; I can see the care you took. I'm afraid I can't make this change.", "A change like this reaches well past one batch, and it touches how the whole project is set up; other things weigh on it too. If something changes, I'd be glad to look at this again. Thanks again for taking the time to raise it."],
-    LP_HC: ["Got your note. I'm not making this change. The case for it doesn't hold up.", "The note doesn't show how often the problem it describes comes up, or whether two coders would apply the change the same way; without that, it just lowers agreement. Check it on a hundred comments and bring the numbers back. That's all I have on it."],
-    LP_LC: ["Got your note. I'm not making this change. The idea doesn't hold up for this project.", "A change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it."]
+    HP_HC: ["Hi there, thanks for raising this; I can see the care behind it. I'm afraid I can't make this change as it stands.", "Each comment is counted once, and we check whether two coders give it the same label; this change would unsettle both. It would need numbers behind it: how many comments were affected, and how. If it's a large share, I'd gladly look again."],
+    HP_LC: ["Hi there, thank you for writing this up; I can see the care you took. I'm afraid I can't make this change.", "A change like this reaches well past one batch, and it touches how the whole project is set up; other things weigh on it too. If something changes, I'd be glad to look at this again. Thanks again for taking the time to raise it."],
+    LP_HC: ["Got your note. I'm not making this change to the coding. The case for it doesn't hold up.", "Each comment is counted once, and coders are checked on giving the same label; this change would break both. This needs numbers: how many comments were affected, and how. A large share gets the rule reviewed. That's all I have on it."],
+    LP_LC: ["Got your note. I'm not making this change to the coding. The idea doesn't hold up for this project.", "A change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it."]
   };
 
   var question = this;
