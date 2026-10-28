@@ -1,5 +1,7 @@
-// Note page (batch 1 or batch 3; the second note keeps the tag "2"): the optional essay box. No counter and no hard minimum. Below
-// about twenty words one soft check appears once, with two equal buttons. Records when the page
+// Note page (batch 1 or batch 3; the second note keeps the tag "2"): the essay box. No counter and
+// no hard minimum. On note 1 one soft check appears once, with two equal buttons, when the note is
+// short (under twenty words) or mentions nothing about the rules or categories (2026-10-28: in pilot
+// 8 a third wrote "all fine" and a quarter reported the studies' faults instead of the coding). Records when the page
 // opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in
 // sessionStorage so the interim page can start the supervisor's reply at once.
 Qualtrics.SurveyEngine.addOnload(function () {
@@ -33,13 +35,16 @@ Qualtrics.SurveyEngine.addOnload(function () {
       var text = textarea ? textarea.value : "";
       // No soft check on note 2 (required since 2026-10-12, "nothing to add" allowed): a prompt to
       // add more would push against the silence the note 2 answer is meant to measure.
-      if (tag === "2" || softShown || !text.trim() || words(text) >= 20) return;
+      if (tag === "2" || softShown || !text.trim()) return;
+      var onTopic = /\b(categor(y|ies|ise|ize|ised|ized)|rules?|cod(e|es|ing|ed)|labels?|options?|choose|chose|select(ed)?|pick(ed)?|fits?|fitted|one)\b/i.test(text);
+      var reason = words(text) < 20 ? "short" : (onTopic ? "" : "off-topic");
+      if (!reason) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       softShown = true;
       var box = document.createElement("div");
       box.style.cssText = "margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;";
-      box.innerHTML = "<p style=\"margin:0 0 10px\">The supervisor will see only what is written here. Would you like to add anything?</p>";
+      box.innerHTML = "<p style=\"margin:0 0 10px\">The supervisor is asking about the coding rules and categories. If you noticed anything about them while coding batch 1, you can add it here. Otherwise you can send the note as it is.</p>";
       var row = document.createElement("div");
       var buttons = [["Send as it is", function () { box.remove(); nextButton.click(); }], ["Add more", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];
       if (Math.random() < 0.5) buttons.reverse();
@@ -53,7 +58,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
       });
       box.appendChild(row);
       question.getQuestionContainer().appendChild(box);
-      setEd("note" + tag + "_soft_check", "shown");
+      setEd("note" + tag + "_soft_check", reason);
     }, true);
   }
   Qualtrics.SurveyEngine.addOnPageSubmit(function () {

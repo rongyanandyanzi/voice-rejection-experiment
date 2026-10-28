@@ -129,16 +129,21 @@ LINK_CHECK = [
 # Note 1 is required since 2026-10-12 (user decision, after a pilot in which only 4 of 20 wrote an
 # optional note): the supervisor asks every coder for comments on batch 1, so everyone gets a reply.
 # Note 2 stays optional and is the voice measure.
-NOTE_PROMPT_1 = ("The coding supervisor would like your comments on the coding of batch 1: whether anything in the current coding rules or categories doesn't work well, any problems you ran into while coding the comments, or suggestions for how the coding could be done. <span style='color:#e74c3c;'><b>Please comment on the coding itself rather than on the studies the comments describe.</b></span> The supervisor will read what you write.")
-# Note 2 is required since 2026-10-12 (user decision): only 1 of 30 pilot participants attached the
-# optional note, so it could not vary. Everyone is asked again; "nothing to add" stays possible, and
-# the answers are coded afterwards (voice or not, number and quality of issues raised).
-NOTE_PROMPT_2 = ("The coding supervisor would like your comments on the coding of batch 3: whether anything in the "
-                 "current coding rules or categories doesn't work well, any problems you ran into while coding the "
-                 "comments, or suggestions for how the coding could be done. "
-                 "<span style='color:#e74c3c;'><b>Please comment on the coding itself rather than on the studies the comments describe.</b></span>"
-                 " If you have nothing to add, you can say so. The supervisor "
-                 "will read what you write.")
+# Both prompts reworded on 2026-10-28 (user decision). In pilot 8 only 9 of 21 notes were about the
+# coding rules: 7 said "all fine" and 5 reported the studies' faults, which the old clause "any
+# problems you ran into while coding the comments" invited. Note 1 now frames the note as input to a
+# rule review and asks what the coder would change and why; the two-problem issue is still not
+# named. Note 2 is deliberately softer (no question, no request for a proposal, no "nothing to add"
+# line) because silence after the rejection is what it measures.
+NOTE_PROMPT_1 = ("The coding supervisor is reviewing the coding rules and would like each coder's view after batch 1. "
+                 "Is there anything in the five categories or in the one-category rule that should change? "
+                 "Please say what you would change and why. "
+                 "<span style='color:#e74c3c;'><b>Please comment on the coding rules themselves rather than on the studies the comments describe.</b></span>"
+                 " The supervisor will read what you write.")
+NOTE_PROMPT_2 = ("The coding supervisor is collecting coders' comments again after batch 3. "
+                 "If there is anything about the coding rules or categories you would like to raise, you can write it here. "
+                 "Please comment on the coding rules themselves rather than on the studies the comments describe. "
+                 "The supervisor will read what you write.")
 
 # ---------------------------------------------------------------------------------------------
 # Page styling (2026-10-10, user request: one professional look on every page, key facts

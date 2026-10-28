@@ -27,7 +27,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    rules or categories does not work, problems met while coding, suggestions - and to comment on the
    coding rather than on the studies the comments describe (steered to the rules since 2026-10-12,
    after pilot 2 notes drifted to the studies). `js_note_essay.js` keeps the
-   soft check under 20 words and the timing. The text is kept for the next page. The last batch-1
+   soft check (since 2026-10-28: when the note is under 20 words or mentions nothing about the rules or categories; reason recorded in note1_soft_check) and the timing. The request frames the note as input to a rule review and asks what the coder would change and why (2026-10-28). The text is kept for the next page. The last batch-1
    page carries `js_batch1_anchor.js`. A note the blind check classes as non-voice still gets
    "Note received." Note 2 is also required since 2026-10-12 (see step 12).
 6b. **What happens next** (added 2026-10-11, `js_interim.js`): with a note, "Your note is with the
@@ -54,7 +54,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
     (`js_tools.js` counts opens into hidden questions; the "Why the rules are this way" tool was
     removed on 2026-10-08, so `why_opens_*` is always 0). Since 2026-10-12 everyone goes on to
     **Note 2**: the supervisor asks for comments on the coding of batch 3, the answer is required and
-    "nothing to add" is allowed; no soft check. The voice measure is the coded content of note 2
+    the request is deliberately soft (no question, no "nothing to add" line, 2026-10-28); no soft check. The voice measure is the coded content of note 2
     (silence = nothing to add). Live survey: the old attach/finish question is hidden, not deleted,
     and its flow branch is left empty; Note 2 sits at top level before the Questionnaire.
 13. **Questionnaire** (everyone; opens with a "The coding shift is complete" page): voice frequency (VF1–VF6) and voice quality improvement effort
