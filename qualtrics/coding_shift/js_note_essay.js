@@ -19,12 +19,45 @@ Qualtrics.SurveyEngine.addOnload(function () {
     try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? "" : String(value)); } catch (error) {}
     try { sessionStorage.setItem("cs_" + name, value == null ? "" : String(value)); } catch (error) {}
   }
+  // Embedded data set from page scripts has never reached the export (every note1_*/note2_* column
+  // is empty in pilots 1-8), while the hidden text-entry carriers on the waiting page are saved with
+  // the page. So since 2026-10-28 the note metrics also go into one hidden carrier on this page
+  // (label "note1_meta" / "note2_meta"): words=..;write_ms=..;first_key_ms=..;deletions=..;soft=..
+  // The carrier is found by its label so it does not depend on the order of inputs on the page.
+  var softReason = "";
+  function findCarrier() {
+    var nodes = document.querySelectorAll("label, span, div, p, legend");
+    for (var i = 0; i < nodes.length; i += 1) {
+      if ((nodes[i].textContent || "").trim() !== "note" + tag + "_meta") continue;
+      var node = nodes[i];
+      for (var up = 0; up < 10 && node; up += 1) {
+        node = node.parentElement;
+        if (!node || !node.querySelectorAll) continue;
+        var inputs = node.querySelectorAll("input[type=text]");
+        if (inputs.length === 1) return inputs[0];
+        if (inputs.length > 1) return null;
+      }
+    }
+    return null;
+  }
+  function writeCarrier(submittedAt) {
+    var input = findCarrier();
+    if (!input) return;
+    var now = submittedAt || Date.now();
+    var text = textarea ? textarea.value : "";
+    var value = "words=" + words(text) + ";write_ms=" + (now - openedAt) + ";first_key_ms=" + (firstKeyAt ? firstKeyAt - openedAt : "") + ";deletions=" + deletions + ";soft=" + softReason;
+    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(input, value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
   setEd("note" + tag + "_opened_at", new Date(openedAt).toISOString());
   if (textarea) {
     textarea.addEventListener("input", function (event) {
       if (!firstKeyAt) firstKeyAt = Date.now();
       if (event.target.value.length < lastLength) deletions += 1;
       lastLength = event.target.value.length;
+      writeCarrier();
     });
   }
   // Soft check: intercept the first Next click when the note is short. The New Survey Taking
@@ -58,7 +91,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
       });
       box.appendChild(row);
       question.getQuestionContainer().appendChild(box);
+      softReason = reason;
       setEd("note" + tag + "_soft_check", reason);
+      writeCarrier();
     }, true);
   }
   Qualtrics.SurveyEngine.addOnPageSubmit(function () {
@@ -70,6 +105,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     setEd("note" + tag + "_write_ms", submittedAt - openedAt);
     setEd("note" + tag + "_deletions", deletions);
     setEd("note" + tag + "_words", words(text));
+    writeCarrier(submittedAt);
     // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only
     // starts being written then); without a note it stays anchored on the batch-1 submission.
     if (tag === "1" && text) { try { sessionStorage.setItem("cs_note1_submit_ms", String(submittedAt)); } catch (error) {} }

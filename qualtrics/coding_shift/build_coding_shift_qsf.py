@@ -590,6 +590,18 @@ def build(args):
     # Task feedback and the debrief were removed on 2026-10-10 (user decision).
     s.block("Closing", [ai_unusual])
 
+    # One hidden carrier per note page (2026-10-28): embedded data written by the note script never
+    # reached the export, so the note metrics go into a saved text-entry field instead, as one
+    # string: words=..;write_ms=..;first_key_ms=..;deletions=..;soft=.. (parse at analysis). Created
+    # last so that every earlier QID stays as it is in the live v6 survey; inserted into the note
+    # pages after the essay box.
+    def insert_after(block_name, after_qid, qid):
+        block = next(block for block in s.blocks if block["Description"] == block_name)
+        index = next(i for i, element in enumerate(block["BlockElements"]) if element.get("QuestionID") == after_qid)
+        block["BlockElements"].insert(index + 1, {"Type": "Question", "QuestionID": qid})
+    insert_after("Note 1", note1, s.hidden_text("h_note1_meta", "note1_meta"))
+    insert_after("Note 2", note2, s.hidden_text("h_note2_meta", "note2_meta"))
+
     # Flow ------------------------------------------------------------------------------------
     flow = [
         s.flow_embedded([

@@ -27,7 +27,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
    rules or categories does not work, problems met while coding, suggestions - and to comment on the
    coding rather than on the studies the comments describe (steered to the rules since 2026-10-12,
    after pilot 2 notes drifted to the studies). `js_note_essay.js` keeps the
-   soft check (since 2026-10-28: when the note is under 20 words or mentions nothing about the rules or categories; reason recorded in note1_soft_check) and the timing. The request frames the note as input to a rule review and asks what the coder would change and why (2026-10-28). The text is kept for the next page. The last batch-1
+   soft check (since 2026-10-28: when the note is under 20 words or mentions nothing about the rules or categories; reason recorded in the hidden carrier h_note1_meta, see below) and the timing. Since 2026-10-28 each note page carries one hidden text-entry question (h_note1_meta / h_note2_meta) holding `words=..;write_ms=..;first_key_ms=..;deletions=..;soft=..`, because embedded data written by page scripts never reached the export in pilots 1–8 (every note1_*/note2_* column empty); the embedded-data fields stay declared but are not relied on. The request frames the note as input to a rule review and asks what the coder would change and why (2026-10-28). The text is kept for the next page. The last batch-1
    page carries `js_batch1_anchor.js`. A note the blind check classes as non-voice still gets
    "Note received." Note 2 is also required since 2026-10-12 (see step 12).
 6b. **What happens next** (added 2026-10-11, `js_interim.js`): with a note, "Your note is with the
