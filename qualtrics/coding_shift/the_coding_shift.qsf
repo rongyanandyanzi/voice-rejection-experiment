@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-28 11:07:33",
+    "SurveyCreationDate": "2026-10-28 11:22:03",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-28 11:07:33",
+    "LastModified": "2026-10-28 11:22:03",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -5932,13 +5932,13 @@
         },
         "Choices": {
           "1": {
-            "Display": "Accurately pointed out which parts of my suggestion about the coding rules could be improved."
+            "Display": "Explained why the current coding rule is kept."
           },
           "2": {
-            "Display": "Made clear that the weaknesses in my suggestion could be fixed."
+            "Display": "Said what would be needed for the rule to be looked at again."
           },
           "3": {
-            "Display": "Gave me a clear and reasonable way to improve my suggestion."
+            "Display": "Told me what my note was missing."
           },
           "4": {
             "Display": "Gave very specific feedback on my note."

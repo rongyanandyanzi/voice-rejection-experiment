@@ -546,9 +546,14 @@ def build(args):
         # Six-item constructiveness scale (user's Chinese list, 2026-10-10), turned from the
         # supervisor's view to the participant's: 拒谏时，我…他/她想法（或方案） becomes "In the
         # reply, the supervisor… my suggestion".
-        ("MC1", "Accurately pointed out which parts of my suggestion about the coding rules could be improved."),
-        ("MC2", "Made clear that the weaknesses in my suggestion could be fixed."),
-        ("MC3", "Gave me a clear and reasonable way to improve my suggestion."),
+        # MC1-MC3 reworded on 2026-10-28 (user decision): the original fixability items ("could be
+        # improved", "could be fixed", "way to improve") were flat across HC and LC in pilots 7-8
+        # (d <= .1) while MC4-MC6 separated. The new items name the three things the HC reply does:
+        # why the rule is kept, the terms for looking again, and the gap in the note. Column names
+        # unchanged; responses before 28 Oct 2026 use the old wording.
+        ("MC1", "Explained why the current coding rule is kept."),
+        ("MC2", "Said what would be needed for the rule to be looked at again."),
+        ("MC3", "Told me what my note was missing."),
         ("MC4", "Gave very specific feedback on my note."),
         ("MC5", "Pointed out where exactly my suggestion fell short."),
         ("MC6", "Made very clear what I could do to improve my suggestion."),
