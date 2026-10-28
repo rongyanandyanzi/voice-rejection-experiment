@@ -553,17 +553,22 @@ def build(args):
     reason_intro = scale_intro("The supervisor's reply to your note on batch 1",
                                "Please indicate <b>why you think</b> the coding supervisor turned down your note.",
                                "The supervisor turned down my note&hellip;", label="About the reply")
+    # Items reworded on 2026-10-28 (user decision) to fit the coding-supervisor context: proposal-based
+    # reasons now cover weakness, insufficient evidence, insufficient severity, no improvement and
+    # impracticality (the old PR1/PR3/PR5 were three paraphrases of "not useful"); "dislikes me"
+    # became "does not like coders questioning the rules". Export columns PR1-PR5 and MR1-MR3 keep
+    # their names, so responses before 28 Oct 2026 use the old wording.
     reasons = s.likert("REASON", reason_intro, [
-        ("PR1", "Because the ideas for improvement in my note were mediocre."),
-        ("PR2", "Because my suggestions don't really improve the coding methods or practices."),
-        ("PR3", "Because I suggested changes to the coding that don't really help much."),
-        ("PR4", "Because I made impractical recommendations about how to fix problems in the coding."),
-        ("PR5", "Because my suggestions are not very useful."),
+        ("PR1", "Because the suggestion in my note had a real weakness."),
+        ("PR2", "Because my note did not give the supervisor enough to go on."),
+        ("PR3", "Because the problem I raised was not serious enough to change a coding rule."),
+        ("PR4", "Because my suggestion would not have made the coding better."),
+        ("PR5", "Because what I proposed would not work in practice for this project."),
     ])
     reasons_sup = s.likert("Q107", reason_intro, [
-        ("MR1", "Because of the supervisor's emotions."),
-        ("MR2", "To demonstrate the supervisor's authority."),
-        ("MR3", "Because the supervisor dislikes me."),
+        ("MR1", "Because the supervisor reacted emotionally rather than to what I wrote."),
+        ("MR2", "Because the supervisor wanted to show who decides on the coding rules."),
+        ("MR3", "Because the supervisor does not like coders questioning the rules."),
     ])
     # The two reason questions are on separate pages since 2026-10-10 (user edit), each with the full header.
     s.block("Manipulation checks", [reasons, "PB", reasons_sup, "PB", polite, "PB", useful])

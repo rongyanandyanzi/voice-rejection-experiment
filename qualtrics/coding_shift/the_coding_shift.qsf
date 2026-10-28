@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-10-27 17:29:41",
+    "SurveyCreationDate": "2026-10-28 10:37:09",
     "CreatorID": "UR_d4e2969e8c51b64",
-    "LastModified": "2026-10-27 17:29:41",
+    "LastModified": "2026-10-28 10:37:09",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -6031,19 +6031,19 @@
         },
         "Choices": {
           "1": {
-            "Display": "Because the ideas for improvement in my note were mediocre."
+            "Display": "Because the suggestion in my note had a real weakness."
           },
           "2": {
-            "Display": "Because my suggestions don't really improve the coding methods or practices."
+            "Display": "Because my note did not give the supervisor enough to go on."
           },
           "3": {
-            "Display": "Because I suggested changes to the coding that don't really help much."
+            "Display": "Because the problem I raised was not serious enough to change a coding rule."
           },
           "4": {
-            "Display": "Because I made impractical recommendations about how to fix problems in the coding."
+            "Display": "Because my suggestion would not have made the coding better."
           },
           "5": {
-            "Display": "Because my suggestions are not very useful."
+            "Display": "Because what I proposed would not work in practice for this project."
           }
         },
         "ChoiceOrder": [
@@ -6125,13 +6125,13 @@
         },
         "Choices": {
           "1": {
-            "Display": "Because of the supervisor's emotions."
+            "Display": "Because the supervisor reacted emotionally rather than to what I wrote."
           },
           "2": {
-            "Display": "To demonstrate the supervisor's authority."
+            "Display": "Because the supervisor wanted to show who decides on the coding rules."
           },
           "3": {
-            "Display": "Because the supervisor dislikes me."
+            "Display": "Because the supervisor does not like coders questioning the rules."
           }
         },
         "ChoiceOrder": [
