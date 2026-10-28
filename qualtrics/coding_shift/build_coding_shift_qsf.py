@@ -549,10 +549,12 @@ def build(args):
         # MC1-MC3 reworded on 2026-10-28 (user decision): the original fixability items ("could be
         # improved", "could be fixed", "way to improve") were flat across HC and LC in pilots 7-8
         # (d <= .1) while MC4-MC6 separated. The new items name the three things the HC reply does:
-        # why the rule is kept, the terms for looking again, and the gap in the note. Column names
+        # why the rule is kept, the terms for looking again, and the gap in the note. MC1/MC2 carry
+        # "concrete" and "specifically ... evidence" because the LC reply also gives a (vague) reason
+        # and a (vague) reopening line, so presence alone would not separate the cells. Column names
         # unchanged; responses before 28 Oct 2026 use the old wording.
-        ("MC1", "Explained why the current coding rule is kept."),
-        ("MC2", "Said what would be needed for the rule to be looked at again."),
+        ("MC1", "Gave a concrete reason why the current coding rule is kept."),
+        ("MC2", "Said specifically what evidence would get the rule looked at again."),
         ("MC3", "Told me what my note was missing."),
         ("MC4", "Gave very specific feedback on my note."),
         ("MC5", "Pointed out where exactly my suggestion fell short."),
