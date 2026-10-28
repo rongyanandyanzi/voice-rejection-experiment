@@ -3098,9 +3098,9 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
     "First work out what the coder actually proposed or asked for, and which single part of it is the real obstacle. Start from their note, not from a preset checklist.",
     "1. Pinpoint the weak part. Name the specific part of their suggestion that does not work as it stands (for example: that the second label has no rule for when it applies; that 'the main one' is left to each coder's feeling; that an example would change what a category covers), so the coder can see exactly where the problem lies. Do not claim something is missing if the note already supplies it.",
     "2. Say why the rule is kept, concretely, in one or two plain sentences. For any proposal about labels (a second label, splitting a comment into two records, an 'other' box, a fixed priority order, redefining 'mainly'), always name both consequences: the results count each comment once, so the change would count some comments twice or move them, and the percentages would stop adding up; and the project checks how often two coders give a comment the same label, which the change would break or blur. For other proposals give the matching plain reason (for example: the project only records what people wrote about the studies, it does not fix the studies; an example would quietly change what a category covers). Use ordinary words a coder understands; never use statistical jargon such as 'inter-rater reliability', 'agreement statistic', 'reliability coefficient', or 'label combination scoring'.",
-    "3. Set the terms for looking again by how widespread the problem is. Say that a change like this needs numbers behind it, how many of the comments they coded were affected and in what way (which two categories clashed; which comments fit nothing; how often the same fault came up), so that how serious it is can be seen, and that if it is a large share you would look at the rule again. This is a count the coder can do themselves from the comments they have seen; it is never a request to run an analysis, trial, agreement comparison, or statistics, and never a request to rewrite the suggestion or design a rule. Never tell them to 'come back with', 'bring it back with' or 'send' anything: they have no way to reply to this note, so state what the decision needs, not what they should do next.",
+    "3. Set the terms for looking again by how widespread the problem is. Say that a change like this needs numbers behind it, how many of the comments they coded were affected and in what way (which two categories clashed; which comments fit nothing; how often the same fault came up), so that how serious it is can be seen, and that if it is a large share the rule is reviewed. The consequence is stated for the rule, not for your attention: 'I\'d look at it again' or 'I\'d look again' on its own is not the consequence and may only accompany a statement that the rule would be reviewed. This is a count the coder can do themselves from the comments they have seen; it is never a request to run an analysis, trial, agreement comparison, or statistics, and never a request to rewrite the suggestion or design a rule. Never tell them to 'come back with', 'bring it back with' or 'send' anything: they have no way to reply to this note, so state what the decision needs, not what they should do next.",
     highPoliteness
-      ? "The terms for looking again go in the reopening line: one conditional or tentative invitation that names the numbers (a change like this would need numbers behind it, how many comments had two problems and which categories clashed; if it turned out to be a large share, I'd gladly look at the rule again). Never an unredressed command and never a question, and do not give the terms a second time in another sentence."
+      ? "The terms for looking again go in the reopening line: one conditional or tentative invitation that names the numbers and says what happens to the rule (a change like this would need numbers behind it, how many comments had two problems and which categories clashed; if that turned out to be a large share, the rule would be reviewed, and I'd be glad to do that). The rule being reviewed is the consequence; the gladness is the redress around it, never a substitute for it. Never an unredressed command and never a question, and do not give the terms a second time in another sentence."
       : "The terms for looking again go in the reopening line: one flat, unsoftened requirement that names the numbers (This needs numbers: how many comments had two problems and which categories clashed. A large share gets the rule reviewed.). No could, would, may, might, perhaps, please, optionality, question, hedge, softener, deference, or invitation, no 'come back with', and do not give the terms a second time in another sentence.",
     "Plain language (2026-10-14: 'recast it as a single label tie break rule for equal two problem comments' was unclear even to the researcher): write the weak part, the reason, and especially the terms for looking again as normal sentences a coder with no training in research methods understands on first reading, e.g. 'this needs numbers: how many of the comments raised two problems, and which two categories clashed'. Never stack nouns into compressed jargon such as 'single-label tie-break rule', 'coding unit', 'recognition rule', 'anchors', 'trigger', 'boundary cases', 'equal-weight cases', or 'category-level problems'; say what you mean in everyday words.",
     "The weak part, the reason, and the terms for looking again form one chain: the numbers you say are needed measure exactly the problem you named. Stay with that one weak part; do not list several problems or several counts.",
@@ -3230,7 +3230,7 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
     "- Validation of effort: recognise the care or effort behind the note, specific to it. It may share a sentence with the thanks.",
     "- Hedge before the refusal: the refusal is its own sentence, opened by an apology, a regretful softener, or a hedge (I'm sorry, but..., I'm afraid..., unfortunately...), or depersonalised (the second label can't be signed off), and it says plainly and gently what is not going ahead. A contrastive word alone, such as but, still, or that said, is not enough, though it may come first. The refusal itself stays explicit.",
     "Paragraph 2 (Message 2) carries exactly these two politeness moves, in two different clauses:",
-    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one conditional or tentative invitation that sounds genuinely welcoming (if you could..., I'd be really glad to look at it again), never a command. In high constructiveness the terms are the numbers that would show how serious the problem is (if you could put numbers to it..., it would need numbers behind it...); in low constructiveness they stay vague (if something changes) and name nothing concrete.",
+    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one conditional or tentative invitation that sounds genuinely welcoming (if you could..., I'd be really glad to look at it again), never a command. In high constructiveness the terms are the numbers that would show how serious the problem is (it would need numbers behind it...) and the line says that a large share gets the rule reviewed; in low constructiveness they stay vague (if something changes) and name nothing concrete.",
     "- " + drawnChannel.high,
     "The rest of paragraph 2 is the assigned content in plain, courteous sentences, with no further thanks, praise, apology, or hedge.",
     "The four paragraph-1 channels and the two paragraph-2 moves are all required, and no other interpersonal move is added; do not drop one to save words. When words are short, cut content filler, never face work.",
@@ -4449,6 +4449,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
               "explicit_standard (written note): true when the reply explains concretely why the rule is kept and why the proposal would break it, for example that each comment is counted once in the results, or that the project checks how often two coders give a comment the same label. 'Other things weigh on it' or 'it reaches past one batch' is false.",
               "actionable_remedy (written note): true when the reply sets concrete terms for looking again that the coder can meet: saying the decision needs numbers, how many of the comments they coded were affected and in what way (which categories clashed, which comments fit nothing, how often a fault came up), or naming a concrete change to the suggestion or a concrete record or comparison. 'Bring it back if something changes', 'a stronger version', or 'think it through' is false.",
               "concrete_reopening_condition (written note): true when the line about bringing the suggestion back names that count, change, record, or comparison.",
+              "rule_outcome_stated (written note): true only when the reopening line says what happens to the rule itself if that count turns out large, for example that the rule would be reviewed, looked at again, or changed. A consequence stated only for the supervisor's attention ('I'd look again', 'I'd be glad to look at it again', 'bring it back if something changes') is false.",
               "The line that says the proposal may be brought back or looked at again always counts exactly once: in politeness_cues when it is tentative or optional ('if you could...', 'I'd be glad to look again if...'), otherwise in face_threat_cues, whether it is a bare imperative ('Come back with...', 'Bring it back if something changes', 'Don't bring it back until...') or a flat requirement. The words if, when, once, or until do not make that line polite.",
               "politeness_cues also includes: a tentative hedge on a judgement ('I'm not sure...', 'I suspect...'), deference to the participant's view, and a warm closing that thanks them again or wishes them well. An offer to look again and a warm closing are two separate cues. A bare greeting such as 'Hi' is not a cue by itself.",
               "face_threat_cues also includes: a curt dismissive sign-off about the matter ('That's all I have on it.') and a flat claim of the manager's own experience or expertise (I've run this scheme across many studies). A curt acknowledgement of receipt such as 'Got your note.' is neither kind of cue. A neutral, specific statement of which evidence is missing and what deciding without it would cause is diagnosis, not a face-threat cue; count it only when it is phrased as a dismissive verdict (too thin, a guess, no basis).",
@@ -4491,6 +4492,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
             ...(isWrittenRejectionPrompt(prompt)
               ? {
                 refusal_softened: { type: "boolean" },
+                rule_outcome_stated: { type: "boolean" },
                 paragraph_two_moves: {
                   type: "array",
                   maxItems: PARAGRAPH_TWO_MOVES.length,
@@ -4540,7 +4542,7 @@ async function evaluateManagerConstructiveness(messages, prompt, signal) {
             "explicit_future_openness",
             "concrete_reopening_condition",
             "personal_attack_without_diagnosis",
-            ...(isWrittenRejectionPrompt(prompt) ? ["refusal_softened", "paragraph_two_moves"] : []),
+            ...(isWrittenRejectionPrompt(prompt) ? ["refusal_softened", "rule_outcome_stated", "paragraph_two_moves"] : []),
             "message_scores",
           ],
         },
@@ -4723,9 +4725,17 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
     ? scores.future_next_step_redressed === highPoliteness
     : scores.future_next_step_redressed === false;
   const nextStepValid = nextStepPresenceValid && nextStepRedressValid;
+  // Since 2026-10-28 the written HC reopening line must also say what happens to the rule (a large
+  // share gets it reviewed): in pilots 7-8 the HP_HC line ended on the supervisor's attention ("I'd
+  // look again"), which reads as courtesy and left the fixability items flat. Enforced only when the
+  // scorer returned the flag, so older score objects are unaffected.
+  const ruleOutcomeValid = !writtenOpenness || typeof scores.rule_outcome_stated !== "boolean"
+    ? true
+    : scores.rule_outcome_stated === highConstructiveness;
   const closingStructureValid = writtenOpenness
     ? scores.explicit_future_openness === true &&
-      scores.concrete_reopening_condition === highConstructiveness
+      scores.concrete_reopening_condition === highConstructiveness &&
+      ruleOutcomeValid
     : !isClosing || scores.explicit_future_openness === true;
   const expectedMessageCount = Math.max(1, Number(prompt.minMessages) || 1);
   const messageScores = Array.isArray(scores.message_scores) ? scores.message_scores : [];
@@ -4805,6 +4815,7 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
     `future_next_step_redressed=${scores.future_next_step_redressed}`,
     `explicit_future_openness=${scores.explicit_future_openness}`,
     `concrete_reopening_condition=${scores.concrete_reopening_condition}`,
+    ...(typeof scores.rule_outcome_stated === "boolean" ? [`rule_outcome_stated=${scores.rule_outcome_stated}`] : []),
     `personal_attack_without_diagnosis=${scores.personal_attack_without_diagnosis}`,
     ...(writtenReply
       ? [`refusal_softened=${scores.refusal_softened}`, `paragraph_two_moves=${JSON.stringify(paragraphTwoMoves)}`]
@@ -4869,6 +4880,11 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
         corrections.push(highConstructiveness
           ? "The reopening line must name the same concrete data or comparison that would need to be in hand before the proposal is looked at again."
           : "The reopening line must stay vague, such as if something changes. Remove any data, comparison, or condition that says what would change the decision.");
+      }
+      if (!ruleOutcomeValid) {
+        corrections.push(highConstructiveness
+          ? "The reopening line must say what happens to the rule if the numbers show a large share: that the rule would be reviewed (or changed). 'I'd look again' on its own is not that; it may only accompany the statement about the rule."
+          : "The reopening line must not say what would happen to the rule. Keep it vague: if something changes, the idea can be looked at again.");
       }
     } else {
       corrections.push("Genuinely and explicitly invite the participant to revisit the proposal in the future while keeping the current rejection unchanged.");

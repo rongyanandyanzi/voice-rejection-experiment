@@ -578,3 +578,25 @@ test("http routes enforce the origin allowlist, validate input, start and poll a
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test("written HC reopening line must state the outcome for the rule; LC must not", () => {
+  assert.match(fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8"), /rule_outcome_stated \(written note\)/);
+  const base = (condition, extra) => ({
+    specific_problem: condition.endsWith("HC"), explicit_standard: condition.endsWith("HC"), actionable_remedy: condition.endsWith("HC"),
+    current_rejection_maintained: true, current_rejection_evidence: "x",
+    current_rejection_redressed: condition.startsWith("HP"), has_future_next_step: true,
+    future_next_step_redressed: condition.startsWith("HP"), explicit_future_openness: true,
+    concrete_reopening_condition: condition.endsWith("HC"), personal_attack_without_diagnosis: false,
+    refusal_softened: condition.startsWith("HP"),
+    message_scores: [
+      { politeness_cues: condition.startsWith("HP") ? ["Hi there", "thanks", "I'm afraid"] : [], face_threat_cues: condition.startsWith("HP") ? [] : ["bald refusal"] },
+      { politeness_cues: condition.startsWith("HP") ? ["I'd be glad", "Thanks again"] : [], face_threat_cues: condition.startsWith("HP") ? [] : ["That's all", "needs numbers"] },
+    ],
+    paragraph_two_moves: condition.startsWith("HP") ? ["closing", "appreciation"] : [],
+    ...extra,
+  });
+  const prompt = { condition: "LP_HC", constructivenessAssessmentMode: "rejection", delivery: "message", phase: "rejection_initial", language: "en", minMessages: 2, maxMessages: 2, politenessChannel: "closing" };
+  const problemFor = (condition, flag) => managerConstructivenessAssessmentProblem(base(condition, { rule_outcome_stated: flag }), { ...prompt, condition });
+  assert.match(problemFor("LP_HC", false) || "", /what happens to the rule/);
+  assert.match(problemFor("LP_LC", true) || "", /must not say what would happen to the rule/);
+});
