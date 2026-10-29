@@ -62,7 +62,7 @@ every variable; the only outside calls are `/api/health` (consent page, wakes th
     participant did after batch 3 (2026-10-10). Authority and safety/futility were removed on
     2026-10-10.
 14. Branch `voice1 = 1` → **Manipulation checks**: reasons for the rejection on two pages, split
-    into two questions (REASON: PR1–PR5 proposal-based; Q107: MR1–MR3 supervisor-based; items reworded to the coding context on 2026-10-28, same column names),
+    into two questions (REASON: PR1–PR5 task attribution, the rejection is due to the note; Q107: MR1–MR3 social attribution, the rejection is due to the supervisor; items reworded to the coding context on 2026-10-28, same column names),
     then politeness (MA1–MA8: polite, courteous, sensitive to my feelings, respectful,
     considerate, appropriate, civil, tactful) and constructiveness (MC1–MC6, translated from the
     user's Chinese items).

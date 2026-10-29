@@ -561,12 +561,14 @@ def build(args):
         ("MC6", "Made very clear what I could do to improve my suggestion."),
     ])
     # Reasons for the rejection, split by the user on 2026-10-10 into two questions on one page:
-    # proposal-quality reasons (REASON: PR1-PR5) first, then supervisor-related reasons (Q107: MR1-MR3).
+    # task attribution (REASON: PR1-PR5, the rejection is due to the note/proposal) first, then social
+    # attribution (Q107: MR1-MR3, the rejection is due to the supervisor as a person). Names fixed by the
+    # user on 2026-10-29; export columns keep the PR/MR prefixes.
     reason_intro = scale_intro("The supervisor's reply to your note on batch 1",
                                "Please indicate <b>why you think</b> the coding supervisor turned down your note.",
                                "The supervisor turned down my note&hellip;", label="About the reply")
-    # Items reworded on 2026-10-28 (user decision) to fit the coding-supervisor context: proposal-based
-    # reasons now cover weakness, insufficient evidence, insufficient severity, no improvement and
+    # Items reworded on 2026-10-28 (user decision) to fit the coding-supervisor context: task attribution
+    # items now cover weakness, insufficient evidence, insufficient severity, no improvement and
     # impracticality (the old PR1/PR3/PR5 were three paraphrases of "not useful"); "dislikes me"
     # became "does not like coders questioning the rules". Export columns PR1-PR5 and MR1-MR3 keep
     # their names, so responses before 28 Oct 2026 use the old wording.
