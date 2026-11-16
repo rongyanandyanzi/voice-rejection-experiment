@@ -1,5 +1,58 @@
 # The Coding Shift: Qualtrics survey
 
+## Version 7 (built 2026-11-16)
+
+Built by `build_coding_shift_qsf.py` into `the_coding_shift_v7.qsf`. Imported on 2026-11-16 as the new
+project "The Coding Shift v7" (SV_8IbAzIQqJXlIerk, draft until published); version 6
+(SV_9oAznNcxPhujq3s) is not changed. An earlier import of the same day, SV_87mCQHjImZFnnYa, is
+renamed "The Coding Shift v7 first import (not used)": it has the remark boxes as in-page questions.
+Set in the editor after import: "None of these" exclusive, report list in random order with the last
+option fixed, both Prolific header scripts (copied from version 5). Checked in preview: remark and
+workspace branches, skipped pages on "go on" and "finish", carriers, debrief, redirect. Every participant text is in
+`coding_shift_v7_materials_2026-11-16.md`. The server is unchanged.
+
+Why: in versions up to 6 the second note was requested from everyone, so speaking up and the effort
+put into it could not be told apart. Version 7 requests nothing after the reply.
+
+1. **Consent**: 15 minutes; the supervisor gives each coder a rating from 1 to 5 at the end of the
+   shift and the rating sets the bonus. No amount is named anywhere.
+2. **Randomiser**: `condition` = HP_HC / HP_LC / LP_HC / LP_LC, as before.
+3. **Training**: the scheme is under review this week, only the first note is requested, and the
+   rating reflects the supervisor's overall impression. The rating rule never mentions notes and
+   no participant text says what a good note looks like.
+4. **Batch 1**, **Note 1** (requested, with `h_note1_meta`), **Batch 2**, **Waiting page**: as in
+   version 6. The admin tasks are not built.
+5. **New messages**: the batch 1 card says "Result: meets standard" (no "rating"). Reply card as before.
+6. **Batch 3**: comments 2, 6, 8 raise two problems; 3, 5, 7 fit no category (5 is new: "Which
+   university is running this research?"). Every page carries the line "The supervisor rates each
+   coder at the end of the shift."
+7. **Midpoint choice** (after comment 4, inside the Batch 3 block): `mid_choice` (1 go on, 2 send a
+   remark), page timer `t_mid`, then `mid_remark` alone on the next page (display logic, required when
+   shown, 200 characters). The supervisor does not reply during batch 3.
+8. **End choice** (own block): `end_choice` (1 finish, 2 quick remark, 3 prepare a proposal),
+   page timer `t_end_choice`, then `end_remark` alone on the next page (display logic, 200 characters).
+9. **Workspace** (branch `end_choice` = 3): `workspace` (three sections built and logged by
+   `js_workspace.js`: own coding, project archive of thirty comments with two coders' labels, how
+   results are reported), `h_ws_meta`, `note2` (not required), `h_note2_meta`, `t_workspace`.
+10. **Questionnaire**: VF and VQ with instructions about the part of the shift after the reply; VQ2
+    and VQ3 reworded; report list as before.
+11. **Manipulation checks** (branch `voice1` = 1): task attribution, social attribution, politeness,
+    constructiveness, unchanged.
+12. **Closing**: the open question. **Debrief**: full bonus for everyone, the reply and the archive
+    were part of the study; no amount and nothing on how the reply was produced.
+
+Measures: voice frequency = occasions used (`mid_remark`, and `end_remark` or `note2`), 0 to 2.
+Effort = coded content of what was sent plus `h_ws_meta`:
+`own_opens;own_ms;arch_opens;arch_ms;rep_opens;rep_ms;first_open_ms;own_ticks;arch_ticks;filter_uses;page_ms`
+(ticks are `batch-number` or archive ids, joined by `|`). The archive key (kind of each comment) is
+the `ARCHIVE` list in the builder.
+
+After import, set in the editor as for version 6: "None of these" exclusive and the report list in
+random order with the last option fixed; the two Prolific header scripts; check the end-of-survey
+redirect.
+
+## Versions up to 6
+
 Built by `build_coding_shift_qsf.py` into `the_coding_shift.qsf`. Live as "The Coding Shift v3"
 (SV_5cYdgJJIsz2WJBc, imported 2026-10-09); the earlier SV_9mKt30e7sUqfO50 has the two-batch flow. Import as a **new** project
 (Projects > Create a new project > Survey > Import a QSF file). The old consumer-panel surveys are
