@@ -31,7 +31,7 @@ The participant is hired for one shift as a Feedback Coder. The job is to sort c
 | Step | Page | Status |
 |---|---|---|
 | 1 | Consent | revised |
-| 2 | Training and two practice comments | revised |
+| 2 | Training: the coding rules, then a page on this week and the rating, then two practice comments | revised |
 | 3 | Batch 1, eight comments | as now |
 | 4 | Note 1, requested from everyone | as now |
 | 5 | What happens next | as now |
@@ -108,15 +108,26 @@ Changed lines: the time, the supervisor line and the bonus line.
 >
 > **Choose one category for each comment.**
 >
-> **About this week.** The coding scheme is new and is under review this week. The coding supervisor decides whether any rule changes. After batch 1 the supervisor asks every coder for a first note. Later in the shift you can send a note if you wish.
->
-> **Your rating.** At the end of the shift the supervisor gives each coder a rating from 1 to 5. The rating reflects the supervisor's overall impression of working with you. It sets your bonus.
->
-> Two practice comments come first.
->
 > *Codebook v3.1 · rules set by the coding supervisor*
 
-The two paragraphs "About this week" and "Your rating" are new. They replace "After batch 1 and after batch 3 the coding supervisor will ask for your comments on the batch." The rating rule does not mention notes.
+The sentence "After batch 1 and after batch 3 the coding supervisor will ask for your comments on the batch." is gone from this page.
+
+## B2b. This week and your rating · new page
+
+User request, 17 November 2026: this message is important, so it has a page of its own. It comes after the rules page and before the practice. The wording is unchanged. Time on the page is recorded as `t_training_notice`.
+
+> TRAINING
+> **About this week and your rating**
+>
+> **About this week**
+> The coding scheme is new and is under review this week. The coding supervisor decides whether any rule changes. After batch 1 the supervisor asks every coder for a first note. Later in the shift you can send a note if you wish.
+>
+> **Your rating**
+> At the end of the shift the supervisor gives each coder a rating from 1 to 5. The rating reflects the supervisor's overall impression of working with you. It sets your bonus.
+>
+> Two practice comments come first.
+
+Each of the two messages is in its own coloured box. The rating rule does not mention notes.
 
 ## B3. Practice · as now
 

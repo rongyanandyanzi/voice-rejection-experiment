@@ -305,16 +305,23 @@ def build(args):
         para("Each comment goes into one of five categories."),
         f"<div style=\"margin:0 0 16px;\">{category_rows}</div>",
         box("<b>Choose one category for each comment.</b>", "key"),
-        # Review framing and rating rule (2026-11-16, user decisions). The review is the setting, not
-        # the coder's job: only the first note is requested. The rating rule does not mention notes
-        # and uses no word for what a good note looks like, so it cannot tell the vague cells what the
-        # constructive reply is meant to teach.
-        para("<b>About this week.</b> The coding scheme is new and is under review this week. The coding supervisor decides whether any rule changes. After batch 1 the supervisor asks every coder for a first note. Later in the shift you can send a note if you wish."),
-        para("<b>Your rating.</b> At the end of the shift the supervisor gives each coder a rating from 1 to 5. The rating reflects the supervisor&rsquo;s overall impression of working with you. It sets your bonus."),
-        para("Two practice comments come first."),
         small("Codebook v3.1 &middot; rules set by the coding supervisor"),
     ),
                         description="Training: rules")
+    # Review framing and rating rule (2026-11-16, user decisions). The review is the setting, not
+    # the coder's job: only the first note is requested. The rating rule does not mention notes
+    # and uses no word for what a good note looks like, so it cannot tell the vague cells what the
+    # constructive reply is meant to teach. Since 2026-11-17 (user request: "this is important")
+    # the two paragraphs have a page of their own, after the rules page and before the practice,
+    # instead of sitting under the category list. The wording is unchanged. The question is created
+    # at the end of build() and inserted here, so every earlier QID stays as in the live survey.
+    TRAINING_NOTICE_HTML = page(
+        eyebrow("Training"),
+        title("About this week and your rating"),
+        box("The coding scheme is new and is under review this week. The coding supervisor decides whether any rule changes. After batch 1 the supervisor asks every coder for a first note. Later in the shift you can send a note if you wish.", "info", "About this week"),
+        box("At the end of the shift the supervisor gives each coder a rating from 1 to 5. The rating reflects the supervisor&rsquo;s overall impression of working with you. It sets your bonus.", "key", "Your rating"),
+        para("Two practice comments come first.", last=True),
+    )
     # The "Why the rules are this way" training page was removed on 2026-10-07 (user decision); the
     # rationale is still available as a tool on the note 2 pages.
     # The practice items carry the rule box and an answer page that explains the rule (user
@@ -669,6 +676,18 @@ def build(args):
         para("If you have questions, please message the researcher through Prolific.", last=True),
     ), description="Debrief")
     s.block("Debrief", [debrief])
+
+    # Training notice page (2026-11-17), created last so that no earlier QID moves; see the comment
+    # at the training block. It goes after the rules page and its timer, on a page of its own.
+    training_notice = s.text("training_notice", TRAINING_NOTICE_HTML, description="Training: this week and your rating")
+    t_training_notice = s.timing("t_training_notice")
+    training_block = next(block for block in s.blocks if block["Description"] == "Training")
+    first_break = next(i for i, element in enumerate(training_block["BlockElements"]) if element["Type"] == "Page Break")
+    training_block["BlockElements"][first_break + 1:first_break + 1] = [
+        {"Type": "Question", "QuestionID": training_notice},
+        {"Type": "Question", "QuestionID": t_training_notice},
+        {"Type": "Page Break"},
+    ]
 
     # Flow ------------------------------------------------------------------------------------
     flow = [

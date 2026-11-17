@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-11-17 16:31:26",
+    "SurveyCreationDate": "2026-11-17 17:12:10",
     "CreatorID": "UR_53e1a374503baeb",
-    "LastModified": "2026-11-17 16:31:26",
+    "LastModified": "2026-11-17 17:12:10",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -53,6 +53,17 @@
             {
               "Type": "Question",
               "QuestionID": "QID8"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID94"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID95"
             },
             {
               "Type": "Page Break"
@@ -1163,7 +1174,7 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "93",
+      "SecondaryAttribute": "95",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -1310,7 +1321,7 @@
       "SecondaryAttribute": "Training: rules",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Training</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your job and the coding rules</p><p style=\"margin:0 0 12px;line-height:1.6;\">Each comment goes into one of five categories.</p><div style=\"margin:0 0 16px;\"><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">TECH</span><span><b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">WORDING</span><span><b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">LENGTH</span><span><b>Length or pace.</b> How long the study took, including taking longer than the time advertised, or how slow or drawn-out it felt.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">PAYMENT</span><span><b>Payment or bonus.</b> The fee, the bonus, or when it is paid.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">CONTENT</span><span><b>Unsuitable question.</b> A question or topic that was too personal, inappropriate, one-sided, or did not apply to the person.</span></div></div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>Choose one category for each comment.</b></div><p style=\"margin:0 0 12px;line-height:1.6;\"><b>About this week.</b> The coding scheme is new and is under review this week. The coding supervisor decides whether any rule changes. After batch 1 the supervisor asks every coder for a first note. Later in the shift you can send a note if you wish.</p><p style=\"margin:0 0 12px;line-height:1.6;\"><b>Your rating.</b> At the end of the shift the supervisor gives each coder a rating from 1 to 5. The rating reflects the supervisor&rsquo;s overall impression of working with you. It sets your bonus.</p><p style=\"margin:0 0 12px;line-height:1.6;\">Two practice comments come first.</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Codebook v3.1 &middot; rules set by the coding supervisor</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Training</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your job and the coding rules</p><p style=\"margin:0 0 12px;line-height:1.6;\">Each comment goes into one of five categories.</p><div style=\"margin:0 0 16px;\"><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">TECH</span><span><b>Technical problem.</b> Something in the study did not work: a page, a clip, a button, the timing, or how it displayed.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">WORDING</span><span><b>Unclear instruction or question.</b> An instruction, question or answer option was confusing or hard to interpret.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">LENGTH</span><span><b>Length or pace.</b> How long the study took, including taking longer than the time advertised, or how slow or drawn-out it felt.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">PAYMENT</span><span><b>Payment or bonus.</b> The fee, the bonus, or when it is paid.</span></div><div style=\"display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #eef1f4;\"><span style=\"flex:0 0 84px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;\">CONTENT</span><span><b>Unsuitable question.</b> A question or topic that was too personal, inappropriate, one-sided, or did not apply to the person.</span></div></div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><b>Choose one category for each comment.</b></div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Codebook v3.1 &middot; rules set by the coding supervisor</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -5820,6 +5831,87 @@
         "QuestionID": "QID93",
         "DataExportTag": "debrief",
         "QuestionDescription": "Debrief",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_6488f4e557ca211",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID94",
+      "SecondaryAttribute": "Training: this week and your rating",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Training</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">About this week and your rating</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><p style=\"margin:0 0 6px;font-weight:600;color:#2f5d8a;\">About this week</p>The coding scheme is new and is under review this week. The coding supervisor decides whether any rule changes. After batch 1 the supervisor asks every coder for a first note. Later in the shift you can send a note if you wish.</div><div style=\"border-left:4px solid #c98a12;background:#fff8e8;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><p style=\"margin:0 0 6px;font-weight:600;color:#c98a12;\">Your rating</p>At the end of the shift the supervisor gives each coder a rating from 1 to 5. The rating reflects the supervisor&rsquo;s overall impression of working with you. It sets your bonus.</div><p style=\"margin:0 0 0px;line-height:1.6;\">Two practice comments come first.</p></div>",
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "ChoiceOrder": [],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID94",
+        "DataExportTag": "training_notice",
+        "QuestionDescription": "Training: this week and your rating",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_6488f4e557ca211",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID95",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID95",
+        "DataExportTag": "t_training_notice",
+        "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {

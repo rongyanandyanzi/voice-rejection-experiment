@@ -20,6 +20,9 @@ put into it could not be told apart. Version 7 requests nothing after the reply.
 3. **Training**: the scheme is under review this week, only the first note is requested, and the
    rating reflects the supervisor's overall impression. The rating rule never mentions notes and
    no participant text says what a good note looks like.
+   Since 2026-11-17 (user request) the two paragraphs, "About this week" and "Your rating", are on
+   a page of their own after the rules page: `training_notice` (QID94) with the page timer
+   `t_training_notice` (QID95). Added to the live survey by hand; same QIDs as the builder.
 4. **Batch 1**, **Note 1** (requested, with `h_note1_meta`), **Batch 2**, **Waiting page**: as in
    version 6. The admin tasks are not built.
 5. **New messages**: the batch 1 card says "Result: meets standard" (no "rating"). Reply card as before.
