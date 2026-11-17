@@ -18,7 +18,7 @@ problems), a requested note to the coding supervisor, batch 2 while the note is 
 supervisor's messages with the reply in the assigned cell, then batch 3 (eight comments: three raise
 two problems, three fit no category). After the reply nothing is requested: the coder can send a
 remark at the midpoint of batch 3 (after comment 4) and, at the end, finish, send a quick remark, or
-prepare a proposal in a workspace (own coding, project archive, reporting page). Voice frequency is
+prepare a proposal in a workspace that shows the coder's own coding. Voice frequency is
 the number of occasions used; voice quality improvement effort is the coded content plus the logged
 work. The supervisor rates each coder at the end of the shift; the rule never mentions notes.
 Versions up to 6 are built from the git history of this file (last v6 commit 12ea8b5).
@@ -124,68 +124,11 @@ BATCH3 = [
     "Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.",
 ]
 
-# Project archive shown in the workspace (2026-11-16): thirty comments "from earlier shifts", each
-# with the labels of two coders. Written by us. Kind is for the analysis only and is never shown:
-# one = one clear problem, two = two problems, none = fits no category, unclear = leave out of a
-# count. The two coders disagree on 6 of the 9 two-problem comments and on 1 of the 15 one-problem
-# comments; overall they agree on 19 of 30. All four no-category comments are questions about
-# results or later studies.
-ARCHIVE = [
-    ("A01", "Several questions were about my car, but I don't drive.", "CONTENT", "WORDING", "one"),
-    ("A02", "Are you running a second part of this? I'd like to take part.", "PAYMENT", "CONTENT", "none"),
-    ("A03", "The questions about my income felt too personal.", "CONTENT", "CONTENT", "one"),
-    ("A04", "The pictures in the rating task didn't load on my phone.", "TECH", "TECH", "one"),
-    ("A05", "The middle section really dragged.", "LENGTH", "LENGTH", "one"),
-    ("A06", "It was fine I suppose, just a bit much.", "LENGTH", "LENGTH", "unclear"),
-    ("A07", "The payment came late, and the question about religion felt inappropriate.", "PAYMENT", "PAYMENT", "two"),
-    ("A08", "Took me 25 minutes, the listing said 12.", "LENGTH", "LENGTH", "one"),
-    ("A09", "The page crashed halfway through, and some of the questions about my relationship were too private.", "CONTENT", "TECH", "two"),
-    ("A10", "The progress bar stayed at 0% the whole way through.", "TECH", "TECH", "one"),
-    ("A11", "Can I get a copy of my own results?", "CONTENT", "CONTENT", "none"),
-    ("A12", "Some of the wording was confusing, and the whole thing went on far too long.", "WORDING", "LENGTH", "two"),
-    ("A13", "The pay is low for a study like this.", "PAYMENT", "PAYMENT", "one"),
-    ("A14", "The instructions on the second task made no sense to me, and it felt like it would never end.", "WORDING", "WORDING", "two"),
-    ("A15", "The audio cut out twice, and the fee is lower than what was advertised.", "TECH", "PAYMENT", "two"),
-    ("A16", "The timer froze on the reaction task, and it was much longer than it needed to be.", "TECH", "LENGTH", "two"),
-    ("A17", "I didn't understand what \"household\" was meant to include.", "WORDING", "WORDING", "one"),
-    ("A18", "Still waiting on the bonus from the first part.", "PAYMENT", "PAYMENT", "one"),
-    ("A19", "A few questions didn't apply to me as I'm retired, and the answer options were hard to tell apart.", "CONTENT", "WORDING", "two"),
-    ("A20", "The instructions for the memory task were unclear, I didn't know when to start typing.", "WORDING", "WORDING", "one"),
-    ("A21", "I wasn't sure what the slider question was asking, and it took a lot longer than advertised.", "LENGTH", "WORDING", "two"),
-    ("A22", "Got an error message after the consent page and had to start again.", "TECH", "TECH", "one"),
-    ("A23", "The questions on politics seemed to lean one way.", "CONTENT", "CONTENT", "one"),
-    ("A24", "Who do I contact to hear about the next study?", "WORDING", "CONTENT", "none"),
-    ("A25", "The scale went from 1 to 7 but didn't say which end was \"agree\".", "WORDING", "WORDING", "one"),
-    ("A26", "It ran well over the stated time, and I still haven't had the bonus.", "LENGTH", "LENGTH", "two"),
-    ("A27", "Will we get to see the findings when the study is finished?", "CONTENT", "WORDING", "none"),
-    ("A28", "I was paid less than the amount shown on the listing.", "PAYMENT", "PAYMENT", "one"),
-    ("A29", "Some parts were odd.", "WORDING", "CONTENT", "unclear"),
-    ("A30", "Way too long for what it was.", "LENGTH", "LENGTH", "one"),
-]
-
-# "How results are reported", the third workspace section. It says how the report is built, that an
-# agreement check exists and that each record has an uncounted notes field. It gives no agreement
-# figure, no target and no bar for changing a rule (user decisions 2026-11-16).
-REPORT_SHARES = [("TECH", 26), ("WORDING", 22), ("LENGTH", 24), ("PAYMENT", 15), ("CONTENT", 13)]
-
-
-def report_html():
-    names = {code: name for code, name, _ in CATEGORIES}
-    cell = "padding:6px 10px;border-bottom:1px solid #eef1f4;font-size:14px;"
-    rows = "".join(
-        f"<tr><td style=\"{cell}\"><b>{code}</b> &middot; {names[code]}</td><td style=\"{cell}text-align:right;\">{share}%</td></tr>"
-        for code, share in REPORT_SHARES)
-    total = sum(share for _, share in REPORT_SHARES)
-    rows += f"<tr><td style=\"{cell}font-weight:600;\">Total</td><td style=\"{cell}text-align:right;font-weight:600;\">{total}%</td></tr>"
-    block = "margin:0 0 12px;"
-    return (
-        f"<p style=\"{block}\"><b>The weekly report.</b> Each week the project reports the share of comments in each category.</p>"
-        f"<table style=\"border-collapse:collapse;margin:0 0 14px;min-width:280px;\"><tbody>{rows}</tbody></table>"
-        f"<p style=\"{block}\"><b>How it is built.</b> Each comment is counted once, under the one category its coder chose.</p>"
-        f"<p style=\"{block}\"><b>The agreement check.</b> Some comments are coded by two coders working separately. The project checks how often the two coders choose the same category.</p>"
-        "<p style=\"margin:0;\"><b>The comment record.</b> Each comment is stored with its category and a notes field. Coders can type anything in the notes field. Notes are stored with the comment but are not counted in the report.</p>"
-    )
-
+# The workspace was built on 2026-11-16 with two more sections: a project archive (thirty comments
+# "from earlier shifts" with two coders' labels, written by us) and a page on how results are
+# reported. The user removed both on 2026-11-17: the page asked too much, and the archive held
+# comments the participant never coded. The workspace now shows the coder's own 21 comments only.
+# Both sections are in the git history at 35d488b.
 
 # The supervisor rates each coder at the end of the shift (2026-11-16). The line is repeated on the
 # batch 3 pages and on the two choice pages; it never mentions notes.
@@ -552,7 +495,7 @@ def build(args):
     ), [
         "<b>Finish the shift.</b> Nothing more is sent.",
         "<b>Send a quick remark.</b> A line or two, sent as it is.",
-        "<b>Prepare a proposal.</b> Opens your workspace with your coding, the project archive and the page on how results are reported. You then write a fuller note.",
+        "<b>Prepare a proposal.</b> Opens your workspace with the comments you coded. You then write a fuller note.",
     ])
     end_remark = s.essay("end_remark", page(
         f"<p style=\"font-size:16px;font-weight:600;color:{INK};margin:0 0 6px;\">Your remark to the coding supervisor</p>",
@@ -562,8 +505,8 @@ def build(args):
     s.block("End choice", [end_choice, s.timing("t_end_choice"), "PB", end_remark])
 
     # 9b. Workspace and proposal (only after "Prepare a proposal") --------------------------------
-    # One page: three sections that open on click (js_workspace.js builds and logs them), the coder's
-    # first note and the supervisor's reply, and the note box. The coder's own labels reach the script
+    # One page: the section "Your coding", which opens on click (js_workspace.js builds and logs
+    # it), the coder's first note and the supervisor's reply, and the note box. The coder's own labels reach the script
     # through hidden spans of piped text. The note is not required: someone who opens the workspace
     # and sends nothing has not spoken up.
     own_rows = []
@@ -573,14 +516,12 @@ def build(args):
             own_rows.append([batch, number, text])
             own_spans += f"<span id=\"cs-own-{batch}-{number}\" style=\"display:none\">${{q://{qid}/ChoiceGroup/SelectedChoices}}</span>"
     workspace_js = (js("js_workspace.js", s.service_url)
-                    .replace('"__CS_OWN__"', json.dumps(own_rows, ensure_ascii=False))
-                    .replace('"__CS_ARCHIVE__"', json.dumps([list(row[:4]) for row in ARCHIVE], ensure_ascii=False))
-                    .replace('"__CS_REPORT_HTML__"', json.dumps(report_html(), ensure_ascii=False)))
+                    .replace('"__CS_OWN__"', json.dumps(own_rows, ensure_ascii=False)))
     assert "__CS_" not in workspace_js and "${" not in workspace_js
     workspace = s.text("workspace", page(
         eyebrow("Your workspace"),
         title("Prepare your note"),
-        para("Open any of the three sections. When you are ready, write your note below."),
+        para("You can open your coding below. When you are ready, write your note."),
         "<div id=\"cs-ws-root\"></div>",
     ) + own_spans, js=workspace_js, description="Workspace")
     # The small line keeps the lowercase "batch 3": js_note_essay.js uses it to tell note 2 from note 1.
@@ -717,14 +658,13 @@ def build(args):
 
     # 13. Debrief (back since 2026-11-16: the rating and bonus rule make one necessary). Everyone
     # is paid the full bonus. No amount is named, and the page does not say how the reply was
-    # produced (user decisions 2026-11-16).
+    # produced (user decisions 2026-11-16). The archive paragraph went with the archive (2026-11-17).
     debrief = s.text("debrief", page(
         eyebrow("End of the shift"),
         title("Thank you. One thing you should know."),
         para("This shift was part of a research study on how people respond when a suggestion at work is turned down."),
         box("<b>Your bonus.</b> Every participant who completes the study receives the full bonus, whatever happened during the shift. The rating was part of the study and does not reduce anyone&rsquo;s pay.", "good"),
         para("<b>The supervisor&rsquo;s reply.</b> Participants received replies that differed in tone and in detail. The reply you received was part of the study. It was not a judgment of you or of your work."),
-        para("<b>The archive.</b> The comments and the two coders&rsquo; labels in the project archive were written by the research team."),
         para("Please do not share these details with others who might take part."),
         para("If you have questions, please message the researcher through Prolific.", last=True),
     ), description="Debrief")

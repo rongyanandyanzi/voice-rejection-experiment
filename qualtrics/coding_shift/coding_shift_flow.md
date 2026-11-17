@@ -31,21 +31,20 @@ put into it could not be told apart. Version 7 requests nothing after the reply.
    shown, 200 characters). The supervisor does not reply during batch 3.
 8. **End choice** (own block): `end_choice` (1 finish, 2 quick remark, 3 prepare a proposal),
    page timer `t_end_choice`, then `end_remark` alone on the next page (display logic, 200 characters).
-9. **Workspace** (branch `end_choice` = 3): `workspace` (three sections built and logged by
-   `js_workspace.js`: own coding, project archive of thirty comments with two coders' labels, how
-   results are reported), `h_ws_meta`, `note2` (not required), `h_note2_meta`, `t_workspace`.
+9. **Workspace** (branch `end_choice` = 3): `workspace` (one section, "Your coding", built and
+   logged by `js_workspace.js`: the coder's own 21 comments with tick boxes; a project archive and a
+   page on how results are reported were removed on 2026-11-17, user decisions), `h_ws_meta`,
+   `note2` (not required), `h_note2_meta`, `t_workspace`.
 10. **Questionnaire**: VF and VQ with instructions about the part of the shift after the reply; VQ2
     and VQ3 reworded; report list as before.
 11. **Manipulation checks** (branch `voice1` = 1): task attribution, social attribution, politeness,
     constructiveness, unchanged.
-12. **Closing**: the open question. **Debrief**: full bonus for everyone, the reply and the archive
-    were part of the study; no amount and nothing on how the reply was produced.
+12. **Closing**: the open question. **Debrief**: full bonus for everyone, the reply was part of the
+    study; no amount and nothing on how the reply was produced.
 
 Measures: voice frequency = occasions used (`mid_remark`, and `end_remark` or `note2`), 0 to 2.
 Effort = coded content of what was sent plus `h_ws_meta`:
-`own_opens;own_ms;arch_opens;arch_ms;rep_opens;rep_ms;first_open_ms;own_ticks;arch_ticks;filter_uses;page_ms`
-(ticks are `batch-number` or archive ids, joined by `|`). The archive key (kind of each comment) is
-the `ARCHIVE` list in the builder.
+`own_opens;own_ms;first_open_ms;own_ticks;page_ms` (ticks are `batch-number`, joined by `|`).
 
 After import, set in the editor as for version 6: "None of these" exclusive and the report list in
 random order with the last option fixed; the two Prolific header scripts; check the end-of-survey

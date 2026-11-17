@@ -334,7 +334,7 @@ Shown after comment 8. It replaces the required second note.
 >
 > ○ **Finish the shift.** Nothing more is sent.
 > ○ **Send a quick remark.** A line or two, sent as it is.
-> ○ **Prepare a proposal.** Opens your workspace with your coding, the project archive and the page on how results are reported. You then write a fuller note.
+> ○ **Prepare a proposal.** Opens your workspace with the comments you coded. You then write a fuller note.
 >
 > *The supervisor rates each coder at the end of the shift.*
 
@@ -347,15 +347,13 @@ Shown on the next page after "Send a quick remark".
 
 ## B14b. Workspace · new
 
-One page. Three sections that open on click, all closed at first. The note box is below them.
+One page. One section, "Your coding", which opens on click and is closed at first. The note box is below it.
 
 > YOUR WORKSPACE
 > **Prepare your note**
-> Open any of the three sections. When you are ready, write your note below.
+> You can open your coding below. When you are ready, write your note.
 >
 > ▸ Your coding
-> ▸ Project archive
-> ▸ How results are reported
 >
 > **Your note on batch 1:** [the participant's note]
 > **The coding supervisor's reply:** [the reply]
@@ -381,81 +379,14 @@ What the participant's own batches contain:
 | 3 | 8 | 3 | 3 |
 | Total | 21 | 10 | 3 |
 
-### Section "Project archive"
+### Sections removed on 17 November 2026
 
-> **Project archive**
-> Thirty comments from earlier shifts. Each was coded by two coders working separately. Tick any comments you want to count. You can filter by category.
-> Ticked: 0 of 30
+User decisions. The workspace first had two more sections. Neither is part of the study now.
 
-The participant sees the first four columns and a tick box. The last column is our key.
+- **Project archive.** Thirty comments said to come from earlier shifts, with two coders' labels. Removed because the participant never coded these comments.
+- **How results are reported.** A sample weekly report and a line on an uncounted notes field. Removed because it asked too much of participants.
 
-| No. | Comment | Coder A | Coder B | Kind |
-|---|---|---|---|---|
-| A01 | Several questions were about my car, but I don't drive. | CONTENT | WORDING | one |
-| A02 | Are you running a second part of this? I'd like to take part. | PAYMENT | CONTENT | none |
-| A03 | The questions about my income felt too personal. | CONTENT | CONTENT | one |
-| A04 | The pictures in the rating task didn't load on my phone. | TECH | TECH | one |
-| A05 | The middle section really dragged. | LENGTH | LENGTH | one |
-| A06 | It was fine I suppose, just a bit much. | LENGTH | LENGTH | unclear |
-| A07 | The payment came late, and the question about religion felt inappropriate. | PAYMENT | PAYMENT | two |
-| A08 | Took me 25 minutes, the listing said 12. | LENGTH | LENGTH | one |
-| A09 | The page crashed halfway through, and some of the questions about my relationship were too private. | CONTENT | TECH | two |
-| A10 | The progress bar stayed at 0% the whole way through. | TECH | TECH | one |
-| A11 | Can I get a copy of my own results? | CONTENT | CONTENT | none |
-| A12 | Some of the wording was confusing, and the whole thing went on far too long. | WORDING | LENGTH | two |
-| A13 | The pay is low for a study like this. | PAYMENT | PAYMENT | one |
-| A14 | The instructions on the second task made no sense to me, and it felt like it would never end. | WORDING | WORDING | two |
-| A15 | The audio cut out twice, and the fee is lower than what was advertised. | TECH | PAYMENT | two |
-| A16 | The timer froze on the reaction task, and it was much longer than it needed to be. | TECH | LENGTH | two |
-| A17 | I didn't understand what "household" was meant to include. | WORDING | WORDING | one |
-| A18 | Still waiting on the bonus from the first part. | PAYMENT | PAYMENT | one |
-| A19 | A few questions didn't apply to me as I'm retired, and the answer options were hard to tell apart. | CONTENT | WORDING | two |
-| A20 | The instructions for the memory task were unclear, I didn't know when to start typing. | WORDING | WORDING | one |
-| A21 | I wasn't sure what the slider question was asking, and it took a lot longer than advertised. | LENGTH | WORDING | two |
-| A22 | Got an error message after the consent page and had to start again. | TECH | TECH | one |
-| A23 | The questions on politics seemed to lean one way. | CONTENT | CONTENT | one |
-| A24 | Who do I contact to hear about the next study? | WORDING | CONTENT | none |
-| A25 | The scale went from 1 to 7 but didn't say which end was "agree". | WORDING | WORDING | one |
-| A26 | It ran well over the stated time, and I still haven't had the bonus. | LENGTH | LENGTH | two |
-| A27 | Will we get to see the findings when the study is finished? | CONTENT | WORDING | none |
-| A28 | I was paid less than the amount shown on the listing. | PAYMENT | PAYMENT | one |
-| A29 | Some parts were odd. | WORDING | CONTENT | unclear |
-| A30 | Way too long for what it was. | LENGTH | LENGTH | one |
-
-What a careful reader can find. These counts were checked by script.
-
-| Kind | Number | Coders agree | Coders disagree |
-|---|---|---|---|
-| One clear problem | 15 | 14 | 1 |
-| Two problems | 9 | 3 | 6 |
-| No category | 4 | 1 | 3 |
-| Unclear | 2 | 1 | 1 |
-| Total | 30 | 19 | 11 |
-
-Overall agreement is 19 of 30, which is 63 per cent.
-
-### Section "How results are reported"
-
-> **How results are reported**
->
-> **The weekly report.** Each week the project reports the share of comments in each category.
->
-> | Category | Share of comments |
-> |---|---|
-> | TECH · Technical problem | 26% |
-> | WORDING · Unclear instruction or question | 22% |
-> | LENGTH · Length or pace | 24% |
-> | PAYMENT · Payment or bonus | 15% |
-> | CONTENT · Unsuitable question | 13% |
-> | Total | 100% |
->
-> **How it is built.** Each comment is counted once, under the one category its coder chose.
->
-> **The agreement check.** Some comments are coded by two coders working separately. The project checks how often the two coders choose the same category.
->
-> **The comment record.** Each comment is stored with its category and a notes field. Coders can type anything in the notes field. Notes are stored with the comment but are not counted in the report.
-
-The page does not say when a rule is changed. It gives no agreement figure and no target (user decision, 16 November 2026). A coder can still work out from the archive that the two coders disagree on 11 of 30 comments.
+Effort is now read from two things: whether the coder goes back over their own 21 comments, and what they write.
 
 ## B15. Questionnaire · revised
 
@@ -572,13 +503,11 @@ Polite. Courteous. Sensitive to my feelings. Respectful toward me. Considerate t
 >
 > **The supervisor's reply.** Participants received replies that differed in tone and in detail. The reply you received was part of the study. It was not a judgment of you or of your work.
 >
-> **The archive.** The comments and the two coders' labels in the project archive were written by the research team.
->
 > Please do not share these details with others who might take part.
 >
 > If you have questions, please message the researcher through Prolific.
 
-The debrief is the last page of the survey. Both paragraphs on the reply and on the archive are kept (user decision, 16 November 2026). It does not say how the reply was produced and names no bonus amount.
+The debrief is the last page of the survey. The paragraph on the reply is kept (user decision, 16 November 2026). The archive paragraph went with the archive on 17 November. It does not say how the reply was produced and names no bonus amount.
 
 ---
 
@@ -594,7 +523,7 @@ The debrief is the last page of the survey. Both paragraphs on the reply and on 
 | end_choice | finish, remark, or proposal |
 | end_remark | the remark text |
 | t_end_choice | time on the end page, from the Qualtrics page timer |
-| ws_meta | for each section: number of openings and time open. Time of the first opening. Ticks in own coding and in the archive, with row numbers. Filter uses. Time on the page. |
+| ws_meta | "Your coding": number of openings, time open, time of the first opening, which comments were ticked. Time on the page. |
 | note2, note2_meta | the proposal note and the writing record, as today |
 
 Everything recorded in version 6 stays.
@@ -608,7 +537,7 @@ Everything recorded in version 6 stays.
 | Count given | 0 or 1 |
 | Supervisor's concern answered | 0 or 1 |
 | Workable fix offered | 0 or 1 |
-| Workspace use | sections opened, time, comments ticked, share of ticks that are correct |
+| Workspace use | whether "Your coding" was opened, time open, comments ticked, share of ticks that are correct |
 
 Non-voicers score 0 on the content codes.
 
@@ -618,9 +547,8 @@ Non-voicers score 0 on the content codes.
 |---|---|---|
 | 0 | None | Nothing sent |
 | 1 | None | "Some comments fit two categories." |
-| 2 | Counted own batch | "3 of the 8 comments in batch 3 raised two problems." |
-| 3 | Went through the archive | "9 of 30 archive comments raise two problems, and the two coders disagree on 6 of them." |
-| 4 | Also used the reporting page | "Keep one counted category and record the second problem in the notes field. The report still adds to 100 and the two coders should agree more often." |
+| 2 | Went back over own coding and counted | "10 of the 21 comments I coded raise two problems, and 3 fit no category." |
+| 3 | Also answered the supervisor's concern | "10 of 21 comments raise two problems. Count the first category only and record the second, so each comment is still counted once." |
 
 ## C4. Predicted pattern
 
@@ -635,11 +563,17 @@ A constructive reply may lower midpoint voice without lowering total voice. This
 
 ---
 
-# Part D. Decisions made on 16 November 2026
+# Part D. Decisions
 
-1. **Agreement figures on the reporting page.** Not shown.
-2. **Debrief.** The paragraphs on the reply and on the archive are kept. The debrief is shown at the end.
-3. **Bonus amount.** Not mentioned anywhere in the survey.
+16 November 2026:
+
+1. **Debrief.** The paragraph on the reply is kept. The debrief is shown at the end.
+2. **Bonus amount.** Not mentioned anywhere in the survey.
+
+17 November 2026:
+
+3. **Reporting page.** Removed from the workspace.
+4. **Project archive.** Removed from the workspace. The workspace shows the coder's own 21 comments only.
 
 The debrief names no contact. It asks participants to message the researcher through Prolific.
 
