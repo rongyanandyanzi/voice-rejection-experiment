@@ -5,7 +5,7 @@ Usage:
     python3 qualtrics/coding_shift/build_coding_shift_qsf.py
         [--service-url https://aetheria-gardens-messages.onrender.com]
         [--completion-url https://app.prolific.com/submissions/complete?cc=CODE]
-        [--out qualtrics/coding_shift/the_coding_shift_v7.qsf]
+        [--out qualtrics/coding_shift/the_coding_shift_v8.qsf]
 
 Import in Qualtrics: Projects > Create a new project > Survey > Import a QSF file. Everything is
 inside: blocks, questions, question JavaScript, embedded data, randomiser, branches and the
@@ -22,6 +22,16 @@ prepare a proposal in a workspace that shows the coder's own coding. Voice frequ
 the number of occasions used; voice quality improvement effort is the coded content plus the logged
 work. The supervisor rates each coder at the end of the shift; the rule never mentions notes.
 Versions up to 6 are built from the git history of this file (last v6 commit 12ea8b5).
+
+Version 8 (2026-11-23, user decisions): under every comment of batch 3 there is a button "Report
+this comment to the coding supervisor" with an optional one-line "What is the problem?"
+(js_report.js). The number of reports is the voice frequency measure (0 to 8); the note page after
+comment 4 is gone; the last note page stays for effort. Batches 1 and 2 have no button: it would
+add to the participants' load, and the supervisor's reply, which answers the first note only, would
+ignore reports sent before it.
+Version 8 is a fresh import, so the hidden leftovers of version 7 (mid_choice, mid_remark,
+end_choice, end_remark and their timers) are not built. Version 7 as published is
+the_coding_shift_v7.qsf (SV_8IbAzIQqJXlIerk).
 """
 import argparse
 import html
@@ -230,13 +240,42 @@ def card(head, body_html):
     return f"<div style=\"{CARD_STYLE}\"><div style=\"{CARD_HEAD}\">{head}</div><div style=\"{CARD_BODY}\">{body_html}</div></div>"
 
 
+# Each batch has its own colour, shown as a solid badge at the top of every page of the batch and as
+# the tint and border of the comment card, so coders can tell batch 1, 2 and 3 apart at a glance
+# (user request 2026-11-23). The comment is the largest text on the page: at 17px it was smaller
+# than the answer options (same request).
+BATCH_THEME = {
+    1: ("#2f5d8a", "#eef3f9"),   # blue
+    2: ("#1f7a6b", "#e9f6f2"),   # green
+    3: ("#7a4a9e", "#f5eefa"),   # purple
+    0: ("#5f6b7a", "#f3f5f7"),   # practice: grey
+}
+PILL = "display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;"
+PILL_REST = "font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;"
+
+
+def batch_badge(batch, rest="", label=None):
+    colour = BATCH_THEME[batch][0]
+    tail = f"<span style=\"{PILL_REST}\">{rest}</span>" if rest else ""
+    return f"<p style=\"margin:0 0 10px;\"><span style=\"{PILL}background:{colour};\">{label or f'Batch {batch}'}</span>{tail}</p>"
+
+
+def comment_card(batch, text):
+    colour, tint = BATCH_THEME[batch]
+    return (f"<p style=\"font-size:22px;line-height:1.45;font-weight:500;color:{INK};background:{tint};border-left:6px solid {colour};"
+            f"border-radius:8px;padding:16px 18px;margin:0 0 14px;\">{esc(text)}</p>")
+
+
+COMMENT_PROMPT = f"<p style=\"font-size:16px;color:{MUTED};margin:0;\">Which category does this comment belong to?</p>"
+
+
 def comment_page(number, total, batch, text, reminder=None):
     return (
-        f"<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch {batch} &middot; comment {number} of {total}</p>"
+        batch_badge(batch, f"Comment {number} of {total}")
         # No rule box (removed 2026-10-08, user decision): the coder sees the comment and the five
         # categories only. The form allows one category and offers no "other".
-        + f"<p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">{esc(text)}</p>"
-        + "<p>Which category does this comment belong to?</p>"
+        + comment_card(batch, text)
+        + COMMENT_PROMPT
         + (f"<p style=\"font-size:13px;color:{MUTED};margin:10px 0 0;\">{reminder}</p>" if reminder else "")
     )
 
@@ -253,7 +292,7 @@ def tools_html(review_items_html):
 
 
 def build(args):
-    s = Survey("The Coding Shift v7", args.service_url, args.completion_url, args.completion_url)
+    s = Survey("The Coding Shift v8", args.service_url, args.completion_url, args.completion_url)
     s.survey_title = "Comment coding"
 
     def payload_of(qid):
@@ -327,9 +366,9 @@ def build(args):
     # The practice items carry the rule box and an answer page that explains the rule (user
     # decision 2026-10-08: the rule is taught in the practice, and nowhere else before the reply).
     practice_page = lambda number, text: (
-        f"<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Practice {number} of 2</p>"
+        batch_badge(0, f"{number} of 2", label="Practice")
         + RULE_HTML
-        + f"<p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;\">{esc(text)}</p><p>Which category does this comment belong to?</p>"
+        + comment_card(0, text) + COMMENT_PROMPT
     )
     practice1 = choice("practice_1", practice_page(1, PRACTICE[0][0]), CATEGORY_OPTIONS)
     practice1_fb = s.text("practice_1_feedback", page(
@@ -347,6 +386,27 @@ def build(args):
     t_train = s.timing("t_training")
     s.block("Training", [rules_page, t_train, "PB", practice1, "PB", practice1_fb, practice2, "PB", practice2_fb])
 
+    # Report button (version 8, 2026-11-23, user decision), batch 3 only. Under the category
+    # question of each comment: a one-option checkbox that js_report.js shows as a button, and an
+    # optional one-line text box that opens once the comment is reported. Reporting is never
+    # required and the page names no kind of problem, so nobody is told what to look for.
+    # Frequency of voice after the reply = number of batch 3 comments reported.
+    report_js_source = js("js_report.js", s.service_url)
+
+    def report_pair(batch, index):
+        flag = s.multi_choice(f"report_b{batch}_{index}", f"<span style=\"font-size:13px;color:{MUTED};\">Report to the supervisor</span>",
+                              ["Report this comment to the coding supervisor"], force=False)
+        why = s.add_question(f"report_b{batch}_{index}_why", {
+            "QuestionText": f"<p style=\"font-size:15px;color:{INK};margin:0;\">What is the problem? <span style=\"color:{MUTED};\">You can leave this empty.</span></p>",
+            "QuestionType": "TE",
+            "Selector": "SL",
+            "Configuration": {"QuestionDescriptionOption": "UseText"},
+            "Validation": force_validation(False),
+        }, f"Report b{batch}_{index}: what is the problem")
+        payload_of(flag)["QuestionJS"] = report_js_source.replace("__CS_TEXT_QID__", why)
+        payload_of(flag)["QuestionDescription"] = f"Report b{batch}_{index}"
+        return [flag, why]
+
     # 3. Batch 1 ----------------------------------------------------------------------------
     b1_elements = []
     b1_qids = []
@@ -360,7 +420,7 @@ def build(args):
             b1_elements.append("PB")
     # Batch 1 opens with its own page (added 2026-10-11, user request: make each batch clear).
     b1_intro = s.text("batch1_intro", page(
-        eyebrow("Batch 1 of 3"),
+        batch_badge(1, "of 3"),
         title("Batch 1: eight comments"),
         box("Practice is complete. Batch 1 has <b>eight comments</b>. Choose one category for each. <b>Your labels in this batch count.</b>", "info"),
         small("After batch 1 the coding supervisor will ask for your comments on the batch."),
@@ -371,7 +431,7 @@ def build(args):
     # One page, shown to everyone after batch 1 (the separate attach/finish choice page was dropped
     # on 2026-10-08): an empty box means no note.
     note1 = s.essay("note1", page(
-        eyebrow("Batch 1 complete"),
+        batch_badge(1, "complete"),
         title("The coding supervisor asks for your comments"),
         box(NOTE_PROMPT_1, "info"),
         small("Your answer goes to the coding supervisor with batch 1."),
@@ -386,7 +446,7 @@ def build(args):
         "Messages from the coding supervisor, then batch 3, the last batch.",
     )
     note1_next = s.text("note1_next", page(
-        eyebrow("Batch 1 submitted"),
+        batch_badge(1, "submitted"),
         "<div id=\"cs-next-note\" style=\"display:none\">"
         + title("Your note is with the coding supervisor")
         + box("Your note has been sent to the coding supervisor together with batch 1 and <b>is being reviewed</b>. The supervisor&rsquo;s reply will come with the batch 1 results.", "info")
@@ -408,7 +468,7 @@ def build(args):
 
     # 5b. Batch 2, coded while the supervisor reviews batch 1 and the note ------------------
     b2_intro = s.text("batch2_intro", page(
-        eyebrow("Batch 2 of 3"),
+        batch_badge(2, "of 3"),
         title("Batch 2: five new comments"),
         box("While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: five comments from a different study. <b>The coding rules are the same as for batch 1.</b>", "info"),
     ), description="Batch 2 intro")
@@ -424,7 +484,7 @@ def build(args):
 
     # 6. Waiting page -----------------------------------------------------------------------
     waiting = s.text("waiting", page(
-        eyebrow("Batch 2 submitted"),
+        batch_badge(2, "submitted"),
         title("Waiting for batch 3"),
         para("Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment."),
         box("<span id=\"cs-wait-status\" style=\"font-style:italic;\">Waiting for the supervisor&hellip;</span>", "info"),
@@ -438,9 +498,8 @@ def build(args):
     # 7. New messages -----------------------------------------------------------------------
     messages_html = (
         "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\"><span id=\"cs-new-count\">New messages</span> from the coding supervisor</p>"
-        # "Result", not "Quality rating" (2026-11-16): the word rating now belongs to the
-        # end-of-shift rating only.
-        + card("Batch 1 &middot; check", "<p style=\"margin:0 0 6px\">Batch 1 has been checked against the reference key.</p><p style=\"margin:0\">Result: <b style=\"color:#2f7a4a\">meets standard</b></p>")
+        # The "Batch 1 · check" card (checked against the reference key, result: meets standard) was
+        # removed on 2026-11-23 (user decision). The page now shows the reply card and the batch 3 card.
         + "<div id=\"cs-reply-card\">"
         + card("Coding supervisor &middot; re: your note on batch 1",
                "<p style=\"margin:0 0 10px;padding:8px 12px;background:#f1f3f5;border-radius:6px;font-size:13px;color:#556270;\">Your note: <span id=\"cs-note-echo\">${e://Field/note1_text}</span></p>"
@@ -452,70 +511,37 @@ def build(args):
     messages = s.text("messages", messages_html, js=js("js_messages.js", s.service_url), description="New messages")
     s.block("New messages", [messages, s.timing("t_messages")])
 
-    # 8. Batch 3, with the midpoint choice ------------------------------------------------------
-    # Version 7 (2026-11-16): after the reply nothing is requested. Two optional occasions measure
-    # voice frequency (0, 1 or 2 used): a remark at the midpoint, after comment 4, when no solid
-    # count is possible yet, and the end choice after comment 8. The supervisor does not reply
-    # during batch 3, so nobody gets a second dose of the manipulation. No prompt uses a word for
-    # what a good note looks like.
+    # 8. Batch 3 ----------------------------------------------------------------------------------
+    # After the reply nothing is requested. Voice frequency is the number of batch 3 comments the
+    # coder reports to the supervisor (report button, see above); the last note page after the batch
+    # carries the effort measure. The supervisor does not reply during batch 3, so nobody gets a
+    # second dose of the manipulation. No prompt uses a word for what a good note looks like.
+    # History: version 7 had a note page after comment 4 (first a two-option choice, then an
+    # optional box) and, until 2026-11-20, a three-option choice at the end. Version 8 drops both
+    # pages; they are in the_coding_shift_v7.qsf and in the git history.
     reminder_html = f"<p style=\"font-size:13px;color:{MUTED};margin:12px 0 0;font-style:italic;\">{RATING_REMINDER}</p>"
     b3_intro = s.text("batch3_intro", page(
-        eyebrow("Batch 3 of 3"),
+        batch_badge(3, "of 3"),
         title("Batch 3: eight comments"),
         box("This is the <b>last batch</b>: eight comments from a different study. The coding rules are the same as before.", "info"),
+        para("In this batch there is a button under each comment to <b>report that comment to the coding supervisor</b>. Using it is up to you."),
         small(RATING_REMINDER),
     ), description="Batch 3 intro")
-    MIDPOINT_AFTER = 4
-    mid_choice = choice("mid_choice", page(
-        eyebrow("Batch 3 of 3"),
-        title("Four of eight comments coded"),
-        para("You can go on with the batch, or send the coding supervisor a remark first.", last=True),
-        reminder_html,
-    ), ["Go on with the batch", "Send a remark, then go on"])
-    remark_js = js("js_remark.js", s.service_url)
-    mid_remark = s.essay("mid_remark", page(
-        f"<p style=\"font-size:16px;font-weight:600;color:{INK};margin:0 0 6px;\">Your remark to the coding supervisor</p>",
-        small("Your remark goes to the supervisor now. The supervisor reads coders&rsquo; notes before the end of the shift and does not reply during batch 3. Up to 200 characters."),
-    ), force=True, js=remark_js, height=70)
-    show_if(mid_remark, s.expr_choice(mid_choice, 2, True, "Midpoint: send a remark"))
     b3_elements = [b3_intro]
     b3_qids = []
     for index, text in enumerate(BATCH3, 1):
         qid = choice(f"b3_{index}", comment_page(index, len(BATCH3), 3, text, reminder=RATING_REMINDER), CATEGORY_OPTIONS)
         b3_qids.append(qid)
-        b3_elements += [qid, s.timing(f"t_b3_{index}")]
-        if index == MIDPOINT_AFTER:
-            # The remark box is alone on the next page, shown only after "Send a remark".
-            b3_elements += ["PB", mid_choice, s.timing("t_mid"), "PB", mid_remark]
+        b3_elements += [qid] + report_pair(3, index) + [s.timing(f"t_b3_{index}")]
         if index < len(BATCH3):
             b3_elements.append("PB")
     s.block("Batch 3", b3_elements)
 
-    # 9. End choice ---------------------------------------------------------------------------
-    # Replaces the required second note. "Finish" is always first; the order of the other two is
-    # fixed. The quick remark box is on the next page; "Prepare a proposal" leads to the workspace.
-    end_choice = choice("end_choice", page(
-        eyebrow("Batch 3 complete"),
-        title("Batch 3 has been sent to the coding supervisor"),
-        para("Before you finish the shift:", last=True),
-        reminder_html,
-    ), [
-        "<b>Finish the shift.</b> Nothing more is sent.",
-        "<b>Send a quick remark.</b> A line or two, sent as it is.",
-        "<b>Prepare a proposal.</b> Opens your workspace with the comments you coded. You then write a fuller note.",
-    ])
-    end_remark = s.essay("end_remark", page(
-        f"<p style=\"font-size:16px;font-weight:600;color:{INK};margin:0 0 6px;\">Your remark to the coding supervisor</p>",
-        small("Up to 200 characters."),
-    ), force=True, js=remark_js, height=70)
-    show_if(end_remark, s.expr_choice(end_choice, 2, True, "End: send a quick remark"))
-    s.block("End choice", [end_choice, s.timing("t_end_choice"), "PB", end_remark])
-
-    # 9b. Workspace and proposal (only after "Prepare a proposal") --------------------------------
-    # One page: the section "Your coding", which opens on click (js_workspace.js builds and logs
-    # it), the coder's first note and the supervisor's reply, and the note box. The coder's own labels reach the script
-    # through hidden spans of piped text. The note is not required: someone who opens the workspace
-    # and sends nothing has not spoken up.
+    # 9b. Last note page, shown to everyone (the block keeps the name "Workspace") ----------------
+    # One page: the 21 comments the coder labelled, in full (js_workspace.js builds the list and
+    # logs the ticks), the coder's first note and the supervisor's reply, and the optional note
+    # box. The coder's own labels reach the script through hidden spans of piped text. Voice at the
+    # end = a non-empty note2.
     own_rows = []
     own_spans = ""
     for batch, texts, qids in [(1, BATCH1, b1_qids), (2, BATCH2, b2_qids), (3, BATCH3, b3_qids)]:
@@ -526,9 +552,9 @@ def build(args):
                     .replace('"__CS_OWN__"', json.dumps(own_rows, ensure_ascii=False)))
     assert "__CS_" not in workspace_js and "${" not in workspace_js
     workspace = s.text("workspace", page(
-        eyebrow("Your workspace"),
-        title("Prepare your note"),
-        para("You can open your coding below. When you are ready, write your note."),
+        batch_badge(3, "complete"),
+        title("Batch 3 has been sent to the coding supervisor"),
+        para("Below are all the comments you coded in this shift. Further down you can leave a note for the coding supervisor if you wish."),
         "<div id=\"cs-ws-root\"></div>",
     ) + own_spans, js=workspace_js, description="Workspace")
     # The small line keeps the lowercase "batch 3": js_note_essay.js uses it to tell note 2 from note 1.
@@ -537,8 +563,9 @@ def build(args):
         card("The coding supervisor's reply to your note",
              f"<p style=\"margin:0 0 8px\">${{q://{hidden['rejection_msg1']}/ChoiceTextEntryValue}}</p>"
              f"<p style=\"margin:0\">${{q://{hidden['rejection_msg2']}/ChoiceTextEntryValue}}</p>"),
-        f"<p style=\"font-size:16px;font-weight:600;color:{INK};margin:0 0 6px;\">Your note to the coding supervisor</p>",
-        small("Your note goes to the supervisor with batch 3."),
+        para("Would you like to leave a note for the coding supervisor before you finish the shift? <b>This is optional.</b> You can leave the box empty and finish the shift."),
+        small("A note goes to the supervisor with batch 3."),
+        reminder_html,
     ),
                     force=False, js=js("js_note_essay.js", s.service_url), height=180)
     s.block("Workspace", [workspace, s.hidden_text("h_ws_meta", "ws_meta"), note2, s.hidden_text("h_note2_meta", "note2_meta"), s.timing("t_workspace")])
@@ -575,9 +602,15 @@ def build(args):
     # prompt the note 2 decision.
     # Version 7 (2026-11-16): the second note is no longer requested, so both instructions point at
     # the part of the shift after the reply. Everyone still answers both scales.
-    after_intro = ("Please think about <b>the part of the shift after the supervisor&rsquo;s reply</b>: batch 3 and the two points "
-                   "where you could send something to the supervisor. Please indicate how much you agree with each statement.")
-    vf = s.likert("VF", scale_intro("After the supervisor&rsquo;s reply", after_intro), [
+    # Reworded on 2026-11-23 (user: "this is not clear"): the instruction now names the reply, what
+    # came after it and the two chances to leave a note, instead of "the part of the shift" and
+    # "the two points where you could send something".
+    # Version 8 (2026-11-23): the two chances are now the report button during batch 3 and the note
+    # at the end.
+    after_intro = ("After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you could "
+                   "<b>report comments to the supervisor</b>, and at the end you could <b>leave a note</b>. "
+                   "The statements below are about <b>what you did during that time</b>. Please indicate how much you agree with each one.")
+    vf = s.likert("VF", scale_intro("What you did after the supervisor&rsquo;s reply", after_intro), [
         ("VF1", "I took the initiative to propose specific improvements to the coding process."),
         ("VF2", "I made a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."),
         ("VF3", "Even though the coding supervisor might seem dismissive, I persisted in communicating my alternative views on the coding rules."),
@@ -587,13 +620,13 @@ def build(args):
     ])
     # The stem "When preparing what I might raise with the coding supervisor" moved from the items
     # into the instruction on 2026-10-21 (user decision).
-    vq_intro = ("Please think about <b>the part of the shift after the supervisor&rsquo;s reply</b>, "
-                "and in particular about <b>what you did before deciding whether to send anything</b>. "
-                "Please indicate how much you agree with each statement.")
+    vq_intro = ("These statements are again about the time <b>after the supervisor&rsquo;s reply</b>: batch 3, the reports you could "
+                "send and the note at the end. Please think about <b>what you did before you decided whether to report or write</b>, "
+                "and indicate how much you agree with each statement.")
     # VQ2 and VQ3 reworded on 2026-11-16 to the concerns the replies actually raise (counting and
     # agreement; whether a change works in practice). They named "comparability with earlier coding"
     # and "re-coding work" before.
-    vq = s.likert("VQ", scale_intro("After the supervisor&rsquo;s reply", vq_intro), [
+    vq = s.likert("VQ", scale_intro("What you did after the supervisor&rsquo;s reply", vq_intro), [
         ("VQ1", "I strove to present a well-researched proposal backed by evidence from the comments."),
         ("VQ2", "I made every effort to address the supervisor's specific concerns about how comments are counted and whether coders agree."),
         ("VQ3", "I attempted to clarify any doubts the supervisor might have about how a change would work in practice."),
@@ -709,8 +742,7 @@ def build(args):
         s.flow_block("Waiting page"),
         s.flow_block("New messages"),
         s.flow_block("Batch 3"),
-        s.flow_block("End choice"),
-        s.flow_branch([s.expr_choice(end_choice, 3, True, "End: prepare a proposal")], [s.flow_block("Workspace")], "Prepare a proposal: workspace"),
+        s.flow_block("Workspace"),
         s.flow_block("Questionnaire"),
         s.flow_branch([s.expr_text(hidden["voice1"], "EqualTo", "1", "voice1")], [s.flow_block("Manipulation checks")], "Voicers: manipulation checks"),
         s.flow_block("Closing"),
@@ -729,7 +761,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--service-url", default="https://aetheria-gardens-messages.onrender.com")
     parser.add_argument("--completion-url", default="https://app.prolific.com/submissions/complete?cc=C184ZVR9")
-    parser.add_argument("--out", default=os.path.join(HERE, "the_coding_shift_v7.qsf"))
+    parser.add_argument("--out", default=os.path.join(HERE, "the_coding_shift_v8.qsf"))
     args = parser.parse_args()
     qsf, survey = build(args)
     with open(args.out, "w", encoding="utf-8") as handle:

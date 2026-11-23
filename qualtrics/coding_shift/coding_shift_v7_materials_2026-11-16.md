@@ -40,10 +40,9 @@ The participant is hired for one shift as a Feedback Coder. The job is to sort c
 | 8 | Waiting page | as now |
 | 9 | New messages, with the supervisor's reply | revised |
 | 10 | Batch 3, comments 1 to 4 | revised |
-| 11 | Midpoint choice | new |
+| 11 | Midpoint: one optional note box | new |
 | 12 | Batch 3, comments 5 to 8 | revised |
-| 13 | End choice | new |
-| 14 | Quick remark, or workspace and proposal | new |
+| 13 | Last note page: all coded comments and one optional note box | new |
 | 15 | Questionnaire | revised |
 | 16 | Questions about the reply | as now |
 | 17 | Final open question | as now |
@@ -55,8 +54,8 @@ Nothing is asked between the reply and batch 3. The supervisor does not reply to
 
 | Construct | Measure |
 |---|---|
-| Voice frequency | Number of occasions used after the reply, 0 to 2. Six-item scale. |
-| Voice quality improvement effort | Coded content of what was sent: a count, an answer to the supervisor's concern, a workable fix. Logged work in the workspace. Four-item scale. Non-voicers score 0. |
+| Voice frequency | Number of notes written after the reply, at the midpoint and at the end, 0 to 2. Six-item scale. |
+| Voice quality improvement effort | Coded content of what was sent: a count, an answer to the supervisor's concern, a workable fix. Ticks and time on the last note page. Four-item scale. Non-voicers score 0. |
 | Issue raised | The repeated two-problem issue, the new no-category issue, or both |
 | Task attribution | Five items |
 | Social attribution | Three items |
@@ -67,6 +66,8 @@ All rating scales use five points: 1 strongly disagree, 2 disagree, 3 neither ag
 ---
 
 # Part B. Pages in order
+
+**Look of the batch pages (23 November 2026, user request).** Each batch has its own colour: batch 1 blue, batch 2 green, batch 3 purple, practice grey. Every page of a batch opens with a solid badge in that colour ("BATCH 1" followed by "Comment 3 of 8", "of 3", "complete" or "submitted"). The comment is shown in a tinted card with a bar in the batch colour, at 22 px, larger than the answer options (16 px). The line "Which category does this comment belong to?" is smaller and grey.
 
 ## B1. Consent · revised
 
@@ -245,13 +246,9 @@ The page moves on by itself when the reply is ready.
 
 ## B10. New messages · revised
 
-Three cards. Only the first changes: the word "rating" is removed so it is not confused with the end-of-shift rating.
+Two cards. A first card, "Batch 1 · check" (checked against the reference key, result: meets standard), was removed on 23 November 2026 (user decision). The line above the cards now reads "2 new messages".
 
-> NEW MESSAGES FROM THE CODING SUPERVISOR
->
-> **Batch 1 · check**
-> Batch 1 has been checked against the reference key.
-> Result: **meets standard**
+> 2 NEW MESSAGES FROM THE CODING SUPERVISOR
 >
 > **Coding supervisor · re: your note on batch 1**
 > Your note: [the participant's note]
@@ -314,72 +311,50 @@ The last line is new. It also appears in small grey type on every batch 3 commen
 
 Three comments raise two problems and three fit no category. At the midpoint the coder has seen one of each in this batch. Comment 5 replaces "The questions about my family were quite personal, and the bonus still hasn't shown up."
 
-## B12. Midpoint choice · new
+## B12. Midpoint note · new
 
-Shown after comment 4.
+Shown to everyone after comment 4. User decision, 20 November 2026: no choice, only a text box, and the note is optional.
 
 > BATCH 3 OF 3
 > **Four of eight comments coded**
 >
-> You can go on with the batch, or send the coding supervisor a remark first.
+> Would you like to leave a note for the coding supervisor? **This is optional.** You can leave the box empty and go on with the batch.
 >
-> ○ Go on with the batch
-> ○ Send a remark, then go on
+> *A note goes to the supervisor now. The supervisor reads coders' notes before the end of the shift and does not reply during batch 3. Up to 200 characters.*
 >
 > *The supervisor rates each coder at the end of the shift.*
+>
+> [text box, not required, 200 characters]
 
-If "Send a remark" is chosen, the next page shows this. Otherwise the page is skipped.
+An empty box means no note at the midpoint.
 
-> **Your remark to the coding supervisor**
-> [one line, up to 200 characters]
-> *Your remark goes to the supervisor now. The supervisor reads coders' notes before the end of the shift and does not reply during batch 3.*
+## B13. Last note page · new
 
-## B13. End choice · new
-
-Shown after comment 8. It replaces the required second note.
+Shown to everyone after comment 8. User decisions, 20 November 2026: everyone sees all the comments they coded, and the three options are gone.
 
 > BATCH 3 COMPLETE
 > **Batch 3 has been sent to the coding supervisor**
 >
-> Before you finish the shift:
+> Below are all the comments you coded in this shift. Further down you can leave a note for the coding supervisor if you wish.
 >
-> ○ **Finish the shift.** Nothing more is sent.
-> ○ **Send a quick remark.** A line or two, sent as it is.
-> ○ **Prepare a proposal.** Opens your workspace with the comments you coded. You then write a fuller note.
->
-> *The supervisor rates each coder at the end of the shift.*
-
-## B14a. Quick remark · new
-
-Shown on the next page after "Send a quick remark".
-
-> **Your remark to the coding supervisor**
-> [up to 200 characters]
-
-## B14b. Workspace · new
-
-One page. One section, "Your coding", which opens on click and is closed at first. The note box is below it.
-
-> YOUR WORKSPACE
-> **Prepare your note**
-> You can open your coding below. When you are ready, write your note.
->
-> ▸ Your coding
->
-> **Your note on batch 1:** [the participant's note]
-> **The coding supervisor's reply:** [the reply]
->
-> **Your note to the coding supervisor**
-> [text box, no minimum length]
-> *Your note goes to the supervisor with batch 3.*
-
-### Section "Your coding"
-
 > **Your coding**
 > The 21 comments you coded in this shift, with the category you chose. Tick any comments you want to count.
 > Ticked: 0 of 21
+>
+> [table: batch, comment, your category, tick box]
+>
+> **Your note on batch 1:** [the participant's note]
+> **The coding supervisor's reply to your note:** [the reply]
+>
+> Would you like to leave a note for the coding supervisor before you finish the shift? **This is optional.** You can leave the box empty and finish the shift.
+>
+> *A note goes to the supervisor with batch 3.*
+>
+> *The supervisor rates each coder at the end of the shift.*
+>
+> [text box, not required]
 
-Each row shows the batch, the comment, the participant's category and a tick box. The tick box has no label, so it does not say what to look for.
+The list is shown in full, with nothing to open. The tick box has no label, so it does not say what to look for.
 
 What the participant's own batches contain:
 
@@ -390,14 +365,12 @@ What the participant's own batches contain:
 | 3 | 8 | 3 | 3 |
 | Total | 21 | 10 | 3 |
 
-### Sections removed on 17 November 2026
+## B14. Earlier versions of these two pages
 
-User decisions. The workspace first had two more sections. Neither is part of the study now.
+Not part of the study now. Nothing was deleted in Qualtrics: the old questions are hidden by a condition that is never true.
 
-- **Project archive.** Thirty comments said to come from earlier shifts, with two coders' labels. Removed because the participant never coded these comments.
-- **How results are reported.** A sample weekly report and a line on an uncounted notes field. Removed because it asked too much of participants.
-
-Effort is now read from two things: whether the coder goes back over their own 21 comments, and what they write.
+- **Until 20 November.** The midpoint asked "go on" or "send a remark". The end offered three options: finish, quick remark, or prepare a proposal in a workspace where the coded comments had to be opened.
+- **Until 17 November.** The workspace also had a project archive of thirty comments and a page on how results are reported.
 
 ## B15. Questionnaire · revised
 
@@ -409,7 +382,11 @@ Effort is now read from two things: whether the coder goes back over their own 2
 
 New instruction. The items are unchanged.
 
-> Please think about **the part of the shift after the supervisor's reply**: batch 3 and the two points where you could send something to the supervisor. Please indicate how much you agree with each statement.
+> **What you did after the supervisor's reply**
+>
+> After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you had **two chances to leave a note for the supervisor**: halfway through and at the end. The statements below are about **what you did during that time**. Please indicate how much you agree with each one.
+
+Reworded on 23 November 2026. The earlier text ("the part of the shift", "the two points where you could send something") was not clear.
 
 | Code | Item |
 |---|---|
@@ -424,7 +401,9 @@ New instruction. The items are unchanged.
 
 New instruction. VQ2 and VQ3 are reworded to match what the replies say.
 
-> Please think about **the part of the shift after the supervisor's reply**, and in particular about **what you did before deciding whether to send anything**. Please indicate how much you agree with each statement.
+> **What you did after the supervisor's reply**
+>
+> These statements are again about the time **after the supervisor's reply**: batch 3 and your two chances to leave a note. Please think about **what you did before you decided whether to write**, and indicate how much you agree with each statement.
 
 | Code | Item | Status |
 |---|---|---|
@@ -528,29 +507,26 @@ The debrief is the last page of the survey. The paragraph on the reply is kept (
 
 | Record | Content |
 |---|---|
-| mid_choice | go on, or remark |
-| mid_remark | the remark text |
-| t_mid | time on the midpoint page, from the Qualtrics page timer |
-| end_choice | finish, remark, or proposal |
-| end_remark | the remark text |
-| t_end_choice | time on the end page, from the Qualtrics page timer |
-| ws_meta | "Your coding": number of openings, time open, time of the first opening, which comments were ticked. Time on the page. |
-| note2, note2_meta | the proposal note and the writing record, as today |
+| mid_remark | the midpoint note, empty if none |
+| t_mid_note | time on the midpoint page, from the Qualtrics page timer |
+| note2, note2_meta | the last note, empty if none, and the writing record |
+| ws_meta | which coded comments were ticked, time to the first tick, time on the last page |
+| t_workspace | time on the last page, from the Qualtrics page timer |
 
-Everything recorded in version 6 stays.
+The columns mid_choice, t_mid, end_choice, end_remark and t_end_choice stay in the export but are always empty. Everything recorded in version 6 stays.
 
 ## C2. Scoring
 
 | Measure | Score |
 |---|---|
-| Voice frequency | 0, 1 or 2 occasions used |
+| Voice frequency | 0, 1 or 2 notes written after the reply: midpoint and end |
 | Issue raised | repeated issue, new issue, both, other |
 | Count given | 0 or 1 |
 | Supervisor's concern answered | 0 or 1 |
 | Workable fix offered | 0 or 1 |
-| Workspace use | whether "Your coding" was opened, time open, comments ticked, share of ticks that are correct |
+| Work on the last page | comments ticked, share of ticks that are correct, time on the page |
 
-Non-voicers score 0 on the content codes.
+A box that holds only "no", "none" or similar counts as no note. Non-voicers score 0 on the content codes.
 
 ## C3. Levels of effort, for the coding manual
 
@@ -558,7 +534,7 @@ Non-voicers score 0 on the content codes.
 |---|---|---|
 | 0 | None | Nothing sent |
 | 1 | None | "Some comments fit two categories." |
-| 2 | Went back over own coding and counted | "10 of the 21 comments I coded raise two problems, and 3 fit no category." |
+| 2 | Went over own coding and counted | "10 of the 21 comments I coded raise two problems, and 3 fit no category." |
 | 3 | Also answered the supervisor's concern | "10 of 21 comments raise two problems. Count the first category only and record the second, so each comment is still counted once." |
 
 ## C4. Predicted pattern
@@ -585,6 +561,11 @@ A constructive reply may lower midpoint voice without lowering total voice. This
 
 3. **Reporting page.** Removed from the workspace.
 4. **Project archive.** Removed from the workspace. The workspace shows the coder's own 21 comments only.
+
+20 November 2026:
+
+5. **Midpoint.** No choice. One optional note box for everyone.
+6. **Last note.** No three options. Everyone sees the 21 comments they coded, shown in full, and one optional note box.
 
 The debrief names no contact. It asks participants to message the researcher through Prolific.
 

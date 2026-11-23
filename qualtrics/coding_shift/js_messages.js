@@ -1,5 +1,5 @@
-// New-messages page: the batch rating card for everyone, the reply card only when a note was
-// attached. Piped text fills the reply; if a slot is empty the value kept in sessionStorage by the
+// New-messages page: the reply card when a note was attached, and the "batch 3 is ready" card. (The
+// batch 1 check card that used to come first was removed on 2026-11-23, user decision.) Piped text fills the reply; if a slot is empty the value kept in sessionStorage by the
 // waiting page is used, retried for up to 20 s. Next is enabled 15 s after the reply is on screen.
 Qualtrics.SurveyEngine.addOnload(function () {
   var question = this;
@@ -49,7 +49,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     }
   }
   var count = document.getElementById("cs-new-count");
-  if (count) count.textContent = hasReply ? "3 new messages" : "2 new messages";
+  if (count) count.textContent = hasReply ? "2 new messages" : "1 new message";
   try { Qualtrics.SurveyEngine.setEmbeddedData("messages_opened_at", new Date().toISOString()); } catch (error) {}
   // Next opens after the reading time, counted from when the reply is on screen.
   var readDone = false;

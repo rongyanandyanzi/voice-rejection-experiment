@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-11-17 17:12:10",
+    "SurveyCreationDate": "2026-11-23 14:01:17",
     "CreatorID": "UR_53e1a374503baeb",
-    "LastModified": "2026-11-17 17:12:10",
+    "LastModified": "2026-11-23 14:01:17",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -417,6 +417,10 @@
             {
               "Type": "Question",
               "QuestionID": "QID57"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID96"
             },
             {
               "Type": "Page Break"
@@ -1054,19 +1058,16 @@
           {
             "Type": "Branch",
             "FlowID": "FL_20",
-            "Description": "Prepare a proposal: workspace",
+            "Description": "Last note page: everyone",
             "BranchLogic": {
               "0": {
                 "0": {
-                  "LogicType": "Question",
-                  "QuestionID": "QID75",
-                  "QuestionIsInLoop": "no",
-                  "ChoiceLocator": "q://QID75/SelectableChoice/3",
-                  "Operator": "Selected",
-                  "QuestionIDFromLocator": "QID75",
-                  "LeftOperand": "q://QID75/SelectableChoice/3",
+                  "LogicType": "EmbeddedField",
+                  "LeftOperand": "condition",
+                  "Operator": "NotEqualTo",
+                  "RightOperand": "never_shown",
                   "Type": "Expression",
-                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">End: prepare a proposal</span> <span class=\"OpDesc\">Is Selected</span>"
+                  "Description": "<span class=\"ConjDesc\">If</span> <span class=\"LeftOpDesc\">condition</span> <span class=\"OpDesc\">NotEqualTo</span> <span class=\"RightOpDesc\">never_shown</span>"
                 },
                 "Type": "If"
               },
@@ -1174,7 +1175,7 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "95",
+      "SecondaryAttribute": "96",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -1348,10 +1349,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID4",
-      "SecondaryAttribute": "Practice 1 of 2   How to label this comment  Choose one category for each comment.  There is no &ldq",
+      "SecondaryAttribute": "Practice  1 of 2    How to label this comment  Choose one category for each comment.  There is no &l",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Practice 1 of 2</p><div style=\"border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:10px 0 14px;background:#f6f8fa;font-size:14px;\"><b>How to label this comment</b><p style=\"margin:6px 0 0\">Choose one category for each comment.</p><p style=\"margin:4px 0 0\">There is no &ldquo;other&rdquo; option. Every comment gets one of the five categories.</p></div><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;\">The audio clip on page 2 wouldn't play, so I had to guess what it said.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#5f6b7a;\">Practice</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">1 of 2</span></p><div style=\"border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:10px 0 14px;background:#f6f8fa;font-size:14px;\"><b>How to label this comment</b><p style=\"margin:6px 0 0\">Choose one category for each comment.</p><p style=\"margin:4px 0 0\">There is no &ldquo;other&rdquo; option. Every comment gets one of the five categories.</p></div><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f3f5f7;border-left:6px solid #5f6b7a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">The audio clip on page 2 wouldn't play, so I had to guess what it said.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1393,7 +1394,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID4",
         "DataExportTag": "practice_1",
-        "QuestionDescription": "Practice 1 of 2   How to label this comment  Choose one category for each comment.  There is no &ldq",
+        "QuestionDescription": "Practice  1 of 2    How to label this comment  Choose one category for each comment.  There is no &l",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1436,10 +1437,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID6",
-      "SecondaryAttribute": "Practice 2 of 2   How to label this comment  Choose one category for each comment.  There is no &ldq",
+      "SecondaryAttribute": "Practice  2 of 2    How to label this comment  Choose one category for each comment.  There is no &l",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Practice 2 of 2</p><div style=\"border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:10px 0 14px;background:#f6f8fa;font-size:14px;\"><b>How to label this comment</b><p style=\"margin:6px 0 0\">Choose one category for each comment.</p><p style=\"margin:4px 0 0\">There is no &ldquo;other&rdquo; option. Every comment gets one of the five categories.</p></div><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;\">Question 7 was really confusing, I wasn't sure if it meant my current job or my last one.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#5f6b7a;\">Practice</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">2 of 2</span></p><div style=\"border:1px solid #d9dee5;border-radius:8px;padding:10px 14px;margin:10px 0 14px;background:#f6f8fa;font-size:14px;\"><b>How to label this comment</b><p style=\"margin:6px 0 0\">Choose one category for each comment.</p><p style=\"margin:4px 0 0\">There is no &ldquo;other&rdquo; option. Every comment gets one of the five categories.</p></div><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f3f5f7;border-left:6px solid #5f6b7a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Question 7 was really confusing, I wasn't sure if it meant my current job or my last one.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1481,7 +1482,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID6",
         "DataExportTag": "practice_2",
-        "QuestionDescription": "Practice 2 of 2   How to label this comment  Choose one category for each comment.  There is no &ldq",
+        "QuestionDescription": "Practice  2 of 2    How to label this comment  Choose one category for each comment.  There is no &l",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1575,10 +1576,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID9",
-      "SecondaryAttribute": "Batch 1 &middot; comment 1 of 8  Couldn't get past page 4 for ages, the next button didn't do anythi",
+      "SecondaryAttribute": "Batch 1  Comment 1 of 8   Couldn't get past page 4 for ages, the next button didn't do anything.  Wh",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 1 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Couldn't get past page 4 for ages, the next button didn't do anything.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 1 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Couldn't get past page 4 for ages, the next button didn't do anything.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1620,7 +1621,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID9",
         "DataExportTag": "b1_1",
-        "QuestionDescription": "Batch 1 &middot; comment 1 of 8  Couldn't get past page 4 for ages, the next button didn't do anythi",
+        "QuestionDescription": "Batch 1  Comment 1 of 8   Couldn't get past page 4 for ages, the next button didn't do anything.  Wh",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1684,10 +1685,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID11",
-      "SecondaryAttribute": "Batch 1 &middot; comment 2 of 8  Not sure what \"moderately often\" was supposed to mean.  Which categ",
+      "SecondaryAttribute": "Batch 1  Comment 2 of 8   Not sure what \"moderately often\" was supposed to mean.  Which category doe",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 2 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Not sure what \"moderately often\" was supposed to mean.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 2 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Not sure what \"moderately often\" was supposed to mean.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1729,7 +1730,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID11",
         "DataExportTag": "b1_2",
-        "QuestionDescription": "Batch 1 &middot; comment 2 of 8  Not sure what \"moderately often\" was supposed to mean.  Which categ",
+        "QuestionDescription": "Batch 1  Comment 2 of 8   Not sure what \"moderately often\" was supposed to mean.  Which category doe",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1793,10 +1794,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID13",
-      "SecondaryAttribute": "Batch 1 &middot; comment 3 of 8  Video on page 3 kept buffering so I couldn't hear it properly. Also",
+      "SecondaryAttribute": "Batch 1  Comment 3 of 8   Video on page 3 kept buffering so I couldn't hear it properly. Also took w",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 3 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Video on page 3 kept buffering so I couldn't hear it properly. Also took way longer than the 10 mins it said.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 3 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Video on page 3 kept buffering so I couldn't hear it properly. Also took way longer than the 10 mins it said.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1838,7 +1839,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID13",
         "DataExportTag": "b1_3",
-        "QuestionDescription": "Batch 1 &middot; comment 3 of 8  Video on page 3 kept buffering so I couldn't hear it properly. Also",
+        "QuestionDescription": "Batch 1  Comment 3 of 8   Video on page 3 kept buffering so I couldn't hear it properly. Also took w",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -1902,10 +1903,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID15",
-      "SecondaryAttribute": "Batch 1 &middot; comment 4 of 8  A couple of the questions assumed I have children, which I don't.  ",
+      "SecondaryAttribute": "Batch 1  Comment 4 of 8   A couple of the questions assumed I have children, which I don't.  Which c",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 4 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">A couple of the questions assumed I have children, which I don't.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 4 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">A couple of the questions assumed I have children, which I don't.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -1947,7 +1948,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID15",
         "DataExportTag": "b1_4",
-        "QuestionDescription": "Batch 1 &middot; comment 4 of 8  A couple of the questions assumed I have children, which I don't.  ",
+        "QuestionDescription": "Batch 1  Comment 4 of 8   A couple of the questions assumed I have children, which I don't.  Which c",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2011,10 +2012,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID17",
-      "SecondaryAttribute": "Batch 1 &middot; comment 5 of 8  It took far longer than it said it would, and I'm still not sure wh",
+      "SecondaryAttribute": "Batch 1  Comment 5 of 8   It took far longer than it said it would, and I'm still not sure when I'll",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">It took far longer than it said it would, and I'm still not sure when I'll get paid.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 5 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">It took far longer than it said it would, and I'm still not sure when I'll get paid.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2056,7 +2057,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID17",
         "DataExportTag": "b1_5",
-        "QuestionDescription": "Batch 1 &middot; comment 5 of 8  It took far longer than it said it would, and I'm still not sure wh",
+        "QuestionDescription": "Batch 1  Comment 5 of 8   It took far longer than it said it would, and I'm still not sure when I'll",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2120,10 +2121,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID19",
-      "SecondaryAttribute": "Batch 1 &middot; comment 6 of 8  Some questions were a bit vague so I wasn't sure what to put, and t",
+      "SecondaryAttribute": "Batch 1  Comment 6 of 8   Some questions were a bit vague so I wasn't sure what to put, and the seco",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Some questions were a bit vague so I wasn't sure what to put, and the second half felt endless.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 6 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Some questions were a bit vague so I wasn't sure what to put, and the second half felt endless.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2165,7 +2166,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID19",
         "DataExportTag": "b1_6",
-        "QuestionDescription": "Batch 1 &middot; comment 6 of 8  Some questions were a bit vague so I wasn't sure what to put, and t",
+        "QuestionDescription": "Batch 1  Comment 6 of 8   Some questions were a bit vague so I wasn't sure what to put, and the seco",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2229,10 +2230,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID21",
-      "SecondaryAttribute": "Batch 1 &middot; comment 7 of 8  Will the bonus be paid separately?  Which category does this commen",
+      "SecondaryAttribute": "Batch 1  Comment 7 of 8   Will the bonus be paid separately?  Which category does this comment belon",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 7 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Will the bonus be paid separately?</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 7 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Will the bonus be paid separately?</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2274,7 +2275,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID21",
         "DataExportTag": "b1_7",
-        "QuestionDescription": "Batch 1 &middot; comment 7 of 8  Will the bonus be paid separately?  Which category does this commen",
+        "QuestionDescription": "Batch 1  Comment 7 of 8   Will the bonus be paid separately?  Which category does this comment belon",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2338,10 +2339,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID23",
-      "SecondaryAttribute": "Batch 1 &middot; comment 8 of 8  Found the questions about my health a bit intrusive tbh, and the pa",
+      "SecondaryAttribute": "Batch 1  Comment 8 of 8   Found the questions about my health a bit intrusive tbh, and the page froz",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 1 &middot; comment 8 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 8 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#eef3f9;border-left:6px solid #2f5d8a;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2384,7 +2385,7 @@
         "QuestionJS": "// Last comment of batch 1: records when batch 1 was submitted. The waiting page measures the fixed\n// delay T from this moment, the same T for everyone, whether or not a note follows.\nQualtrics.SurveyEngine.addOnPageSubmit(function () {\n  var now = Date.now();\n  try { if (!sessionStorage.getItem(\"cs_batch1_submit_ms\")) sessionStorage.setItem(\"cs_batch1_submit_ms\", String(now)); } catch (error) {}\n  try { Qualtrics.SurveyEngine.setEmbeddedData(\"batch1_submit_at\", new Date(now).toISOString()); } catch (error) {}\n});\n",
         "QuestionID": "QID23",
         "DataExportTag": "b1_8",
-        "QuestionDescription": "Batch 1 &middot; comment 8 of 8  Found the questions about my health a bit intrusive tbh, and the pa",
+        "QuestionDescription": "Batch 1  Comment 8 of 8   Found the questions about my health a bit intrusive tbh, and the page froz",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2451,7 +2452,7 @@
       "SecondaryAttribute": "Batch 1 intro",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 of 3</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1: eight comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Practice is complete. Batch 1 has <b>eight comments</b>. Choose one category for each. <b>Your labels in this batch count.</b></div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">After batch 1 the coding supervisor will ask for your comments on the batch.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">of 3</span></p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1: eight comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Practice is complete. Batch 1 has <b>eight comments</b>. Choose one category for each. <b>Your labels in this batch count.</b></div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">After batch 1 the coding supervisor will ask for your comments on the batch.</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -2478,10 +2479,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID26",
-      "SecondaryAttribute": "Batch 1 complete  The coding supervisor asks for your comments  The coding supervisor is reviewing t",
+      "SecondaryAttribute": "Batch 1  complete   The coding supervisor asks for your comments  The coding supervisor is reviewing",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 complete</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The coding supervisor asks for your comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">The coding supervisor is reviewing the coding rules and would like each coder's view after batch 1. Is there anything in the five categories or in the one-category rule that should change? Please say what you would change and why. <span style='color:#e74c3c;'><b>Please comment on the coding rules themselves rather than on the studies the comments describe.</b></span> The supervisor will read what you write.</div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your answer goes to the coding supervisor with batch 1.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">complete</span></p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The coding supervisor asks for your comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">The coding supervisor is reviewing the coding rules and would like each coder's view after batch 1. Is there anything in the five categories or in the one-category rule that should change? Please say what you would change and why. <span style='color:#e74c3c;'><b>Please comment on the coding rules themselves rather than on the studies the comments describe.</b></span> The supervisor will read what you write.</div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your answer goes to the coding supervisor with batch 1.</p></div>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -2499,7 +2500,7 @@
         "QuestionJS": "// Note page (batch 1 or batch 3; the second note keeps the tag \"2\"): the essay box. No counter and\n// no hard minimum. On note 1 one soft check appears once, with two equal buttons, when the note is\n// short (under twenty words) or mentions nothing about the rules or categories (2026-10-28: in pilot\n// 8 a third wrote \"all fine\" and a quarter reported the studies' faults instead of the coding). Records when the page\n// opened, the first keystroke, deletions, and the final text; batch 1's note is also kept in\n// sessionStorage so the interim page can start the supervisor's reply at once.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var isLastBatch = question.getQuestionInfo().QuestionText.indexOf(\"batch 3\") >= 0;\n  var tag = isLastBatch ? \"2\" : \"1\";\n  var textarea = question.getQuestionContainer().querySelector(\"textarea\");\n  var openedAt = Date.now();\n  var firstKeyAt = 0;\n  var deletions = 0;\n  var lastLength = textarea ? textarea.value.length : 0;\n  var softShown = false;\n  function words(text) { return (String(text).trim().match(/\\S+/g) || []).length; }\n  function setEd(name, value) {\n    try { Qualtrics.SurveyEngine.setEmbeddedData(name, value == null ? \"\" : String(value)); } catch (error) {}\n    try { sessionStorage.setItem(\"cs_\" + name, value == null ? \"\" : String(value)); } catch (error) {}\n  }\n  // Embedded data set from page scripts has never reached the export (every note1_*/note2_* column\n  // is empty in pilots 1-8), while the hidden text-entry carriers on the waiting page are saved with\n  // the page. So since 2026-10-28 the note metrics also go into one hidden carrier on this page\n  // (label \"note1_meta\" / \"note2_meta\"): words=..;write_ms=..;first_key_ms=..;deletions=..;soft=..\n  // The carrier is found by its label so it does not depend on the order of inputs on the page.\n  var softReason = \"\";\n  function findCarrier() {\n    var nodes = document.querySelectorAll(\"label, span, div, p, legend\");\n    for (var i = 0; i < nodes.length; i += 1) {\n      if ((nodes[i].textContent || \"\").trim() !== \"note\" + tag + \"_meta\") continue;\n      var node = nodes[i];\n      for (var up = 0; up < 10 && node; up += 1) {\n        node = node.parentElement;\n        if (!node || !node.querySelectorAll) continue;\n        var inputs = node.querySelectorAll(\"input[type=text]\");\n        if (inputs.length === 1) return inputs[0];\n        if (inputs.length > 1) return null;\n      }\n    }\n    return null;\n  }\n  function writeCarrier(submittedAt) {\n    var input = findCarrier();\n    if (!input) return;\n    var now = submittedAt || Date.now();\n    var text = textarea ? textarea.value : \"\";\n    var value = \"words=\" + words(text) + \";write_ms=\" + (now - openedAt) + \";first_key_ms=\" + (firstKeyAt ? firstKeyAt - openedAt : \"\") + \";deletions=\" + deletions + \";soft=\" + softReason;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value);\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n  setEd(\"note\" + tag + \"_opened_at\", new Date(openedAt).toISOString());\n  if (textarea) {\n    textarea.addEventListener(\"input\", function (event) {\n      if (!firstKeyAt) firstKeyAt = Date.now();\n      if (event.target.value.length < lastLength) deletions += 1;\n      lastLength = event.target.value.length;\n      writeCarrier();\n    });\n  }\n  // Soft check: intercept the first Next click when the note is short. The New Survey Taking\n  // Experience names the button next-button; the classic engine NextButton.\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) {\n    nextButton.addEventListener(\"click\", function (event) {\n      var text = textarea ? textarea.value : \"\";\n      // No soft check on note 2 (required since 2026-10-12, \"nothing to add\" allowed): a prompt to\n      // add more would push against the silence the note 2 answer is meant to measure.\n      if (tag === \"2\" || softShown || !text.trim()) return;\n      var onTopic = /\\b(categor(y|ies|ise|ize|ised|ized)|rules?|cod(e|es|ing|ed)|labels?|options?|choose|chose|select(ed)?|pick(ed)?|fits?|fitted|one)\\b/i.test(text);\n      var reason = words(text) < 20 ? \"short\" : (onTopic ? \"\" : \"off-topic\");\n      if (!reason) return;\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      softShown = true;\n      var box = document.createElement(\"div\");\n      box.style.cssText = \"margin:12px 0;padding:12px;border:1px solid #c9d2db;border-radius:6px;background:#f6f8fa;\";\n      box.innerHTML = \"<p style=\\\"margin:0 0 10px\\\">The supervisor is asking about the coding rules and categories. If you noticed anything about them while coding batch 1, you can add it here. Otherwise you can send the note as it is.</p>\";\n      var row = document.createElement(\"div\");\n      var buttons = [[\"Send as it is\", function () { box.remove(); nextButton.click(); }], [\"Add more\", function () { box.remove(); softShown = true; if (textarea) textarea.focus(); }]];\n      if (Math.random() < 0.5) buttons.reverse();\n      buttons.forEach(function (pair) {\n        var button = document.createElement(\"button\");\n        button.type = \"button\";\n        button.textContent = pair[0];\n        button.style.cssText = \"margin-right:10px;padding:8px 14px;font:inherit;border:1px solid #2f5d8a;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;\";\n        button.addEventListener(\"click\", pair[1]);\n        row.appendChild(button);\n      });\n      box.appendChild(row);\n      question.getQuestionContainer().appendChild(box);\n      softReason = reason;\n      setEd(\"note\" + tag + \"_soft_check\", reason);\n      writeCarrier();\n    }, true);\n  }\n  Qualtrics.SurveyEngine.addOnPageSubmit(function () {\n    var text = textarea ? textarea.value.trim() : \"\";\n    var submittedAt = Date.now();\n    setEd(\"note\" + tag + \"_text\", text);\n    setEd(\"note\" + tag + \"_submitted_at\", new Date(submittedAt).toISOString());\n    setEd(\"note\" + tag + \"_first_key_ms\", firstKeyAt ? firstKeyAt - openedAt : \"\");\n    setEd(\"note\" + tag + \"_write_ms\", submittedAt - openedAt);\n    setEd(\"note\" + tag + \"_deletions\", deletions);\n    setEd(\"note\" + tag + \"_words\", words(text));\n    writeCarrier(submittedAt);\n    // For batch 1 the fixed delay T is measured from the moment a note is sent (the reply only\n    // starts being written then); without a note it stays anchored on the batch-1 submission.\n    if (tag === \"1\" && text) { try { sessionStorage.setItem(\"cs_note1_submit_ms\", String(submittedAt)); } catch (error) {} }\n  });\n});\n",
         "QuestionID": "QID26",
         "DataExportTag": "note1",
-        "QuestionDescription": "Batch 1 complete  The coding supervisor asks for your comments  The coding supervisor is reviewing t",
+        "QuestionDescription": "Batch 1  complete   The coding supervisor asks for your comments  The coding supervisor is reviewing",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2515,7 +2516,7 @@
       "SecondaryAttribute": "After note 1: what happens next",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 1 submitted</p><div id=\"cs-next-note\" style=\"display:none\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your note is with the coding supervisor</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Your note has been sent to the coding supervisor together with batch 1 and <b>is being reviewed</b>. The supervisor&rsquo;s reply will come with the batch 1 results.</div></div><div id=\"cs-next-no-note\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1 has been submitted</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Batch 1 has been sent to the coding supervisor and <b>is being checked</b> against the reference key.</div></div><p style=\"margin:0 0 6px;font-weight:600;color:#1f2933;\">What happens next</p><ul style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px;\">Batch 2: five comments, while the supervisor reviews batch 1.</li><li style=\"margin:0 0 4px;\">Messages from the coding supervisor, then batch 3, the last batch.</li></ul></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#2f5d8a;\">Batch 1</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">submitted</span></p><div id=\"cs-next-note\" style=\"display:none\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Your note is with the coding supervisor</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Your note has been sent to the coding supervisor together with batch 1 and <b>is being reviewed</b>. The supervisor&rsquo;s reply will come with the batch 1 results.</div></div><div id=\"cs-next-no-note\"><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 1 has been submitted</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">Batch 1 has been sent to the coding supervisor and <b>is being checked</b> against the reference key.</div></div><p style=\"margin:0 0 6px;font-weight:600;color:#1f2933;\">What happens next</p><ul style=\"margin:0;padding-left:20px;\"><li style=\"margin:0 0 4px;\">Batch 2: five comments, while the supervisor reviews batch 1.</li><li style=\"margin:0 0 4px;\">Messages from the coding supervisor, then batch 3, the last batch.</li></ul></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span><span id=\"cs-response-id\" style=\"display:none\">${e://Field/ResponseID}</span>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -2628,7 +2629,7 @@
       "SecondaryAttribute": "Batch 2 intro",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 2 of 3</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 2: five new comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: five comments from a different study. <b>The coding rules are the same as for batch 1.</b></div></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#1f7a6b;\">Batch 2</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">of 3</span></p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 2: five new comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">While the coding supervisor reviews batch 1 and anything you sent with it, here is batch 2: five comments from a different study. <b>The coding rules are the same as for batch 1.</b></div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -2655,10 +2656,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID31",
-      "SecondaryAttribute": "Batch 2 &middot; comment 1 of 5  The sound on the second video didn't work at all.  Which category d",
+      "SecondaryAttribute": "Batch 2  Comment 1 of 5   The sound on the second video didn't work at all.  Which category does thi",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 1 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The sound on the second video didn't work at all.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#1f7a6b;\">Batch 2</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 1 of 5</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#e9f6f2;border-left:6px solid #1f7a6b;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">The sound on the second video didn't work at all.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2700,7 +2701,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID31",
         "DataExportTag": "b2_1",
-        "QuestionDescription": "Batch 2 &middot; comment 1 of 5  The sound on the second video didn't work at all.  Which category d",
+        "QuestionDescription": "Batch 2  Comment 1 of 5   The sound on the second video didn't work at all.  Which category does thi",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2764,10 +2765,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID33",
-      "SecondaryAttribute": "Batch 2 &middot; comment 2 of 5  The instructions for the sorting task were hard to follow, and the ",
+      "SecondaryAttribute": "Batch 2  Comment 2 of 5   The instructions for the sorting task were hard to follow, and the bonus i",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 2 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The instructions for the sorting task were hard to follow, and the bonus is lower than the listing said.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#1f7a6b;\">Batch 2</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 2 of 5</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#e9f6f2;border-left:6px solid #1f7a6b;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">The instructions for the sorting task were hard to follow, and the bonus is lower than the listing said.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2809,7 +2810,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID33",
         "DataExportTag": "b2_2",
-        "QuestionDescription": "Batch 2 &middot; comment 2 of 5  The instructions for the sorting task were hard to follow, and the ",
+        "QuestionDescription": "Batch 2  Comment 2 of 5   The instructions for the sorting task were hard to follow, and the bonus i",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2873,10 +2874,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID35",
-      "SecondaryAttribute": "Batch 2 &middot; comment 3 of 5  The questions about drinking assumed everyone drinks, which doesn't",
+      "SecondaryAttribute": "Batch 2  Comment 3 of 5   The questions about drinking assumed everyone drinks, which doesn't apply ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 3 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The questions about drinking assumed everyone drinks, which doesn't apply to me.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#1f7a6b;\">Batch 2</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 3 of 5</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#e9f6f2;border-left:6px solid #1f7a6b;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">The questions about drinking assumed everyone drinks, which doesn't apply to me.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -2918,7 +2919,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID35",
         "DataExportTag": "b2_3",
-        "QuestionDescription": "Batch 2 &middot; comment 3 of 5  The questions about drinking assumed everyone drinks, which doesn't",
+        "QuestionDescription": "Batch 2  Comment 3 of 5   The questions about drinking assumed everyone drinks, which doesn't apply ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -2982,10 +2983,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID37",
-      "SecondaryAttribute": "Batch 2 &middot; comment 4 of 5  The pictures took ages to load, and the whole thing took twice as l",
+      "SecondaryAttribute": "Batch 2  Comment 4 of 5   The pictures took ages to load, and the whole thing took twice as long as ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 4 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The pictures took ages to load, and the whole thing took twice as long as advertised.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#1f7a6b;\">Batch 2</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 4 of 5</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#e9f6f2;border-left:6px solid #1f7a6b;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">The pictures took ages to load, and the whole thing took twice as long as advertised.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3027,7 +3028,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID37",
         "DataExportTag": "b2_4",
-        "QuestionDescription": "Batch 2 &middot; comment 4 of 5  The pictures took ages to load, and the whole thing took twice as l",
+        "QuestionDescription": "Batch 2  Comment 4 of 5   The pictures took ages to load, and the whole thing took twice as long as ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3091,10 +3092,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID39",
-      "SecondaryAttribute": "Batch 2 &middot; comment 5 of 5  I didn't agree with how the article described young people, and som",
+      "SecondaryAttribute": "Batch 2  Comment 5 of 5   I didn't agree with how the article described young people, and some of th",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 2 &middot; comment 5 of 5</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">I didn't agree with how the article described young people, and some of the answer options didn't make sense.</p><p>Which category does this comment belong to?</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#1f7a6b;\">Batch 2</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 5 of 5</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#e9f6f2;border-left:6px solid #1f7a6b;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">I didn't agree with how the article described young people, and some of the answer options didn't make sense.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3136,7 +3137,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID39",
         "DataExportTag": "b2_5",
-        "QuestionDescription": "Batch 2 &middot; comment 5 of 5  I didn't agree with how the article described young people, and som",
+        "QuestionDescription": "Batch 2  Comment 5 of 5   I didn't agree with how the article described young people, and some of th",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3203,7 +3204,7 @@
       "SecondaryAttribute": "Waiting page",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 2 submitted</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Waiting for batch 3</p><p style=\"margin:0 0 12px;line-height:1.6;\">Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment.</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><span id=\"cs-wait-status\" style=\"font-style:italic;\">Waiting for the supervisor&hellip;</span></div></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#1f7a6b;\">Batch 2</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">submitted</span></p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Waiting for batch 3</p><p style=\"margin:0 0 12px;line-height:1.6;\">Batch 2 has been submitted. Batch 3 is waiting to be issued by the coding supervisor. Please wait a moment.</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\"><span id=\"cs-wait-status\" style=\"font-style:italic;\">Waiting for the supervisor&hellip;</span></div></div><span id=\"cs-condition\" style=\"display:none\">${e://Field/condition}</span>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -3595,7 +3596,7 @@
       "SecondaryAttribute": "New messages",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\"><span id=\"cs-new-count\">New messages</span> from the coding supervisor</p><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Batch 1 &middot; check</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 6px\">Batch 1 has been checked against the reference key.</p><p style=\"margin:0\">Result: <b style=\"color:#2f7a4a\">meets standard</b></p></div></div><div id=\"cs-reply-card\"><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; re: your note on batch 1</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 10px;padding:8px 12px;background:#f1f3f5;border-radius:6px;font-size:13px;color:#556270;\">Your note: <span id=\"cs-note-echo\">${e://Field/note1_text}</span></p><p style=\"margin:0 0 8px\"><span id=\"cs-msg1\">${e://Field/rejection_msg1}</span></p><p style=\"margin:0\"><span id=\"cs-msg2\">${e://Field/rejection_msg2}</span></p></div></div></div><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; comment-coding project</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0\">Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to start batch 3.</p></div></div>",
+        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\"><span id=\"cs-new-count\">New messages</span> from the coding supervisor</p><div id=\"cs-reply-card\"><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; re: your note on batch 1</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 10px;padding:8px 12px;background:#f1f3f5;border-radius:6px;font-size:13px;color:#556270;\">Your note: <span id=\"cs-note-echo\">${e://Field/note1_text}</span></p><p style=\"margin:0 0 8px\"><span id=\"cs-msg1\">${e://Field/rejection_msg1}</span></p><p style=\"margin:0\"><span id=\"cs-msg2\">${e://Field/rejection_msg2}</span></p></div></div></div><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Coding supervisor &middot; comment-coding project</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0\">Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to start batch 3.</p></div></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -3607,7 +3608,7 @@
             "Type": "None"
           }
         },
-        "QuestionJS": "// New-messages page: the batch rating card for everyone, the reply card only when a note was\n// attached. Piped text fills the reply; if a slot is empty the value kept in sessionStorage by the\n// waiting page is used, retried for up to 20 s. Next is enabled 15 s after the reply is on screen.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var MIN_READ_MS = 15000;\n  function stored(key) { try { return sessionStorage.getItem(key) || \"\"; } catch (error) { return \"\"; } }\n  var PIPE_START = String.fromCharCode(36) + \"{\";\n  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : \"\"; }\n  var note = stored(\"cs_note1_text\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"note1_text\") || \"\");\n  var status = stored(\"cs_rejection_status\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"rejection_status\") || \"\");\n  var card = document.getElementById(\"cs-reply-card\");\n  var hasReply = Boolean(note.trim()) && status !== \"none\";\n  var slots = { \"cs-note-echo\": \"cs_note1_text\", \"cs-msg1\": \"cs_rejection_msg1\", \"cs-msg2\": \"cs_rejection_msg2\" };\n  // Fill empty slots from what the waiting page stored. This is retried for a while: in the new\n  // survey engine the page can open a moment before the waiting page has finished writing the\n  // reply (seen once in a test on 2026-10-09 with several test tabs open), and a single read then\n  // left the reply card blank.\n  function fill() {\n    var complete = true;\n    Object.keys(slots).forEach(function (id) {\n      var el = document.getElementById(id);\n      if (!el) return;\n      if (!unpiped(el.textContent.trim())) el.textContent = stored(slots[id]);\n      // Only the first line is required: a non-voice note gets the single line \"Note received.\"\n      if (id === \"cs-msg1\" && !el.textContent.trim()) complete = false;\n      el.style.display = el.textContent.trim() ? \"\" : \"none\";\n    });\n    return complete;\n  }\n  var replyShown = true;\n  var readStart = Date.now();\n  if (card) {\n    if (!hasReply) {\n      card.style.display = \"none\";\n    } else if (!fill()) {\n      replyShown = false;\n      var tries = 0;\n      var timer = setInterval(function () {\n        tries += 1;\n        var done = fill();\n        if (done || tries >= 80) {\n          clearInterval(timer);\n          replyShown = true;\n          readStart = Date.now();\n          maybeEnable();\n        }\n      }, 250);\n    }\n  }\n  var count = document.getElementById(\"cs-new-count\");\n  if (count) count.textContent = hasReply ? \"3 new messages\" : \"2 new messages\";\n  try { Qualtrics.SurveyEngine.setEmbeddedData(\"messages_opened_at\", new Date().toISOString()); } catch (error) {}\n  // Next opens after the reading time, counted from when the reply is on screen.\n  var readDone = false;\n  function maybeEnable() {\n    if (!replyShown) return;\n    var left = MIN_READ_MS - (Date.now() - readStart);\n    if (left > 0) { setTimeout(maybeEnable, left); return; }\n    if (!readDone) { readDone = true; question.enableNextButton(); }\n  }\n  question.disableNextButton();\n  maybeEnable();\n});\n",
+        "QuestionJS": "// New-messages page: the reply card when a note was attached, and the \"batch 3 is ready\" card. (The\n// batch 1 check card that used to come first was removed on 2026-11-23, user decision.) Piped text fills the reply; if a slot is empty the value kept in sessionStorage by the\n// waiting page is used, retried for up to 20 s. Next is enabled 15 s after the reply is on screen.\nQualtrics.SurveyEngine.addOnload(function () {\n  var question = this;\n  var MIN_READ_MS = 15000;\n  function stored(key) { try { return sessionStorage.getItem(key) || \"\"; } catch (error) { return \"\"; } }\n  var PIPE_START = String.fromCharCode(36) + \"{\";\n  function unpiped(value) { return value && value.indexOf(PIPE_START) !== 0 ? value : \"\"; }\n  var note = stored(\"cs_note1_text\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"note1_text\") || \"\");\n  var status = stored(\"cs_rejection_status\") || unpiped(Qualtrics.SurveyEngine.getEmbeddedData(\"rejection_status\") || \"\");\n  var card = document.getElementById(\"cs-reply-card\");\n  var hasReply = Boolean(note.trim()) && status !== \"none\";\n  var slots = { \"cs-note-echo\": \"cs_note1_text\", \"cs-msg1\": \"cs_rejection_msg1\", \"cs-msg2\": \"cs_rejection_msg2\" };\n  // Fill empty slots from what the waiting page stored. This is retried for a while: in the new\n  // survey engine the page can open a moment before the waiting page has finished writing the\n  // reply (seen once in a test on 2026-10-09 with several test tabs open), and a single read then\n  // left the reply card blank.\n  function fill() {\n    var complete = true;\n    Object.keys(slots).forEach(function (id) {\n      var el = document.getElementById(id);\n      if (!el) return;\n      if (!unpiped(el.textContent.trim())) el.textContent = stored(slots[id]);\n      // Only the first line is required: a non-voice note gets the single line \"Note received.\"\n      if (id === \"cs-msg1\" && !el.textContent.trim()) complete = false;\n      el.style.display = el.textContent.trim() ? \"\" : \"none\";\n    });\n    return complete;\n  }\n  var replyShown = true;\n  var readStart = Date.now();\n  if (card) {\n    if (!hasReply) {\n      card.style.display = \"none\";\n    } else if (!fill()) {\n      replyShown = false;\n      var tries = 0;\n      var timer = setInterval(function () {\n        tries += 1;\n        var done = fill();\n        if (done || tries >= 80) {\n          clearInterval(timer);\n          replyShown = true;\n          readStart = Date.now();\n          maybeEnable();\n        }\n      }, 250);\n    }\n  }\n  var count = document.getElementById(\"cs-new-count\");\n  if (count) count.textContent = hasReply ? \"2 new messages\" : \"1 new message\";\n  try { Qualtrics.SurveyEngine.setEmbeddedData(\"messages_opened_at\", new Date().toISOString()); } catch (error) {}\n  // Next opens after the reading time, counted from when the reply is on screen.\n  var readDone = false;\n  function maybeEnable() {\n    if (!replyShown) return;\n    var left = MIN_READ_MS - (Date.now() - readStart);\n    if (left > 0) { setTimeout(maybeEnable, left); return; }\n    if (!readDone) { readDone = true; question.enableNextButton(); }\n  }\n  question.disableNextButton();\n  maybeEnable();\n});\n",
         "QuestionID": "QID53",
         "DataExportTag": "messages",
         "QuestionDescription": "New messages",
@@ -3677,7 +3678,7 @@
       "SecondaryAttribute": "Batch 3 intro",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Batch 3 of 3</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 3: eight comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">This is the <b>last batch</b>: eight comments from a different study. The coding rules are the same as before.</div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">The supervisor rates each coder at the end of the shift.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">of 3</span></p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 3: eight comments</p><div style=\"border-left:4px solid #2f5d8a;background:#f3f6fa;border-radius:6px;padding:12px 16px;margin:0 0 14px;line-height:1.6;\">This is the <b>last batch</b>: eight comments from a different study. The coding rules are the same as before.</div><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">The supervisor rates each coder at the end of the shift.</p></div>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -3743,53 +3744,16 @@
         "DataVisibility": {
           "Private": false,
           "Hidden": false
-        }
-      }
-    },
-    {
-      "SurveyID": "SV_6488f4e557ca211",
-      "Element": "SQ",
-      "PrimaryAttribute": "QID57",
-      "SecondaryAttribute": "Your remark to the coding supervisor  Your remark goes to the supervisor now. The supervisor reads c",
-      "TertiaryAttribute": null,
-      "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:16px;font-weight:600;color:#1f2933;margin:0 0 6px;\">Your remark to the coding supervisor</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your remark goes to the supervisor now. The supervisor reads coders&rsquo; notes before the end of the shift and does not reply during batch 3. Up to 200 characters.</p></div>",
-        "QuestionType": "TE",
-        "Selector": "ESTB",
-        "Configuration": {
-          "QuestionDescriptionOption": "UseText",
-          "InputWidth": 600,
-          "InputHeight": 70
-        },
-        "Validation": {
-          "Settings": {
-            "ForceResponse": "ON",
-            "ForceResponseType": "ON",
-            "Type": "None"
-          }
-        },
-        "QuestionJS": "// Quick remark box (version 7, 2026-11-16): the short text box that opens after the midpoint page and\n// after the end page when the coder chooses to send a remark. Qualtrics' own display logic shows\n// the question, on its own page; this script only caps the length at 200 characters.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (!container) return;\n  var field = container.querySelector(\"textarea, input[type=text]\");\n  if (field) field.maxLength = 200;\n});\n",
-        "QuestionID": "QID57",
-        "DataExportTag": "mid_remark",
-        "QuestionDescription": "Your remark to the coding supervisor  Your remark goes to the supervisor now. The supervisor reads c",
-        "Language": [],
-        "DefaultChoices": false,
-        "DataVisibility": {
-          "Private": false,
-          "Hidden": false
         },
         "DisplayLogic": {
           "0": {
             "0": {
-              "LogicType": "Question",
-              "QuestionID": "QID56",
-              "QuestionIsInLoop": "no",
-              "ChoiceLocator": "q://QID56/SelectableChoice/2",
-              "Operator": "Selected",
-              "QuestionIDFromLocator": "QID56",
-              "LeftOperand": "q://QID56/SelectableChoice/2",
+              "LogicType": "EmbeddedField",
+              "LeftOperand": "condition",
+              "Operator": "EqualTo",
+              "RightOperand": "never_shown",
               "Type": "Expression",
-              "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Midpoint: send a remark</span> <span class=\"OpDesc\">Is Selected</span>"
+              "Description": "<span class=\"ConjDesc\">If</span> <span class=\"LeftOpDesc\">condition</span> <span class=\"OpDesc\">EqualTo</span> <span class=\"RightOpDesc\">never_shown</span>"
             },
             "Type": "If"
           },
@@ -3801,11 +3765,44 @@
     {
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
-      "PrimaryAttribute": "QID58",
-      "SecondaryAttribute": "Batch 3 &middot; comment 1 of 8  The page kept freezing whenever I tried to go back.  Which category",
+      "PrimaryAttribute": "QID57",
+      "SecondaryAttribute": "Batch 3  of 3   Four of eight comments coded  Would you like to leave a note for the coding supervis",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 1 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The page kept freezing whenever I tried to go back.</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">of 3</span></p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Four of eight comments coded</p><p style=\"margin:0 0 12px;line-height:1.6;\">Would you like to leave a note for the coding supervisor? <b>This is optional.</b> You can leave the box empty and go on with the batch.</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">A note goes to the supervisor now. The supervisor reads coders&rsquo; notes before the end of the shift and does not reply during batch 3. Up to 200 characters.</p><p style=\"font-size:13px;color:#5f6b7a;margin:12px 0 0;font-style:italic;\">The supervisor rates each coder at the end of the shift.</p></div>",
+        "QuestionType": "TE",
+        "Selector": "ESTB",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "InputWidth": 600,
+          "InputHeight": 70
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "OFF",
+            "Type": "None"
+          }
+        },
+        "QuestionJS": "// Quick remark box (version 7, 2026-11-16): the short text box that opens after the midpoint page and\n// after the end page when the coder chooses to send a remark. Qualtrics' own display logic shows\n// the question, on its own page; this script only caps the length at 200 characters.\nQualtrics.SurveyEngine.addOnload(function () {\n  var container = this.getQuestionContainer();\n  if (!container) return;\n  var field = container.querySelector(\"textarea, input[type=text]\");\n  if (field) field.maxLength = 200;\n});\n",
+        "QuestionID": "QID57",
+        "DataExportTag": "mid_remark",
+        "QuestionDescription": "Batch 3  of 3   Four of eight comments coded  Would you like to leave a note for the coding supervis",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_6488f4e557ca211",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID58",
+      "SecondaryAttribute": "Batch 3  Comment 1 of 8   The page kept freezing whenever I tried to go back.  Which category does t",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 1 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">The page kept freezing whenever I tried to go back.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3847,7 +3844,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID58",
         "DataExportTag": "b3_1",
-        "QuestionDescription": "Batch 3 &middot; comment 1 of 8  The page kept freezing whenever I tried to go back.  Which category",
+        "QuestionDescription": "Batch 3  Comment 1 of 8   The page kept freezing whenever I tried to go back.  Which category does t",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -3911,10 +3908,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID60",
-      "SecondaryAttribute": "Batch 3 &middot; comment 2 of 8  I couldn't tell whether \"often\" meant every day or every week, and ",
+      "SecondaryAttribute": "Batch 3  Comment 2 of 8   I couldn't tell whether \"often\" meant every day or every week, and it drag",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 2 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to.</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 2 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">I couldn't tell whether \"often\" meant every day or every week, and it dragged on much longer than it needed to.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -3956,7 +3953,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID60",
         "DataExportTag": "b3_2",
-        "QuestionDescription": "Batch 3 &middot; comment 2 of 8  I couldn't tell whether \"often\" meant every day or every week, and ",
+        "QuestionDescription": "Batch 3  Comment 2 of 8   I couldn't tell whether \"often\" meant every day or every week, and it drag",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4020,10 +4017,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID62",
-      "SecondaryAttribute": "Batch 3 &middot; comment 3 of 8  Could you tell me when the results will be published?  Which catego",
+      "SecondaryAttribute": "Batch 3  Comment 3 of 8   Could you tell me when the results will be published?  Which category does",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 3 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Could you tell me when the results will be published?</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 3 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Could you tell me when the results will be published?</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4065,7 +4062,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID62",
         "DataExportTag": "b3_3",
-        "QuestionDescription": "Batch 3 &middot; comment 3 of 8  Could you tell me when the results will be published?  Which catego",
+        "QuestionDescription": "Batch 3  Comment 3 of 8   Could you tell me when the results will be published?  Which category does",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4129,10 +4126,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID64",
-      "SecondaryAttribute": "Batch 3 &middot; comment 4 of 8  It was a bit longer than I'd have liked.  Which category does this ",
+      "SecondaryAttribute": "Batch 3  Comment 4 of 8   It was a bit longer than I'd have liked.  Which category does this comment",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 4 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">It was a bit longer than I'd have liked.</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 4 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">It was a bit longer than I'd have liked.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4174,7 +4171,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID64",
         "DataExportTag": "b3_4",
-        "QuestionDescription": "Batch 3 &middot; comment 4 of 8  It was a bit longer than I'd have liked.  Which category does this ",
+        "QuestionDescription": "Batch 3  Comment 4 of 8   It was a bit longer than I'd have liked.  Which category does this comment",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4289,10 +4286,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID67",
-      "SecondaryAttribute": "Batch 3 &middot; comment 5 of 8  Which university is running this research?  Which category does thi",
+      "SecondaryAttribute": "Batch 3  Comment 5 of 8   Which university is running this research?  Which category does this comme",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 5 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Which university is running this research?</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 5 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Which university is running this research?</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4334,7 +4331,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID67",
         "DataExportTag": "b3_5",
-        "QuestionDescription": "Batch 3 &middot; comment 5 of 8  Which university is running this research?  Which category does thi",
+        "QuestionDescription": "Batch 3  Comment 5 of 8   Which university is running this research?  Which category does this comme",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4398,10 +4395,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID69",
-      "SecondaryAttribute": "Batch 3 &middot; comment 6 of 8  The video wouldn't play at all, and one of the questions had two \"a",
+      "SecondaryAttribute": "Batch 3  Comment 6 of 8   The video wouldn't play at all, and one of the questions had two \"agree\" o",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 6 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick.</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 6 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">The video wouldn't play at all, and one of the questions had two \"agree\" options so I didn't know which to pick.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4443,7 +4440,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID69",
         "DataExportTag": "b3_6",
-        "QuestionDescription": "Batch 3 &middot; comment 6 of 8  The video wouldn't play at all, and one of the questions had two \"a",
+        "QuestionDescription": "Batch 3  Comment 6 of 8   The video wouldn't play at all, and one of the questions had two \"agree\" o",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4507,10 +4504,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID71",
-      "SecondaryAttribute": "Batch 3 &middot; comment 7 of 8  Is there a follow-up study I can sign up for?  Which category does ",
+      "SecondaryAttribute": "Batch 3  Comment 7 of 8   Is there a follow-up study I can sign up for?  Which category does this co",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 7 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Is there a follow-up study I can sign up for?</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 7 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Is there a follow-up study I can sign up for?</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4552,7 +4549,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID71",
         "DataExportTag": "b3_7",
-        "QuestionDescription": "Batch 3 &middot; comment 7 of 8  Is there a follow-up study I can sign up for?  Which category does ",
+        "QuestionDescription": "Batch 3  Comment 7 of 8   Is there a follow-up study I can sign up for?  Which category does this co",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4616,10 +4613,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID73",
-      "SecondaryAttribute": "Batch 3 &middot; comment 8 of 8  Some of the questions felt a bit judgemental about how I spend my m",
+      "SecondaryAttribute": "Batch 3  Comment 8 of 8   Some of the questions felt a bit judgemental about how I spend my money, a",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<p style=\"font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667;\">Batch 3 &middot; comment 8 of 8</p><p style=\"font-size:17px;line-height:1.5;border-left:3px solid #bcc6cf;padding-left:12px;margin:12px 0 6px;\">Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.</p><p>Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
+        "QuestionText": "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">Comment 8 of 8</span></p><p style=\"font-size:22px;line-height:1.45;font-weight:500;color:#1f2933;background:#f5eefa;border-left:6px solid #7a4a9e;border-radius:8px;padding:16px 18px;margin:0 0 14px;\">Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.</p><p style=\"font-size:16px;color:#5f6b7a;margin:0;\">Which category does this comment belong to?</p><p style=\"font-size:13px;color:#5f6b7a;margin:10px 0 0;\">The supervisor rates each coder at the end of the shift.</p>",
         "QuestionType": "MC",
         "Selector": "SAVR",
         "SubSelector": "TX",
@@ -4661,7 +4658,7 @@
         "NextAnswerId": 1,
         "QuestionID": "QID73",
         "DataExportTag": "b3_8",
-        "QuestionDescription": "Batch 3 &middot; comment 8 of 8  Some of the questions felt a bit judgemental about how I spend my m",
+        "QuestionDescription": "Batch 3  Comment 8 of 8   Some of the questions felt a bit judgemental about how I spend my money, a",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -4768,6 +4765,21 @@
         "DataVisibility": {
           "Private": false,
           "Hidden": false
+        },
+        "DisplayLogic": {
+          "0": {
+            "0": {
+              "LogicType": "EmbeddedField",
+              "LeftOperand": "condition",
+              "Operator": "EqualTo",
+              "RightOperand": "never_shown",
+              "Type": "Expression",
+              "Description": "<span class=\"ConjDesc\">If</span> <span class=\"LeftOpDesc\">condition</span> <span class=\"OpDesc\">EqualTo</span> <span class=\"RightOpDesc\">never_shown</span>"
+            },
+            "Type": "If"
+          },
+          "Type": "BooleanExpression",
+          "inPage": false
         }
       }
     },
@@ -4881,7 +4893,7 @@
       "SecondaryAttribute": "Workspace",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Your workspace</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Prepare your note</p><p style=\"margin:0 0 12px;line-height:1.6;\">You can open your coding below. When you are ready, write your note.</p><div id=\"cs-ws-root\"></div></div><span id=\"cs-own-1-1\" style=\"display:none\">${q://QID9/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-2\" style=\"display:none\">${q://QID11/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-3\" style=\"display:none\">${q://QID13/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-4\" style=\"display:none\">${q://QID15/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-5\" style=\"display:none\">${q://QID17/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-6\" style=\"display:none\">${q://QID19/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-7\" style=\"display:none\">${q://QID21/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-8\" style=\"display:none\">${q://QID23/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-1\" style=\"display:none\">${q://QID31/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-2\" style=\"display:none\">${q://QID33/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-3\" style=\"display:none\">${q://QID35/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-4\" style=\"display:none\">${q://QID37/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-5\" style=\"display:none\">${q://QID39/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-1\" style=\"display:none\">${q://QID58/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-2\" style=\"display:none\">${q://QID60/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-3\" style=\"display:none\">${q://QID62/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-4\" style=\"display:none\">${q://QID64/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-5\" style=\"display:none\">${q://QID67/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-6\" style=\"display:none\">${q://QID69/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-7\" style=\"display:none\">${q://QID71/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-8\" style=\"display:none\">${q://QID73/ChoiceGroup/SelectedChoices}</span>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:#7a4a9e;\">Batch 3</span><span style=\"font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#556270;margin-left:10px;\">complete</span></p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">Batch 3 has been sent to the coding supervisor</p><p style=\"margin:0 0 12px;line-height:1.6;\">Below are all the comments you coded in this shift. Further down you can leave a note for the coding supervisor if you wish.</p><div id=\"cs-ws-root\"></div></div><span id=\"cs-own-1-1\" style=\"display:none\">${q://QID9/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-2\" style=\"display:none\">${q://QID11/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-3\" style=\"display:none\">${q://QID13/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-4\" style=\"display:none\">${q://QID15/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-5\" style=\"display:none\">${q://QID17/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-6\" style=\"display:none\">${q://QID19/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-7\" style=\"display:none\">${q://QID21/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-1-8\" style=\"display:none\">${q://QID23/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-1\" style=\"display:none\">${q://QID31/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-2\" style=\"display:none\">${q://QID33/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-3\" style=\"display:none\">${q://QID35/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-4\" style=\"display:none\">${q://QID37/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-2-5\" style=\"display:none\">${q://QID39/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-1\" style=\"display:none\">${q://QID58/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-2\" style=\"display:none\">${q://QID60/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-3\" style=\"display:none\">${q://QID62/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-4\" style=\"display:none\">${q://QID64/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-5\" style=\"display:none\">${q://QID67/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-6\" style=\"display:none\">${q://QID69/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-7\" style=\"display:none\">${q://QID71/ChoiceGroup/SelectedChoices}</span><span id=\"cs-own-3-8\" style=\"display:none\">${q://QID73/ChoiceGroup/SelectedChoices}</span>",
         "QuestionType": "DB",
         "Selector": "TB",
         "Configuration": {
@@ -4893,7 +4905,7 @@
             "Type": "None"
           }
         },
-        "QuestionJS": "// Workspace page (version 7). Shown only to coders who chose \"Prepare a proposal\" at the end of\n// batch 3. One section, \"Your coding\", closed when the page opens: the 21 comments the coder\n// labelled in this shift, each with the category chosen and an unlabelled tick box, and a running\n// count of ticks. Every opening, the time the section stays open and every tick is written to the\n// hidden carrier on the page (label \"ws_meta\"), as one string:\n//   own_opens=..;own_ms=..;first_open_ms=..;own_ticks=1-3|3-2;page_ms=..\n// The tick boxes carry no label, so they do not say what to look for. The builder fills the\n// placeholder below.\n// History: built on 2026-11-16 with two more sections, a project archive of thirty double-coded\n// comments and a page on how results are reported. Both were removed on 2026-11-17 (user\n// decisions); they are in the git history at 35d488b.\nQualtrics.SurveyEngine.addOnload(function () {\n  var root = document.getElementById(\"cs-ws-root\");\n  if (!root) return;\n  var OWN = [[1, 1, \"Couldn't get past page 4 for ages, the next button didn't do anything.\"], [1, 2, \"Not sure what \\\"moderately often\\\" was supposed to mean.\"], [1, 3, \"Video on page 3 kept buffering so I couldn't hear it properly. Also took way longer than the 10 mins it said.\"], [1, 4, \"A couple of the questions assumed I have children, which I don't.\"], [1, 5, \"It took far longer than it said it would, and I'm still not sure when I'll get paid.\"], [1, 6, \"Some questions were a bit vague so I wasn't sure what to put, and the second half felt endless.\"], [1, 7, \"Will the bonus be paid separately?\"], [1, 8, \"Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.\"], [2, 1, \"The sound on the second video didn't work at all.\"], [2, 2, \"The instructions for the sorting task were hard to follow, and the bonus is lower than the listing said.\"], [2, 3, \"The questions about drinking assumed everyone drinks, which doesn't apply to me.\"], [2, 4, \"The pictures took ages to load, and the whole thing took twice as long as advertised.\"], [2, 5, \"I didn't agree with how the article described young people, and some of the answer options didn't make sense.\"], [3, 1, \"The page kept freezing whenever I tried to go back.\"], [3, 2, \"I couldn't tell whether \\\"often\\\" meant every day or every week, and it dragged on much longer than it needed to.\"], [3, 3, \"Could you tell me when the results will be published?\"], [3, 4, \"It was a bit longer than I'd have liked.\"], [3, 5, \"Which university is running this research?\"], [3, 6, \"The video wouldn't play at all, and one of the questions had two \\\"agree\\\" options so I didn't know which to pick.\"], [3, 7, \"Is there a follow-up study I can sign up for?\"], [3, 8, \"Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.\"]];            // [[batch, number, text], ...]\n  var openedAt = Date.now();\n  var firstOpenAt = 0;\n  var state = { opens: 0, ms: 0, since: 0, ticks: {} };\n\n  // ---- hidden carrier ------------------------------------------------------------------------\n  function findCarrier() {\n    var nodes = document.querySelectorAll(\"label, span, div, p, legend\");\n    for (var i = 0; i < nodes.length; i += 1) {\n      if ((nodes[i].textContent || \"\").trim() !== \"ws_meta\") continue;\n      var node = nodes[i];\n      for (var up = 0; up < 10 && node; up += 1) {\n        node = node.parentElement;\n        if (!node || !node.querySelectorAll) continue;\n        var inputs = node.querySelectorAll(\"input[type=text]\");\n        if (inputs.length === 1) return inputs[0];\n        if (inputs.length > 1) return null;\n      }\n    }\n    return null;\n  }\n  function ticked() {\n    return Object.keys(state.ticks).filter(function (key) { return state.ticks[key]; });\n  }\n  function metaString() {\n    var now = Date.now();\n    return \"own_opens=\" + state.opens + \";own_ms=\" + (state.ms + (state.since ? now - state.since : 0))\n      + \";first_open_ms=\" + (firstOpenAt ? firstOpenAt - openedAt : \"\")\n      + \";own_ticks=\" + ticked().join(\"|\") + \";page_ms=\" + (now - openedAt);\n  }\n  function record() {\n    var value = metaString();\n    try { sessionStorage.setItem(\"cs_ws_meta\", value); } catch (error) {}\n    var input = findCarrier();\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value);\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n\n  // ---- small DOM helpers ---------------------------------------------------------------------\n  function el(tag, style, text) {\n    var node = document.createElement(tag);\n    if (style) node.style.cssText = style;\n    if (text != null) node.textContent = text;\n    return node;\n  }\n  function pipedLabel(batch, number) {\n    var span = document.getElementById(\"cs-own-\" + batch + \"-\" + number);\n    var text = span ? (span.textContent || \"\").trim() : \"\";\n    if (!text || text.charCodeAt(0) === 36) return \"\";\n    return text.split(/[\\s·]+/)[0];\n  }\n  var CELL = \"padding:8px 10px;border-bottom:1px solid #eef1f4;vertical-align:top;font-size:14px;line-height:1.45;\";\n  var HEAD = \"padding:8px 10px;border-bottom:2px solid #d9dee5;text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#556270;white-space:nowrap;\";\n  var CODE = \"font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;white-space:nowrap;\";\n\n  function tickButton(key, counter) {\n    var button = el(\"button\", \"width:24px;height:24px;padding:0;border:1px solid #8a97a6;border-radius:4px;background:#fff;color:#2f5d8a;font-size:16px;line-height:1;cursor:pointer;\", \"\");\n    button.type = \"button\";\n    button.setAttribute(\"aria-pressed\", \"false\");\n    button.setAttribute(\"aria-label\", \"Tick this comment\");\n    button.addEventListener(\"click\", function () {\n      var on = !state.ticks[key];\n      state.ticks[key] = on;\n      button.textContent = on ? \"✓\" : \"\";\n      button.style.background = on ? \"#e8f0f8\" : \"#fff\";\n      button.setAttribute(\"aria-pressed\", on ? \"true\" : \"false\");\n      counter.textContent = \"Ticked: \" + ticked().length + \" of \" + OWN.length;\n      record();\n    });\n    return button;\n  }\n\n  // On a narrow screen a table squeezes the comment into a thin column, so each row becomes a small\n  // card instead: the comment, a line with the batch and the category, and the tick box on the right.\n  var compact = (root.clientWidth || window.innerWidth || 800) < 560;\n  function buildOwn(panel) {\n    panel.appendChild(el(\"p\", \"margin:0 0 8px;line-height:1.5;\", \"The \" + OWN.length + \" comments you coded in this shift, with the category you chose. Tick any comments you want to count.\"));\n    var counter = el(\"p\", \"margin:0 0 10px;font-weight:600;color:#1f2933;\", \"Ticked: 0 of \" + OWN.length);\n    panel.appendChild(counter);\n    if (compact) {\n      OWN.forEach(function (row) {\n        var line = el(\"div\", \"display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eef1f4;\");\n        var main = el(\"div\", \"flex:1 1 auto;min-width:0;\");\n        main.appendChild(el(\"div\", \"font-size:15px;line-height:1.45;margin:0 0 4px;\", row[2]));\n        var meta = el(\"div\", \"font-size:12px;color:#556270;line-height:1.5;\", \"Batch \" + row[0] + \" · Your category\");\n        meta.appendChild(el(\"span\", CODE, \" \" + pipedLabel(row[0], row[1])));\n        main.appendChild(meta);\n        line.appendChild(main);\n        var side = el(\"div\", \"flex:0 0 auto;\");\n        side.appendChild(tickButton(row[0] + \"-\" + row[1], counter));\n        line.appendChild(side);\n        panel.appendChild(line);\n      });\n      return;\n    }\n    var wrap = el(\"div\", \"overflow-x:auto;\");\n    var tableNode = el(\"table\", \"width:100%;border-collapse:collapse;\");\n    var headRow = el(\"tr\");\n    [\"Batch\", \"Comment\", \"Your category\", \"\"].forEach(function (label) { headRow.appendChild(el(\"th\", HEAD, label)); });\n    var thead = el(\"thead\");\n    thead.appendChild(headRow);\n    tableNode.appendChild(thead);\n    var body = el(\"tbody\");\n    OWN.forEach(function (row) {\n      var tr = el(\"tr\");\n      tr.appendChild(el(\"td\", CELL + \"white-space:nowrap;color:#556270;\", String(row[0])));\n      tr.appendChild(el(\"td\", CELL, row[2]));\n      tr.appendChild(el(\"td\", CELL + CODE, pipedLabel(row[0], row[1])));\n      var cell = el(\"td\", CELL + \"text-align:center;\");\n      cell.appendChild(tickButton(row[0] + \"-\" + row[1], counter));\n      tr.appendChild(cell);\n      body.appendChild(tr);\n    });\n    tableNode.appendChild(body);\n    wrap.appendChild(tableNode);\n    panel.appendChild(wrap);\n  }\n\n  // ---- the section ---------------------------------------------------------------------------\n  var box = el(\"div\", \"border:1px solid #d9dee5;border-radius:8px;margin:0 0 10px;background:#fff;overflow:hidden;\");\n  var head = el(\"button\", \"display:block;width:100%;text-align:left;padding:12px 14px;font:inherit;font-size:16px;font-weight:600;color:#1f2933;background:#f4f6f9;border:0;cursor:pointer;\");\n  head.type = \"button\";\n  head.setAttribute(\"aria-expanded\", \"false\");\n  var mark = el(\"span\", \"display:inline-block;width:18px;color:#2f5d8a;\", \"▸\");\n  head.appendChild(mark);\n  head.appendChild(document.createTextNode(\"Your coding\"));\n  var panel = el(\"div\", \"display:none;padding:14px;border-top:1px solid #e3e7ec;\");\n  buildOwn(panel);\n  box.appendChild(head);\n  box.appendChild(panel);\n  root.appendChild(box);\n  head.addEventListener(\"click\", function () {\n    var now = Date.now();\n    if (state.since) {\n      state.ms += now - state.since;\n      state.since = 0;\n      panel.style.display = \"none\";\n      mark.textContent = \"▸\";\n      head.setAttribute(\"aria-expanded\", \"false\");\n    } else {\n      state.opens += 1;\n      state.since = now;\n      if (!firstOpenAt) firstOpenAt = now;\n      panel.style.display = \"block\";\n      mark.textContent = \"▾\";\n      head.setAttribute(\"aria-expanded\", \"true\");\n    }\n    record();\n  });\n\n  record();\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) nextButton.addEventListener(\"click\", record, true);\n  Qualtrics.SurveyEngine.addOnPageSubmit(record);\n});\n",
+        "QuestionJS": "// Last note page (version 7). Since 2026-11-20 (user decision) everyone sees this page after\n// batch 3: the 21 comments the coder labelled in this shift, shown in full with the category chosen\n// and an unlabelled tick box each, a running count of ticks, and below them the optional note box.\n// Every tick is written to the hidden carrier on the page (label \"ws_meta\"), as one string:\n//   own_ticks=1-3|3-2;first_tick_ms=..;page_ms=..\n// The tick boxes carry no label, so they do not say what to look for. The builder fills the\n// placeholder below.\n// History: built on 2026-11-16 as a workspace reached only through \"Prepare a proposal\", with a\n// project archive and a page on how results are reported (both removed 2026-11-17) and with the\n// coding behind a section that had to be opened (until 2026-11-20). Git history: 35d488b, ea6ab68.\nQualtrics.SurveyEngine.addOnload(function () {\n  var root = document.getElementById(\"cs-ws-root\");\n  if (!root) return;\n  var OWN = [[1, 1, \"Couldn't get past page 4 for ages, the next button didn't do anything.\"], [1, 2, \"Not sure what \\\"moderately often\\\" was supposed to mean.\"], [1, 3, \"Video on page 3 kept buffering so I couldn't hear it properly. Also took way longer than the 10 mins it said.\"], [1, 4, \"A couple of the questions assumed I have children, which I don't.\"], [1, 5, \"It took far longer than it said it would, and I'm still not sure when I'll get paid.\"], [1, 6, \"Some questions were a bit vague so I wasn't sure what to put, and the second half felt endless.\"], [1, 7, \"Will the bonus be paid separately?\"], [1, 8, \"Found the questions about my health a bit intrusive tbh, and the page froze when I hit submit.\"], [2, 1, \"The sound on the second video didn't work at all.\"], [2, 2, \"The instructions for the sorting task were hard to follow, and the bonus is lower than the listing said.\"], [2, 3, \"The questions about drinking assumed everyone drinks, which doesn't apply to me.\"], [2, 4, \"The pictures took ages to load, and the whole thing took twice as long as advertised.\"], [2, 5, \"I didn't agree with how the article described young people, and some of the answer options didn't make sense.\"], [3, 1, \"The page kept freezing whenever I tried to go back.\"], [3, 2, \"I couldn't tell whether \\\"often\\\" meant every day or every week, and it dragged on much longer than it needed to.\"], [3, 3, \"Could you tell me when the results will be published?\"], [3, 4, \"It was a bit longer than I'd have liked.\"], [3, 5, \"Which university is running this research?\"], [3, 6, \"The video wouldn't play at all, and one of the questions had two \\\"agree\\\" options so I didn't know which to pick.\"], [3, 7, \"Is there a follow-up study I can sign up for?\"], [3, 8, \"Some of the questions felt a bit judgemental about how I spend my money, and it was far longer than the ten minutes promised.\"]];            // [[batch, number, text], ...]\n  var openedAt = Date.now();\n  var firstTickAt = 0;\n  var state = { ticks: {} };\n\n  // ---- hidden carrier ------------------------------------------------------------------------\n  function findCarrier() {\n    var nodes = document.querySelectorAll(\"label, span, div, p, legend\");\n    for (var i = 0; i < nodes.length; i += 1) {\n      if ((nodes[i].textContent || \"\").trim() !== \"ws_meta\") continue;\n      var node = nodes[i];\n      for (var up = 0; up < 10 && node; up += 1) {\n        node = node.parentElement;\n        if (!node || !node.querySelectorAll) continue;\n        var inputs = node.querySelectorAll(\"input[type=text]\");\n        if (inputs.length === 1) return inputs[0];\n        if (inputs.length > 1) return null;\n      }\n    }\n    return null;\n  }\n  function ticked() {\n    return Object.keys(state.ticks).filter(function (key) { return state.ticks[key]; });\n  }\n  function metaString() {\n    var now = Date.now();\n    return \"own_ticks=\" + ticked().join(\"|\")\n      + \";first_tick_ms=\" + (firstTickAt ? firstTickAt - openedAt : \"\")\n      + \";page_ms=\" + (now - openedAt);\n  }\n  function record() {\n    var value = metaString();\n    try { sessionStorage.setItem(\"cs_ws_meta\", value); } catch (error) {}\n    var input = findCarrier();\n    if (!input) return;\n    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, \"value\").set;\n    setter.call(input, value);\n    input.dispatchEvent(new Event(\"input\", { bubbles: true }));\n    input.dispatchEvent(new Event(\"change\", { bubbles: true }));\n  }\n\n  // ---- small DOM helpers ---------------------------------------------------------------------\n  function el(tag, style, text) {\n    var node = document.createElement(tag);\n    if (style) node.style.cssText = style;\n    if (text != null) node.textContent = text;\n    return node;\n  }\n  function pipedLabel(batch, number) {\n    var span = document.getElementById(\"cs-own-\" + batch + \"-\" + number);\n    var text = span ? (span.textContent || \"\").trim() : \"\";\n    if (!text || text.charCodeAt(0) === 36) return \"\";\n    return text.split(/[\\s·]+/)[0];\n  }\n  var CELL = \"padding:8px 10px;border-bottom:1px solid #eef1f4;vertical-align:top;font-size:14px;line-height:1.45;\";\n  var HEAD = \"padding:8px 10px;border-bottom:2px solid #d9dee5;text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#556270;white-space:nowrap;\";\n  var CODE = \"font-size:12px;font-weight:600;letter-spacing:.04em;color:#2f5d8a;white-space:nowrap;\";\n\n  function tickButton(key, counter) {\n    var button = el(\"button\", \"width:24px;height:24px;padding:0;border:1px solid #8a97a6;border-radius:4px;background:#fff;color:#2f5d8a;font-size:16px;line-height:1;cursor:pointer;\", \"\");\n    button.type = \"button\";\n    button.setAttribute(\"aria-pressed\", \"false\");\n    button.setAttribute(\"aria-label\", \"Tick this comment\");\n    button.addEventListener(\"click\", function () {\n      var on = !state.ticks[key];\n      state.ticks[key] = on;\n      if (!firstTickAt) firstTickAt = Date.now();\n      button.textContent = on ? \"✓\" : \"\";\n      button.style.background = on ? \"#e8f0f8\" : \"#fff\";\n      button.setAttribute(\"aria-pressed\", on ? \"true\" : \"false\");\n      counter.textContent = \"Ticked: \" + ticked().length + \" of \" + OWN.length;\n      record();\n    });\n    return button;\n  }\n\n  // On a narrow screen a table squeezes the comment into a thin column, so each row becomes a small\n  // card instead: the comment, a line with the batch and the category, and the tick box on the right.\n  var compact = (root.clientWidth || window.innerWidth || 800) < 560;\n  function buildOwn(panel) {\n    panel.appendChild(el(\"p\", \"margin:0 0 8px;line-height:1.5;\", \"The \" + OWN.length + \" comments you coded in this shift, with the category you chose. Tick any comments you want to count.\"));\n    var counter = el(\"p\", \"margin:0 0 10px;font-weight:600;color:#1f2933;\", \"Ticked: 0 of \" + OWN.length);\n    panel.appendChild(counter);\n    if (compact) {\n      OWN.forEach(function (row) {\n        var line = el(\"div\", \"display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eef1f4;\");\n        var main = el(\"div\", \"flex:1 1 auto;min-width:0;\");\n        main.appendChild(el(\"div\", \"font-size:15px;line-height:1.45;margin:0 0 4px;\", row[2]));\n        var meta = el(\"div\", \"font-size:12px;color:#556270;line-height:1.5;\", \"Batch \" + row[0] + \" · Your category\");\n        meta.appendChild(el(\"span\", CODE, \" \" + pipedLabel(row[0], row[1])));\n        main.appendChild(meta);\n        line.appendChild(main);\n        var side = el(\"div\", \"flex:0 0 auto;\");\n        side.appendChild(tickButton(row[0] + \"-\" + row[1], counter));\n        line.appendChild(side);\n        panel.appendChild(line);\n      });\n      return;\n    }\n    var wrap = el(\"div\", \"overflow-x:auto;\");\n    var tableNode = el(\"table\", \"width:100%;border-collapse:collapse;\");\n    var headRow = el(\"tr\");\n    [\"Batch\", \"Comment\", \"Your category\", \"\"].forEach(function (label) { headRow.appendChild(el(\"th\", HEAD, label)); });\n    var thead = el(\"thead\");\n    thead.appendChild(headRow);\n    tableNode.appendChild(thead);\n    var body = el(\"tbody\");\n    OWN.forEach(function (row) {\n      var tr = el(\"tr\");\n      tr.appendChild(el(\"td\", CELL + \"white-space:nowrap;color:#556270;\", String(row[0])));\n      tr.appendChild(el(\"td\", CELL, row[2]));\n      tr.appendChild(el(\"td\", CELL + CODE, pipedLabel(row[0], row[1])));\n      var cell = el(\"td\", CELL + \"text-align:center;\");\n      cell.appendChild(tickButton(row[0] + \"-\" + row[1], counter));\n      tr.appendChild(cell);\n      body.appendChild(tr);\n    });\n    tableNode.appendChild(body);\n    wrap.appendChild(tableNode);\n    panel.appendChild(wrap);\n  }\n\n  // ---- the list, shown in full --------------------------------------------------------------\n  var box = el(\"div\", \"border:1px solid #d9dee5;border-radius:8px;margin:0 0 10px;background:#fff;overflow:hidden;\");\n  box.appendChild(el(\"div\", \"padding:12px 14px;font-size:16px;font-weight:600;color:#1f2933;background:#f4f6f9;\", \"Your coding\"));\n  var panel = el(\"div\", \"padding:14px;border-top:1px solid #e3e7ec;\");\n  buildOwn(panel);\n  box.appendChild(panel);\n  root.appendChild(box);\n\n  record();\n  var nextButton = document.getElementById(\"next-button\") || document.getElementById(\"NextButton\");\n  if (nextButton) nextButton.addEventListener(\"click\", record, true);\n  Qualtrics.SurveyEngine.addOnPageSubmit(record);\n});\n",
         "QuestionID": "QID78",
         "DataExportTag": "workspace",
         "QuestionDescription": "Workspace",
@@ -4912,7 +4924,7 @@
       "SecondaryAttribute": "Your note on batch 1  ${q://QID26/ChoiceTextEntryValue}    The coding supervisor's reply to your not",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Your note on batch 1</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\">${q://QID26/ChoiceTextEntryValue}</div></div><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">The coding supervisor's reply to your note</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 8px\">${q://QID43/ChoiceTextEntryValue}</p><p style=\"margin:0\">${q://QID44/ChoiceTextEntryValue}</p></div></div><p style=\"font-size:16px;font-weight:600;color:#1f2933;margin:0 0 6px;\">Your note to the coding supervisor</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">Your note goes to the supervisor with batch 3.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">Your note on batch 1</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\">${q://QID26/ChoiceTextEntryValue}</div></div><div style=\"border:1px solid #d9dee5;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 14px;max-width:640px;\"><div style=\"background:#f4f6f9;padding:10px 14px;border-bottom:1px solid #e3e7ec;font-size:12px;letter-spacing:.04em;color:#556270;text-transform:uppercase;\">The coding supervisor's reply to your note</div><div style=\"padding:14px;font-size:15px;line-height:1.5;color:#1f2933;\"><p style=\"margin:0 0 8px\">${q://QID43/ChoiceTextEntryValue}</p><p style=\"margin:0\">${q://QID44/ChoiceTextEntryValue}</p></div></div><p style=\"margin:0 0 12px;line-height:1.6;\">Would you like to leave a note for the coding supervisor before you finish the shift? <b>This is optional.</b> You can leave the box empty and finish the shift.</p><p style=\"font-size:13px;line-height:1.5;color:#5f6b7a;margin:0;\">A note goes to the supervisor with batch 3.</p><p style=\"font-size:13px;color:#5f6b7a;margin:12px 0 0;font-style:italic;\">The supervisor rates each coder at the end of the shift.</p></div>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -5125,10 +5137,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID84",
-      "SecondaryAttribute": "Questionnaire  After the supervisor&rsquo;s reply  Please think about  the part of the shift after t",
+      "SecondaryAttribute": "Questionnaire  What you did after the supervisor&rsquo;s reply  After the coding supervisor replied ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">After the supervisor&rsquo;s reply</p><p style=\"margin:0 0 0px;line-height:1.6;\">Please think about <b>the part of the shift after the supervisor&rsquo;s reply</b>: batch 3 and the two points where you could send something to the supervisor. Please indicate how much you agree with each statement.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">What you did after the supervisor&rsquo;s reply</p><p style=\"margin:0 0 0px;line-height:1.6;\">After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you had <b>two chances to leave a note for the supervisor</b>: halfway through and at the end. The statements below are about <b>what you did during that time</b>. Please indicate how much you agree with each one.</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5211,7 +5223,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID84",
         "DataExportTag": "VF",
-        "QuestionDescription": "Questionnaire  After the supervisor&rsquo;s reply  Please think about  the part of the shift after t",
+        "QuestionDescription": "Questionnaire  What you did after the supervisor&rsquo;s reply  After the coding supervisor replied ",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5224,10 +5236,10 @@
       "SurveyID": "SV_6488f4e557ca211",
       "Element": "SQ",
       "PrimaryAttribute": "QID85",
-      "SecondaryAttribute": "Questionnaire  After the supervisor&rsquo;s reply  Please think about  the part of the shift after t",
+      "SecondaryAttribute": "Questionnaire  What you did after the supervisor&rsquo;s reply  These statements are again about the",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">After the supervisor&rsquo;s reply</p><p style=\"margin:0 0 0px;line-height:1.6;\">Please think about <b>the part of the shift after the supervisor&rsquo;s reply</b>, and in particular about <b>what you did before deciding whether to send anything</b>. Please indicate how much you agree with each statement.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">What you did after the supervisor&rsquo;s reply</p><p style=\"margin:0 0 0px;line-height:1.6;\">These statements are again about the time <b>after the supervisor&rsquo;s reply</b>: batch 3 and your two chances to leave a note. Please think about <b>what you did before you decided whether to write</b>, and indicate how much you agree with each statement.</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5300,7 +5312,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID85",
         "DataExportTag": "VQ",
-        "QuestionDescription": "Questionnaire  After the supervisor&rsquo;s reply  Please think about  the part of the shift after t",
+        "QuestionDescription": "Questionnaire  What you did after the supervisor&rsquo;s reply  These statements are again about the",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5911,6 +5923,57 @@
         },
         "QuestionID": "QID95",
         "DataExportTag": "t_training_notice",
+        "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_6488f4e557ca211",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID96",
+      "SecondaryAttribute": "Timing",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "Timing",
+        "QuestionType": "Timing",
+        "Selector": "PageTimer",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText",
+          "MinSeconds": "0",
+          "MaxSeconds": "0"
+        },
+        "Choices": {
+          "1": {
+            "Display": "First Click"
+          },
+          "2": {
+            "Display": "Last Click"
+          },
+          "3": {
+            "Display": "Page Submit"
+          },
+          "4": {
+            "Display": "Click Count"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID96",
+        "DataExportTag": "t_mid_note",
         "QuestionDescription": "Timing",
         "Language": [],
         "DefaultChoices": false,

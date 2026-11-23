@@ -1,21 +1,20 @@
-// Workspace page (version 7). Shown only to coders who chose "Prepare a proposal" at the end of
-// batch 3. One section, "Your coding", closed when the page opens: the 21 comments the coder
-// labelled in this shift, each with the category chosen and an unlabelled tick box, and a running
-// count of ticks. Every opening, the time the section stays open and every tick is written to the
-// hidden carrier on the page (label "ws_meta"), as one string:
-//   own_opens=..;own_ms=..;first_open_ms=..;own_ticks=1-3|3-2;page_ms=..
+// Last note page (version 7). Since 2026-11-20 (user decision) everyone sees this page after
+// batch 3: the 21 comments the coder labelled in this shift, shown in full with the category chosen
+// and an unlabelled tick box each, a running count of ticks, and below them the optional note box.
+// Every tick is written to the hidden carrier on the page (label "ws_meta"), as one string:
+//   own_ticks=1-3|3-2;first_tick_ms=..;page_ms=..
 // The tick boxes carry no label, so they do not say what to look for. The builder fills the
 // placeholder below.
-// History: built on 2026-11-16 with two more sections, a project archive of thirty double-coded
-// comments and a page on how results are reported. Both were removed on 2026-11-17 (user
-// decisions); they are in the git history at 35d488b.
+// History: built on 2026-11-16 as a workspace reached only through "Prepare a proposal", with a
+// project archive and a page on how results are reported (both removed 2026-11-17) and with the
+// coding behind a section that had to be opened (until 2026-11-20). Git history: 35d488b, ea6ab68.
 Qualtrics.SurveyEngine.addOnload(function () {
   var root = document.getElementById("cs-ws-root");
   if (!root) return;
   var OWN = "__CS_OWN__";            // [[batch, number, text], ...]
   var openedAt = Date.now();
-  var firstOpenAt = 0;
-  var state = { opens: 0, ms: 0, since: 0, ticks: {} };
+  var firstTickAt = 0;
+  var state = { ticks: {} };
 
   // ---- hidden carrier ------------------------------------------------------------------------
   function findCarrier() {
@@ -38,9 +37,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
   }
   function metaString() {
     var now = Date.now();
-    return "own_opens=" + state.opens + ";own_ms=" + (state.ms + (state.since ? now - state.since : 0))
-      + ";first_open_ms=" + (firstOpenAt ? firstOpenAt - openedAt : "")
-      + ";own_ticks=" + ticked().join("|") + ";page_ms=" + (now - openedAt);
+    return "own_ticks=" + ticked().join("|")
+      + ";first_tick_ms=" + (firstTickAt ? firstTickAt - openedAt : "")
+      + ";page_ms=" + (now - openedAt);
   }
   function record() {
     var value = metaString();
@@ -78,6 +77,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     button.addEventListener("click", function () {
       var on = !state.ticks[key];
       state.ticks[key] = on;
+      if (!firstTickAt) firstTickAt = Date.now();
       button.textContent = on ? "✓" : "";
       button.style.background = on ? "#e8f0f8" : "#fff";
       button.setAttribute("aria-pressed", on ? "true" : "false");
@@ -133,37 +133,13 @@ Qualtrics.SurveyEngine.addOnload(function () {
     panel.appendChild(wrap);
   }
 
-  // ---- the section ---------------------------------------------------------------------------
+  // ---- the list, shown in full --------------------------------------------------------------
   var box = el("div", "border:1px solid #d9dee5;border-radius:8px;margin:0 0 10px;background:#fff;overflow:hidden;");
-  var head = el("button", "display:block;width:100%;text-align:left;padding:12px 14px;font:inherit;font-size:16px;font-weight:600;color:#1f2933;background:#f4f6f9;border:0;cursor:pointer;");
-  head.type = "button";
-  head.setAttribute("aria-expanded", "false");
-  var mark = el("span", "display:inline-block;width:18px;color:#2f5d8a;", "▸");
-  head.appendChild(mark);
-  head.appendChild(document.createTextNode("Your coding"));
-  var panel = el("div", "display:none;padding:14px;border-top:1px solid #e3e7ec;");
+  box.appendChild(el("div", "padding:12px 14px;font-size:16px;font-weight:600;color:#1f2933;background:#f4f6f9;", "Your coding"));
+  var panel = el("div", "padding:14px;border-top:1px solid #e3e7ec;");
   buildOwn(panel);
-  box.appendChild(head);
   box.appendChild(panel);
   root.appendChild(box);
-  head.addEventListener("click", function () {
-    var now = Date.now();
-    if (state.since) {
-      state.ms += now - state.since;
-      state.since = 0;
-      panel.style.display = "none";
-      mark.textContent = "▸";
-      head.setAttribute("aria-expanded", "false");
-    } else {
-      state.opens += 1;
-      state.since = now;
-      if (!firstOpenAt) firstOpenAt = now;
-      panel.style.display = "block";
-      mark.textContent = "▾";
-      head.setAttribute("aria-expanded", "true");
-    }
-    record();
-  });
 
   record();
   var nextButton = document.getElementById("next-button") || document.getElementById("NextButton");

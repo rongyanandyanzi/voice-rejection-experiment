@@ -1,5 +1,35 @@
 # The Coding Shift: Qualtrics survey
 
+## Version 8 (2026-11-23)
+
+Built by `build_coding_shift_qsf.py` into `the_coding_shift_v8.qsf`, imported as the new project
+"The Coding Shift v8", **SV_50GDNKcRq0aETuS**, published. Every participant text is in
+`coding_shift_v8_materials_2026-11-23.md`. Version 7 (SV_8IbAzIQqJXlIerk) is not changed; the server
+is unchanged.
+
+What differs from version 7:
+
+1. **Report button in batch 3** (user decisions 2026-11-23). Under the category question of each
+   batch 3 comment: `report_b3_N` (one-option checkbox that `js_report.js` shows as the button
+   "Report this comment to the coding supervisor") and `report_b3_N_why` (optional one-line "What is
+   the problem?", 150 characters, shown once the comment is reported). Voice frequency = number of
+   comments reported, 0 to 8. Batches 1 and 2 have no button.
+2. **No note page after comment 4.** The last note page (block "Workspace") is as in version 7.
+3. The hidden leftovers of version 7 (`mid_choice`, `mid_remark`, `end_choice`, `end_remark` and
+   their timers, the always-true flow branch) are not built. The "End choice" block is gone.
+4. VF and VQ instructions name the reports and the note at the end.
+
+Notes for the next import:
+
+- A freshly imported survey answers "Sorry! We were unable to find this survey" (code noForm) in
+  preview until it has been **published once**. Publish first, then preview.
+- Set in the editor after import, as before: "None of these" exclusive, report list in random order
+  with the last option fixed, both Prolific header scripts (copied from version 7).
+- Two earlier imports of 2026-11-23 are unused and renamed: SV_1LFp2Aw2nI9hBbM "The Coding Shift v8
+  first import (not used)" (button in all three batches). Nothing was deleted.
+- In preview, do not click Next on the messages page before its 15 seconds are over, or the preview
+  reports "Page is out of date".
+
 ## Version 7 (built 2026-11-16)
 
 Built by `build_coding_shift_qsf.py` into `the_coding_shift_v7.qsf`. Imported on 2026-11-16 as the new
@@ -25,19 +55,21 @@ put into it could not be told apart. Version 7 requests nothing after the reply.
    `t_training_notice` (QID95). Added to the live survey by hand; same QIDs as the builder.
 4. **Batch 1**, **Note 1** (requested, with `h_note1_meta`), **Batch 2**, **Waiting page**: as in
    version 6. The admin tasks are not built.
-5. **New messages**: the batch 1 card says "Result: meets standard" (no "rating"). Reply card as before.
+5. **New messages**: the reply card and the "batch 3 is ready" card. The batch 1 check card ("Result:
+   meets standard") was removed on 2026-11-23 (user decision); the count line says "2 new messages".
 6. **Batch 3**: comments 2, 6, 8 raise two problems; 3, 5, 7 fit no category (5 is new: "Which
    university is running this research?"). Every page carries the line "The supervisor rates each
    coder at the end of the shift."
-7. **Midpoint choice** (after comment 4, inside the Batch 3 block): `mid_choice` (1 go on, 2 send a
-   remark), page timer `t_mid`, then `mid_remark` alone on the next page (display logic, required when
-   shown, 200 characters). The supervisor does not reply during batch 3.
-8. **End choice** (own block): `end_choice` (1 finish, 2 quick remark, 3 prepare a proposal),
-   page timer `t_end_choice`, then `end_remark` alone on the next page (display logic, 200 characters).
-9. **Workspace** (branch `end_choice` = 3): `workspace` (one section, "Your coding", built and
-   logged by `js_workspace.js`: the coder's own 21 comments with tick boxes; a project archive and a
-   page on how results are reported were removed on 2026-11-17, user decisions), `h_ws_meta`,
-   `note2` (not required), `h_note2_meta`, `t_workspace`.
+7. **Midpoint note** (after comment 4, inside the Batch 3 block; user decision 2026-11-20: no
+   choice): `mid_remark` (QID57) is shown to everyone on its own page, optional, 200 characters,
+   with the page timer `t_mid_note` (QID96). The old `mid_choice` (QID56) is hidden by the display
+   condition `condition` = `never_shown`; it and `t_mid` make a page that is skipped.
+8. **End choice** block: `end_choice` (QID75) is hidden the same way, so the block shows nothing;
+   `end_remark` depends on it and never appears.
+9. **Last note page** (block "Workspace", for everyone since 2026-11-20; the flow branch is kept
+   with the always-true condition `condition` != `never_shown`): `workspace` (QID78; the 21 coded
+   comments shown in full with tick boxes, built by `js_workspace.js`), `h_ws_meta`, `note2`
+   (optional), `h_note2_meta`, `t_workspace`.
 10. **Questionnaire**: VF and VQ with instructions about the part of the shift after the reply; VQ2
     and VQ3 reworded; report list as before.
 11. **Manipulation checks** (branch `voice1` = 1): task attribution, social attribution, politeness,
@@ -45,9 +77,15 @@ put into it could not be told apart. Version 7 requests nothing after the reply.
 12. **Closing**: the open question. **Debrief**: full bonus for everyone, the reply was part of the
     study; no amount and nothing on how the reply was produced.
 
-Measures: voice frequency = occasions used (`mid_remark`, and `end_remark` or `note2`), 0 to 2.
-Effort = coded content of what was sent plus `h_ws_meta`:
-`own_opens;own_ms;first_open_ms;own_ticks;page_ms` (ticks are `batch-number`, joined by `|`).
+Look (2026-11-23, user request): one colour per batch (1 blue, 2 green, 3 purple, practice grey) as a
+solid badge at the top of every page of the batch and as the tint and bar of the comment card; the
+comment is 22 px, larger than the answer options. VF and VQ instructions reworded the same day to
+name the reply and the two chances to leave a note. Applied to the live survey through the editor's
+own question objects (33 question texts, each checked by hash before and after) and published.
+
+Measures: voice frequency = notes written after the reply (`mid_remark` and `note2` non-empty), 0
+to 2. Effort = coded content of what was sent plus `h_ws_meta`:
+`own_ticks;first_tick_ms;page_ms` (ticks are `batch-number`, joined by `|`).
 
 After import, set in the editor as for version 6: "None of these" exclusive and the report list in
 random order with the last option fixed; the two Prolific header scripts; check the end-of-survey
