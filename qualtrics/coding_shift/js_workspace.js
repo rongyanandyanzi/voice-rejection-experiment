@@ -1,8 +1,13 @@
 // Last note page (version 7). Since 2026-11-20 (user decision) everyone sees this page after
 // batch 3: the 21 comments the coder labelled in this shift, shown in full with the category chosen
 // and an unlabelled tick box each, a running count of ticks, and below them the optional note box.
-// Every tick is written to the hidden carrier on the page (label "ws_meta"), as one string:
-//   own_ticks=1-3|3-2;first_tick_ms=..;page_ms=..
+// A box can be ticked and unticked freely; "Untick all" empties all boxes so the coder can count
+// something else, and "Tick all" ticks every box (2026-11-23, user requests: allow counting several
+// times, and make it easy with select all and unselect all). Everything is written to the hidden
+// carrier on the page (label "ws_meta"), as one string:
+//   own_ticks=1-3|3-2;past_counts=1-3|1-5|1-6/3-3|3-5;tick_events=..;clears=..;tick_alls=..;first_tick_ms=..;page_ms=..
+// own_ticks is what is ticked when the page is left; past_counts lists each set that was cleared
+// with "Untick all", sets separated by "/"; tick_events counts every single tick and untick.
 // The tick boxes carry no label, so they do not say what to look for. The builder fills the
 // placeholder below.
 // History: built on 2026-11-16 as a workspace reached only through "Prepare a proposal", with a
@@ -14,7 +19,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var OWN = "__CS_OWN__";            // [[batch, number, text], ...]
   var openedAt = Date.now();
   var firstTickAt = 0;
-  var state = { ticks: {} };
+  var state = { ticks: {}, past: [], events: 0, clears: 0, tickAlls: 0 };
+  var setters = {};
 
   // ---- hidden carrier ------------------------------------------------------------------------
   function findCarrier() {
@@ -38,6 +44,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
   function metaString() {
     var now = Date.now();
     return "own_ticks=" + ticked().join("|")
+      + ";past_counts=" + state.past.join("/")
+      + ";tick_events=" + state.events + ";clears=" + state.clears + ";tick_alls=" + state.tickAlls
       + ";first_tick_ms=" + (firstTickAt ? firstTickAt - openedAt : "")
       + ";page_ms=" + (now - openedAt);
   }
@@ -74,14 +82,18 @@ Qualtrics.SurveyEngine.addOnload(function () {
     button.type = "button";
     button.setAttribute("aria-pressed", "false");
     button.setAttribute("aria-label", "Tick this comment");
-    button.addEventListener("click", function () {
-      var on = !state.ticks[key];
+    function show(on) {
       state.ticks[key] = on;
-      if (!firstTickAt) firstTickAt = Date.now();
       button.textContent = on ? "✓" : "";
       button.style.background = on ? "#e8f0f8" : "#fff";
       button.setAttribute("aria-pressed", on ? "true" : "false");
       counter.textContent = "Ticked: " + ticked().length + " of " + OWN.length;
+    }
+    setters[key] = show;
+    button.addEventListener("click", function () {
+      if (!firstTickAt) firstTickAt = Date.now();
+      state.events += 1;
+      show(!state.ticks[key]);
       record();
     });
     return button;
@@ -91,9 +103,32 @@ Qualtrics.SurveyEngine.addOnload(function () {
   // card instead: the comment, a line with the batch and the category, and the tick box on the right.
   var compact = (root.clientWidth || window.innerWidth || 800) < 560;
   function buildOwn(panel) {
-    panel.appendChild(el("p", "margin:0 0 8px;line-height:1.5;", "The " + OWN.length + " comments you coded in this shift, with the category you chose. Tick any comments you want to count."));
-    var counter = el("p", "margin:0 0 10px;font-weight:600;color:#1f2933;", "Ticked: 0 of " + OWN.length);
-    panel.appendChild(counter);
+    panel.appendChild(el("p", "margin:0 0 8px;line-height:1.5;", "The " + OWN.length + " comments you coded in this shift, with the category you chose. Tick any comments you want to count. You can untick a box, or use the buttons to tick or untick all and count again."));
+    var bar = el("div", "display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 10px;");
+    var counter = el("p", "margin:0;font-weight:600;color:#1f2933;", "Ticked: 0 of " + OWN.length);
+    var SMALL = "padding:4px 12px;font:inherit;font-size:13px;border:1px solid #8a97a6;border-radius:4px;background:#fff;color:#2f5d8a;cursor:pointer;";
+    var all = el("button", SMALL, "Tick all");
+    all.type = "button";
+    all.addEventListener("click", function () {
+      if (!firstTickAt) firstTickAt = Date.now();
+      state.tickAlls += 1;
+      Object.keys(setters).forEach(function (key) { if (!state.ticks[key]) setters[key](true); });
+      record();
+    });
+    var clear = el("button", SMALL, "Untick all");
+    clear.type = "button";
+    clear.addEventListener("click", function () {
+      var now = ticked();
+      if (!now.length) return;
+      state.past.push(now.join("|"));
+      state.clears += 1;
+      now.forEach(function (key) { setters[key](false); });
+      record();
+    });
+    bar.appendChild(counter);
+    bar.appendChild(all);
+    bar.appendChild(clear);
+    panel.appendChild(bar);
     if (compact) {
       OWN.forEach(function (row) {
         var line = el("div", "display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eef1f4;");

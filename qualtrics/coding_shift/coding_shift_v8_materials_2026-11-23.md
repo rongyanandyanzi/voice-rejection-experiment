@@ -290,7 +290,7 @@ Low politeness is aimed at the proposal and at the supervisor's time. It never a
 
 > BATCH 3 OF 3
 > **Batch 3: eight comments**
-> This is the **last batch**: eight comments from a different study. The coding rules are the same as before.
+> This is the **final batch**: eight comments from a different study. The coding rules are the same as before. **At the end of this batch you will be able to review all 21 comments you coded in this shift.**
 > *The supervisor rates each coder at the end of the shift.*
 
 The last line is new. It also appears in small grey type on every batch 3 comment page and on the last note page.
@@ -312,9 +312,19 @@ Three comments raise two problems and three fit no category. After four comments
 
 Under the five categories on every batch 3 comment page. User decisions, 23 November 2026: a report button, not a tick box; the reason is asked but optional; batch 3 only, to keep the load on participants low.
 
-The batch 3 intro page says:
+The batch 3 intro is a page of its own (user request, 23 November 2026: separate page, button highlighted and explained). After the line about the final batch and the review at its end (added on the user's request the same day), it shows a highlighted box:
 
-> In this batch there is a button under each comment to **report that comment to the coding supervisor**. Using it is up to you.
+> **New in this batch: report to the supervisor**
+>
+> Under each comment in this batch you will see this button:
+>
+> [ Report this comment to the coding supervisor ]
+>
+> Use it when there is something about a comment that you want the coding supervisor to know. The report goes straight to the supervisor, and you can add a short reason or leave it empty.
+>
+> **Reporting is up to you.** You can report as many comments as you like, or none.
+
+The box shows a picture of the button, not a working one. The button is solid orange with white bold text, in the box and under each comment (user request: colour it, make it stand out). It says what a report does and that it is optional. It names no kind of problem.
 
 On each comment page:
 
@@ -339,8 +349,8 @@ Shown to everyone after comment 8. User decisions, 20 November 2026: everyone se
 > Below are all the comments you coded in this shift. Further down you can leave a note for the coding supervisor if you wish.
 >
 > **Your coding**
-> The 21 comments you coded in this shift, with the category you chose. Tick any comments you want to count.
-> Ticked: 0 of 21
+> The 21 comments you coded in this shift, with the category you chose. Tick any comments you want to count. You can untick a box, or use the buttons to tick or untick all and count again.
+> Ticked: 0 of 21 [ Tick all ] [ Untick all ]
 >
 > [table: batch, comment, your category, tick box]
 >
@@ -512,7 +522,7 @@ The debrief is the last page of the survey. The paragraph on the reply is kept (
 | report_b3_1 to report_b3_8 | 1 if the comment was reported, empty if not |
 | report_b3_1_why to report_b3_8_why | the optional reason, up to 150 characters |
 | note2, note2_meta | the last note, empty if none, and the writing record |
-| ws_meta | which coded comments were ticked, time to the first tick, time on the last page |
+| ws_meta | what is ticked when the page is left; each earlier count that was cleared with "Untick all"; number of ticks and unticks, of "Untick all" and of "Tick all"; time to the first tick; time on the last page |
 | t_workspace | time on the last page, from the Qualtrics page timer |
 
 Version 8 is a fresh survey, so the unused version 7 columns (mid_choice, mid_remark, end_choice, end_remark and their timers) are not in its export. Everything recorded in version 6 stays.
@@ -528,7 +538,7 @@ Version 8 is a fresh survey, so the unused version 7 columns (mid_choice, mid_re
 | Count given | 0 or 1 |
 | Supervisor's concern answered | 0 or 1 |
 | Workable fix offered | 0 or 1 |
-| Work on the last page | comments ticked, share of ticks that are correct, time on the page |
+| Work on the last page | number of separate counts made, which comments each count held, whether a count matches the two-problem comments or the no-category comments, time on the page |
 
 A box that holds only "no", "none" or similar counts as no note. Non-voicers score 0 on the content codes.
 
@@ -576,6 +586,10 @@ A constructive reply asks how many comments were affected, so it may also raise 
 7. **Report button.** Under every batch 3 comment, with an optional reason. A button, not a tick box.
 8. **Batch 3 only.** Not in batches 1 and 2, to keep the load on participants low.
 9. **Midpoint note page.** Removed.
+
+10. **Batch 3 intro.** A page of its own. It says this is the final batch and that all 21 comments can be reviewed at its end, and it explains the report button in a highlighted box.
+11. **Report button colour.** Solid orange with white bold text.
+12. **Counting on the last page.** Coders may need to count the two-problem comments and then other problems, so boxes can be ticked and unticked freely, with "Tick all" and "Untick all" buttons. Each count is saved.
 
 The debrief names no contact. It asks participants to message the researcher through Prolific.
 

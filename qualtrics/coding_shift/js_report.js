@@ -31,10 +31,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
     return node;
   }
   var wrap = el("div", "margin:4px 0 0;");
-  var button = el("button", "padding:9px 16px;font:inherit;font-size:15px;font-weight:600;border:1.5px solid #556270;border-radius:6px;background:#fff;color:#1f2933;cursor:pointer;", "Report this comment to the coding supervisor");
+  var button = el("button", "padding:11px 20px;font:inherit;font-size:16px;font-weight:700;border:0;border-radius:8px;background:#c2410c;color:#fff;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.25);", "Report this comment to the coding supervisor");
   button.type = "button";
   var status = el("div", "display:none;font-size:15px;line-height:1.5;color:#1f2933;");
-  status.appendChild(el("span", "font-weight:600;", "✓ Reported to the coding supervisor."));
+  status.appendChild(el("span", "font-weight:700;color:#2f7a4a;", "✓ Reported to the coding supervisor."));
   status.appendChild(document.createTextNode(" The supervisor reads reports at the end of the shift. "));
   var undo = el("button", "padding:0;font:inherit;font-size:14px;border:0;background:none;color:#2f5d8a;text-decoration:underline;cursor:pointer;", "Undo");
   undo.type = "button";

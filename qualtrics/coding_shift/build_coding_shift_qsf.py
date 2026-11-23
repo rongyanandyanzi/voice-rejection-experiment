@@ -523,11 +523,26 @@ def build(args):
     b3_intro = s.text("batch3_intro", page(
         batch_badge(3, "of 3"),
         title("Batch 3: eight comments"),
-        box("This is the <b>last batch</b>: eight comments from a different study. The coding rules are the same as before.", "info"),
-        para("In this batch there is a button under each comment to <b>report that comment to the coding supervisor</b>. Using it is up to you."),
+        # The second sentence tells coders in advance that a review of all their comments follows
+        # (user request 2026-11-23).
+        box("This is the <b>final batch</b>: eight comments from a different study. The coding rules are the same as before. "
+            "<b>At the end of this batch you will be able to review all 21 comments you coded in this shift.</b>", "info"),
+        # Since 2026-11-23 (user request) the intro is a page of its own and the report button is
+        # explained in a highlighted box, with a picture of the button so coders recognise it. The
+        # text says what a report does and that it is optional; it names no kind of problem.
+        box(
+            "<p style=\"margin:0 0 10px;\">Under each comment in this batch you will see this button:</p>"
+            # Same look as the real button in js_report.js: solid orange, white bold text (user
+            # request 2026-11-23: colour it, make it stand out).
+            "<p style=\"margin:0 0 12px;\"><span style=\"display:inline-block;padding:11px 20px;font-size:16px;font-weight:700;"
+            "border-radius:8px;background:#c2410c;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);\">Report this comment to the coding supervisor</span></p>"
+            "<p style=\"margin:0 0 8px;\">Use it when there is something about a comment that you want the coding supervisor to know. "
+            "The report goes straight to the supervisor, and you can add a short reason or leave it empty.</p>"
+            "<p style=\"margin:0;\"><b>Reporting is up to you.</b> You can report as many comments as you like, or none.</p>",
+            "key", "New in this batch: report to the supervisor"),
         small(RATING_REMINDER),
     ), description="Batch 3 intro")
-    b3_elements = [b3_intro]
+    b3_elements = [b3_intro, "PB"]
     b3_qids = []
     for index, text in enumerate(BATCH3, 1):
         qid = choice(f"b3_{index}", comment_page(index, len(BATCH3), 3, text, reminder=RATING_REMINDER), CATEGORY_OPTIONS)

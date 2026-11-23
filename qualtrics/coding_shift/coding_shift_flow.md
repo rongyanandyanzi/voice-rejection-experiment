@@ -18,15 +18,23 @@ What differs from version 7:
 3. The hidden leftovers of version 7 (`mid_choice`, `mid_remark`, `end_choice`, `end_remark` and
    their timers, the always-true flow branch) are not built. The "End choice" block is gone.
 4. VF and VQ instructions name the reports and the note at the end.
+5. The batch 3 intro (`batch3_intro`, QID55) is a page of its own and explains the report button in
+   a highlighted box with a picture of the button (user request 2026-11-23; page break added in the
+   live survey by hand).
 
 Notes for the next import:
 
+- `h_ws_meta` in version 8: `own_ticks;past_counts;tick_events;clears;tick_alls;first_tick_ms;page_ms`.
+  `past_counts` holds each set cleared with "Untick all", sets separated by `/` (2026-11-23).
+- The batch 3 intro says this is the final batch and that all 21 comments can be reviewed at its end;
+  the report button is solid orange (2026-11-23).
 - A freshly imported survey answers "Sorry! We were unable to find this survey" (code noForm) in
   preview until it has been **published once**. Publish first, then preview.
 - Set in the editor after import, as before: "None of these" exclusive, report list in random order
   with the last option fixed, both Prolific header scripts (copied from version 7).
-- Two earlier imports of 2026-11-23 are unused and renamed: SV_1LFp2Aw2nI9hBbM "The Coding Shift v8
-  first import (not used)" (button in all three batches). Nothing was deleted.
+- The unused first imports SV_1LFp2Aw2nI9hBbM (version 8, button in all batches) and
+  SV_87mCQHjImZFnnYa (version 7) were deleted on 2026-11-23 on the user's explicit instruction,
+  one at a time, each confirmed by name and ID.
 - In preview, do not click Next on the messages page before its 15 seconds are over, or the preview
   reports "Page is out of date".
 
