@@ -22,7 +22,21 @@ What differs from version 7:
    a highlighted box with a picture of the button (user request 2026-11-23; page break added in the
    live survey by hand).
 
+6. **Heading of the questions about the reply** (user request 2026-11-23): "The supervisor's reply to
+   your note on batch 1", with "batch 1" in red (`REPLY_HEADING`; MA, MC, REASON and Q107).
+7. **Background questions** (user request 2026-11-23): `gender` QID106, `age` QID107, `education`
+   QID108, `tenure` QID109, `industry` QID110, one page at the end of the Closing block after a page
+   break, all forced. The open question before them is now titled "One more question about the shift".
+   Added to the live survey by hand; the builder creates them last, so the QIDs match.
+   The industry question is only "Which industry do you work in?" (user decision 2026-11-24: only
+   employed participants are recruited, so no sentence about a most recent job).
+
 Notes for the next import:
+
+- The background questions were added in the live editor with "编辑多个", which gives the choices the
+  internal IDs 4, 5, 6 and so on. Their recode values were set to 1, 2, 3 and so on by hand
+  ("重新编码值"), so the export matches the builder. A fresh import from the QSF has IDs 1, 2, 3 and
+  needs no recode.
 
 - `h_ws_meta` in version 8: `own_ticks;past_counts;tick_events;clears;tick_alls;first_tick_ms;page_ms`.
   `past_counts` holds each set cleared with "Untick all", sets separated by `/` (2026-11-23).

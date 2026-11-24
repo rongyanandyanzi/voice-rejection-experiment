@@ -43,7 +43,8 @@ The participant is hired for one shift as a Feedback Coder. The job is to sort c
 | 13 | Last note page: all coded comments and one optional note box | new |
 | 15 | Questionnaire | revised |
 | 16 | Questions about the reply | as now |
-| 17 | Final open question | as now |
+| 17 | Open question about the shift | as now |
+| 17b | Background questions: gender, age, education, tenure, industry | new on 23 November |
 | 18 | Debrief | new |
 
 Nothing is asked between the reply and batch 3. The supervisor does not reply to anything sent during batch 3.
@@ -396,7 +397,7 @@ New instruction. The items are unchanged.
 
 > **What you did after the supervisor's reply**
 >
-> After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you could **report comments to the supervisor**, and at the end you could **leave a note**. The statements below are about **what you did during that time**. Please indicate how much you agree with each one.
+> After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you could **report comments to the supervisor**, and at the end you could **leave a note**. The statements below are about **what you did during batch 3**. Please indicate how much you agree with each one.
 
 Reworded on 23 November 2026. The earlier text ("the part of the shift", "the two points where you could send something") was not clear.
 
@@ -446,7 +447,7 @@ Shown to participants whose first note was a suggestion.
 
 ### Task attribution
 
-> **The supervisor's reply to your note on batch 1**
+> **The supervisor's reply to your note on batch 1** (the words "batch 1" are shown in red)
 > Please indicate **why you think** the coding supervisor turned down your note.
 > *The supervisor turned down my note…*
 
@@ -489,11 +490,30 @@ Polite. Courteous. Sensitive to my feelings. Respectful toward me. Considerate t
 | MC5 | Pointed out where exactly my suggestion fell short. |
 | MC6 | Made very clear what I could do to improve my suggestion. |
 
-## B17. Final open question · as now
+## B17. Open question about the shift · as now
 
 > ALMOST DONE
-> **One final question**
+> **One more question about the shift**
 > Did anything about the shift feel unusual or unexpected? Please describe briefly.
+
+The title was "One final question" until 23 November 2026. It changed because the background questions now follow.
+
+## B17b. Background questions · new on 23 November 2026
+
+One page after the open question and before the debrief. All five must be answered.
+
+> LAST STEP
+> **A few questions about you**
+
+| Variable | Question | Answer |
+|---|---|---|
+| `gender` | What is your gender? | 1 Woman. 2 Man. 3 Non-binary or another gender. 4 Prefer not to say. |
+| `age` | What is your age in years? | One line of text. |
+| `education` | What is the highest level of education you have completed? | 1 No formal qualifications. 2 Secondary education (for example GCSEs). 3 A-levels or equivalent. 4 Technical or vocational qualification. 5 Undergraduate degree (for example BA or BSc). 6 Master's degree (for example MA or MSc). 7 Doctorate (for example PhD). 8 Prefer not to say. |
+| `tenure` | How long have you worked for your current employer? | 1 Less than 1 year. 2 1 to 3 years. 3 3 to 5 years. 4 5 to 10 years. 5 More than 10 years. 6 I am not employed at present. |
+| `industry` | Which industry do you work in? | One line of text. |
+
+Gender, age and education use the wording of the recall study. Tenure is new. The industry question does not ask about a most recent job, because only employed participants are recruited (user decision, 24 November 2026).
 
 ## B18. Debrief · new
 

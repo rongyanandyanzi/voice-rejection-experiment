@@ -621,10 +621,10 @@ def build(args):
     # came after it and the two chances to leave a note, instead of "the part of the shift" and
     # "the two points where you could send something".
     # Version 8 (2026-11-23): the two chances are now the report button during batch 3 and the note
-    # at the end.
+    # at the end. 2026-11-24 (user request): "during that time" became "during batch 3".
     after_intro = ("After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you could "
                    "<b>report comments to the supervisor</b>, and at the end you could <b>leave a note</b>. "
-                   "The statements below are about <b>what you did during that time</b>. Please indicate how much you agree with each one.")
+                   "The statements below are about <b>what you did during batch 3</b>. Please indicate how much you agree with each one.")
     vf = s.likert("VF", scale_intro("What you did after the supervisor&rsquo;s reply", after_intro), [
         ("VF1", "I took the initiative to propose specific improvements to the coding process."),
         ("VF2", "I made a point not only to suggest changes to the coding rules but also to explain to the supervisor why they matter."),
@@ -655,13 +655,17 @@ def build(args):
     ), description="Questionnaire intro")
     s.block("Questionnaire", [q_intro, "PB", vf, "PB", vq, "PB", report_list, s.timing("t_report_list")])
 
+    # Heading of the four questions about the reply. "batch 1" is red since 2026-11-23 (user
+    # request), so nobody takes these questions to be about batch 3.
+    REPLY_HEADING = "The supervisor's reply to your note on <span style=\"color:#e74c3c;\">batch 1</span>"
+
     # 11. Manipulation checks, voicers only -------------------------------------------------
-    polite = s.likert("MA", scale_intro("The supervisor's reply to your note on batch 1", "Please indicate how you perceived the reply.", "The supervisor's reply was&hellip;", label="About the reply"), [
+    polite = s.likert("MA", scale_intro(REPLY_HEADING, "Please indicate how you perceived the reply.", "The supervisor's reply was&hellip;", label="About the reply"), [
         # Eight-item politeness scale (user's list, 2026-10-10).
         ("MA1", "Polite"), ("MA2", "Courteous"), ("MA3", "Sensitive to my feelings"), ("MA4", "Respectful toward me"),
         ("MA5", "Considerate toward me"), ("MA6", "Appropriate"), ("MA7", "Civil"), ("MA8", "Tactful"),
     ])
-    useful = s.likert("MC", scale_intro("The supervisor's reply to your note on batch 1", "Please indicate how much you agree with each statement.", "In the reply, the supervisor&hellip;", label="About the reply"), [
+    useful = s.likert("MC", scale_intro(REPLY_HEADING, "Please indicate how much you agree with each statement.", "In the reply, the supervisor&hellip;", label="About the reply"), [
         # Six-item constructiveness scale (user's Chinese list, 2026-10-10), turned from the
         # supervisor's view to the participant's: 拒谏时，我…他/她想法（或方案） becomes "In the
         # reply, the supervisor… my suggestion".
@@ -683,7 +687,7 @@ def build(args):
     # task attribution (REASON: PR1-PR5, the rejection is due to the note/proposal) first, then social
     # attribution (Q107: MR1-MR3, the rejection is due to the supervisor as a person). Names fixed by the
     # user on 2026-10-29; export columns keep the PR/MR prefixes.
-    reason_intro = scale_intro("The supervisor's reply to your note on batch 1",
+    reason_intro = scale_intro(REPLY_HEADING,
                                "Please indicate <b>why you think</b> the coding supervisor turned down your note.",
                                "The supervisor turned down my note&hellip;", label="About the reply")
     # Items reworded on 2026-10-28 (user decision) to fit the coding-supervisor context: task attribution
@@ -707,7 +711,7 @@ def build(args):
     s.block("Manipulation checks", [reasons, "PB", reasons_sup, "PB", polite, "PB", useful])
 
     # 12. Open check -------------------------------------------------------
-    ai_unusual = s.essay("ai_check_unusual", page(eyebrow("Almost done"), title("One final question"), para("Did anything about the shift feel unusual or unexpected? Please describe briefly.", last=True)), force=True, height=110)
+    ai_unusual = s.essay("ai_check_unusual", page(eyebrow("Almost done"), title("One more question about the shift"), para("Did anything about the shift feel unusual or unexpected? Please describe briefly.", last=True)), force=True, height=110)
     # Task feedback and the debrief were removed on 2026-10-10 (user decision).
     s.block("Closing", [ai_unusual])
 
@@ -736,6 +740,52 @@ def build(args):
         {"Type": "Question", "QuestionID": t_training_notice},
         {"Type": "Page Break"},
     ]
+
+    # Background questions (2026-11-23, user request: gender, age, education, tenure, industry). One
+    # page in the Closing block, after the open question and before the debrief. Wording as in the
+    # recall study where the same question exists there. Created last so that no earlier QID moves.
+    gender = s.single_choice("gender", page(
+        eyebrow("Last step"), title("A few questions about you"),
+        para("What is your gender?", last=True),
+    ), ["Woman", "Man", "Non-binary or another gender", "Prefer not to say"])
+    payload_of(gender)["QuestionDescription"] = "What is your gender?"
+    age = s.add_question("age", {
+        "QuestionText": page(para("What is your age in years?", last=True)),
+        "QuestionType": "TE", "Selector": "SL",
+        "Configuration": {"QuestionDescriptionOption": "UseText"},
+        "Validation": force_validation(True),
+    }, "What is your age in years?")
+    education = s.single_choice("education", page(para("What is the highest level of education you have completed?", last=True)), [
+        "No formal qualifications",
+        "Secondary education (for example GCSEs)",
+        "A-levels or equivalent",
+        "Technical or vocational qualification",
+        "Undergraduate degree (for example BA or BSc)",
+        "Master's degree (for example MA or MSc)",
+        "Doctorate (for example PhD)",
+        "Prefer not to say",
+    ])
+    tenure = s.single_choice("tenure", page(para("How long have you worked for your current employer?", last=True)), [
+        "Less than 1 year",
+        "1 to 3 years",
+        "3 to 5 years",
+        "5 to 10 years",
+        "More than 10 years",
+        "I am not employed at present",
+    ])
+    industry = s.add_question("industry", {
+        "QuestionText": page(para("Which industry do you work in?", last=True)),
+        "QuestionType": "TE", "Selector": "SL",
+        "Configuration": {"QuestionDescriptionOption": "UseText"},
+        "Validation": force_validation(True),
+    }, "Which industry do you work in?")
+    payload_of(education)["QuestionDescription"] = "What is the highest level of education you have completed?"
+    payload_of(tenure)["QuestionDescription"] = "How long have you worked for your current employer?"
+    # The four questions after gender use the same 16px paragraph style as the gender question, so
+    # the page reads as one list (plain question text would be shown larger).
+    closing_block = next(block for block in s.blocks if block["Description"] == "Closing")
+    closing_block["BlockElements"] += [{"Type": "Page Break"}] + [
+        {"Type": "Question", "QuestionID": qid} for qid in (gender, age, education, tenure, industry)]
 
     # Flow ------------------------------------------------------------------------------------
     flow = [

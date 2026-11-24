@@ -11,9 +11,9 @@
     "SurveyStatus": "Inactive",
     "SurveyStartDate": "0000-00-00 00:00:00",
     "SurveyExpirationDate": "0000-00-00 00:00:00",
-    "SurveyCreationDate": "2026-11-23 23:19:35",
+    "SurveyCreationDate": "2026-11-24 10:17:43",
     "CreatorID": "UR_063b258319067dd",
-    "LastModified": "2026-11-23 23:19:35",
+    "LastModified": "2026-11-24 10:17:43",
     "LastAccessed": "0000-00-00 00:00:00",
     "LastActivated": "0000-00-00 00:00:00",
     "Deleted": null
@@ -616,6 +616,29 @@
             {
               "Type": "Question",
               "QuestionID": "QID102"
+            },
+            {
+              "Type": "Page Break"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID106"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID107"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID108"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID109"
+            },
+            {
+              "Type": "Question",
+              "QuestionID": "QID110"
             }
           ]
         },
@@ -1171,7 +1194,7 @@
       "SurveyID": "SV_654be22f1909212",
       "Element": "QC",
       "PrimaryAttribute": "Survey Question Count",
-      "SecondaryAttribute": "105",
+      "SecondaryAttribute": "110",
       "TertiaryAttribute": null,
       "Payload": null
     },
@@ -5399,7 +5422,7 @@
       "SecondaryAttribute": "Questionnaire  What you did after the supervisor&rsquo;s reply  After the coding supervisor replied ",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">What you did after the supervisor&rsquo;s reply</p><p style=\"margin:0 0 0px;line-height:1.6;\">After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you could <b>report comments to the supervisor</b>, and at the end you could <b>leave a note</b>. The statements below are about <b>what you did during that time</b>. Please indicate how much you agree with each one.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Questionnaire</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">What you did after the supervisor&rsquo;s reply</p><p style=\"margin:0 0 0px;line-height:1.6;\">After the coding supervisor replied to your note on batch 1, you coded batch 3. During batch 3 you could <b>report comments to the supervisor</b>, and at the end you could <b>leave a note</b>. The statements below are about <b>what you did during batch 3</b>. Please indicate how much you agree with each one.</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5665,10 +5688,10 @@
       "SurveyID": "SV_654be22f1909212",
       "Element": "SQ",
       "PrimaryAttribute": "QID98",
-      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how you perceived t",
+      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate how you perceived",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on batch 1</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate how you perceived the reply.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor's reply was&hellip;</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on <span style=\"color:#e74c3c;\">batch 1</span></p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate how you perceived the reply.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor's reply was&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5761,7 +5784,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID98",
         "DataExportTag": "MA",
-        "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how you perceived t",
+        "QuestionDescription": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate how you perceived",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5774,10 +5797,10 @@
       "SurveyID": "SV_654be22f1909212",
       "Element": "SQ",
       "PrimaryAttribute": "QID99",
-      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how much you agree ",
+      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate how much you agre",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on batch 1</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate how much you agree with each statement.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">In the reply, the supervisor&hellip;</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on <span style=\"color:#e74c3c;\">batch 1</span></p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate how much you agree with each statement.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">In the reply, the supervisor&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5860,7 +5883,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID99",
         "DataExportTag": "MC",
-        "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate how much you agree ",
+        "QuestionDescription": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate how much you agre",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5873,10 +5896,10 @@
       "SurveyID": "SV_654be22f1909212",
       "Element": "SQ",
       "PrimaryAttribute": "QID100",
-      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
+      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate  why you think  t",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on batch 1</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate <b>why you think</b> the coding supervisor turned down your note.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor turned down my note&hellip;</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on <span style=\"color:#e74c3c;\">batch 1</span></p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate <b>why you think</b> the coding supervisor turned down your note.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor turned down my note&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -5954,7 +5977,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID100",
         "DataExportTag": "REASON",
-        "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
+        "QuestionDescription": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate  why you think  t",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -5967,10 +5990,10 @@
       "SurveyID": "SV_654be22f1909212",
       "Element": "SQ",
       "PrimaryAttribute": "QID101",
-      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
+      "SecondaryAttribute": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate  why you think  t",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on batch 1</p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate <b>why you think</b> the coding supervisor turned down your note.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor turned down my note&hellip;</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">About the reply</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">The supervisor's reply to your note on <span style=\"color:#e74c3c;\">batch 1</span></p><p style=\"margin:0 0 12px;line-height:1.6;\">Please indicate <b>why you think</b> the coding supervisor turned down your note.</p><p style=\"margin:0;font-style:italic;color:#5f6b7a;\">The supervisor turned down my note&hellip;</p></div>",
         "QuestionType": "Matrix",
         "Selector": "Likert",
         "SubSelector": "SingleAnswer",
@@ -6038,7 +6061,7 @@
         "NextAnswerId": 6,
         "QuestionID": "QID101",
         "DataExportTag": "Q107",
-        "QuestionDescription": "About the reply  The supervisor's reply to your note on batch 1  Please indicate  why you think  the",
+        "QuestionDescription": "About the reply  The supervisor's reply to your note on  batch 1   Please indicate  why you think  t",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -6051,10 +6074,10 @@
       "SurveyID": "SV_654be22f1909212",
       "Element": "SQ",
       "PrimaryAttribute": "QID102",
-      "SecondaryAttribute": "Almost done  One final question  Did anything about the shift feel unusual or unexpected? Please des",
+      "SecondaryAttribute": "Almost done  One more question about the shift  Did anything about the shift feel unusual or unexpec",
       "TertiaryAttribute": null,
       "Payload": {
-        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Almost done</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">One final question</p><p style=\"margin:0 0 0px;line-height:1.6;\">Did anything about the shift feel unusual or unexpected? Please describe briefly.</p></div>",
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Almost done</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">One more question about the shift</p><p style=\"margin:0 0 0px;line-height:1.6;\">Did anything about the shift feel unusual or unexpected? Please describe briefly.</p></div>",
         "QuestionType": "TE",
         "Selector": "ESTB",
         "Configuration": {
@@ -6071,7 +6094,7 @@
         },
         "QuestionID": "QID102",
         "DataExportTag": "ai_check_unusual",
-        "QuestionDescription": "Almost done  One final question  Did anything about the shift feel unusual or unexpected? Please des",
+        "QuestionDescription": "Almost done  One more question about the shift  Did anything about the shift feel unusual or unexpec",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
@@ -6183,6 +6206,254 @@
         "QuestionID": "QID105",
         "DataExportTag": "t_training_notice",
         "QuestionDescription": "Timing",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_654be22f1909212",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID106",
+      "SecondaryAttribute": "Last step  A few questions about you  What is your gender?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f5d8a;margin:0 0 4px;\">Last step</p><p style=\"font-size:21px;font-weight:600;line-height:1.35;color:#1f2933;margin:0 0 12px;\">A few questions about you</p><p style=\"margin:0 0 0px;line-height:1.6;\">What is your gender?</p></div>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "Woman"
+          },
+          "2": {
+            "Display": "Man"
+          },
+          "3": {
+            "Display": "Non-binary or another gender"
+          },
+          "4": {
+            "Display": "Prefer not to say"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 5,
+        "NextAnswerId": 1,
+        "QuestionID": "QID106",
+        "DataExportTag": "gender",
+        "QuestionDescription": "What is your gender?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_654be22f1909212",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID107",
+      "SecondaryAttribute": "What is your age in years?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 0px;line-height:1.6;\">What is your age in years?</p></div>",
+        "QuestionType": "TE",
+        "Selector": "SL",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID107",
+        "DataExportTag": "age",
+        "QuestionDescription": "What is your age in years?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_654be22f1909212",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID108",
+      "SecondaryAttribute": "What is the highest level of education you have completed?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 0px;line-height:1.6;\">What is the highest level of education you have completed?</p></div>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "No formal qualifications"
+          },
+          "2": {
+            "Display": "Secondary education (for example GCSEs)"
+          },
+          "3": {
+            "Display": "A-levels or equivalent"
+          },
+          "4": {
+            "Display": "Technical or vocational qualification"
+          },
+          "5": {
+            "Display": "Undergraduate degree (for example BA or BSc)"
+          },
+          "6": {
+            "Display": "Master's degree (for example MA or MSc)"
+          },
+          "7": {
+            "Display": "Doctorate (for example PhD)"
+          },
+          "8": {
+            "Display": "Prefer not to say"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 9,
+        "NextAnswerId": 1,
+        "QuestionID": "QID108",
+        "DataExportTag": "education",
+        "QuestionDescription": "What is the highest level of education you have completed?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_654be22f1909212",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID109",
+      "SecondaryAttribute": "How long have you worked for your current employer?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 0px;line-height:1.6;\">How long have you worked for your current employer?</p></div>",
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "SubSelector": "TX",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Choices": {
+          "1": {
+            "Display": "Less than 1 year"
+          },
+          "2": {
+            "Display": "1 to 3 years"
+          },
+          "3": {
+            "Display": "3 to 5 years"
+          },
+          "4": {
+            "Display": "5 to 10 years"
+          },
+          "5": {
+            "Display": "More than 10 years"
+          },
+          "6": {
+            "Display": "I am not employed at present"
+          }
+        },
+        "ChoiceOrder": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "NextChoiceId": 7,
+        "NextAnswerId": 1,
+        "QuestionID": "QID109",
+        "DataExportTag": "tenure",
+        "QuestionDescription": "How long have you worked for your current employer?",
+        "Language": [],
+        "DefaultChoices": false,
+        "DataVisibility": {
+          "Private": false,
+          "Hidden": false
+        }
+      }
+    },
+    {
+      "SurveyID": "SV_654be22f1909212",
+      "Element": "SQ",
+      "PrimaryAttribute": "QID110",
+      "SecondaryAttribute": "Which industry do you work in?",
+      "TertiaryAttribute": null,
+      "Payload": {
+        "QuestionText": "<div style=\"max-width:680px;font-size:16px;color:#1f2933;\"><p style=\"margin:0 0 0px;line-height:1.6;\">Which industry do you work in?</p></div>",
+        "QuestionType": "TE",
+        "Selector": "SL",
+        "Configuration": {
+          "QuestionDescriptionOption": "UseText"
+        },
+        "Validation": {
+          "Settings": {
+            "ForceResponse": "ON",
+            "ForceResponseType": "ON",
+            "Type": "None"
+          }
+        },
+        "QuestionID": "QID110",
+        "DataExportTag": "industry",
+        "QuestionDescription": "Which industry do you work in?",
         "Language": [],
         "DefaultChoices": false,
         "DataVisibility": {
