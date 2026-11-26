@@ -2661,7 +2661,7 @@ function buildInitialManagerPrompt(payload) {
       language === "zh"
         ? "Produce exactly 2 complete, natural Chinese Manager messages, each about 56-77 Chinese characters, with about 133-138 Chinese characters across the two messages combined. The server will apply only semantically empty length matching after generation."
         : (messageDelivery
-          ? "Produce exactly 2 Manager messages with 64-66 words across the pair. Message 1 should be the opening and decision of 18-26 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions."
+          ? "Produce exactly 2 Manager messages with 70-72 words across the pair. Message 1 should be the opening and decision of 18-26 words. Message 2 should be a longer explanation of 42-52 words. This short-then-long rhythm is identical across all four conditions."
           : "Produce exactly 2 Manager messages with 60-62 words across the pair. Message 1 should be a short decision and immediate reaction of 14-22 words. Message 2 should be a longer explanation of 36-46 words. This short-then-long rhythm is identical across all four conditions."),
       messageDelivery
         ? "Message 1 carries the paragraph-1 channels of the assigned politeness style and the explicit refusal, and nothing else. It should sound like the first thing a supervisor would actually write, not a miniature report."
@@ -2700,7 +2700,11 @@ function buildInitialManagerPrompt(payload) {
     // A real manager is more likely to send a short decision and then a fuller explanation than two
     // polished paragraphs of identical size. Indexed ranges preserve that rhythm without changing
     // the total amount of condition-bearing content participants receive.
-    wordRange = language === "zh" ? null : { min: 14, max: 46 };
+    // Written replies, 2026-11-26 (user decision): paragraph 2 raised by six words, from 36-46 to
+    // 42-52, in all four cells, and the pair's band and target with it (62-72 to 68-78, 64-66 to
+    // 70-72). With the come-back line added that day, high-constructiveness paragraphs at 46 words
+    // read compressed ("A field changes the one label data"). The chat design keeps its ranges.
+    wordRange = language === "zh" ? null : { min: 14, max: messageDelivery ? 52 : 46 };
     // Written replies (2026-10-14): paragraph 1 widened from 14-22 to 18-26 words. Squeezed into 22
     // words, the polite greeting, thanks, recognition and hedged refusal ran together in one
     // semicolon sentence and read as a quick formula before the "no"; the two participants who
@@ -2708,18 +2712,18 @@ function buildInitialManagerPrompt(payload) {
     // range applies in every cell so length stays matched.
     messageWordRanges = language === "zh"
       ? null
-      : (messageDelivery ? [{ min: 18, max: 26 }, { min: 36, max: 46 }] : [{ min: 14, max: 22 }, { min: 36, max: 46 }]);
+      : (messageDelivery ? [{ min: 18, max: 26 }, { min: 42, max: 52 }] : [{ min: 14, max: 22 }, { min: 36, max: 46 }]);
     // Floor raised from 54 to 58. On the ticket-and-promotion materials the low-constructiveness
     // cells drifted down to the old floor (means 59.5 and 60.7, two replies at 54) while high
     // constructiveness held at 63, a 6.5% spread that breaks the 5% matching gate. Raising only the
     // floor lifts the vague cells; the ceiling is deliberately left at 68 because the earlier
     // attempt to squeeze both ends (56-64) pushed high constructiveness into length failures.
-    totalWordRange = language === "zh" ? null : (messageDelivery ? { min: 62, max: 72 } : { min: 58, max: 68 });
+    totalWordRange = language === "zh" ? null : (messageDelivery ? { min: 68, max: 78 } : { min: 58, max: 68 });
     // Target moved up from 58-62: high constructiveness lands at 61-63 against the ceiling while low
     // constructiveness sat at 59-60 against the old target, a 5.5% spread. Raising the target lifts
     // the low-constructiveness cells without touching the ceiling; narrowing the band instead
     // (measured at 56-64) only pushed high constructiveness into length failures.
-    totalWordTargetRange = language === "zh" ? null : (messageDelivery ? { min: 64, max: 66 } : { min: 60, max: 62 });
+    totalWordTargetRange = language === "zh" ? null : (messageDelivery ? { min: 70, max: 72 } : { min: 60, max: 62 });
     chineseCharRange = language === "zh" ? { min: 56, max: 77 } : null;
     chineseTotalCharRange = language === "zh" ? { min: 133, max: 138 } : null;
   } else if (phase === "rejection_followup") {

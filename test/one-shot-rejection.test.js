@@ -83,8 +83,12 @@ test("message delivery reframes the first rejection as a written reply without c
   // Written replies get a longer paragraph 1 (18-26 words, 2026-10-14) so the polite opening is
   // not crammed into one sentence; the chat design keeps 14-22.
   assert.deepEqual(chat.messageWordRanges, [{ min: 14, max: 22 }, { min: 36, max: 46 }]);
-  assert.deepEqual(message.messageWordRanges, [{ min: 18, max: 26 }, { min: 36, max: 46 }]);
-  assert.deepEqual(message.totalWordTargetRange, { min: 64, max: 66 });
+  // Paragraph 2 of written replies is 42-52 words since 2026-11-26 (six more, to fit the
+  // come-back line); the pair's target moved from 64-66 to 70-72.
+  assert.deepEqual(message.messageWordRanges, [{ min: 18, max: 26 }, { min: 42, max: 52 }]);
+  assert.deepEqual(message.totalWordTargetRange, { min: 70, max: 72 });
+  assert.deepEqual(message.totalWordRange, { min: 68, max: 78 });
+  assert.deepEqual(chat.totalWordRange, { min: 58, max: 68 });
   assert.equal(message.constructivenessAssessmentMode, chat.constructivenessAssessmentMode);
 });
 

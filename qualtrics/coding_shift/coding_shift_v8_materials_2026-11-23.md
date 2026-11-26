@@ -262,7 +262,7 @@ The last sentence was "Click Next to start batch 3." until 25 November 2026. It 
 
 ### The supervisor's reply · as now
 
-The reply is written for each participant's own note, under fixed rules for each cell. It has two paragraphs. The first has 18 to 26 words and the second 36 to 46. Every reply turns the suggestion down. The four texts below show the style of each cell. They are the ones used if the service fails.
+The reply is written for each participant's own note, under fixed rules for each cell. It has two paragraphs. The first has 18 to 26 words and the second 42 to 52. The second paragraph had 36 to 46 words until 26 November 2026; the user raised it by six words in all four cells so that the come-back line fits without cramping the constructive replies. The four backup texts below were written for the earlier limit and are a few words shorter than a generated reply. Every reply turns the suggestion down. The four texts below show the style of each cell. They are the ones used if the service fails.
 
 **High politeness, high constructiveness**
 
@@ -637,6 +637,7 @@ A constructive reply asks how many comments were affected, so it may also raise 
 
 15. **Batch 3 intro simplified.** One opening line and three numbered points: the report button, the review of all 21 comments and the note at the end, and that both count as suggestions which the supervisor reviews and rates.
 16. **Come-back line in the constructive replies.** High-constructiveness replies tell the coder to bring the suggestion back with solid numbers. No reply uses the word "report", so the reply does not prime the batch 3 button.
+17. **Reply length.** Paragraph 2 of the reply is 42 to 52 words in all four cells, six more than before.
 
 The debrief names no contact. It asks participants to message the researcher through Prolific.
 

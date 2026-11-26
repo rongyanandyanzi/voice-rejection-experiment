@@ -59,6 +59,10 @@ What differs from version 7:
     No written reply may use "report" in any form. `writtenComeBackProblem` checks both and asks for
     one rewrite. The two HC backup texts in `js_waiting.js` read "bring it back with solid numbers".
 
+12. **Reply length** (user decision 2026-11-26): paragraph 2 of the written reply is 42-52 words
+    in all four cells (was 36-46); the pair's band is 68-78 and its target 70-72 (were 62-72 and
+    64-66). The backup texts in `js_waiting.js` keep their earlier length.
+
 Notes for the next import:
 
 - The background questions were added in the live editor with "编辑多个", which gives the choices the
