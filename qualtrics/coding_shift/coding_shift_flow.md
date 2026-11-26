@@ -63,6 +63,10 @@ What differs from version 7:
     in all four cells (was 36-46); the pair's band is 68-78 and its target 70-72 (were 62-72 and
     64-66). The backup texts in `js_waiting.js` keep their earlier length.
 
+13. **Full sentences first** (user decision 2026-11-26): the written high-constructiveness rules
+    in `server.js` ask for paragraph 2 in complete sentences, the reason first, then the come-back
+    line as one short sentence. No fragments, stacked nouns or semicolon chains.
+
 Notes for the next import:
 
 - The background questions were added in the live editor with "编辑多个", which gives the choices the

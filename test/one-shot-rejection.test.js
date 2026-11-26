@@ -150,6 +150,8 @@ test("written replies carry the full politeness channel set in both paragraphs",
     // the supervisor again in batch 3), and no written reply uses the word "report".
     assert.match(system, /bring it back when you have solid numbers/);
     assert.match(system, /Never use the word 'report' in any form/);
+    // Full sentences first (2026-11-26): the reason is written out before the come-back line.
+    assert.match(system, /Sentence form: write paragraph 2 as complete, grammatical sentences/);
     assert.doesNotMatch(system, /Never tell them to 'come back with'/);
     assert.match(system, /never a request to run an analysis, trial, agreement comparison, or statistics/);
     assert.match(system, /Never cite comment numbers/);

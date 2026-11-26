@@ -638,6 +638,7 @@ A constructive reply asks how many comments were affected, so it may also raise 
 15. **Batch 3 intro simplified.** One opening line and three numbered points: the report button, the review of all 21 comments and the note at the end, and that both count as suggestions which the supervisor reviews and rates.
 16. **Come-back line in the constructive replies.** High-constructiveness replies tell the coder to bring the suggestion back with solid numbers. No reply uses the word "report", so the reply does not prime the batch 3 button.
 17. **Reply length.** Paragraph 2 of the reply is 42 to 52 words in all four cells, six more than before.
+18. **Full sentences first.** In the constructive replies the reason is written in complete sentences before the come-back line.
 
 The debrief names no contact. It asks participants to message the researcher through Prolific.
 
