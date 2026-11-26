@@ -52,11 +52,12 @@ What differs from version 7:
     from 1 to 5, with a bonus of £0.50 for a high rating. The rating reminder line is no longer on
     this page. Live text equals the builder's output: 2631 characters, hash 2472433855.
 
-11. **Report line in the constructive replies** (user request 2026-11-26): in `server.js` the written
-    high-constructiveness rules tell the coder to report the count to the supervisor when they have
-    solid numbers (HP: inside the tentative invitation; LP: as the bare imperative). The
-    low-constructiveness replies never mention reporting. `writtenReportBackProblem` checks both and
-    asks for one rewrite. The two HC backup texts in `js_waiting.js` carry the same line.
+11. **Come-back line in the constructive replies** (user requests 2026-11-26): in `server.js` the
+    written high-constructiveness rules tell the coder to bring the count back when they have solid
+    numbers (HP: inside the tentative invitation; LP: as the bare imperative). The first wording
+    used the verb "report"; it was replaced the same day because it would prime the batch 3 button.
+    No written reply may use "report" in any form. `writtenComeBackProblem` checks both and asks for
+    one rewrite. The two HC backup texts in `js_waiting.js` read "bring it back with solid numbers".
 
 Notes for the next import:
 

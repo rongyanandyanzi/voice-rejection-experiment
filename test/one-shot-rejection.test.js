@@ -18,7 +18,7 @@ const {
   managerConstructivenessCueWarning,
   managerSafetyProblem,
   lowPolitenessWordingProblem,
-  writtenReportBackProblem,
+  writtenComeBackProblem,
   paragraphTwoChannelForRequest,
   isWrittenRejectionPrompt,
   WRITTEN_TEMPORAL_SOFTENERS,
@@ -142,9 +142,10 @@ test("written replies carry the full politeness channel set in both paragraphs",
     assert.match(system, /Pinpoint the weak part/);
     assert.match(system, /checks how often two coders give a comment the same label/);
     assert.match(system, /needs numbers behind it, how many of the comments they coded were affected/);
-    // Since 2026-11-26 the reopening line tells the coder to report the count (they can report in
-    // batch 3 and leave a note at the end).
-    assert.match(system, /report it to me when you have solid numbers/);
+    // Since 2026-11-26 the reopening line tells the coder to bring the count back (they can reach
+    // the supervisor again in batch 3), and no written reply uses the word "report".
+    assert.match(system, /bring it back when you have solid numbers/);
+    assert.match(system, /Never use the word 'report' in any form/);
     assert.doesNotMatch(system, /Never tell them to 'come back with'/);
     assert.match(system, /never a request to run an analysis, trial, agreement comparison, or statistics/);
     assert.match(system, /Never cite comment numbers/);
@@ -348,20 +349,25 @@ test("written low politeness may give its reopening terms as a bare imperative; 
       assert.match(lowPolitenessWordingProblem(reply(`I can't approve it ${phrase}.`), written), new RegExp(`'${phrase}'`));
     }
   }
-  // Report-back line (2026-11-26): written high-constructiveness replies must tell the coder to
-  // report the count; written low-constructiveness replies must not mention reporting; the chat
-  // design is untouched.
+  // Come-back line (2026-11-26): written high-constructiveness replies must tell the coder to
+  // bring the count back; no written reply may use "report" in any form (it would prime the batch 3
+  // button); the chat design is untouched.
+  const withComeBack = reply("Bring it back when you have solid numbers: how many comments had two problems. A large share gets the rule reviewed.");
+  const politeComeBack = reply("If you could come back to me with solid numbers on how many comments had two problems, I'd gladly review the rule.");
+  const withoutComeBack = reply("This needs numbers: how many comments had two problems. A large share gets the rule reviewed.");
   const withReport = reply("Report it to me when you have solid numbers: how many comments had two problems. A large share gets the rule reviewed.");
-  const withoutReport = reply("This needs numbers: how many comments had two problems. A large share gets the rule reviewed.");
   const vague = reply("A change like this reaches well past one batch. Bring it back if something changes.");
-  assert.equal(writtenReportBackProblem(withReport, build("LP_HC", "message")), "");
-  assert.match(writtenReportBackProblem(withoutReport, build("LP_HC", "message")), /bare imperative \(Report it to me/);
-  assert.match(writtenReportBackProblem(withoutReport, build("HP_HC", "message")), /tentative invitation/);
-  // "reported" in another sense does not count as the instruction.
-  assert.match(writtenReportBackProblem(reply("People reported two problems in some comments. This needs numbers."), build("LP_HC", "message")), /verb 'report'/);
-  assert.equal(writtenReportBackProblem(vague, build("LP_LC", "message")), "");
-  assert.match(writtenReportBackProblem(withReport, build("HP_LC", "message")), /must not mention reporting/);
-  assert.equal(writtenReportBackProblem(withoutReport, build("LP_HC")), "");
+  assert.equal(writtenComeBackProblem(withComeBack, build("LP_HC", "message")), "");
+  assert.equal(writtenComeBackProblem(politeComeBack, build("HP_HC", "message")), "");
+  assert.match(writtenComeBackProblem(withoutComeBack, build("LP_HC", "message")), /bare imperative \(Bring it back when/);
+  assert.match(writtenComeBackProblem(withoutComeBack, build("HP_HC", "message")), /tentative invitation/);
+  assert.equal(writtenComeBackProblem(vague, build("LP_LC", "message")), "");
+  assert.equal(writtenComeBackProblem(withoutComeBack, build("HP_LC", "message")), "");
+  for (const condition of ["HP_HC", "HP_LC", "LP_HC", "LP_LC"]) {
+    assert.match(writtenComeBackProblem(withReport, build(condition, "message")), /uses the word 'report'/);
+    assert.match(writtenComeBackProblem(reply("People reported two problems. Bring it back with solid numbers."), build(condition, "message")), /uses the word 'report'/);
+  }
+  assert.equal(writtenComeBackProblem(withReport, build("LP_HC")), "");
   // The job's request log keeps the drawn channel.
   assert.ok(aiRequestColumns.includes("politeness_channel"));
 });

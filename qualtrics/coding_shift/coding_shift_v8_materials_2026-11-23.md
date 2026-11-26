@@ -268,7 +268,7 @@ The reply is written for each participant's own note, under fixed rules for each
 
 > Hi there, thanks for raising this; I can see the care behind it. I'm afraid I can't make this change as it stands.
 >
-> Each comment is counted once, and coders are checked for the same label; this change would unsettle both. If you could report to me once you have solid numbers on how many comments were affected, and it were a large share, I'd gladly review the rule.
+> Each comment is counted once, and coders are checked for the same label; this change would unsettle both. If you could bring it back with solid numbers on how many comments were affected, and that were a large share, I'd gladly review the rule.
 
 **High politeness, low constructiveness**
 
@@ -280,7 +280,7 @@ The reply is written for each participant's own note, under fixed rules for each
 
 > Got your note. I'm not making this change to the coding. The case for it doesn't hold up.
 >
-> Each comment is counted once, and coders are checked on giving the same label; this change would break both. Report to me when you have solid numbers on how many comments were affected. A large share gets the rule reviewed. That's all I have on it.
+> Each comment is counted once, and coders are checked on giving the same label; this change would break both. Bring it back with solid numbers on how many comments were affected. A large share gets the rule reviewed. That's all I have on it.
 
 **Low politeness, low constructiveness**
 
@@ -290,7 +290,7 @@ The reply is written for each participant's own note, under fixed rules for each
 
 Low politeness is aimed at the proposal and at the supervisor's time. It never attacks the person.
 
-Since 26 November 2026 (user request) the two high-constructiveness cells tell the coder to report to the supervisor when they have solid numbers. Before that they only said that the decision needs numbers, because the coder had no way to answer; in version 8 the coder can report comments in batch 3 and leave a note at the end. The two low-constructiveness cells never mention reporting. The service checks both: a high-constructiveness reply without the verb "report" in paragraph 2, or a low-constructiveness reply with it, is rewritten once.
+Since 26 November 2026 (user request) the two high-constructiveness cells tell the coder to bring the suggestion back with solid numbers. Before that they only said that the decision needs numbers, because the coder had no way to answer; in version 8 the coder can report comments in batch 3 and leave a note at the end. The first wording of that day used the verb "report". The user then asked for another word, because the batch 3 button reads "Report this comment to the coding supervisor" and the reply would prime it. No reply uses "report" in any form now. All four cells share the verb, "bring it back", and differ in the terms: solid numbers under high constructiveness, "if something changes" under low. The service checks both rules and asks for one rewrite when a reply breaks one.
 
 ## B11. Batch 3 · revised
 
@@ -636,7 +636,7 @@ A constructive reply asks how many comments were affected, so it may also raise 
 26 November 2026:
 
 15. **Batch 3 intro simplified.** One opening line and three numbered points: the report button, the review of all 21 comments and the note at the end, and that both count as suggestions which the supervisor reviews and rates.
-16. **Report line in the constructive replies.** High-constructiveness replies tell the coder to report to the supervisor when they have solid numbers. Low-constructiveness replies never mention reporting.
+16. **Come-back line in the constructive replies.** High-constructiveness replies tell the coder to bring the suggestion back with solid numbers. No reply uses the word "report", so the reply does not prime the batch 3 button.
 
 The debrief names no contact. It asks participants to message the researcher through Prolific.
 

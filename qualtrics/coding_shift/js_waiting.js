@@ -36,13 +36,14 @@ Qualtrics.SurveyEngine.addOnload(function () {
   // generated replies: 18-26 + 36-46 words; HP opens with greeting, thanks and a hedged refusal, LP
   // with "Got your note." and a bald refusal plus a flat judgement of the proposal (never the
   // person); HC says why the rule is kept (each comment counted once; coders checked for the same
-  // label) and tells the coder to report when they have solid numbers on how many comments were
-  // affected (report line added 2026-11-26, user request; before that it only said the decision
-  // needs numbers), LC stays vague and never mentions reporting; every cell stays open.
+  // label) and tells the coder to bring it back with solid numbers on how many comments were
+  // affected (added 2026-11-26, user request; before that it only said the decision needs
+  // numbers), LC stays vague; every cell stays open. No text uses the word "report": the batch 3
+  // button reads "Report this comment to the coding supervisor" and the reply must not prime it.
   var FALLBACK = {
-    HP_HC: ["Hi there, thanks for raising this; I can see the care behind it. I'm afraid I can't make this change as it stands.", "Each comment is counted once, and coders are checked for the same label; this change would unsettle both. If you could report to me once you have solid numbers on how many comments were affected, and it were a large share, I'd gladly review the rule."],
+    HP_HC: ["Hi there, thanks for raising this; I can see the care behind it. I'm afraid I can't make this change as it stands.", "Each comment is counted once, and coders are checked for the same label; this change would unsettle both. If you could bring it back with solid numbers on how many comments were affected, and that were a large share, I'd gladly review the rule."],
     HP_LC: ["Hi there, thank you for writing this up; I can see the care you took. I'm afraid I can't make this change.", "A change like this reaches well past one batch, and it touches how the whole project is set up; other things weigh on it too. If something changes, I'd be glad to look at this again. Thanks again for taking the time to raise it."],
-    LP_HC: ["Got your note. I'm not making this change to the coding. The case for it doesn't hold up.", "Each comment is counted once, and coders are checked on giving the same label; this change would break both. Report to me when you have solid numbers on how many comments were affected. A large share gets the rule reviewed. That's all I have on it."],
+    LP_HC: ["Got your note. I'm not making this change to the coding. The case for it doesn't hold up.", "Each comment is counted once, and coders are checked on giving the same label; this change would break both. Bring it back with solid numbers on how many comments were affected. A large share gets the rule reviewed. That's all I have on it."],
     LP_LC: ["Got your note. I'm not making this change to the coding. The idea doesn't hold up for this project.", "A change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it."]
   };
 
