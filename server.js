@@ -1469,6 +1469,7 @@ async function generateAiReply(payload, options = {}) {
     let cueTrimCorrectionAttempted = false;
     let lengthOnlyRewriteAttempts = 0;
     let softenerRewriteAttempted = false;
+    let reportBackRewriteAttempted = false;
     let closingBlindRewriteAttempted = false;
     let validationWarnings = [];
     // Hard validation keeps the usual two-regeneration ceiling. Additional passes are reachable
@@ -1841,6 +1842,17 @@ async function generateAiReply(payload, options = {}) {
           return withAiValidationFailure(failure, "temporal-softener", softenerProblem, lastMessages, lastConstructiveness, lastBlindScores);
         }
         validationWarnings.push("lp-temporal-softener-retained after one rewrite");
+      }
+      const reportBackProblem = writtenReportBackProblem(lastMessages, prompt);
+      if (reportBackProblem) {
+        if (!reportBackRewriteAttempted) {
+          reportBackRewriteAttempted = true;
+          correction = reportBackProblem;
+          continue;
+        }
+        validationWarnings.push(String(prompt.condition || "").endsWith("_HC")
+          ? "hc-report-back-missing after one rewrite"
+          : "lc-report-mentioned after one rewrite");
       }
       const lengthProblem = shouldEnforceManagerLength(prompt, lastIntent)
         ? managerLengthProblem(lastMessages, prompt)
@@ -3093,15 +3105,20 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
   // 2026-10-19 (user decision) the terms are how widespread the problem is: the coder is asked to
   // come back with how many of the comments they coded were affected, a count they can do
   // themselves, and told the rule will be looked at again if it is a large share.
+  // Until 2026-11-26 the reply only stated what the decision needs and never told the coder to send
+  // anything, because the coder had no way to answer. Since version 8 the coder can report comments
+  // in batch 3 and leave a note at the end, so (user request 2026-11-26) the reopening line now
+  // tells the coder to report it to the supervisor when they have solid numbers. The low-
+  // constructiveness replies keep their vague "if something changes" and never mention reporting.
   const writtenHighConstructivenessRules = (highPoliteness) => [
     "Constructiveness content: high.",
     "First work out what the coder actually proposed or asked for, and which single part of it is the real obstacle. Start from their note, not from a preset checklist.",
     "1. Pinpoint the weak part. Name the specific part of their suggestion that does not work as it stands (for example: that the second label has no rule for when it applies; that 'the main one' is left to each coder's feeling; that an example would change what a category covers), so the coder can see exactly where the problem lies. Do not claim something is missing if the note already supplies it.",
     "2. Say why the rule is kept, concretely, in one or two plain sentences. For any proposal about labels (a second label, splitting a comment into two records, an 'other' box, a fixed priority order, redefining 'mainly'), always name both consequences: the results count each comment once, so the change would count some comments twice or move them, and the percentages would stop adding up; and the project checks how often two coders give a comment the same label, which the change would break or blur. For other proposals give the matching plain reason (for example: the project only records what people wrote about the studies, it does not fix the studies; an example would quietly change what a category covers). Use ordinary words a coder understands; never use statistical jargon such as 'inter-rater reliability', 'agreement statistic', 'reliability coefficient', or 'label combination scoring'.",
-    "3. Set the terms for looking again by how widespread the problem is. Say that a change like this needs numbers behind it, how many of the comments they coded were affected and in what way (which two categories clashed; which comments fit nothing; how often the same fault came up), so that how serious it is can be seen, and that if it is a large share the rule is reviewed. The consequence is stated for the rule, not for your attention: 'I\'d look at it again' or 'I\'d look again' on its own is not the consequence and may only accompany a statement that the rule would be reviewed. This is a count the coder can do themselves from the comments they have seen; it is never a request to run an analysis, trial, agreement comparison, or statistics, and never a request to rewrite the suggestion or design a rule. Never tell them to 'come back with', 'bring it back with' or 'send' anything: they have no way to reply to this note, so state what the decision needs, not what they should do next.",
+    "3. Set the terms for looking again by how widespread the problem is. Say that a change like this needs numbers behind it, how many of the comments they coded were affected and in what way (which two categories clashed; which comments fit nothing; how often the same fault came up), so that how serious it is can be seen, and that if it is a large share the rule is reviewed. The consequence is stated for the rule, not for your attention: 'I\'d look at it again' or 'I\'d look again' on its own is not the consequence and may only accompany a statement that the rule would be reviewed. This is a count the coder can do themselves from the comments they have seen; it is never a request to run an analysis, trial, agreement comparison, or statistics, and never a request to rewrite the suggestion or design a rule. Then tell them to report it to you when they have solid numbers. The coder can report to you later in the shift, so the reopening line says, in a few words and using the verb 'report', that they should report that count to you once they have it (for example 'report it to me when you have solid numbers'). Say this once; it asks for the count just named and nothing else, and it never mentions a button, a form, a batch, or how to report.",
     highPoliteness
-      ? "The terms for looking again go in the reopening line: one conditional or tentative invitation that names the numbers and says what happens to the rule (a change like this would need numbers behind it, how many comments had two problems and which categories clashed; if that turned out to be a large share, the rule would be reviewed, and I'd be glad to do that). The rule being reviewed is the consequence; the gladness is the redress around it, never a substitute for it. Never an unredressed command and never a question, and do not give the terms a second time in another sentence."
-      : "The terms for looking again go in the reopening line: one flat, unsoftened requirement that names the numbers (This needs numbers: how many comments had two problems and which categories clashed. A large share gets the rule reviewed.). No could, would, may, might, perhaps, please, optionality, question, hedge, softener, deference, or invitation, no 'come back with', and do not give the terms a second time in another sentence.",
+      ? "The terms for looking again go in the reopening line: one conditional or tentative invitation that names the numbers, invites the coder to report them to you, and says what happens to the rule (a change like this would need numbers behind it, how many comments had two problems and which categories clashed; if you could report that to me once you have solid numbers and it turned out to be a large share, the rule would be reviewed, and I'd be glad to do that). The rule being reviewed is the consequence; the gladness is the redress around it, never a substitute for it. The invitation to report is part of this one line, never a separate command and never a question, and do not give the terms a second time in another sentence."
+      : "The terms for looking again go in the reopening line: one bare imperative that tells the coder to report the numbers and names them, followed by what happens to the rule (Report it to me when you have solid numbers: how many comments had two problems and which categories clashed. A large share gets the rule reviewed.). No could, would, may, might, perhaps, please, optionality, question, hedge, softener, deference, or welcome, and do not give the terms a second time in another sentence.",
     "Plain language (2026-10-14: 'recast it as a single label tie break rule for equal two problem comments' was unclear even to the researcher): write the weak part, the reason, and especially the terms for looking again as normal sentences a coder with no training in research methods understands on first reading, e.g. 'this needs numbers: how many of the comments raised two problems, and which two categories clashed'. Never stack nouns into compressed jargon such as 'single-label tie-break rule', 'coding unit', 'recognition rule', 'anchors', 'trigger', 'boundary cases', 'equal-weight cases', or 'category-level problems'; say what you mean in everyday words.",
     "The weak part, the reason, and the terms for looking again form one chain: the numbers you say are needed measure exactly the problem you named. Stay with that one weak part; do not list several problems or several counts.",
     "Never cite comment numbers (comment 3, comments 3, 5, 6 and 8). Describe the kind of comment instead (comments that raise two problems at once).",
@@ -3230,7 +3247,7 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
     "- Validation of effort: recognise the care or effort behind the note, specific to it. It may share a sentence with the thanks.",
     "- Hedge before the refusal: the refusal is its own sentence, opened by an apology, a regretful softener, or a hedge (I'm sorry, but..., I'm afraid..., unfortunately...), or depersonalised (the second label can't be signed off), and it says plainly and gently what is not going ahead. A contrastive word alone, such as but, still, or that said, is not enough, though it may come first. The refusal itself stays explicit.",
     "Paragraph 2 (Message 2) carries exactly these two politeness moves, in two different clauses:",
-    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one conditional or tentative invitation that sounds genuinely welcoming (if you could..., I'd be really glad to look at it again), never a command. In high constructiveness the terms are the numbers that would show how serious the problem is (it would need numbers behind it...) and the line says that a large share gets the rule reviewed; in low constructiveness they stay vague (if something changes) and name nothing concrete.",
+    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to bringing the proposal back later and says on what terms, in one conditional or tentative invitation that sounds genuinely welcoming (if you could..., I'd be really glad to look at it again), never a command. In high constructiveness the terms are the numbers that would show how serious the problem is (it would need numbers behind it...), the line invites the coder to report them once they have solid numbers, and it says that a large share gets the rule reviewed; in low constructiveness they stay vague (if something changes), name nothing concrete, and never mention reporting.",
     "- " + drawnChannel.high,
     "The rest of paragraph 2 is the assigned content in plain, courteous sentences, with no further thanks, praise, apology, or hedge.",
     "The four paragraph-1 channels and the two paragraph-2 moves are all required, and no other interpersonal move is added; do not drop one to save words. When words are short, cut content filler, never face work.",
@@ -3247,7 +3264,7 @@ function managerConditionRules(delivery = "chat", paragraphTwoChannel = "closing
     "- Bald refusal: refuse in your own first-person voice with nothing before or around it (I'm not approving..., I won't add...), naming flatly what the coder proposed so the paragraph has the same length as a polite one. No hedge, apology, regret, or depersonalisation.",
     "- One flat sharp judgement of the proposal, stated plainly and left there: too thin, no basis, a guess, doesn't hold up. No metaphors, quips, wordplay, or rhetorical questions; the coldness is in saying it flatly.",
     "Paragraph 2 (Message 2) carries exactly these two moves, in two different clauses. They are the low-politeness poles of the same two channels a high-politeness reply uses:",
-    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to looking at the proposal again and says on what terms, in one bare imperative or flat requirement (Bring it back if something changes., This needs numbers: ...), never tentative, optional, or a question. The door is as open as in a polite reply; only the tone is cold. In high constructiveness the terms are the numbers that would show how serious the problem is, stated as a flat requirement, never as 'come back with'; in low constructiveness they stay vague (bring it back if something changes) and name nothing concrete.",
+    "- Mood of directives, carrying the reopening: paragraph 2 always leaves the door open to looking at the proposal again and says on what terms, in one bare imperative or flat requirement (Bring it back if something changes., This needs numbers: ...), never tentative, optional, or a question. The door is as open as in a polite reply; only the tone is cold. In high constructiveness the terms are the numbers that would show how serious the problem is, given as a bare imperative to report them (Report it to me when you have solid numbers: ...); in low constructiveness they stay vague (bring it back if something changes), name nothing concrete, and never mention reporting.",
     "- " + drawnChannel.low,
     "The rest of paragraph 2 is the assigned content in flat, neutral sentences: no apology, regret, thanks, praise, or reassurance anywhere, and no sharp verdict on the proposal beyond the moves listed here.",
     "State the refusal once, in paragraph 1. Paragraph 2 never says no again and never restates the decision.",
@@ -4280,6 +4297,43 @@ function lowPolitenessWordingProblem(messages, prompt) {
   ].join(" ");
 }
 
+// Written high-constructiveness replies tell the coder to report the count to the supervisor once
+// they have solid numbers (user request 2026-11-26); low-constructiveness replies never mention
+// reporting, so the instruction stays part of the constructiveness manipulation only. The blind
+// scorer has no field for this, so the wording is checked here. One bounded rewrite; if the model
+// still misses, the reply goes out and the slip is recorded as a validation warning.
+function writtenReportBackProblem(messages, prompt) {
+  if (!isWrittenRejectionPrompt(prompt) || prompt.language !== "en") return "";
+  const texts = (Array.isArray(messages) ? messages : [])
+    .filter((message) => message && message.speaker === "Manager")
+    .map((message) => String(message.text || ""));
+  // High constructiveness needs the instruction itself (the base verb, in paragraph 2); low
+  // constructiveness must not use the word in any form anywhere.
+  const mentionsReport = /\breport(?:s|ed|ing)?\b/i.test(texts.join(" "));
+  const tellsToReport = /\breport\b/i.test(texts.length > 1 ? texts.slice(1).join(" ") : texts.join(" "));
+  const highConstructiveness = String(prompt.condition || "").endsWith("_HC");
+  if (highConstructiveness && !tellsToReport) {
+    return [
+      "Wording correction required.",
+      "The reopening line in paragraph 2 must tell the coder, using the verb 'report', to report the count to you when they have solid numbers.",
+      String(prompt.condition || "").startsWith("HP_")
+        ? "Put it inside the one tentative invitation (if you could report that to me once you have solid numbers...)."
+        : "Give it as the one bare imperative (Report it to me when you have solid numbers: ...).",
+      "Change nothing else: keep the refusal, the weak part, the reason the rule is kept, what happens to the rule, the politeness style, the message count, and the length.",
+      "Return only valid JSON.",
+    ].join(" ");
+  }
+  if (!highConstructiveness && mentionsReport) {
+    return [
+      "Wording correction required.",
+      "This reply must not mention reporting or tell the coder to report anything. Keep the reopening line vague (if something changes) and reword any sentence that uses 'report'.",
+      "Change nothing else: keep the refusal, the politeness style, the message count, and the length.",
+      "Return only valid JSON.",
+    ].join(" ");
+  }
+  return "";
+}
+
 function managerSafetyProblem(messages, prompt) {
   if (!prompt || prompt.kind !== "manager1") return "";
   if (!["rejection_initial", "rejection_followup", "rejection", "closing"].includes(prompt.phase)) return "";
@@ -4334,14 +4388,14 @@ function managerConstructivenessMetadataProblem(metadata, prompt) {
         "Constructiveness structure correction required.",
         "This is a high-constructiveness rejection. Return non-empty hidden strings for proposal_problem, relevant_standard, and revision_path, and communicate all three meanings in the visible Manager reply.",
         isWrittenRejectionPrompt(prompt)
-          ? `The visible reply must pinpoint the specific weak part of the coder's suggestion, say concretely what that part would do to the coding, say why the rule is kept (each comment counted once; two coders checked for the same label), and set the terms for looking again inside the reopening line as a count the coder can do (how many of their comments were affected and how; a large share gets the rule looked at again), ${highPoliteness ? "as a conditional or tentative invitation" : "as one bare imperative with no hedge, softener, deference, or other redress"}. No analyses, agreement comparisons or statistics, and no comment numbers.`
+          ? `The visible reply must pinpoint the specific weak part of the coder's suggestion, say concretely what that part would do to the coding, say why the rule is kept (each comment counted once; two coders checked for the same label), and set the terms for looking again inside the reopening line as a count the coder can do and should report to the supervisor once they have solid numbers (how many of their comments were affected and how; a large share gets the rule looked at again), ${highPoliteness ? "as a conditional or tentative invitation" : "as one bare imperative with no hedge, softener, deference, or other redress"}. No analyses, agreement comparisons or statistics, and no comment numbers.`
           : highPoliteness
           ? "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and phrase the evidence-based remedy as a condition for reconsideration rather than a command."
           : (isWrittenRejectionPrompt(prompt)
             ? "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and give the evidence-based remedy inside the reopening line as one bare imperative with no hedge, softener, deference, or other redress."
             : "The visible reply must identify the proposal-specific evidence gap, explain the effect, tradeoff, constraint, or uncertainty that the analysis must assess, and state the evidence-based remedy directly with no hedge, softener, deference, or other redress as a complete subject-led sentence. Vary its natural form with the proposal rather than forcing one template, and do not use a bare command."),
         isWrittenRejectionPrompt(prompt)
-          ? "The revision path must say the decision needs a concrete count of how many of the comments this coder coded were affected and in what way, without telling them to come back with it. 'Bring a stronger version', 'think it through' or 'if something changes' is not sufficient."
+          ? "The revision path must say the decision needs a concrete count of how many of the comments this coder coded were affected and in what way, and must tell them to report it to the supervisor when they have solid numbers. 'Bring a stronger version', 'think it through' or 'if something changes' is not sufficient."
           : "The revision path must name the concrete measures, observations, records, comparisons, or trial results that should be analyzed for this participant's actual proposal. A generic request for more data or more analysis is not sufficient.",
         "Preserve the assigned politeness style, rejection outcome, message count, and length. Return only valid JSON.",
       ].join(" ")
@@ -4827,13 +4881,13 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
     if (isClosing) {
       corrections.push(highConstructiveness
         ? (isWrittenRejectionPrompt(prompt)
-          ? "Make the future invitation name the same concrete numbers the decision needs: how many of the comments the coder coded were affected and in what way, without telling them to come back with it."
+          ? "Make the future invitation name the same concrete numbers the decision needs: how many of the comments the coder coded were affected and in what way, and tell them to report it to you when they have solid numbers."
           : "Make the future invitation name the same concrete proposal-specific data or analysis condition that would need to be met before reconsideration.")
         : "Keep the future invitation vague and general. Remove every specific problem, consequence, standard, evidence type, missing element, concrete change, and actionable remedy.");
     } else {
       corrections.push(highConstructiveness
         ? (isWrittenRejectionPrompt(prompt)
-          ? `Regenerate the visible reply so it clearly communicates all three required components: the specific weak part of the coder's suggestion, why the rule is kept in plain words (each comment counted once; two coders checked for the same label), and the terms for looking again as a count the coder can do, how many of their comments were affected and how, ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}. No analyses, agreement comparisons or statistics, and no comment numbers.`
+          ? `Regenerate the visible reply so it clearly communicates all three required components: the specific weak part of the coder's suggestion, why the rule is kept in plain words (each comment counted once; two coders checked for the same label), and the terms for looking again as a count the coder can do and should report to you once they have solid numbers, how many of their comments were affected and how, ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}. No analyses, agreement comparisons or statistics, and no comment numbers.`
           : `Regenerate the visible reply so it clearly communicates all three required components: one proposal-specific evidence gap and the consequence of deciding without it, the concrete relationship, comparison, effect, tradeoff, constraint, or trial result the analysis must assess, and one specific data-analysis path ${highPoliteness ? "expressed with redress" : "expressed directly without redress"}. Do not merely say the proposal needs more data or label a generic standard.`)
         : "Regenerate the visible reply as deliberately vague and unhelpful. Remove all specific problems and consequences, standards, evidence or information requirements, concrete missing elements, and actionable remedies.");
     }
@@ -4863,7 +4917,7 @@ function managerConstructivenessAssessmentProblem(scores, prompt, options = {}) 
       corrections.push(highPoliteness
         ? "Redress the future next step with actual face work such as hedging, deference, apology, appreciation, tentative optional wording, or a friendly invitation. Do not rely on if, after, before, or once alone; a bare substantive prerequisite is not redress."
         : (writtenReply
-          ? "Remove every hedge, softener, tentative or optional request, deference, or other redress from the reopening line. Give its terms as a bare imperative (Come back with..., Bring it back when...), keeping the door open."
+          ? "Remove every hedge, softener, tentative or optional request, deference, or other redress from the reopening line. Give its terms as a bare imperative (Report it to me when..., Bring it back when...), keeping the door open."
           : "Remove every actual hedge, softener, tentative or optional request, deference, invitation, or other redress from the future next step. State the substantive requirement directly in a natural form, but do not force one sentence template or add another command merely to mark low politeness. A flat prerequisite using if, after, before, or once may remain because grammatical conditionality alone is not politeness."));
     } else {
       corrections.push("When there is no future next step, set future_next_step_redressed to false and do not invent one.");
@@ -5278,6 +5332,7 @@ module.exports = {
   flushRewrites,
   buildDerivedFiles,
   lowPolitenessWordingProblem,
+  writtenReportBackProblem,
   NEUTRAL_CHAT_REGISTER_RULE,
   managerLengthOnlyRewriteCorrection,
   managerSmallLengthOvershoot,

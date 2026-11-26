@@ -39,15 +39,16 @@ The participant is hired for one shift as a Feedback Coder. The job is to sort c
 | 7 | Batch 2, five comments | as now |
 | 8 | Waiting page | as now |
 | 9 | New messages, with the supervisor's reply | revised |
+| 9b | Why the supervisor turned the note down: task attribution, then social attribution | moved here on 25 November |
 | 10 | Batch 3, eight comments, each with a report button | new in version 8 |
 | 13 | Last note page: all coded comments and one optional note box | new |
 | 15 | Questionnaire | revised |
-| 16 | Questions about the reply | as now |
+| 16 | Checks on the reply: politeness, then constructiveness | as now |
 | 17 | Open question about the shift | as now |
 | 17b | Background questions: gender, age, education, tenure, industry | new on 23 November |
 | 18 | Debrief | new |
 
-Nothing is asked between the reply and batch 3. The supervisor does not reply to anything sent during batch 3.
+Since 25 November 2026 participants whose first note was a suggestion are asked, right after the reply and before batch 3, why they think the supervisor turned their note down (user decision). Until then nothing was asked between the reply and batch 3, and the two attribution pages came after the questionnaire. The supervisor does not reply to anything sent during batch 3.
 
 ## A4. Measures
 
@@ -255,7 +256,9 @@ Two cards. A first card, "Batch 1 · check" (checked against the reference key, 
 > [reply, paragraph 2]
 >
 > **Coding supervisor · comment-coding project**
-> Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to start batch 3.
+> Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to continue.
+
+The last sentence was "Click Next to start batch 3." until 25 November 2026. It changed because the attribution pages now follow this page.
 
 ### The supervisor's reply · as now
 
@@ -265,7 +268,7 @@ The reply is written for each participant's own note, under fixed rules for each
 
 > Hi there, thanks for raising this; I can see the care behind it. I'm afraid I can't make this change as it stands.
 >
-> Each comment is counted once, and coders are checked for the same label; this change would unsettle both. It would need numbers behind it: how many comments were affected. If that were a large share, the rule would be reviewed, and I'd gladly do that.
+> Each comment is counted once, and coders are checked for the same label; this change would unsettle both. If you could report to me once you have solid numbers on how many comments were affected, and it were a large share, I'd gladly review the rule.
 
 **High politeness, low constructiveness**
 
@@ -277,7 +280,7 @@ The reply is written for each participant's own note, under fixed rules for each
 
 > Got your note. I'm not making this change to the coding. The case for it doesn't hold up.
 >
-> Each comment is counted once, and coders are checked on giving the same label; this change would break both. This needs numbers: how many comments were affected, and how. A large share gets the rule reviewed. That's all I have on it.
+> Each comment is counted once, and coders are checked on giving the same label; this change would break both. Report to me when you have solid numbers on how many comments were affected. A large share gets the rule reviewed. That's all I have on it.
 
 **Low politeness, low constructiveness**
 
@@ -286,6 +289,8 @@ The reply is written for each participant's own note, under fixed rules for each
 > A change like this reaches well past one batch, and it touches how the whole project is set up and run; other things weigh on it too. Bring it back if something actually changes on the project side. That's all I have on it.
 
 Low politeness is aimed at the proposal and at the supervisor's time. It never attacks the person.
+
+Since 26 November 2026 (user request) the two high-constructiveness cells tell the coder to report to the supervisor when they have solid numbers. Before that they only said that the decision needs numbers, because the coder had no way to answer; in version 8 the coder can report comments in batch 3 and leave a note at the end. The two low-constructiveness cells never mention reporting. The service checks both: a high-constructiveness reply without the verb "report" in paragraph 2, or a low-constructiveness reply with it, is rewritten once.
 
 ## B11. Batch 3 · revised
 
@@ -313,19 +318,29 @@ Three comments raise two problems and three fit no category. After four comments
 
 Under the five categories on every batch 3 comment page. User decisions, 23 November 2026: a report button, not a tick box; the reason is asked but optional; batch 3 only, to keep the load on participants low.
 
-The batch 3 intro is a page of its own (user request, 23 November 2026: separate page, button highlighted and explained). After the line about the final batch and the review at its end (added on the user's request the same day), it shows a highlighted box:
+The batch 3 intro is a page of its own (user request, 23 November 2026). Since 26 November 2026 it is one opening line and three numbered points (user request: the page was too complex; introduce the report button, say that all 21 comments can be reviewed at the end, and say that both count as suggestions that the supervisor reviews and rates):
 
-> **New in this batch: report to the supervisor**
+> This is the **final batch**: eight comments from a different study. The coding rules are the same as before.
 >
-> Under each comment in this batch you will see this button:
+> **1 Report to the supervisor**
+>
+> Under each comment you will see this button:
 >
 > [ Report this comment to the coding supervisor ]
 >
-> Use it when there is something about a comment that you want the coding supervisor to know. The report goes straight to the supervisor, and you can add a short reason or leave it empty.
+> Use it when there is something about a comment that you want the supervisor to know. Reporting is up to you.
 >
-> **Reporting is up to you.** You can report as many comments as you like, or none.
+> **2 Review at the end**
+>
+> At the end of this batch you can **review all 21 comments you coded in this shift** and send the supervisor a note. This is up to you too.
+>
+> **3 Both count as suggestions to the supervisor**
+>
+> The supervisor will review your reports and your note and **rate them from 1 to 5**. If the rating is high, you will receive a **bonus of £0.50**.
 
-The box shows a picture of the button, not a working one. The button is solid orange with white bold text, in the box and under each comment (user request: colour it, make it stand out). It says what a report does and that it is optional. It names no kind of problem.
+"final batch" and "review all 21 comments you coded in this shift" are in red (the user's own emphasis). The page shows a picture of the button, not a working one. The button is solid orange with white bold text, on this page and under each comment. This is the one place in the survey that names an amount. The page does not say what earns a high rating and names no kind of problem. The small line "The supervisor rates each coder at the end of the shift." is no longer on this page; it stays on the comment pages and on the note page.
+
+Earlier wordings: three boxes until 25 November (final batch and review; report button; from 25 November a third box on the note, the rating and the bonus, first for the note only and then for reports and note).
 
 On each comment page:
 
@@ -444,6 +459,8 @@ The first two are real. The order is random, with "None of these" last.
 ## B16. Questions about the reply · as now
 
 Shown to participants whose first note was a suggestion.
+
+Since 25 November 2026 the two attribution pages below are asked right after the supervisor's reply (page 9b), before batch 3. The politeness and constructiveness checks stay here, after the questionnaire.
 
 ### Task attribution
 
@@ -610,6 +627,16 @@ A constructive reply asks how many comments were affected, so it may also raise 
 10. **Batch 3 intro.** A page of its own. It says this is the final batch and that all 21 comments can be reviewed at its end, and it explains the report button in a highlighted box.
 11. **Report button colour.** Solid orange with white bold text.
 12. **Counting on the last page.** Coders may need to count the two-problem comments and then other problems, so boxes can be ticked and unticked freely, with "Tick all" and "Untick all" buttons. Each count is saved.
+
+25 November 2026:
+
+13. **Attribution.** Asked right after the supervisor's reply, before batch 3.
+14. **Rating and bonus.** The batch 3 intro says the supervisor reviews what the coder sends in batch 3, both the reports and the note, and rates it from 1 to 5, and that a high rating earns a bonus of £0.50. Reporting counts as voice, so the rating is not tied to the note alone. This replaces decision 2 for this page: the amount is named here and nowhere else.
+
+26 November 2026:
+
+15. **Batch 3 intro simplified.** One opening line and three numbered points: the report button, the review of all 21 comments and the note at the end, and that both count as suggestions which the supervisor reviews and rates.
+16. **Report line in the constructive replies.** High-constructiveness replies tell the coder to report to the supervisor when they have solid numbers. Low-constructiveness replies never mention reporting.
 
 The debrief names no contact. It asks participants to message the researcher through Prolific.
 

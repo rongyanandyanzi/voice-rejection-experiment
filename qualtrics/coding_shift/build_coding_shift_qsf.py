@@ -506,7 +506,7 @@ def build(args):
                "<p style=\"margin:0 0 8px\"><span id=\"cs-msg1\">${e://Field/rejection_msg1}</span></p>"
                "<p style=\"margin:0\"><span id=\"cs-msg2\">${e://Field/rejection_msg2}</span></p>")
         + "</div>"
-        + card("Coding supervisor &middot; comment-coding project", "<p style=\"margin:0\">Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to start batch 3.</p>")
+        + card("Coding supervisor &middot; comment-coding project", "<p style=\"margin:0\">Batch 3 is ready: eight comments from a different study. The coding rules are the same as before. Click Next to continue.</p>")
     )
     messages = s.text("messages", messages_html, js=js("js_messages.js", s.service_url), description="New messages")
     s.block("New messages", [messages, s.timing("t_messages")])
@@ -520,27 +520,43 @@ def build(args):
     # optional box) and, until 2026-11-20, a three-option choice at the end. Version 8 drops both
     # pages; they are in the_coding_shift_v7.qsf and in the git history.
     reminder_html = f"<p style=\"font-size:13px;color:{MUTED};margin:12px 0 0;font-style:italic;\">{RATING_REMINDER}</p>"
+    # Batch 3 intro, simplified on 2026-11-26 (user request: "this is very complex, make it
+    # simple"): one opening line and three numbered points. 1 introduces the report button, 2 says
+    # that all 21 comments can be reviewed at the end and a note sent, 3 says that both count as
+    # suggestions to the supervisor, who reviews and rates them. History of the page: a page of its
+    # own with a picture of the button since 2026-11-23; rating and bonus of £0.50 since 2026-11-25
+    # (user requests: first for the note only, then for the reports too, because reporting is
+    # voice as well). This is the one place in the survey that names an amount (it replaces the
+    # decision of 2026-11-16 for this page only). The text does not say what earns a high rating
+    # and names no kind of problem. The red on "final batch" and on the review of the 21 comments
+    # is the user's own edit in the live survey (found there on 2026-11-25). The line "The
+    # supervisor rates each coder at the end of the shift." is no longer on this page: point 3
+    # says it. The earlier three-box version is in the git history and in the Qualtrics versions.
+    RED = "color:#e74c3c;"
+
+    def step(number, heading, html):
+        return (f"<div style=\"display:flex;gap:14px;align-items:flex-start;margin:0 0 16px;\">"
+                f"<span style=\"flex:0 0 30px;height:30px;line-height:30px;text-align:center;border-radius:50%;"
+                f"background:{BLUE};color:#fff;font-weight:700;\">{number}</span>"
+                f"<div style=\"flex:1;line-height:1.6;\"><p style=\"margin:2px 0 6px;font-weight:700;\">{heading}</p>{html}</div></div>")
+
     b3_intro = s.text("batch3_intro", page(
         batch_badge(3, "of 3"),
         title("Batch 3: eight comments"),
-        # The second sentence tells coders in advance that a review of all their comments follows
-        # (user request 2026-11-23).
-        box("This is the <b>final batch</b>: eight comments from a different study. The coding rules are the same as before. "
-            "<b>At the end of this batch you will be able to review all 21 comments you coded in this shift.</b>", "info"),
-        # Since 2026-11-23 (user request) the intro is a page of its own and the report button is
-        # explained in a highlighted box, with a picture of the button so coders recognise it. The
-        # text says what a report does and that it is optional; it names no kind of problem.
-        box(
-            "<p style=\"margin:0 0 10px;\">Under each comment in this batch you will see this button:</p>"
-            # Same look as the real button in js_report.js: solid orange, white bold text (user
-            # request 2026-11-23: colour it, make it stand out).
-            "<p style=\"margin:0 0 12px;\"><span style=\"display:inline-block;padding:11px 20px;font-size:16px;font-weight:700;"
-            "border-radius:8px;background:#c2410c;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);\">Report this comment to the coding supervisor</span></p>"
-            "<p style=\"margin:0 0 8px;\">Use it when there is something about a comment that you want the coding supervisor to know. "
-            "The report goes straight to the supervisor, and you can add a short reason or leave it empty.</p>"
-            "<p style=\"margin:0;\"><b>Reporting is up to you.</b> You can report as many comments as you like, or none.</p>",
-            "key", "New in this batch: report to the supervisor"),
-        small(RATING_REMINDER),
+        para(f"This is the <span style=\"{RED}\"><b>final batch</b></span>: eight comments from a different study. "
+             "The coding rules are the same as before."),
+        step(1, "Report to the supervisor",
+             "<p style=\"margin:0 0 10px;\">Under each comment you will see this button:</p>"
+             # Same look as the real button in js_report.js: solid orange, white bold text.
+             "<p style=\"margin:0 0 10px;\"><span style=\"display:inline-block;padding:11px 20px;font-size:16px;font-weight:700;"
+             "border-radius:8px;background:#c2410c;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);\">Report this comment to the coding supervisor</span></p>"
+             "<p style=\"margin:0;\">Use it when there is something about a comment that you want the supervisor to know. Reporting is up to you.</p>"),
+        step(2, "Review at the end",
+             f"<p style=\"margin:0;\">At the end of this batch you can <span style=\"{RED}\"><b>review all 21 comments you coded in this shift</b></span> "
+             "and send the supervisor a note. This is up to you too.</p>"),
+        step(3, "Both count as suggestions to the supervisor",
+             "<p style=\"margin:0;\">The supervisor will review your reports and your note and <b>rate them from 1 to 5</b>. "
+             "If the rating is high, you will receive a <b>bonus of &pound;0.50</b>.</p>"),
     ), description="Batch 3 intro")
     b3_elements = [b3_intro, "PB"]
     b3_qids = []
@@ -708,7 +724,14 @@ def build(args):
         ("MR3", "Because the supervisor does not like coders questioning the rules."),
     ])
     # The two reason questions are on separate pages since 2026-10-10 (user edit), each with the full header.
-    s.block("Manipulation checks", [reasons, "PB", reasons_sup, "PB", polite, "PB", useful])
+    # Since 2026-11-25 (user decision) they are asked right after the supervisor's reply, before
+    # batch 3, in a block of their own ("Attribution"), so the attributions are measured before the
+    # behaviour they are meant to explain. The two checks on the reply (MA, MC) stay at the end.
+    # Until then all four questions sat in "Manipulation checks", reasons first. For the same reason
+    # the batch 3 card on the messages page ends "Click Next to continue." and no longer "to start
+    # batch 3".
+    s.block("Attribution", [reasons, "PB", reasons_sup])
+    s.block("Manipulation checks", [polite, "PB", useful])
 
     # 12. Open check -------------------------------------------------------
     ai_unusual = s.essay("ai_check_unusual", page(eyebrow("Almost done"), title("One more question about the shift"), para("Did anything about the shift feel unusual or unexpected? Please describe briefly.", last=True)), force=True, height=110)
@@ -806,6 +829,7 @@ def build(args):
         s.flow_block("Batch 2"),
         s.flow_block("Waiting page"),
         s.flow_block("New messages"),
+        s.flow_branch([s.expr_text(hidden["voice1"], "EqualTo", "1", "voice1")], [s.flow_block("Attribution")], "Voicers: why the note was turned down"),
         s.flow_block("Batch 3"),
         s.flow_block("Workspace"),
         s.flow_block("Questionnaire"),

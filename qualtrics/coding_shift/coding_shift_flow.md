@@ -31,6 +31,33 @@ What differs from version 7:
    The industry question is only "Which industry do you work in?" (user decision 2026-11-24: only
    employed participants are recruited, so no sentence about a most recent job).
 
+8. **Attribution right after the reply** (user decision 2026-11-25, after the first 40 responses of
+   24 November): `REASON` (QID100, PR1 to PR5) and `Q107` (QID101, MR1 to MR3) sit in a block of their
+   own, "Attribution", in a branch for voicers (`h_voice1` = 1) between "New messages" and "Batch 3".
+   "Manipulation checks" keeps `MA` and `MC` only. The batch 3 card on the messages page ends "Click
+   Next to continue." Responses up to 24 November 2026 answered the attribution pages after the
+   questionnaire.
+9. **Rating and bonus on the batch 3 intro** (user requests 2026-11-25): `batch3_intro` (QID55) has
+   a second highlighted box, "Your reports and your note are reviewed and rated". It announces the
+   note at the end and says the supervisor will review what the coder sends in this batch, both the
+   reports and the note, and rate it from 1 to 5, and that a high rating earns a bonus of £0.50.
+   The first wording of the same day rated the note only; the user then asked that reporting count
+   as voice too. It is the one place in the survey that names an amount. Live text: 2629
+   characters, hash 826858756 (the live text keeps the editor's line breaks, so it differs from the
+   builder's output in whitespace only).
+
+10. **Batch 3 intro simplified** (user request 2026-11-26): `batch3_intro` (QID55) is now one opening
+    line and three numbered points: 1 the report button, 2 the review of all 21 comments and the
+    note at the end, 3 both count as suggestions to the supervisor, who reviews and rates them
+    from 1 to 5, with a bonus of £0.50 for a high rating. The rating reminder line is no longer on
+    this page. Live text equals the builder's output: 2631 characters, hash 2472433855.
+
+11. **Report line in the constructive replies** (user request 2026-11-26): in `server.js` the written
+    high-constructiveness rules tell the coder to report the count to the supervisor when they have
+    solid numbers (HP: inside the tentative invitation; LP: as the bare imperative). The
+    low-constructiveness replies never mention reporting. `writtenReportBackProblem` checks both and
+    asks for one rewrite. The two HC backup texts in `js_waiting.js` carry the same line.
+
 Notes for the next import:
 
 - The background questions were added in the live editor with "编辑多个", which gives the choices the
